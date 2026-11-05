@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StandardDiagrams.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="sd">(** * Standard graphs and diagrams.</span>
+
+<span class="sd">    Contents</span>
+<span class="sd">    1. Graphs</span>
+<span class="sd">    2. Diagram constructors</span>
+<span class="sd">    3. Cocone constructors</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">graphs</span>.
+  <span class="sd">(**</span>
+<span class="sd">   1. Graphs.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">empty_graph</span> : graph
+    := make_graph empty (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).
+
+  <span class="kn">Definition</span> <span class="nf">unit_graph</span> : graph
+    := make_graph unit (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).
+
+  <span class="c">(* The graph with two verticies, true and false, no edges. *)</span>
+  <span class="kn">Definition</span> <span class="nf">bool_graph</span> : graph
+    := make_graph bool (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).
+
+    <span class="c">(* The interval graph: true ---tt---&gt; false *)</span>
+  <span class="kn">Definition</span> <span class="nf">interval_graph</span> : graph.
+  <span class="kn">Proof</span>.
+    use make_graph.
+    - <span class="bp">exact</span> bool.
+    - <span class="nb">intros</span> a b.
+      <span class="nb">induction</span> a; <span class="nb">induction</span> b.
+      + <span class="bp">exact</span> empty.
+      + <span class="bp">exact</span> unit.             <span class="c">(* true --&gt; false *)</span>
+      + <span class="bp">exact</span> empty.
+      + <span class="bp">exact</span> empty.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* (● 1) &lt;------ (● 0) ------&gt; (● 2) *)</span>
+  <span class="kn">Definition</span> <span class="nf">span_graph</span> : graph.
+  <span class="kn">Proof</span>.
+    use make_graph.
+    - <span class="bp">exact</span> three.
+    - use three_rec.
+      + <span class="nb">apply</span> three_rec.
+        * <span class="bp">exact</span> empty.
+        * <span class="bp">exact</span> unit.
+        * <span class="bp">exact</span> unit.
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty).
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* X as verticies, no edges. *)</span>
+  <span class="kn">Definition</span> <span class="nf">discrete_graph</span> (<span class="nv">X</span> : UU) : graph
+    := make_graph X (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).
+
+
+  <span class="c">(* The graph with two verticies: (● 0) and (● 1),</span>
+<span class="c">     and X as edges from (● 0) to (● 1), no other edges.</span>
+
+<span class="c">     Input \mdlgblkcircle for ●, or use (stnpr 0) and (stnpr 1) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">parallell_graph</span> (<span class="nv">X</span> : UU) : graph.
+  <span class="kn">Proof</span>.
+    use make_graph.
+    - <span class="bp">exact</span> two.
+    - use two_rec_dep.
+      + <span class="bp">exact</span>(two_rec empty X).
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">parallell_start</span> {<span class="nv">X</span> : UU}
+    : vertex (parallell_graph X)
+    := (● <span class="mi">0</span>).
+
+  <span class="kn">Definition</span> <span class="nf">parallell_end</span> {<span class="nv">X</span> : UU}
+    : vertex (parallell_graph X)
+    := (● <span class="mi">1</span>).
+
+  <span class="kn">Definition</span> <span class="nf">parallell_edge</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">e</span> : X)
+    : @edge (parallell_graph X) parallell_start parallell_end
+    := e.
+
+  <span class="c">(* Two parallell edges, pair_left, pair_right : : pair_src --&gt; pair_end. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">pair_graph</span> : graph
+    := parallell_graph (unit ⨿ unit).
+
+  <span class="kn">Definition</span> <span class="nf">pair_src</span> : vertex pair_graph
+    := (● <span class="mi">0</span>).
+
+  <span class="kn">Definition</span> <span class="nf">pair_dst</span> : vertex pair_graph
+    := (● <span class="mi">1</span>).
+
+  <span class="kn">Definition</span> <span class="nf">pair_left</span> : @edge pair_graph pair_src pair_dst
+    := inl tt.
+
+  <span class="kn">Definition</span> <span class="nf">pair_right</span> : @edge pair_graph pair_src pair_dst
+    := inr tt.
+
+  <span class="c">(* Multi span: One base vertex (inr tt) and X verticies</span>
+<span class="c">     with one unique edge from the base each, no other edges. *)</span>
+  <span class="kn">Definition</span> <span class="nf">multispan_graph</span> (<span class="nv">X</span> : UU) : graph.
+  <span class="kn">Proof</span>.
+    use make_graph.
+    - <span class="bp">exact</span>(X ⨿ unit).          <span class="c">(* inr tt is the base point. *)</span>
+    - use coprod_rect.
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty).    <span class="c">(* No edges x --&gt; unit *)</span>
+      + <span class="nb">apply</span> unit_rect.
+        <span class="nb">apply</span> coprod_rect.
+        * <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, unit).     <span class="c">(* One edge unit --&gt; x *)</span>
+        * <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty).    <span class="c">(* No edge unit --&gt; unit *)</span>
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">multispan_vertex</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">x</span> : X)
+    : vertex (multispan_graph X)
+    := (inl x).
+
+  <span class="kn">Definition</span> <span class="nf">multispan_base</span> {<span class="nv">X</span> : UU}
+    : vertex (multispan_graph X)
+    := (inr tt).
+
+  <span class="kn">Definition</span> <span class="nf">multispan_edge</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">x</span> : X)
+    : edge multispan_base (multispan_vertex x)
+    := tt.
+
+<span class="kn">End</span> <span class="nf">graphs</span>.
+
+<span class="kn">Section</span> <span class="nf">diagrams</span>.
+  <span class="sd">(**</span>
+<span class="sd">   2. Diagram constructors.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">make_empty_diagram</span> {<span class="nv">C</span> : category}
+    : diagram empty_graph C
+    := make_diagram
+         (fromempty : vertex empty_graph -&gt; C)
+         (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, fromempty).
+
+  <span class="kn">Definition</span> <span class="nf">make_unit_diagram</span> {<span class="nv">C</span> : category}
+    (<span class="nv">point</span> : C)
+    : diagram unit_graph C.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(unit_rect _ point).
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_bool_diagram</span> {<span class="nv">C</span> : category}
+    (<span class="nv">a</span> <span class="nv">b</span> : C)
+    : diagram bool_graph C.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(bool_rect _ a b).
+    - <span class="nb">intros</span> *; <span class="bp">exact</span> fromempty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_interval_diagram</span> {<span class="nv">C</span> : category}
+    (<span class="nv">x</span> : C)
+    (<span class="nv">y</span> : C)
+    (<span class="nv">f</span> : x --&gt; y)
+    : diagram interval_graph C.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(bool_rect _ x y).
+    - <span class="nb">intros</span> a b; <span class="nb">destruct</span> a, b; <span class="kp">try</span> (<span class="bp">exact</span> fromempty).
+      <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> , f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_span_diagram</span> {<span class="nv">C</span> : category }
+    (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C)
+    (<span class="nv">f</span> : C ⟦a, b⟧)
+    (<span class="nv">g</span> : C⟦a, c⟧)
+    : diagram span_graph C.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(three_rec a b c).
+    - use three_rec_dep; use three_rec_dep; <span class="kp">try</span> <span class="bp">exact</span>(empty_rect _).
+      + <span class="bp">exact</span>(unit_rect _ f).
+      + <span class="bp">exact</span>(unit_rect _ g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_discrete_diagram</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    (<span class="nv">objects</span> : X -&gt; J)
+    : diagram (discrete_graph X) J.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span> objects.
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Given any diagram we can obtain a new diagram, forgetting the edges in the original graph. *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_discrete_diagram'</span> {<span class="nv">J</span> : category}
+    {<span class="nv">g</span> : graph}
+    (<span class="nv">d</span> : diagram g J)
+    : diagram (discrete_graph (vertex g)) J.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(dob d).
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_parallell_diagram</span> {<span class="nv">C</span> : category}
+    (<span class="nv">X</span> : UU)
+    (<span class="nv">x</span> <span class="nv">y</span> : C)
+    (<span class="nv">f</span> : ∏ (t : X), x --&gt; y)
+    : diagram (parallell_graph X) C.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(two_rec x y).
+    - use two_rec_dep.
+      + use(two_rec_dep _ (empty_rect _) f).
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_pair_diagram</span> {<span class="nv">C</span> : category}
+    (<span class="nv">a</span> <span class="nv">b</span> : C)
+    (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b)
+    : diagram pair_graph C.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span>(make_parallell_diagram (unit ⨿ unit) a b).
+    <span class="bp">exact</span>(sumofmaps (<span class="k">λ</span> <span class="nv">_</span>, f) (<span class="k">λ</span> <span class="nv">_</span>, g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_multispan_diagram</span> {<span class="nv">J</span> : category}
+    (<span class="nv">X</span> : UU)
+    (<span class="nv">base</span> : J)
+    (<span class="nv">endpoint</span> : ∏ (x : X), J)
+    (<span class="nv">morphism</span> : ∏ (x : X), J⟦ base, endpoint x ⟧)
+    : diagram (multispan_graph X) J.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span>(sumofmaps endpoint (<span class="k">λ</span> <span class="nv">_</span>, base)).
+    - use coprod_rect.
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+      + <span class="nb">apply</span> unit_rect.
+        use coprod_rect.
+        * <span class="bp">exact</span>(<span class="k">λ</span> (<span class="nv">a</span> : X) (<span class="nv">_</span> : unit), morphism a).
+        * <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">diagrams</span>.
+
+<span class="kn">Section</span> <span class="nf">cocones</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Constructors of cocones.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_empty_cocone</span> {<span class="nv">J</span> : category}
+    (<span class="nv">d</span> : diagram empty_graph J)
+    (<span class="nv">j</span> : J)
+    : cocone d j.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="bp">exact</span>(empty_rect _).
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_discrete_cocone</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    (<span class="nv">d</span> : diagram (discrete_graph X) J)
+    (<span class="nv">z</span> : J)
+    (<span class="nv">f</span> : ∏ (x : X), J⟦dob d x, z⟧)
+    : cocone d z.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_parallell_cocone</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    (<span class="nv">d</span> : diagram (parallell_graph X) J)
+    (<span class="nv">z</span> : J)
+    (<span class="nv">in₀</span> : dob d (stnpr <span class="mi">0</span>) --&gt; z)
+    (<span class="nv">in₁</span> : dob d (stnpr <span class="mi">1</span>) --&gt; z)
+    (<span class="nv">commutes</span> : ∏ (x : X), dmor d (x : @edge (parallell_graph X) (stnpr <span class="mi">0</span>) (stnpr <span class="mi">1</span>)) · in₁ = in₀)
+    : cocone d z.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="bp">exact</span>(two_rec_dep _ in₀ in₁).
+    - <span class="kp">abstract</span>(use(two_rec_dep _ (two_rec_dep _ (empty_rect _) commutes)); <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty_rect _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">parallell_cocone_commutes</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    {<span class="nv">d</span> : diagram (parallell_graph X) J}
+    {<span class="nv">j</span> : J}
+    (<span class="nv">cc</span> : cocone d j)
+    (<span class="nv">x</span> : X)
+    : dmor d (parallell_edge x) · coconeIn cc parallell_end = coconeIn cc parallell_start.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(coconeInCommutes cc parallell_start parallell_end (parallell_edge x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_pair_cocone</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    (<span class="nv">d</span> : diagram pair_graph J)
+    (<span class="nv">j</span> : J)
+    (<span class="nv">src_in</span> : J⟦dob d pair_src, j⟧)
+    (<span class="nv">dst_in</span> : J⟦dob d pair_dst, j⟧)
+    (<span class="nv">com_left</span> : dmor d pair_left · dst_in = src_in)
+    (<span class="nv">com_right</span> : dmor d pair_right · dst_in = src_in)
+    : cocone d j.
+  <span class="kn">Proof</span>.
+    use make_parallell_cocone.
+    - <span class="bp">exact</span> src_in.
+    - <span class="bp">exact</span> dst_in.
+    - <span class="kp">abstract</span>(use coprod_rect; <span class="nb">apply</span> unit_rect; <span class="bp">assumption</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pair_cocone_commutes</span> {<span class="nv">J</span> : category}
+    {<span class="nv">d</span> : diagram pair_graph J}
+    {<span class="nv">j</span> : J}
+    (<span class="nv">cc</span> : cocone d j)
+    (<span class="nv">e</span> : edge pair_src pair_dst)
+    : dmor d e · coconeIn cc pair_dst = coconeIn cc pair_src.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(coconeInCommutes cc pair_src pair_dst e).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_multispan_cocone</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    (<span class="nv">d</span> : diagram (multispan_graph X) J)
+    (<span class="nv">apex</span> : J)
+    (<span class="nv">base_inject</span> : J⟦ dob d multispan_base, apex ⟧)
+    (<span class="nv">inject</span> : ∏ (x : X), J⟦ dob d (multispan_vertex x), apex ⟧)
+    (<span class="nv">commutes</span> : ∏ (x : X), dmor d (multispan_edge x) · inject x = base_inject)
+    : cocone d apex.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - <span class="nb">apply</span> coprod_rect.
+      + <span class="bp">exact</span> inject.
+      + <span class="nb">apply</span> unit_rect.
+        <span class="bp">exact</span> base_inject.
+    - <span class="kp">abstract</span>(use coprod_rect; [<span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, empty_rect _) | use unit_rect ];
+               use coprod_rect; <span class="nb">cbn</span>; [<span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">a</span>, unit_rect _ (commutes a))
+                                       |<span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span>, empty_rect _)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">multispan_cocone_commutes</span> {<span class="nv">J</span> : category} {<span class="nv">X</span> : UU}
+    {<span class="nv">d</span> : diagram (multispan_graph X) J}
+    {<span class="nv">apex</span> : J}
+    (<span class="nv">cc</span> : cocone d apex)
+    (<span class="nv">z</span> : X)
+    : (dmor d (multispan_edge z)) · coconeIn cc (multispan_vertex z) =  coconeIn cc multispan_base.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(coconeInCommutes cc multispan_base (multispan_vertex z) tt).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">cocones</span>.
+
+<span class="kn">Section</span> <span class="nf">finite</span>.
+  <span class="kn">Definition</span> <span class="nf">is_finite_graph</span> (<span class="nv">g</span> : graph) : UU
+    := isfinite (vertex g)
+         × ∏ (a b : vertex g), isfinite (edge a b).
+
+  <span class="kn">Definition</span> <span class="nf">finite_vertexset</span> {<span class="nv">g</span> : graph} (<span class="nv">gfinite</span> : is_finite_graph g)
+    : isfinite (vertex g)
+    := pr1 gfinite.
+
+  <span class="kn">Definition</span> <span class="nf">finite_edgeset</span> {<span class="nv">g</span> : graph} (<span class="nv">gfinite</span> : is_finite_graph g)
+    : ∏ (a b : vertex g), isfinite (edge a b)
+    := pr2 gfinite.
+
+  <span class="c">(* Proofs that some of the above graphs are finite. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_finite_graph_empty</span>
+    : is_finite_graph empty_graph.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> isfiniteempty.
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, isfiniteempty).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_finite_graph_unit</span>
+    : is_finite_graph unit_graph.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> isfiniteunit.
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, isfiniteempty).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_finite_graph_bool</span>
+    : is_finite_graph bool_graph.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> isfinitebool.
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, isfiniteempty).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_finite_graph_pair</span>
+    : is_finite_graph pair_graph.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span>(isfinitestn <span class="mi">2</span>).
+    - use two_rec_dep; use two_rec_dep; <span class="kp">try</span> <span class="bp">exact</span> isfiniteempty.
+      <span class="nb">apply</span> isfinitecoprod; <span class="nb">apply</span> isfiniteunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_finite_graph_interval</span>
+    : is_finite_graph interval_graph.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> isfinitebool.
+    - use bool_rect; use bool_rect; <span class="kp">try</span> <span class="bp">exact</span> isfiniteempty.
+      <span class="bp">exact</span> isfiniteunit.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">finite</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/StandardDiagrams.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

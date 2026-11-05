@@ -1,0 +1,1400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Strictify.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** The inclusion of pseudofunctors into strict pseudofunctors for locally univalent</span>
+<span class="sd">bicategories</span>
+<span class="sd"> ********************************************************************************* *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictIdentitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictCompositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Import</span> StrictPseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Opaque</span> psfunctor pstrans.
+<span class="kn">Opaque</span> strict_psfunctor.
+
+<span class="kn">Section</span> <span class="nf">Strictify</span>.
+  <span class="kn">Variable</span> (<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat)
+           (<span class="nv">HB₂_2_1</span> : is_univalent_2_1 B₂).
+
+  <span class="kn">Local</span> <span class="kn">Arguments</span> idtoiso_2_1 {_} {_} {_} {_} {_} _.
+  <span class="kn">Local</span> <span class="kn">Arguments</span> isotoid_2_1 {_} _ {_} {_} {_} {_} _.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_ob_data</span>
+    : psfunctor B₁ B₂ → strict_psfunctor_data B₁ B₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F.
+    use make_strict_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, F X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, #F f).
+    - <span class="nb">intros</span> a b f g α ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (psfunctor_on_cells F α).
+    - <span class="nb">intro</span> a ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (isotoid_2_1 HB₂_2_1 (psfunctor_id F a)).
+    - <span class="nb">intros</span> a b c f g; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (isotoid_2_1 HB₂_2_1 (psfunctor_comp F f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_ob_is_strict_psfunctor</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_strict_psfunctor (strictify_ob_data F).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> F)
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+      <span class="nb">unfold</span> StrictPseudoFunctorBicat.strict_psfunctor_id_cell,
+      StrictPseudoFunctorBicat.strict_psfunctor_comp_cell ;
+      <span class="nb">cbn</span> ;
+      <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1 ;
+      <span class="nb">apply</span> F.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_ob</span>
+    : psfunctor B₁ B₂ → strict_psfunctor_bicat B₁ B₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F.
+    use make_strict_psfunctor.
+    - <span class="bp">exact</span> (strictify_ob_data F).
+    - <span class="bp">exact</span> (strictify_ob_is_strict_psfunctor F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_mor_data</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_bicat B₁ B₂)
+             (<span class="nv">η</span> : pstrans F G)
+    : strict_pstrans_data (strictify_ob F) (strictify_ob G).
+  <span class="kn">Proof</span>.
+    use tpair ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, η X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, psnaturality_of η f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_mor_is_strict_pstrans</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_bicat B₁ B₂)
+             (<span class="nv">η</span> : pstrans F G)
+    : is_strict_pstrans (strictify_mor_data F G η).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (psnaturality_natural η).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>
+      ; <span class="nb">unfold</span> strict_psfunctor_id_cell, strict_psfunctor_comp_cell ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> (pstrans_id η).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>
+      ; <span class="nb">unfold</span> strict_psfunctor_id_cell, strict_psfunctor_comp_cell
+      ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> (pstrans_comp η).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_mor</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_bicat B₁ B₂)
+    : pstrans F G → strictify_ob F --&gt; strictify_ob G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> η.
+    use make_strict_pstrans.
+    - <span class="bp">exact</span> (strictify_mor_data F G η).
+    - <span class="bp">exact</span> (strictify_mor_is_strict_pstrans F G η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_cell</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor_bicat B₁ B₂)
+             (<span class="nv">η₁</span> <span class="nv">η₂</span> : pstrans F G)
+    : modification η₁ η₂
+      →
+      (strictify_mor _ _ η₁ ==&gt; strictify_mor _ _ η₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m.
+    use make_strict_modification.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, m X).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ;
+                <span class="bp">exact</span> (modnaturality_of m _ _ f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_identitor_help</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_strict_modification (<span class="k">λ</span> <span class="nv">X</span> : B₁, id₂ ((pr111 (id₁ (strictify_ob F))) X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_identitor</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : (id₁ (strictify_ob F))
+      ==&gt;
+        strictify_mor F F (id₁ F).
+  <span class="kn">Proof</span>.
+    use make_strict_modification.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₂ _).
+    - <span class="bp">exact</span> (strictify_identitor_help F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_compositor_help</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : psfunctor B₁ B₂)
+             (<span class="nv">η₁</span> : F₁ --&gt; F₂)
+             (<span class="nv">η₂</span> : F₂ --&gt; F₃)
+    : is_strict_modification
+        (<span class="k">λ</span> <span class="nv">X</span> : B₁, id₂ ((pr111 (strictify_mor F₁ F₂ η₁ · strictify_mor F₂ F₃ η₂)) X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_compositor</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : psfunctor B₁ B₂)
+             (<span class="nv">η₁</span> : F₁ --&gt; F₂)
+             (<span class="nv">η₂</span> : F₂ --&gt; F₃)
+    : (strictify_mor _ _ η₁)
+        · strictify_mor _ _ η₂
+        ==&gt;
+        strictify_mor _ _ (η₁ · η₂).
+  <span class="kn">Proof</span>.
+    use make_strict_modification.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₂ _).
+    - <span class="bp">exact</span> (strictify_compositor_help F₁ F₂ F₃ η₁ η₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_data</span>
+    : psfunctor_data (psfunctor_bicat B₁ B₂) (strict_psfunctor_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> strictify_ob.
+    - <span class="bp">exact</span> strictify_mor.
+    - <span class="bp">exact</span> strictify_cell.
+    - <span class="bp">exact</span> strictify_identitor.
+    - <span class="bp">exact</span> strictify_compositor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_laws</span>
+    : psfunctor_laws strictify_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, (_ ,, (_ ,, (_ ,, (_ ,, (_ ,, _))))))
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use strict_modification_eq ; <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (idpath _).
+    - <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_rwhisker, !id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, !id2_right, id2_left.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="bp">exact</span> (idpath _).
+    - <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="bp">exact</span> (idpath _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_invertible_2cells</span>
+    : invertible_cells strictify_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> make_is_invertible_strict_modification
+    ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; is_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify</span>
+    : psfunctor (psfunctor_bicat B₁ B₂) (strict_psfunctor_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> strictify_data.
+    - <span class="bp">exact</span> strictify_laws.
+    - <span class="bp">exact</span> strictify_invertible_2cells.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_comp_comp</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans_data (strict_psfunctor_to_psfunctor_map B₁ B₂ (strictify_ob F)) F.
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₁ (F X)).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, make_invertible_2cell _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (lunitor (# F f) • rinvunitor (# F f)).
+      + is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_comp_is_pstrans</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_pstrans (strictify_counit_comp_comp F).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y f g α ; <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X ; <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> strict_psfunctor_id_cell, strict_psfunctor_id.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y Z f g ; <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lunitor_triangle.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> strict_psfunctor_comp_cell, strict_psfunctor_comp.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_comp</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans (strict_psfunctor_to_psfunctor_map B₁ B₂ (strictify_ob F)) F.
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> (strictify_counit_comp_comp F).
+    - <span class="bp">exact</span> (strictify_counit_comp_is_pstrans F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_counit_data_help</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : psfunctor B₁ B₂)
+             (<span class="nv">α</span> : pstrans F G)
+             (<span class="nv">X</span> <span class="nv">Y</span> : B₁)
+             (<span class="nv">f</span> : X --&gt; Y)
+    : (rassociator (id₁ (F X)) ((pr111 α) X) (#G f))
+        • (id₁ (F X) ◃ (psnaturality_of α f))
+        • (lassociator (id₁ (F X)) (#F f) (α Y))
+        • (((lunitor (# F f) • rinvunitor (# F f)) ▹ α Y))
+        • (rassociator (# F f) (id₁ (F Y)) (α Y))
+        • (# F f ◃ (lunitor (α Y) • rinvunitor (α Y)))
+      =
+      ((lunitor ((pr111 α) X) • rinvunitor (α X)) ▹ # G f)
+        • (rassociator (α X) (id₁ (G X)) (# G f))
+        • ((α X ◃ (lunitor (# G f) • rinvunitor (# G f))))
+        • (lassociator (α X) (# G f) (id₁ (G Y)))
+        • ((psnaturality_of α f ▹ id₁ (G Y)))
+        • rassociator (# F f) (α Y) (id₁ (G Y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp, &lt;- lwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !vassocl.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- rinvunitor_natural.
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">rewrite</span> &lt;- left_unit_inv_assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor, lwhisker_id2, id2_right.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rassociator_lassociator.
+    <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_data</span>
+    : pstrans_data
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
+        (id_psfunctor (psfunctor_bicat B₁ B₂)).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> strictify_counit_comp.
+    - <span class="nb">intros</span> F G α.
+      use make_invertible_modification.
+      + <span class="nb">intros</span> Z ; <span class="nb">cbn</span>.
+        use make_invertible_2cell.
+        * <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strict_counit_data_help).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_is_pstrans_help₁</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂)
+             (<span class="nv">α</span> <span class="nv">β</span> : pstrans F₁ F₂)
+             (<span class="nv">m</span> : modification α β)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ (F₁ X) ◃ (pr111 m) X) • (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X)) =
+      (lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) • (m X ▹ id₁ (F₂ X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_is_pstrans_help₂</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ (F X) ◃ id₂ (id₁ ((pr111 F) X)))
+        • (lunitor (id₁ ((pr111 F) X)) • rinvunitor (id₁ ((pr111 F) X)))
+      =
+      (runitor (id₁ (F X)) • linvunitor (id₁ (F X)))
+        • ((pr111 (pr1 (psfunctor_id
+                  (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) F)) X)
+             ▹ id₁ (F X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">refine</span> (!(id2_right _) @ _).
+    <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- id2_rwhisker.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_is_pstrans_help₃</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : psfunctor B₁ B₂)
+             (<span class="nv">α</span> : pstrans F₁ F₂)
+             (<span class="nv">β</span> : pstrans F₂ F₃)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ (F₁ X) ◃ id₂ ((pr111 α) X · (pr111 β) X))
+        • (lunitor ((pr111 α) X · (pr111 β) X) • rinvunitor ((pr111 α) X · (pr111 β) X))
+      =
+      ((((lassociator (id₁ (F₁ X)) ((pr111 α) X) ((pr111 β) X)
+           • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
+           • rassociator
+               ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X)
+               (id₁ (F₂ X))
+               ((pr111 β) X))
+          • ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α)) X
+            ◃ (lunitor ((pr111 β) X)
+         • rinvunitor ((pr111 β) X))))
+         • lassociator
+             ((pr111
+                 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) α))
+                      X)
+                 ((pr111 (# (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify) β))
+                      X)
+             (id₁ (F₃ X)))
+        • ((pr111 ((pr222 (pr1 (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)))
+                     F₁ F₂ F₃ α β)) X ▹ id₁ (F₃ X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+    <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_triangle.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">refine</span> (!(id2_left _) @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> rinvunitor_runitor, id2_rwhisker.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Opaque</span> comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_is_pstrans</span>
+    : is_pstrans strictify_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> F₁ F₂ α β m.
+      <span class="nb">rewrite</span> (comp_psfunctor_cell (strict_psfunctor_to_psfunctor B₁ B₂) strictify m).
+      <span class="nb">assert</span> (psfunctor_on_cells (strict_psfunctor_to_psfunctor B₁ B₂) (psfunctor_on_cells strictify m)
+              =
+              strict_psfunctor_cell_to_modification _ _ _ _ _ _ (strictify_cell _ _ _ _ m))
+        <span class="k">as</span> p.
+      {
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> p.
+      use modification_eq.
+      <span class="bp">exact</span> (strictify_counit_is_pstrans_help₁ F₁ F₂ α β m).
+    - <span class="nb">intros</span> F.
+      use modification_eq.
+      <span class="bp">exact</span> (strictify_counit_is_pstrans_help₂ F).
+    - <span class="nb">intros</span> F₁ F₂ F₃ α β.
+      use modification_eq.
+      <span class="bp">exact</span> (strictify_counit_is_pstrans_help₃ F₁ F₂ F₃ α β).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit</span>
+    : pstrans
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify)
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> strictify_counit_data.
+    - <span class="bp">exact</span> strictify_counit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv_data_comp</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : pstrans_data F (strict_psfunctor_to_psfunctor_map B₁ B₂ (strictify_ob F)).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₁ (F X)).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span>, make_invertible_2cell _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (lunitor (# F f) • rinvunitor (# F f)).
+      + is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv_data_is_pstrans</span>
+             (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : is_pstrans (strictify_counit_inv_data_comp F).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y f g α ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> vassocl.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> strict_psfunctor_id_cell, strict_psfunctor_id.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y Z f g ; <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_natural.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lunitor_triangle.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> strict_psfunctor_comp_cell, strict_psfunctor_comp.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv_data</span>
+    : pstrans_data
+        (id_psfunctor (psfunctor_bicat B₁ B₂))
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">intro</span> F.
+      use make_pstrans.
+      + <span class="bp">exact</span> (strictify_counit_inv_data_comp F).
+      + <span class="bp">exact</span> (strictify_counit_inv_data_is_pstrans F).
+    - <span class="nb">intros</span> F₁ F₂ α.
+      use make_invertible_modification.
+      + <span class="nb">intros</span> X.
+        use make_invertible_2cell ; <span class="nb">cbn</span>.
+        * <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strict_counit_data_help).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv_is_pstrans</span>
+    : is_pstrans strictify_counit_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> F₁ F₂ α β m.
+      use modification_eq.
+      <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> F.
+      use modification_eq.
+      <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, lwhisker_id2, id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> F₁ F₂ F₃ α β.
+      use modification_eq.
+      <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, lwhisker_id2, id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">refine</span> (!(id2_left _) @ _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv</span>
+    : pstrans
+        (id_psfunctor _)
+        (comp_psfunctor (strict_psfunctor_to_psfunctor B₁ B₂) strictify).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> strictify_counit_inv_data.
+    - <span class="bp">exact</span> strictify_counit_inv_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">modifications_help</span>
+        (<span class="nv">F</span> : functor_data B₁ B₂)
+        (<span class="nv">X</span> <span class="nv">Y</span> : B₁)
+        (<span class="nv">f</span> : X --&gt; Y)
+    : (rassociator (id₁ (F X)) (id₁ (F X)) (#F f))
+        • (id₁ (F X) ◃ (lunitor (# F f) • rinvunitor (# F f)))
+        • lassociator (id₁ (F X)) (# F f) (id₁ (F Y))
+        • ((lunitor (# F f) • rinvunitor (# F f)) ▹ id₁ (F Y))
+        • rassociator (#F f) (id₁ (F Y)) (id₁ (F Y))
+        • (# F f ◃ lunitor (id₁ (F Y)))
+      =
+      (lunitor (id₁ (F X)) ▹ # F f)
+        • lunitor (#F f)
+        • rinvunitor (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rinvunitor_triangle.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_runitor, id2_right.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modification_help_alt</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> : functor_data B₁ B₂)
+             (<span class="nv">α</span> : nat_trans_data F₁ F₂)
+             (<span class="nv">X</span> : B₁)
+    : (rassociator (id₁ (F₁ X)) (id₁ (F₁ X)) (α X))
+        • (id₁ (F₁ X) ◃ (lunitor (α X) • rinvunitor (α X)))
+        • lassociator (id₁ (F₁ X)) (α X) (id₁ (F₂ X))
+        • ((lunitor (α X) • rinvunitor (α X)) ▹ id₁ (F₂ X))
+        • rassociator (α X) (id₁ (F₂ X)) (id₁ (F₂ X))
+        • (α X ◃ lunitor (id₁ (F₂ X)))
+      =
+      (lunitor (id₁ (F₁ X)) ▹ α X)
+        • lunitor (α X)
+        • rinvunitor (α X).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_runitor, id2_right.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> rinvunitor_natural, &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_triangle.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">psfunctor_to_functor_data</span>
+        (<span class="nv">F</span> : psfunctor B₁ B₂)
+    : functor_data B₁ B₂.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, F X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, #F f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">strict_psfunctor_to_functor_data</span>
+        (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+    : functor_data B₁ B₂.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, F X).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, #F f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">pstrans_to_nattrans_data</span>
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+        (<span class="nv">α</span> : pstrans F₁ F₂)
+    : nat_trans_data
+        (psfunctor_to_functor_data F₁)
+        (psfunctor_to_functor_data F₂)
+    := <span class="k">λ</span> <span class="nv">X</span>, α X.
+
+  <span class="kn">Local Definition</span> <span class="nf">strict_pstrans_to_nattrans_data</span>
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : strict_psfunctor_bicat B₁ B₂}
+        (<span class="nv">α</span> : F₁ --&gt; F₂)
+    : nat_trans_data
+        (strict_psfunctor_to_functor_data F₁)
+        (strict_psfunctor_to_functor_data F₂)
+    := <span class="k">λ</span> <span class="nv">X</span>, pr111 α X.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_inv_strictify_counit</span>
+    : invertible_modification
+        (comp_pstrans
+           strictify_counit_inv
+           strictify_counit)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="nb">intros</span> F.
+      use make_invertible_modification.
+      + <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+        use make_invertible_2cell.
+        * <span class="bp">exact</span> (lunitor (id₁ _)).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> (modifications_help (psfunctor_to_functor_data F) X Y f)).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> F₁ F₂ α ;
+                <span class="nb">apply</span> modification_eq ;
+                <span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="nb">apply</span> (modification_help_alt
+                         (psfunctor_to_functor_data F₁)
+                         (psfunctor_to_functor_data F₂)
+                         (pstrans_to_nattrans_data α))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_counit_strictify_counit_inv</span>
+    : invertible_modification
+        (comp_pstrans
+           strictify_counit
+           strictify_counit_inv)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="nb">intros</span> F.
+      use make_invertible_modification.
+      + <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+        use make_invertible_2cell.
+        * <span class="bp">exact</span> (lunitor (id₁ _)).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> (modifications_help (psfunctor_to_functor_data F) X Y f)).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> F₁ F₂ α ;
+                <span class="nb">apply</span> modification_eq ;
+                <span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="nb">apply</span> (modification_help_alt
+                         (psfunctor_to_functor_data F₁)
+                         (psfunctor_to_functor_data F₂)
+                         (pstrans_to_nattrans_data α))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_data_help1</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+             (<span class="nv">X</span> <span class="nv">Y</span> : B₁)
+             (<span class="nv">f</span> <span class="nv">g</span> : B₁ ⟦ X, Y ⟧)
+             (<span class="nv">α</span> : f ==&gt; g)
+    : (id₁ (F X) ◃ ## F α)
+        • lunitor (# F g)
+        • rinvunitor (# F g)
+      =
+      (lunitor (# F f) • rinvunitor (# F f))
+        • (##F α ▹ id₁ ((pr111 F) Y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_data_help2</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ (F X) ◃ psfunctor_id (strict_psfunctor_to_psfunctor_map B₁ B₂ F) X)
+        • lunitor (# F (id₁ X))
+        • rinvunitor (# F (id₁ X))
+      =
+      (runitor (id₁ (F X)) • linvunitor (id₁ (F X)))
+        • (idtoiso_2_1 (strict_psfunctor_id F X) ▹ id₁ (F X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">rewrite</span> lunitor_runitor_identity.
+    <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_data_help3</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : B₁)
+             (<span class="nv">f</span> : X --&gt; Y)
+             (<span class="nv">g</span> : Y --&gt; Z)
+    : ((id₁ ((pr111 F) X) ◃ psfunctor_comp (strict_psfunctor_to_psfunctor_map B₁ B₂ F) f g)
+         • lunitor (# F (f · g))) • rinvunitor (# F (f · g))
+      =
+      (lassociator (id₁ ((pr111 F) X)) (# F f) (# F g))
+        • ((lunitor (# F f) • rinvunitor (# F f)) ▹ # F g)
+        • rassociator (#F f) (id₁ (F Y)) (# F g)
+        • (# F f ◃ (lunitor (# F g) • rinvunitor (# F g)))
+        • lassociator (#F f) (#F g) (id₁ ((pr111 F) Z))
+        • (idtoiso_2_1 ((pr222 (pr1 F)) X Y Z f g) ▹ id₁ ((pr111 F) Z)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+    <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+    <span class="nb">rewrite</span> lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+    <span class="nb">rewrite</span> rinvunitor_triangle.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_data_help4</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> : strict_psfunctor B₁ B₂)
+             (<span class="nv">α</span> : strict_psfunctor_bicat B₁ B₂ ⟦ F₁ , F₂ ⟧)
+             (<span class="nv">X</span> <span class="nv">Y</span> : B₁)
+             (<span class="nv">f</span> : X --&gt; Y)
+    : (rassociator (id₁ ((pr111 F₁) X)) ((pr111 α) X) (# F₂ f))
+        • (id₁ ((pr111 F₁) X) ◃ (pr211 α) X Y f)
+        • lassociator (id₁ (F₁ X)) (# F₁ f) ((pr111 α) Y)
+        • ((lunitor (# F₁ f) • rinvunitor (# F₁ f)) ▹ (pr111 α) Y)
+        • rassociator (#F₁ f) (id₁ (F₁ Y)) ((pr111 α) Y)
+        • (# F₁ f ◃ (lunitor ((pr111 α) Y) • rinvunitor ((pr111 α) Y)))
+      =
+      ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ # F₂ f)
+        • rassociator ((pr111 α) X) (id₁ (F₂ X)) (# F₂ f)
+        • ((pr111 α) X ◃ (lunitor (# F₂ f) • rinvunitor (# F₂ f)))
+        • lassociator ((pr111 α) X) ((pr211 F₂) X Y f) (id₁ (F₂ Y))
+        • ((pr211 α) X Y f ▹ id₁ ((pr111 F₂) Y))
+        • rassociator (#F₁ f) ((pr111 α) Y) (id₁ (F₂ Y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+            <span class="nb">rewrite</span> !vassocl.
+            <span class="nb">rewrite</span> !rwhisker_hcomp.
+            <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+            <span class="nb">rewrite</span> &lt;- rwhisker_hcomp, &lt;- lwhisker_hcomp.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rinvunitor_triangle.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- left_unit_inv_assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_runitor, id2_right.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    use vcomp_move_R_pM.
+    { is_iso. }
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_data</span>
+    : pstrans_data
+        (id_psfunctor (strict_psfunctor_bicat B₁ B₂))
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">intros</span> F.
+      <span class="nb">simple refine</span> (((_ ,, _)  ,, (_ ,, _ ,, _)) ,, tt).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₁ (pr111 F X)).
+      + <span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>.
+        use make_invertible_2cell.
+        * <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f g α ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help1).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help2).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help3).
+    - <span class="nb">intros</span> F₁ F₂ α.
+      use make_invertible_2cell.
+      + use make_strict_modification.
+        * <span class="nb">intros</span> Z ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                    <span class="nb">rewrite</span> !vassocr ;
+                    <span class="nb">apply</span> strictify_unit_data_help4).
+      + use make_is_invertible_strict_modification.
+        <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_is_pstrans</span>
+    : is_pstrans strictify_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> F₁ F₂ α β m.
+      use strict_modification_eq.
+      <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> F.
+      use strict_modification_eq.
+      <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, lwhisker_id2, id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> F₁ F₂ F₃ α β.
+      use strict_modification_eq.
+      <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, lwhisker_id2, id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">refine</span> (!(id2_left _) @ _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit</span>
+    : pstrans
+        (id_psfunctor _)
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> strictify_unit_data.
+    - <span class="bp">exact</span> strictify_unit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_inv_data</span>
+    : pstrans_data
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂))
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">intros</span> F.
+      <span class="nb">simple refine</span> (((_ ,, _)  ,, (_ ,, _ ,, _)) ,, tt).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, id₁ (pr111 F X)).
+      + <span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>.
+        use make_invertible_2cell.
+        * <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * is_iso.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f g α ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help1).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help2).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span> ;
+                  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ;
+                  <span class="nb">rewrite</span> !vassocr ;
+                  <span class="nb">apply</span> strictify_unit_data_help3).
+    - <span class="nb">intros</span> F₁ F₂ α.
+      use make_invertible_2cell.
+      + use make_strict_modification.
+        * <span class="nb">intros</span> Z ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span> (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+                    <span class="nb">rewrite</span> !vassocr ;
+                    <span class="nb">apply</span> strictify_unit_data_help4).
+      + use make_is_invertible_strict_modification.
+        <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_is_pstrans_help₁</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> : strict_psfunctor_bicat B₁ B₂)
+             (<span class="nv">α</span> <span class="nv">β</span> : F₁ --&gt; F₂)
+             (<span class="nv">m</span> : α ==&gt; β)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ (pr111 F₁ X) ◃ (pr111 m) X)
+        • (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X))
+      =
+      (lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) • (pr111 m X ▹ id₁ (pr111 F₂ X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_is_pstrans_help₂</span>
+             (<span class="nv">F</span> : strict_psfunctor B₁ B₂)
+             (<span class="nv">X</span> : B₁)
+    :  (id₁ ((pr111 F) X) ◃ id₂ (id₁ ((pr111 F) X)))
+         • (lunitor (id₁ ((pr111 F) X)) • rinvunitor (id₁ ((pr111 F) X)))
+       =
+       (runitor (id₁ ((pr111 F) X)) • linvunitor (id₁ ((pr111 F) X)))
+         • ((pr111 ((pr122 (pr1
+                              (comp_psfunctor strictify
+                                       (strict_psfunctor_to_psfunctor B₁ B₂)))) F)) X
+                                                                                                ▹ id₁ ((pr111 F) X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">refine</span> (!(id2_right _) @ _).
+    <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- id2_rwhisker.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_is_pstrans_help₃</span>
+             (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : strict_psfunctor_bicat B₁ B₂)
+             (<span class="nv">α</span> : F₁ --&gt; F₂)
+             (<span class="nv">β</span> : F₂ --&gt; F₃)
+             (<span class="nv">X</span> : B₁)
+    : (id₁ ((pr111 F₁) X) ◃ id₂ ((pr111 α) X · (pr111 β) X))
+        • (lunitor ((pr111 α) X · (pr111 β) X) • rinvunitor ((pr111 α) X · (pr111 β) X))
+      =
+      ((((lassociator (id₁ ((pr111 F₁) X)) ((pr111 α) X) ((pr111 β) X)
+           • ((lunitor ((pr111 α) X) • rinvunitor ((pr111 α) X)) ▹ (pr111 β) X))
+           • rassociator
+               ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+               (id₁ ((pr111 F₂) X))
+               ((pr111 β) X))
+          • ((pr111 (# (comp_psfunctor
+                          strictify
+                          (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X
+               ◃ (lunitor ((pr111 β) X) • rinvunitor ((pr111 β) X))))
+         • lassociator
+             ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) α)) X)
+             ((pr111 (# (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂)) β)) X)
+             (id₁ ((pr111 F₃) X)))
+        • ((pr111 ((pr222 (pr1 (comp_psfunctor
+                                  strictify
+                                  (strict_psfunctor_to_psfunctor B₁ B₂)))) F₁ F₂ F₃ α
+                                  β)) X ▹ id₁ ((pr111 F₃) X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+    <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_triangle.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">refine</span> (!(id2_left _) @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> rinvunitor_runitor, id2_rwhisker.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Opaque</span> comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_inv_is_pstrans</span>
+    : is_pstrans strictify_unit_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> F₁ F₂ α β m.
+      use strict_modification_eq.
+      <span class="bp">exact</span> (strictify_unit_is_pstrans_help₁ F₁ F₂ α β m).
+    - <span class="nb">intros</span> F.
+      use strict_modification_eq.
+      <span class="bp">exact</span> (strictify_unit_is_pstrans_help₂ F).
+    - <span class="nb">intros</span> F₁ F₂ F₃ α β.
+      use strict_modification_eq.
+      <span class="bp">exact</span> (strictify_unit_is_pstrans_help₃ F₁ F₂ F₃ α β).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_inv</span>
+    : pstrans
+        (comp_psfunctor strictify (strict_psfunctor_to_psfunctor B₁ B₂))
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> strictify_unit_inv_data.
+    - <span class="bp">exact</span> strictify_unit_inv_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_strictify_unit_inv</span>
+    : invertible_modification
+        (comp_pstrans
+           strictify_unit
+           strictify_unit_inv)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="nb">intros</span> F.
+      use make_invertible_2cell.
+      + use make_strict_modification.
+        * <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor (id₁ _)).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> (modifications_help (strict_psfunctor_to_functor_data F) X Y f)).
+      + use make_is_invertible_strict_modification.
+        <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+        is_iso.
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> F₁ F₂ α ;
+                <span class="nb">apply</span> strict_modification_eq ;
+                <span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="nb">apply</span> (modification_help_alt
+                         (strict_psfunctor_to_functor_data F₁)
+                         (strict_psfunctor_to_functor_data F₂)
+                         (strict_pstrans_to_nattrans_data α))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strictify_unit_inv_strictify_unit</span>
+    : invertible_modification
+        (comp_pstrans
+           strictify_unit_inv
+           strictify_unit)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="nb">intros</span> F.
+      use make_invertible_2cell.
+      + use make_strict_modification.
+        * <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor (id₁ _)).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> X Y f ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> (modifications_help (strict_psfunctor_to_functor_data F) X Y f)).
+      + use make_is_invertible_strict_modification.
+        <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+        is_iso.
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> F₁ F₂ α ;
+                <span class="nb">apply</span> strict_modification_eq ;
+                <span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="nb">apply</span> (modification_help_alt
+                         (strict_psfunctor_to_functor_data F₁)
+                         (strict_psfunctor_to_functor_data F₂)
+                         (strict_pstrans_to_nattrans_data α))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Strictify</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/Strictify.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** The inclusion of pseudofunctors into strict pseudofunctors for locally univalent
+  &gt; bicategories
+  &gt;  ********************************************************************************* *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

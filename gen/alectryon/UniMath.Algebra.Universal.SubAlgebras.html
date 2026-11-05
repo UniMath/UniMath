@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.SortedTypes.
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.Signatures.
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.Algebras.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras_eq.
+
+<span class="kn">Open Scope</span> sorted.
+<span class="kn">Open Scope</span> hom.
+
+<span class="kn">Section</span> <span class="nf">Embedding</span>.
+
+<span class="kn">Definition</span> <span class="nf">embedding</span> {<span class="nv">σ</span> : signature} (<span class="nv">B</span> <span class="nv">A</span> : algebra σ) :=
+  ∑ (i : B s→ A), (∏ s, isincl (i s)) × (ishom i).
+
+<span class="kn">Definition</span> <span class="nf">make_embedding</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ}
+  (<span class="nv">i</span> : B s→ A)
+  (<span class="nv">ishom</span> : ishom i)
+  (<span class="nv">isincl</span> : ∏ s, isincl (i s))
+  : embedding B A
+  := (i,,(isincl,,ishom)).
+
+<span class="kn">Definition</span> <span class="nf">make_embedding'</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ}
+  (<span class="nv">i</span> : B ↷ A)
+  (<span class="nv">isincl</span> : ∏ s, isincl (i s))
+  : embedding B A
+  := (hom2fun i,,(isincl,,hom2axiom i)).
+
+<span class="kn">Definition</span> <span class="nf">embedding_pr1</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ} (<span class="nv">i</span>:embedding B A)
+  : B s→ A := pr1 i.
+
+<span class="kn">Definition</span> <span class="nf">embedding_hom</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ} (<span class="nv">i</span>:embedding B A)
+  : hom B A
+  := (pr1 i,,pr22 i).
+<span class="kn">Coercion</span> <span class="nf">embedding_hom</span> : embedding &gt;-&gt; hom.
+
+<span class="kn">Definition</span> <span class="nf">embedding_isincl</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ} (<span class="nv">i</span>:embedding B A)
+  : ∏ s, isincl (i s) := pr12 i.
+
+<span class="kn">Definition</span> <span class="nf">embedding_ishom</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> <span class="nv">A</span> : algebra σ} (<span class="nv">i</span>:embedding B A)
+  : ishom i := pr22 i.
+
+<span class="kn">Lemma</span> <span class="nf">isapropisembedding</span> {<span class="nv">σ</span> : signature} (<span class="nv">B</span> <span class="nv">A</span> : algebra σ) (<span class="nv">i</span> : B s→ A)
+  (<span class="nv">setprop</span>: has_supportsets A)
+  : isaprop ((∏ s, isincl (i s)) × (ishom i)).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - use impred.
+    <span class="nb">intro</span>.
+    use isapropisincl.
+  - use isapropishom.
+    use setprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Embedding</span>.
+
+<span class="kn">Section</span> <span class="nf">SubUniverse</span>.
+
+<span class="kn">Definition</span> <span class="nf">issubuniverse</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span> : algebra σ) (<span class="nv">B</span> : shsubtype A): UU
+  := ∏(nm : names σ) (xs : B⋆ (arity nm)),
+    B (sort nm) (ops A nm ((<span class="k">λ</span> <span class="nv">s</span>, pr1carrier (B s))⋆⋆ (arity nm) xs)).
+
+<span class="kn">Definition</span> <span class="nf">isapropissubuniverse</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span> : algebra σ) (<span class="nv">B</span> : shsubtype A)
+  : isaprop (issubuniverse A B).
+<span class="kn">Proof</span>.
+  use impred.
+  <span class="nb">intro</span>.
+  use impred.
+  <span class="nb">intro</span>.
+  use propproperty.
+<span class="kn">Qed</span>.
+
+<span class="c">(*TODO: use dispAlg to define this*)</span>
+<span class="kn">Definition</span> <span class="nf">algebraofsubuniverse</span> {<span class="nv">σ</span> : signature}
+  {<span class="nv">A</span> : algebra σ} {<span class="nv">B</span> : shsubtype A}
+  (<span class="nv">isc</span> : issubuniverse A B)
+  : algebra σ.
+<span class="kn">Proof</span>.
+  use make_algebra.
+  - use B.
+  - <span class="nb">intros</span> nm xs.
+    <span class="nb">cbn</span>.
+    use make_carrier.
+    + use (ops A nm).
+      use (h1map (<span class="k">λ</span> <span class="nv">s</span>, pr1carrier (B s)) xs).
+    + use isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">embeddingofsubuniverse</span> {<span class="nv">σ</span> : signature}
+  {<span class="nv">A</span> : algebra σ} {<span class="nv">B</span> : shsubtype A}
+  (<span class="nv">isB</span> : issubuniverse A B)
+  : embedding (algebraofsubuniverse isB) A.
+<span class="kn">Proof</span>.
+  use make_embedding.
+  - <span class="nb">intros</span> s.
+    use pr1carrier.
+  - <span class="nb">intros</span> nm xs.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> s.
+    use isinclpr1.
+    <span class="nb">intro</span> a. <span class="nb">cbn</span> beta.
+    use propproperty.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">SubUniverse</span>.
+
+<span class="kn">Theorem</span> <span class="nf">issubuniverse_image</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span> <span class="nv">B</span>: algebra σ} (<span class="nv">f</span> : B ↷ A)
+: issubuniverse A (simage_shsubtype f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> nm ys.
+  use (squash_simage f (arity nm) ys (isapropishinh _)).
+  <span class="nb">intro</span> fibers.
+  use hinhpr.
+  use tpair.
+  - use ops.
+    use (h2lower (h2map (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">_</span>, pr1) fibers)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    { use (hom2axiom f). }
+    use maponpaths.
+    use hvec_ofpaths.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">embedding_subuniverse_weq</span>.
+
+<span class="kn">Context</span> {<span class="nv">σ</span> : signature} (<span class="nv">A</span> : algebra σ).
+
+<span class="c">(*TODO: Prove the same result without this hypothesis*)</span>
+<span class="kn">Context</span> (<span class="nv">setprop</span> : has_supportsets A).
+
+<span class="kn">Local Theorem</span> <span class="nf">algebraofsubuniverse_image</span>
+  (<span class="nv">B</span> : algebra σ) (<span class="nv">i</span> : embedding B A)
+  : B = algebraofsubuniverse (issubuniverse_image i).
+<span class="kn">Proof</span>.
+  use make_algebra_eq.
+  - use make_hom.
+    + <span class="nb">intro</span> s.
+      use prtoimage.
+    + <span class="nb">intros</span> nm xs.
+      use subtypePath.
+      * <span class="nb">intro</span>.
+        use propproperty.
+      * <span class="nb">simpl</span>.
+        <span class="nb">eapply</span> pathscomp0.
+        { use embedding_ishom. }
+        use maponpaths.
+        use pathsinv0.
+        use h1map_compose.
+  - <span class="nb">intro</span> s.
+    use isweqinclandsurj.
+      * use isinclprtoimage.
+        use embedding_isincl.
+      * use issurjprtoimage.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Theorem</span> <span class="nf">embeddingofsubuniverse_image</span>
+  (<span class="nv">B</span> : algebra σ) (<span class="nv">i</span> : embedding B A)
+  : transportb (<span class="k">λ</span> <span class="nv">arg</span>, embedding arg A) (algebraofsubuniverse_image B i) (embeddingofsubuniverse (issubuniverse_image i)) = i.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  { <span class="nb">intro</span>.
+    use isapropisembedding.
+    <span class="bp">exact</span> setprop. }
+    <span class="nb">eapply</span> pathscomp0.
+    { use (pr1_transportb (algebraofsubuniverse_image B i) _). }
+    <span class="nb">simpl</span>.
+    use funextsec.
+    <span class="nb">intro</span> s.
+    <span class="nb">eapply</span> pathscomp0.
+    { use transportf_sfun. }
+    use funextsec.
+    <span class="nb">intro</span> b.
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    { <span class="nb">refine</span> (maponpaths (pr1carrier (simage_shsubtype (pr1 i) s)) _).
+      <span class="nb">unfold</span> transportb.
+      use (functtransportf support (<span class="k">λ</span> <span class="nv">x</span>, x s) (! (! algebraofsubuniverse_image B i)) b). }
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">unfold</span> pr1carrier.
+    <span class="nb">unfold</span> algebraofsubuniverse_image.
+    <span class="nb">rewrite</span> support_make_algebra_eq.
+    <span class="nb">unfold</span> make_algebra_support_eq.
+    <span class="nb">eapply</span> pathscomp0.
+    { <span class="nb">eapply</span> (maponpaths pr1).
+      <span class="nb">eapply</span> pathscomp0.
+      { use (transportf_funextfun (idfun UU)). }
+      <span class="nb">simpl</span>.
+      <span class="nb">refine</span> (toforallpaths _ _ _ _ b).
+      use weqpath_transport. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">embedding_to_subuniverse</span>
+  (<span class="nv">B</span> : ∑ B : algebra σ, embedding B A)
+  : ∑ PB : shsubtype A, issubuniverse A PB.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> B <span class="k">as</span> [B i].
+  <span class="bp">exact</span> (simage_shsubtype i,,issubuniverse_image i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subuniverse_to_embedding</span>
+  (<span class="nv">B</span> : ∑ PB : shsubtype A, issubuniverse A PB)
+  : ∑ B : algebra σ, embedding B A.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> B <span class="k">as</span> [PB is_su_PB].
+    use (tpair _ (algebraofsubuniverse is_su_PB) (embeddingofsubuniverse is_su_PB)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subuniverse_to_embedding_to_subuniverse</span>
+  (<span class="nv">B</span> : ∑ B : algebra σ, embedding B A)
+  : subuniverse_to_embedding (embedding_to_subuniverse B) = B.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> B <span class="k">as</span> [B i].
+  use total2_paths2_f.
+  + use pathsinv0.
+    use algebraofsubuniverse_image.
+  + use embeddingofsubuniverse_image.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">embedding_to_subuniverse_to_embedding</span>
+  (<span class="nv">B</span> : ∑ PB : shsubtype A, issubuniverse A PB)
+  : embedding_to_subuniverse (subuniverse_to_embedding B) = B.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  { <span class="nb">intro</span>. use isapropissubuniverse. }
+  <span class="nb">simpl</span>.
+  use funextsec.
+  <span class="nb">intro</span> s.
+  use funextsec.
+  <span class="nb">intro</span> a.
+  <span class="nb">unfold</span> simage_shsubtype.
+  <span class="nb">simpl</span>.
+  use hPropUnivalence.
+  + <span class="nb">unfold</span> pr1carrier.
+    <span class="nb">intro</span> P.
+    use (squash_to_prop P).
+    { use propproperty. }
+    <span class="nb">intro</span> b.
+    <span class="nb">destruct</span> b <span class="k">as</span> [b Hb].
+    <span class="nb">destruct</span> b <span class="k">as</span> [b Bb].
+    <span class="nb">simpl</span> <span class="k">in</span> Hb.
+    <span class="nb">destruct</span> Hb.
+    <span class="bp">exact</span> Bb.
+  + <span class="nb">intro</span> Ba.
+    use hinhpr.
+    <span class="nb">unfold</span> pr1carrier.
+    <span class="nb">simpl</span>.
+    use tpair.
+    * <span class="bp">exact</span> (a,, Ba).
+    * <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">embedding_subuniverse_weq</span>:
+  (∑ (B:algebra σ), embedding B A) ≃
+  (∑ (PB : shsubtype A), issubuniverse A PB).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - use embedding_to_subuniverse.
+  - use subuniverse_to_embedding.
+  - use subuniverse_to_embedding_to_subuniverse.
+  - use embedding_to_subuniverse_to_embedding.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">embedding_subuniverse_weq</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/SubAlgebras.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

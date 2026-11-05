@@ -1,0 +1,1210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The set model of extensional type theory</span>
+
+<span class="sd"> We show that sets form a model of extensional type theory, and that this model supports</span>
+<span class="sd"> various type formers. Our approach is based on the fibration of set families: we have</span>
+<span class="sd"> a fibration over the category of sets such that the objects over a set `X` are families</span>
+<span class="sd"> `X → hSet`. Note that this fibration is equivalent to the codomain fibration over the</span>
+<span class="sd"> category of sets, and thus the family fibrations provides an alternative way to construct</span>
+<span class="sd"> the set model. We also show that the set model supports various type formers, which we</span>
+<span class="sd"> use to conclude that sets form an elementary topos with an NNO. We also give concrete</span>
+<span class="sd"> descriptions of various operations for terms in the comprehension category for the</span>
+<span class="sd"> set model of type theory.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The full comprehension category for the set model</span>
+<span class="sd"> 2. The set model is democratic</span>
+<span class="sd"> 3. The set model supports dependent sums</span>
+<span class="sd"> 4. The DFL full comprehension category for the set model</span>
+<span class="sd"> 5. Dependent products in the set model</span>
+<span class="sd"> 6. The subobject classifier and the natural numbers in the set model</span>
+<span class="sd"> 7. Sets form an elementary topos with an NNO</span>
+<span class="sd"> 8. Terms in the set model</span>
+<span class="sd"> 9. Useful calculational lemmas</span>
+<span class="sd"> 10. Calculational lemmas regarding ∏-types</span>
+<span class="sd"> 11. Propositions in the set model</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.SetFams.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PowerObject.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.PiTypeNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.Democracy.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.EqualizerTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.ProductTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.UnitTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.SigmaTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatWithProp.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.PiTypesBiequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. The full comprehension category for the set model *)</span>
+<span class="kn">Definition</span> <span class="nf">set_cat_with_terminal_disp_cat</span>
+  : cat_with_terminal_disp_cat.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_disp_cat.
+  - <span class="bp">exact</span> HSET_univalent_category.
+  - <span class="bp">exact</span> TerminalHSET.
+  - <span class="bp">exact</span> univalent_fam_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_cat_with_terminal_cleaving</span>
+  : cat_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_cat_with_terminal_cleaving.
+  - <span class="bp">exact</span> set_cat_with_terminal_disp_cat.
+  - <span class="bp">exact</span> cleaving_fam_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_comprehension_functor</span>
+  : comprehension_functor set_cat_with_terminal_cleaving.
+<span class="kn">Proof</span>.
+  use make_comprehension_functor.
+  - <span class="bp">exact</span> fam_disp_cat_comprehension.
+  - <span class="bp">exact</span> is_cartesian_fam_disp_cat_comprehension.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_comp_cat</span>
+  : comp_cat.
+<span class="kn">Proof</span>.
+  use make_comp_cat.
+  - <span class="bp">exact</span> set_cat_with_terminal_cleaving.
+  - <span class="bp">exact</span> set_comprehension_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_full_comp_cat</span>
+  : full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_full_comp_cat.
+  - <span class="bp">exact</span> set_comp_cat.
+  - <span class="bp">exact</span> disp_functor_ff_fam_disp_cat_comprehension.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The set model is democratic *)</span>
+<span class="kn">Definition</span> <span class="nf">is_democratic_set_full_comp_cat</span>
+  : is_democratic set_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet), (<span class="k">λ</span> <span class="nv">_</span>, X) ,, _).
+  use make_z_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, tt ,, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr2 x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">split</span> ;
+       use funextsec ;
+       <span class="nb">intro</span> x ;
+       [ <span class="nb">apply</span> idpath | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">induction</span> x <span class="k">as</span> [ z x ] ;
+       <span class="nb">induction</span> z ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The set model supports dependent sums *)</span>
+<span class="kn">Section</span> <span class="nf">SetDependentSum</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : set_full_comp_cat}
+          (<span class="nv">Y</span> : ty X).
+
+  <span class="kn">Definition</span> <span class="nf">set_dependent_sum_data</span>
+             (<span class="nv">Z</span> : ty (X &amp; Y))
+    : reflection_data
+        (D := fam_disp_cat[{_}])
+        Z
+        (fiber_functor_from_cleaving
+           (disp_cat_of_types set_full_comp_cat)
+           (cleaving_of_types set_full_comp_cat)
+           (π Y)).
+  <span class="kn">Proof</span>.
+    use make_reflection_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, ∑ (y : Y x), Z (x ,, y))%<span class="nb">set</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span> <span class="nv">z</span>, pr2 xy ,, z).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_reflection_set_dependent_sum_data</span>
+             (<span class="nv">Z</span> : ty (X &amp; Y))
+    : is_reflection (set_dependent_sum_data Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [ W ff ].
+    use make_iscontr.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">yz</span>, ff (x ,, pr1 yz) (pr2 yz)).
+      + <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> xy ;
+           use funextsec ; <span class="nb">intro</span> z ;
+           <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving (π Y) _ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> gg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> yz ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ !(eqtohomot (eqtohomot (pr2 gg) (x ,, pr1 yz)) (pr2 yz))) ;
+         <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+         <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving (π Y) _ _) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_dependent_sum</span>
+    : dependent_sum (cleaving_of_types set_full_comp_cat) (π Y).
+  <span class="kn">Proof</span>.
+    use reflections_to_is_right_adjoint.
+    <span class="nb">intro</span> Z.
+    use make_reflection.
+    - <span class="bp">exact</span> (set_dependent_sum_data Z).
+    - <span class="bp">exact</span> (is_reflection_set_dependent_sum_data Z).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_dependent_sum_counit</span>
+              (<span class="nv">Z</span> : ty X)
+              {<span class="nv">x</span> : (X : hSet)}
+              {<span class="nv">y</span> : Y x}
+              (<span class="nv">z</span> : Z x)
+    : counit_from_right_adjoint set_dependent_sum Z x (y ,, z) = z.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_dependent_sum_mor</span>
+              {<span class="nv">Z₁</span> <span class="nv">Z₂</span> : ty (X &amp; Y)}
+              (<span class="nv">ff</span> : Z₁ &lt;: Z₂)
+              (<span class="nv">x</span> : (X : hSet))
+              (<span class="nv">y</span> : Y x)
+              (<span class="nv">z</span> : Z₁ (x ,, y))
+    : #(left_adjoint set_dependent_sum) ff x (y ,, z) = (y ,, ff (x ,, y) z).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[fiber_category].
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SetDependentSum</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_left_beck_chevalley_nat_trans_eq</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : set_full_comp_cat}
+            (<span class="nv">Y</span> : ty X₂)
+            (<span class="nv">s</span> : X₁ --&gt; X₂)
+            (<span class="nv">Z</span> : (disp_cat_of_types set_full_comp_cat)[{X₂ &amp; Y}])
+  : left_beck_chevalley_nat_trans
+      (set_dependent_sum Y) (set_dependent_sum (Y [[ s ]]))
+      (comm_nat_z_iso
+         (cleaving_of_types set_full_comp_cat)
+         (π Y)
+         s
+         (π (Y [[s]]))
+         (comprehension_functor_mor
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y))
+         (comprehension_functor_mor_comm
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y)))
+      Z
+    =
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">yz</span>, yz.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> left_beck_chevalley_nat_trans_ob.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intros</span> [ y z ].
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  <span class="nb">rewrite</span> set_dependent_sum_counit.
+  <span class="nb">rewrite</span> set_dependent_sum_mor.
+  <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+  <span class="nb">cbn</span> -[fiber_functor_from_cleaving comm_nat_z_iso].
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">pose</span> ((<span class="k">λ</span> <span class="nv">xy</span>, s (pr1 xy) ,, pr2 xy) : SET ⟦ total2_hSet (<span class="k">λ</span> <span class="nv">z</span>, Y(s z)) , total2_hSet Y ⟧)
+      <span class="k">as</span> f.
+    <span class="bp">exact</span> (fam_disp_cat_fiber_functor_from_cleaving f _ _).
+  }
+  <span class="nb">cbn</span> -[fiber_functor_from_cleaving comm_nat_z_iso].
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_comm_nat_z_iso
+            _ s _
+            (comprehension_functor_mor
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y))
+            (comprehension_functor_mor_comm
+               set_comprehension_functor
+               (<span class="k">λ</span> (<span class="nv">x</span> : (X₁ : hSet)) (<span class="nv">y</span> : Y(s x)), y))
+            (<span class="k">λ</span> <span class="nv">x</span>, (∑ y, Z (x ,, y))%<span class="nb">set</span>)
+            (x := (x ,,y))
+            (y ,, z)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (transportf_set (<span class="k">λ</span> <span class="nv">x</span>, ∑ (y : Y x), Z (x ,, y))).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dependent_sum_set_full_comp_cat</span>
+  : comp_cat_dependent_sum set_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_comp_cat_dependent_sum_from_chosen.
+  use make_comp_cat_dependent_sum_chosen.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, set_dependent_sum Y).
+  - <span class="nb">intros</span> X₁ X₂ Y s Z.
+    use is_z_isomorphism_path.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">yz</span>, yz).
+    + <span class="bp">exact</span> (!(set_left_beck_chevalley_nat_trans_eq Y s Z)).
+    + <span class="nb">apply</span> (is_z_isomorphism_identity (C := fam_disp_cat [{ _ }])).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">strong_dependent_sum_set_full_comp_cat</span>
+  : strong_dependent_sums set_full_comp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (dependent_sum_set_full_comp_cat ,, _).
+  <span class="nb">intros</span> X Y Z.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xyz</span>, (pr1 xyz ,, pr12 xyz) ,, pr22 xyz).
+  - <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The DFL full comprehension category for the set model *)</span>
+<span class="kn">Definition</span> <span class="nf">set_dfl_full_comp_cat</span>
+  : dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_dfl_full_comp_cat.
+  - <span class="bp">exact</span> set_full_comp_cat.
+  - <span class="bp">exact</span> is_democratic_set_full_comp_cat.
+  - <span class="bp">exact</span> fam_disp_cat_fiberwise_terminal.
+  - <span class="nb">intros</span> X.
+    use make_is_z_isomorphism.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x ,, tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         use funextsec ;
+         <span class="nb">intro</span> x ;
+         [ | <span class="nb">apply</span> idpath ] ;
+         <span class="nb">induction</span> x <span class="k">as</span> [ x z ] ;
+         <span class="nb">induction</span> z ;
+         <span class="nb">apply</span> idpath).
+  - <span class="bp">exact</span> fam_disp_cat_fiberwise_binproduct.
+  - <span class="bp">exact</span> fam_disp_cat_fiberwise_equalizers.
+  - <span class="bp">exact</span> strong_dependent_sum_set_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Dependent products in the set model *)</span>
+<span class="kn">Section</span> <span class="nf">SetDependentProd</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : set_full_comp_cat}
+          (<span class="nv">Y</span> : ty X).
+
+  <span class="kn">Definition</span> <span class="nf">set_dependent_prod_data</span>
+             (<span class="nv">Z</span> : ty (X &amp; Y))
+    : coreflection_data
+        (D := fam_disp_cat[{_}])
+        Z
+        (fiber_functor_from_cleaving
+           (disp_cat_of_types set_full_comp_cat)
+           (cleaving_of_types set_full_comp_cat)
+           (π Y)).
+  <span class="kn">Proof</span>.
+    use make_coreflection_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, ∏ (y : Y x), Z (x ,, y))%<span class="nb">set</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span> <span class="nv">f</span>, f (pr2 xy)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_coreflection_set_dependent_sum_data</span>
+             (<span class="nv">Z</span> : ty (X &amp; Y))
+    : is_coreflection (set_dependent_prod_data Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [ W ff ].
+    use make_iscontr.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">w</span> <span class="nv">y</span>, ff (x ,, y) w).
+      + <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> xy ;
+           use funextsec ; <span class="nb">intro</span> f ;
+           <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving (π Y) _ _) ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> gg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> w ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ !(eqtohomot (eqtohomot (pr2 gg) (x ,, y)) w)) ;
+         <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+         <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving (π Y) _ _) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_dependent_product</span>
+    : dependent_product (cleaving_of_types set_full_comp_cat) (π Y).
+  <span class="kn">Proof</span>.
+    use coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> Z.
+    use make_coreflection.
+    - <span class="bp">exact</span> (set_dependent_prod_data Z).
+    - <span class="bp">exact</span> (is_coreflection_set_dependent_sum_data Z).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_dependent_product_unit</span>
+              (<span class="nv">Z</span> : ty X)
+              {<span class="nv">x</span> : (X : hSet)}
+              (<span class="nv">z</span> : Z x)
+              (<span class="nv">y</span> : Y x)
+    : unit_from_left_adjoint set_dependent_product Z x z y = z.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_dependent_product_mor</span>
+              {<span class="nv">Z₁</span> <span class="nv">Z₂</span> : ty (X &amp; Y)}
+              (<span class="nv">ff</span> : Z₁ &lt;: Z₂)
+              {<span class="nv">x</span> : (X : hSet)}
+              (<span class="nv">g</span> : ∏ (y : Y x), Z₁ (x ,, y))
+              (<span class="nv">y</span> : Y x)
+    : #(right_adjoint set_dependent_product) ff x g y = ff (x ,, y) (g y).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[fiber_category].
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SetDependentProd</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_right_beck_chevalley_nat_trans_eq</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : set_full_comp_cat}
+            (<span class="nv">Y</span> : ty X₂)
+            (<span class="nv">s</span> : X₁ --&gt; X₂)
+            (<span class="nv">Z</span> : (disp_cat_of_types set_full_comp_cat)[{X₂ &amp; Y}])
+  : right_beck_chevalley_nat_trans
+      (set_dependent_product Y) (set_dependent_product (Y [[ s ]]))
+      (comm_nat_z_iso_inv
+         (cleaving_of_types set_full_comp_cat)
+         (π Y)
+         s
+         (π (Y [[s]]))
+         (comprehension_functor_mor
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y))
+         (comprehension_functor_mor_comm
+            (comp_cat_comprehension set_full_comp_cat)
+            (cleaving_of_types set_full_comp_cat X₂ X₁ s Y)))
+      Z
+    =
+    <span class="k">λ</span> <span class="nv">x</span> <span class="nv">yz</span>, yz.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> right_beck_chevalley_nat_trans_ob.
+  <span class="nb">rewrite</span> assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (functor_comp (right_adjoint (set_dependent_product _))).
+  }
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> f.
+  use funextsec ; <span class="nb">intro</span> y.
+  <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+  <span class="nb">rewrite</span> set_dependent_product_mor.
+  <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+  <span class="nb">rewrite</span> set_dependent_product_unit.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_fiber_functor_from_cleaving _ _ _).
+  }
+  <span class="nb">cbn</span> -[comm_nat_z_iso_inv].
+  etrans.
+  {
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, h y) _).
+    <span class="bp">exact</span> (fam_disp_cat_comm_nat_z_iso_inv
+             _ _ _ _
+             (comprehension_functor_mor_comm
+                set_comprehension_functor
+                (<span class="k">λ</span> (<span class="nv">x</span> : (X₁ : hSet)) (<span class="nv">y</span> : Y(s x)), y))
+             (<span class="k">λ</span> <span class="nv">x</span>, (∏ y : Y x, Z (x ,, y))%<span class="nb">set</span>)
+             (x := (x ,, y))
+             f).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, h y) _).
+  <span class="nb">apply</span> (transportf_set (<span class="k">λ</span> <span class="nv">x</span>, ∏ (y : Y x), Z (x ,, y))).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dependent_prod_set_comp_cat</span>
+  : comp_cat_dependent_prod set_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_comp_cat_dependent_prod_from_chosen.
+  use make_comp_cat_dependent_prod_chosen.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, set_dependent_product Y).
+  - <span class="nb">intros</span> X₁ X₂ Y s Z.
+    use is_z_isomorphism_path.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">yz</span>, yz).
+    + <span class="bp">exact</span> (!(set_right_beck_chevalley_nat_trans_eq Y s Z)).
+    + <span class="nb">apply</span> (is_z_isomorphism_identity (C := fam_disp_cat [{ _ }])).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. The subobject classifier and the natural numbers in the set model *)</span>
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_set_comp_cat</span>
+  : fiberwise_cat_property
+      subobject_classifier_local_property
+      set_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_fiberwise_cat_property.
+  - <span class="bp">exact</span> fam_disp_cat_fiber_subobject_classifier.
+  - <span class="nb">intros</span> X₁ X₂ s.
+    <span class="bp">exact</span> (preserves_subobject_classifier_fiber_functor_fam_disp_cat s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pnno_set_comp_cat</span>
+  : fiberwise_cat_property
+      parameterized_NNO_local_property
+      set_dfl_full_comp_cat.
+<span class="kn">Proof</span>.
+  use make_fiberwise_cat_property.
+  - <span class="nb">intro</span> X.
+    <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+    <span class="bp">exact</span> (is_parameterized_NNO_prod_independent
+             (C := univalent_fiber_category
+                     univalent_fam_disp_cat
+                     X)
+             _
+             (fam_disp_cat_fiber_parameterized_NNO X)).
+  - <span class="nb">intros</span> X₁ X₂ f.
+    use preserves_parameterized_NNO_prod_independent.
+    <span class="bp">exact</span> (set_fiberwise_nno_stable f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 7. Sets form an elementary topos with an NNO *)</span>
+<span class="kn">Definition</span> <span class="nf">set_univ_cat_with_finlim</span>
+  : univ_cat_with_finlim
+  := dfl_full_comp_cat_to_finlim set_dfl_full_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed_set_univ_cat_with_finlim</span>
+  : is_locally_cartesian_closed
+      (pullbacks_univ_cat_with_finlim set_univ_cat_with_finlim)
+  := dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob
+       set_dfl_full_comp_cat
+       dependent_prod_set_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">set_univ_cat_subobject_classifier</span>
+  : subobject_classifier TerminalHSET
+  := local_property_in_dfl_comp_cat
+       subobject_classifier_local_property
+       set_dfl_full_comp_cat
+       subobject_classifier_set_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">set_univ_cat_pnno</span>
+  : parameterized_NNO
+      TerminalHSET
+      (binproducts_univ_cat_with_finlim
+         set_univ_cat_with_finlim)
+  := local_property_in_dfl_comp_cat
+       parameterized_NNO_local_property
+       set_dfl_full_comp_cat
+       pnno_set_comp_cat.
+
+<span class="kn">Definition</span> <span class="nf">set_topos</span>
+  : Topos.
+<span class="kn">Proof</span>.
+  use make_Topos.
+  - <span class="bp">exact</span> set_univ_cat_with_finlim.
+  - use make_Topos_Structure.
+    + <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim set_univ_cat_with_finlim).
+    + <span class="bp">exact</span> (terminal_univ_cat_with_finlim set_univ_cat_with_finlim).
+    + <span class="bp">exact</span> set_univ_cat_subobject_classifier.
+    + use PowerObject_from_exponentials.
+      use is_locally_cartesian_closed_exponentials.
+      <span class="bp">exact</span> is_locally_cartesian_closed_set_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. Terms in the set model *)</span>
+<span class="kn">Definition</span> <span class="nf">set_comp_cat_tm_to_sec</span>
+           {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : tm Γ A)
+           (<span class="nv">γ</span> : (Γ : hSet))
+  : A γ
+  := transportf A (eqtohomot (comp_cat_tm_eq t) γ) (pr2 (comp_cat_tm_to_mor t γ)).
+
+<span class="kn">Definition</span> <span class="nf">set_comp_cat_sec_to_tm</span>
+           {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+           {<span class="nv">A</span> : ty Γ}
+           (<span class="nv">t</span> : ∏ (γ : (Γ : hSet)), A γ)
+  : tm Γ A.
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">γ</span>, γ ,, t γ).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> set_comp_cat_tm_to_sec /.
+<span class="kn">Arguments</span> set_comp_cat_sec_to_tm /.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_tm_to_sec_to_tm</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+  : set_comp_cat_sec_to_tm (set_comp_cat_tm_to_sec t) = t.
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  use funextsec.
+  <span class="nb">intro</span> γ.
+  <span class="nb">refine</span> (!_).
+  use total2_paths_f.
+  {
+    <span class="bp">exact</span> (eqtohomot (comp_cat_tm_eq t) γ).
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_sec_to_tm_to_sec</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : ∏ (γ : (Γ : hSet)), A γ)
+  : set_comp_cat_tm_to_sec (set_comp_cat_sec_to_tm t) = t.
+<span class="kn">Proof</span>.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_comp_cat_tm_weq</span>
+           {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+           (<span class="nv">A</span> : ty Γ)
+  : tm Γ A ≃ ∏ (γ : (Γ : hSet)), A γ.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> set_comp_cat_tm_to_sec.
+  - <span class="bp">exact</span> set_comp_cat_sec_to_tm.
+  - <span class="bp">exact</span> set_comp_cat_tm_to_sec_to_tm.
+  - <span class="bp">exact</span> set_comp_cat_sec_to_tm_to_sec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_tm_subst</span>
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">t</span> : tm Γ A)
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+  : t [[ s ]]tm
+    =
+    set_comp_cat_sec_to_tm (<span class="k">λ</span> <span class="nv">γ</span>, set_comp_cat_tm_to_sec t (s γ)).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A s))).
+  - use funextsec ; <span class="nb">intro</span> γ ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    use total2_paths_f.
+    + <span class="bp">exact</span> (eqtohomot (comp_cat_tm_eq t) (s γ)).
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_tm_coerce</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+            (<span class="nv">f</span> : A &lt;: B)
+            (<span class="nv">t</span> : tm Γ A)
+  : t ↑ f
+    =
+    set_comp_cat_sec_to_tm (<span class="k">λ</span> <span class="nv">γ</span>, f γ (set_comp_cat_tm_to_sec t γ)).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm ; <span class="nb">cbn</span>.
+  use funextsec.
+  <span class="nb">intro</span> γ.
+  use total2_paths_f ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (eqtohomot (comp_cat_tm_eq t) γ).
+  - <span class="nb">rewrite</span> transport_map.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. Useful calculational lemmas *)</span>
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_id_subst_ty</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">a</span> : A γ)
+  : id_subst_ty A γ a = a.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportb _ _ _ _).
+  }
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_id_subst_ty_inv</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">a</span> : A γ)
+  : id_subst_ty_inv A γ a = a.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf _ _ _ _).
+  }
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (fam_disp_cat_transportf _ _ _ _).
+  }
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_subst_ty</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">A</span> : ty Γ₃)
+            {<span class="nv">γ</span> : (Γ₁ : hSet)}
+            (<span class="nv">a</span> : A (s₂ (s₁ γ)))
+  : comp_subst_ty s₁ s₂ A γ a = a.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportb _ _ _ _).
+  }
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_subst_ty_inv</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">A</span> : ty Γ₃)
+            {<span class="nv">γ</span> : (Γ₁ : hSet)}
+            (<span class="nv">a</span> : A (s₂ (s₁ γ)))
+  : comp_subst_ty_inv s₁ s₂ A γ a = a.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf _ _ _ _).
+  }
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_subst_ty_inv'</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+            (<span class="nv">A</span> : ty Γ₃)
+  : comp_subst_ty_inv s₁ s₂ A = <span class="k">λ</span> <span class="nv">γ</span> <span class="nv">a</span>, a.
+<span class="kn">Proof</span>.
+  use funextsec ; <span class="nb">intro</span> γ.
+  use funextsec ; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> set_comp_cat_comp_subst_ty_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_eq_subst_ty</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">p</span> : s₁ = s₂)
+            {<span class="nv">γ</span> : (Γ₁ : hSet)}
+            (<span class="nv">a</span> : A (s₁ γ))
+  : eq_subst_ty A p γ a = transportf A (eqtohomot p γ) a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_eq_subst_ty_inv</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ₁ --&gt; Γ₂}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">p</span> : s₁ = s₂)
+            {<span class="nv">γ</span> : (Γ₁ : hSet)}
+            (<span class="nv">a</span> : A (s₂ γ))
+  : eq_subst_ty_inv A p γ a = transportb A (eqtohomot p γ) a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_coerce_subst_ty</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Γ₂}
+            (<span class="nv">f</span> : A &lt;: B)
+            {<span class="nv">γ</span> : (Γ₁ : hSet)}
+            (<span class="nv">a</span> : A (s γ))
+  : coerce_subst_ty s f γ a = f (s γ) a.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> -[fam_disp_cat].
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf _ _ _ _).
+  }
+  <span class="nb">apply</span> (transportf_set B).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_sub_to_extension</span>
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            (<span class="nv">s</span> : Δ --&gt; Γ)
+            (<span class="nv">t</span> : tm Δ (A [[ s ]]))
+            (<span class="nv">δ</span> : (Δ : hSet))
+  : sub_to_extension s t δ = s δ ,, set_comp_cat_tm_to_sec t δ.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  use total2_paths_f ; <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (eqtohomot (comp_cat_tm_eq t) δ).
+  - <span class="nb">rewrite</span> (functtransportf s A).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_tm_var</span>
+            (<span class="nv">Γ</span> : set_dfl_full_comp_cat)
+            (<span class="nv">A</span> : ty Γ)
+  : comp_cat_tm_var Γ A = set_comp_cat_sec_to_tm (Γ := Γ &amp; A) (<span class="k">λ</span> <span class="nv">γa</span>, pr2 γa).
+<span class="kn">Proof</span>.
+  use eq_comp_cat_tm.
+  <span class="nb">refine</span> (!_).
+  use (PullbackArrowUnique _ (isPullback_Pullback (comp_cat_pullback A (pr1 : Γ &amp; A --&gt; Γ)))).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   While a lot of the following lemmas hold by reflexivity, it can be more convenient to</span>
+<span class="sd">   rewrite using the lemmas below instead of doing a full computation.</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_mor_over_sub</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+            {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+            {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+            (<span class="nv">f</span> : A₁ --&gt;[ identity _ ] A₂)
+            (<span class="nv">g</span> : B₁ &lt;: B₂ [[ comp_cat_comp_mor f ]])
+  : comp_cat_comp_mor_over_sub f g = <span class="k">λ</span> <span class="nv">x</span>, (pr11 x ,, f _ (pr21 x)) ,, g _ (pr2 x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_mor_over_sub'</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+            {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+            {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+            (<span class="nv">f</span> : A₁ --&gt;[ identity _ ] A₂)
+            {<span class="nv">g₁</span> <span class="nv">g₂</span> : B₁ &lt;: B₂ [[ comp_cat_comp_mor f ]]}
+            (<span class="nv">p</span> : g₁ = g₂)
+  : comp_cat_comp_mor_over_sub f g₁ = <span class="k">λ</span> <span class="nv">x</span>, (pr11 x ,, f _ (pr21 x)) ,, g₂ _ (pr2 x).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_subst</span>
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Δ}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">x</span> : A (s γ))
+  : comp_cat_subst A s γ x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_extend_over</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ₂)
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : comp_cat_extend_over A s = <span class="k">λ</span> <span class="nv">x</span>, s (pr1 x) ,, pr2 x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_mor_over</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ₁}
+            {<span class="nv">B</span> : ty Γ₂}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">f</span> : A &lt;: B [[ s ]])
+  : comp_cat_comp_mor_over s f = <span class="k">λ</span> <span class="nv">x</span>, s (pr1 x) ,, f _ (pr2 x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_comp_mor_over'</span>
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ₁}
+            {<span class="nv">B</span> : ty Γ₂}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            {<span class="nv">f₁</span> <span class="nv">f₂</span> : A &lt;: B [[ s ]]}
+            (<span class="nv">p</span> : f₁ = f₂)
+  : comp_cat_comp_mor_over s f₁ = <span class="k">λ</span> <span class="nv">x</span>, s (pr1 x) ,, f₂ _ (pr2 x).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 10. Calculational lemmas regarding ∏-types *)</span>
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_pi_subst_coerce</span>
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+            (<span class="nv">B</span> : ty (Δ &amp; A))
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">φ</span> : ∏ (x : A (s γ)), B (s γ ,, x))
+  : comp_cat_pi_subst_coerce
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      A B
+      s
+      γ
+      φ
+    =
+    φ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (eqtohomot (eqtohomot (set_right_beck_chevalley_nat_trans_eq A s B) γ) φ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_pi_subst_coerce_inv</span>
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">A</span> : ty Δ)
+            (<span class="nv">B</span> : ty (Δ &amp; A))
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">φ</span> : ∏ (x : A (s γ)), B (s γ ,, x))
+  : comp_cat_pi_subst_coerce_inv
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      A B
+      s
+      γ
+      φ
+    =
+    φ.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (maponpaths
+          (<span class="k">λ</span> <span class="nv">z</span>, z γ φ)
+          (z_iso_inv_after_z_iso
+             (comp_cat_pi_subst
+                (C := set_dfl_full_comp_cat)
+                dependent_prod_set_comp_cat
+                A B
+                s)))
+    <span class="k">as</span> p.
+  <span class="nb">refine</span> (_ @ p).
+  <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (set_comp_cat_pi_subst_coerce s A B φ).
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_dep_prod_functor_mor</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+            {<span class="nv">B₁</span> <span class="nv">B₂</span> : ty (Γ &amp; A)}
+            (<span class="nv">g</span> : B₁ &lt;: B₂)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">φ</span> : ∏ (x : A γ), B₁ (γ ,, x))
+            (<span class="nv">x</span> : A γ)
+  : #(dep_prod_functor
+        (C := set_dfl_full_comp_cat)
+        dependent_prod_set_comp_cat
+        A)
+      g
+      γ
+      φ
+      x
+    =
+    g (γ ,, x) (φ x).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> -[fiber_category].
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_set_dep_prod</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            {<span class="nv">B</span> : ty (Γ &amp; A)}
+            {<span class="nv">γ₁</span> <span class="nv">γ₂</span> : (Γ : hSet)}
+            (<span class="nv">p</span> : γ₁ = γ₂)
+            (<span class="nv">φ</span> : ∏ (x : A γ₁), B (γ₁ ,, x))
+            (<span class="nv">x</span> : A γ₂)
+  : transportf
+      (dep_prod_cc dependent_prod_set_comp_cat A B)
+      p
+      φ
+      x
+    =
+    transportf
+      B
+      (total2_paths_b
+         (B := A)
+         (s := γ₁ ,, transportb A p x) (s' := γ₂ ,, x)
+         p
+         (idpath _))
+      (φ (transportb A p x)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_set_dep_prod_idpath</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A</span> : ty Γ}
+            {<span class="nv">B</span> : ty (Γ &amp; A)}
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">p</span> : γ = γ)
+            (<span class="nv">φ</span> : ∏ (x : A γ), B (γ ,, x))
+            (<span class="nv">x</span> : A γ)
+  : transportf
+      (dep_prod_cc dependent_prod_set_comp_cat A B)
+      p
+      φ
+      x
+    =
+    φ x.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_pi_coerce_mor</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+            (<span class="nv">f</span> : A₂ &lt;: A₁)
+            {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+            {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+            (<span class="nv">g</span> : B₁ [[ comp_cat_comp_mor (C := set_dfl_full_comp_cat) f ]] &lt;: B₂)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">φ</span> : ∏ (x : A₁ γ), B₁ (γ ,, x))
+            (<span class="nv">x</span> : A₂ γ)
+  : comp_cat_pi_coerce_mor
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      f
+      g
+      (γ ,, x)
+      φ
+    =
+    g (γ ,, x) (φ (f γ x)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_pi_coerce_mor.
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  {
+    <span class="nb">apply</span> (set_comp_cat_coerce_subst_ty (comp_cat_comp_mor (C := set_dfl_full_comp_cat) f)).
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> set_comp_cat_eq_subst_ty.
+    }
+    <span class="bp">exact</span> (set_comp_cat_comp_subst_ty_inv
+             (comp_cat_comp_mor (C := set_dfl_full_comp_cat) f)
+             (π _)
+             _ _).
+  }
+  <span class="nb">cbn</span> -[dep_prod_cc].
+  <span class="nb">apply</span> transportf_set_dep_prod_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_pi_coerce</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+            (<span class="nv">f</span> : A₂ &lt;: A₁)
+            {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+            {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+            (<span class="nv">g</span> : B₁ [[ comp_cat_comp_mor (C := set_dfl_full_comp_cat) f ]] &lt;: B₂)
+            {<span class="nv">γ</span> : (Γ : hSet)}
+            (<span class="nv">φ</span> : ∏ (x : A₁ γ), B₁ (γ ,, x))
+            (<span class="nv">x</span> : A₂ γ)
+  : comp_cat_pi_coerce
+      (C := set_dfl_full_comp_cat)
+      dependent_prod_set_comp_cat
+      f
+      g
+      γ
+      φ
+      x
+    =
+    g (γ ,, x) (φ (f γ x)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> comp_cat_pi_coerce.
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  <span class="nb">rewrite</span> set_dep_prod_functor_mor.
+  <span class="nb">rewrite</span> set_comp_cat_pi_coerce_mor.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 11. Propositions in the set model *)</span>
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_hprop_ty</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+            (<span class="nv">HA</span> : ∏ (x : (Γ : hSet)), isaprop (A x))
+  : is_hprop_ty A.
+<span class="kn">Proof</span>.
+  use mono_ty_to_hprop_ty.
+  use (invmap (MonosAreInjective_HSET (π A))).
+  use isweqonpathsincl.
+  <span class="nb">intros</span> y.
+  use invproofirrelevance.
+  <span class="nb">intros</span> [ [ x₁ a₁ ] p₁ ] [ [ x₂ a₂ ] p₂ ].
+  <span class="nb">cbn</span> <span class="k">in</span> x₁, x₂, a₁, a₂, p₁, p₂.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> p₁, p₂.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> HA.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_hprop_ty_inv</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+            (<span class="nv">HA</span> : is_hprop_ty A)
+            (<span class="nv">x</span> : (Γ : hSet))
+  : isaprop (A x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hprop_ty_to_mono_ty <span class="k">in</span> HA.
+  <span class="nb">apply</span> MonosAreInjective_HSET <span class="k">in</span> HA.
+  <span class="nb">apply</span> isinclweqonpaths <span class="k">in</span> HA.
+  use invproofirrelevance.
+  <span class="nb">intros</span> a₁ a₂.
+  <span class="nb">pose</span> (proofirrelevance _ (HA x) ((x ,, a₁) ,, idpath _) ((x ,, a₂) ,, idpath _)) <span class="k">as</span> H.
+  <span class="nb">pose</span> (fiber_paths (maponpaths pr1 H)) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">refine</span> (!_ @ p).
+  <span class="nb">apply</span> (transportf_set A).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_comp_cat_hprop_ty_weq</span>
+            {<span class="nv">Γ</span> : set_dfl_full_comp_cat}
+            (<span class="nv">A</span> : ty Γ)
+  : is_hprop_ty A ≃ (∏ (x : (Γ : hSet)), isaprop (A x)).
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (set_comp_cat_hprop_ty_inv A).
+  - <span class="bp">exact</span> (set_comp_cat_hprop_ty A).
+  - <span class="nb">apply</span> isaprop_is_hprop_ty.
+  - <span class="kp">abstract</span>
+      (use impred ; <span class="nb">intro</span> ;
+       <span class="nb">apply</span> isapropisaprop).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Examples/SetModel.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  11. Propositions in the set model
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

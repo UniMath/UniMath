@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> Equivalences between full subcategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EquivalenceFullSub</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">P</span> : hsubtype C₁}
+          {<span class="nv">Q</span> : hsubtype C₂}
+          (<span class="nv">L</span> : C₁ ⟶ C₂)
+          (<span class="nv">L_equiv</span> : adj_equivalence_of_cats L)
+          (<span class="nv">HL</span> : ∏ (x : C₁), P x → Q (L x))
+          (<span class="nv">HR</span> : ∏ (x : C₂), Q x → P (right_adjoint L_equiv x)).
+
+  <span class="kn">Let</span> <span class="nf">L'</span> : full_sub_category C₁ P ⟶ full_sub_category C₂ Q
+    := full_sub_category_functor P Q L HL.
+  <span class="kn">Let</span> <span class="nf">R'</span> : full_sub_category C₂ Q ⟶ full_sub_category C₁ P
+    := full_sub_category_functor Q P _ HR.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_unit_data</span>
+    : nat_trans_data
+        (functor_identity (full_sub_category C₁ P))
+        (L' ∙ R')
+    := <span class="k">λ</span> <span class="nv">y</span>, unit_from_left_adjoint L_equiv (pr1 y) ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_unit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        full_sub_category_equivalence_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y₁ y₂ f ; <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (nat_trans_ax (unit_from_left_adjoint L_equiv)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_unit</span>
+    : functor_identity _ ⟹ L' ∙ R'.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> full_sub_category_equivalence_unit_data.
+    - <span class="bp">exact</span> full_sub_category_equivalence_unit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_counit_data</span>
+    : nat_trans_data
+        (R' ∙ L')
+        (functor_identity _)
+    := <span class="k">λ</span> <span class="nv">y</span>, counit_from_left_adjoint L_equiv (pr1 y) ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_counit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        full_sub_category_equivalence_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y₁ y₂ f ; <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (nat_trans_ax (counit_from_left_adjoint L_equiv)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence_counit</span>
+    : R' ∙ L' ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> full_sub_category_equivalence_counit_data.
+    - <span class="bp">exact</span> full_sub_category_equivalence_counit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_equivalence</span>
+    : equivalence_of_cats
+        (full_sub_category C₁ P)
+        (full_sub_category C₂ Q).
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> L'.
+      + <span class="bp">exact</span> R'.
+      + <span class="bp">exact</span> full_sub_category_equivalence_unit.
+      + <span class="bp">exact</span> full_sub_category_equivalence_counit.
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> is_iso_full_sub.
+        <span class="nb">apply</span> unit_nat_z_iso_from_adj_equivalence_of_cats.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> is_iso_full_sub.
+        <span class="nb">apply</span> counit_nat_z_iso_from_adj_equivalence_of_cats.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_category_adj_equivalence</span>
+    : adj_equivalence_of_cats (full_sub_category_functor P Q L HL)
+    := adjointification
+         full_sub_category_equivalence.
+<span class="kn">End</span> <span class="nf">EquivalenceFullSub</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Subcategory/FullEquivalences.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

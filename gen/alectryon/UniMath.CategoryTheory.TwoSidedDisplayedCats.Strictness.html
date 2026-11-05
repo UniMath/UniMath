@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Strictness.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> Strict 2-sided displayed categories</span>
+
+<span class="sd"> A strict 2-sided displayed category is a 2-sided displayed category for which</span>
+<span class="sd"> the displayed objects form a set. Generally speaking, this notion is rather restricting.</span>
+<span class="sd"> Most examples of (displayed) categories are univalent but not strict. However,</span>
+<span class="sd"> if one is looking at strict categories, then strict 2-sided displayed categories</span>
+<span class="sd"> come up naturally.</span>
+
+<span class="sd"> Finally, when one is looking at strict 2-sided displayed categories, then one</span>
+<span class="sd"> is also interested in the equality of 2-sided displayed functors. We prove</span>
+<span class="sd"> that the type of 2-sided displayed functors forms a set and we provide equality</span>
+<span class="sd"> principles for 2-sided displayed functors.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Strict 2-sided displayed categories</span>
+<span class="sd"> 2. The total category of a strict 2-sided displayed category</span>
+<span class="sd"> 3. Equality of 2-sided displayed functors</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Strict 2-sided displayed categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_strict_twosided_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+  : UU
+  := ∏ (x : C₁)
+       (y : C₂),
+     isaset (D x y).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_strict_twosided_disp_cat</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+  : isaprop (is_strict_twosided_disp_cat D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisaset.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_twosided_disp_cat</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : category)
+  : UU
+  := ∑ (D : twosided_disp_cat C₁ C₂), is_strict_twosided_disp_cat D.
+
+<span class="kn">Coercion</span> <span class="nf">strict_twosided_disp_cat_to_twosided_disp_cat</span>
+         {C₁ C₂ : category}
+         (D : strict_twosided_disp_cat C₁ C₂)
+  : twosided_disp_cat C₁ C₂
+  := pr1 D.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_strict_twosided_disp_cat</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">D</span> : strict_twosided_disp_cat C₁ C₂)
+            (<span class="nv">x</span> : C₁)
+            (<span class="nv">y</span> : C₂)
+  : isaset (D x y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 D x y).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The total category of a strict 2-sided displayed category *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaset_total_strict_twosided_disp_cat_ob</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+            (<span class="nv">D</span> : strict_twosided_disp_cat C₁ C₂)
+  : isaset (total_twosided_disp_category D).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - <span class="nb">apply</span> isaset_ob.
+  - <span class="nb">intro</span> x.
+    use isaset_total2.
+    + <span class="nb">apply</span> isaset_ob.
+    + <span class="nb">intro</span> y.
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_strict_twosided_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">D</span> : strict_twosided_disp_cat C₁ C₂)
+  : setcategory.
+<span class="kn">Proof</span>.
+  use make_setcategory.
+  - <span class="bp">exact</span> (total_twosided_disp_category D).
+  - <span class="nb">apply</span> isaset_total_strict_twosided_disp_cat_ob.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Equality of 2-sided displayed functors *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaset_twosided_disp_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₁') (<span class="nv">G</span> : C₂ ⟶ C₂')
+            (<span class="nv">D</span> : strict_twosided_disp_cat C₁ C₂)
+            (<span class="nv">D'</span> : strict_twosided_disp_cat C₁' C₂')
+  : isaset (twosided_disp_functor F G D D').
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - use isaset_total2.
+    + <span class="kp">repeat</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+    + <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_disp_mor.
+  - <span class="nb">intro</span> FG.
+    use isasetaprop.
+    <span class="nb">apply</span> isaprop_twosided_disp_functor_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_twosided_disp_functor_help</span>
+            {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₁'} {<span class="nv">G</span> : C₂ ⟶ C₂'}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+            {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+            (<span class="nv">FG₁</span> <span class="nv">FG₂</span> : twosided_disp_functor F G D D')
+            (<span class="nv">p</span> : pr11 FG₁ = pr11 FG₂)
+            (<span class="nv">q</span> : ∏ (x₁ x₂ : C₁)
+                   (f : x₁ --&gt; x₂)
+                   (y₁ y₂ : C₂)
+                   (g : y₁ --&gt; y₂)
+                   (xy₁ : D x₁ y₁)
+                   (xy₂ : D x₂ y₂)
+                   (fg : xy₁ --&gt;[ f ][ g ] xy₂),
+                 #<span class="mi">2</span> FG₁ fg
+                 ;;<span class="mi">2</span>
+                 idtoiso_twosided_disp
+                   (idpath _) (idpath _)
+                   (toforallpaths
+                      _ _ _
+                      (toforallpaths
+                         _ _ _
+                         (toforallpaths _ _ _ p x₂)
+                         y₂)
+                      xy₂)
+                 =
+                 transportf_disp_mor2
+                   (id_left _ @ !(id_right _))
+                   (id_left _ @ !(id_right _))
+                   (idtoiso_twosided_disp
+                      (idpath _) (idpath _)
+                      (toforallpaths
+                         _ _ _
+                         (toforallpaths
+                            _ _ _
+                            (toforallpaths _ _ _ p x₁)
+                            y₁)
+                         xy₁)
+                    ;;<span class="mi">2</span>
+                    (#<span class="mi">2</span> FG₂ fg)))
+  : FG₁ = FG₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_twosided_disp_functor_laws.
+  }
+  <span class="nb">induction</span> FG₁ <span class="k">as</span> [ [ FG₁o FG₁m ] FG₁H ].
+  <span class="nb">induction</span> FG₂ <span class="k">as</span> [ [ FG₂o FG₂m ] FG₂H ].
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">apply</span> maponpaths.
+  use funextsec ; <span class="nb">intro</span> x₁.
+  use funextsec ; <span class="nb">intro</span> x₂.
+  use funextsec ; <span class="nb">intro</span> y₁.
+  use funextsec ; <span class="nb">intro</span> y₂.
+  use funextsec ; <span class="nb">intro</span> xy₁.
+  use funextsec ; <span class="nb">intro</span> xy₂.
+  use funextsec ; <span class="nb">intro</span> f.
+  use funextsec ; <span class="nb">intro</span> g.
+  use funextsec ; <span class="nb">intro</span> fg.
+  <span class="nb">specialize</span> (q x₁ x₂ f y₁ y₂ g xy₁ xy₂ fg).
+  <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> q.
+  <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> q.
+  <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> q.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> q.
+  <span class="nb">refine</span> (!(transportbf_disp_mor2 (!(id_right _)) (!(id_right _)) _)
+          @ maponpaths (transportb_disp_mor2 _ _) (_ @ q @ _)
+          @ transportbf_disp_mor2 _ _ _).
+  - use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  - use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_twosided_disp_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₁'} {<span class="nv">G</span> : C₂ ⟶ C₂'}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+            {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+            (<span class="nv">FG₁</span> <span class="nv">FG₂</span> : twosided_disp_functor F G D D')
+            (<span class="nv">p</span> : ∏ (x : C₁) (y : C₂) (xy : D x y), FG₁ x y xy = FG₂ x y xy)
+            (<span class="nv">q</span> : ∏ (x₁ x₂ : C₁)
+                   (f : x₁ --&gt; x₂)
+                   (y₁ y₂ : C₂)
+                   (g : y₁ --&gt; y₂)
+                   (xy₁ : D x₁ y₁)
+                   (xy₂ : D x₂ y₂)
+                   (fg : xy₁ --&gt;[ f ][ g ] xy₂),
+                 #<span class="mi">2</span> FG₁ fg
+                 ;;<span class="mi">2</span>
+                 idtoiso_twosided_disp (idpath _) (idpath _) (p x₂ y₂ xy₂)
+                 =
+                 transportf_disp_mor2
+                   (id_left _ @ !(id_right _))
+                   (id_left _ @ !(id_right _))
+                   (idtoiso_twosided_disp (idpath _) (idpath _) (p x₁ y₁ xy₁)
+                    ;;<span class="mi">2</span>
+                    (#<span class="mi">2</span> FG₂ fg)))
+  : FG₁ = FG₂.
+<span class="kn">Proof</span>.
+  use eq_twosided_disp_functor_help.
+  - use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> xy.
+    <span class="bp">exact</span> (p x y xy).
+  - <span class="nb">intros</span> x₁ x₂ f y₁ y₂ g xy₁ xy₂ fg.
+    <span class="nb">rewrite</span> !toforallpaths_funextsec.
+    <span class="nb">apply</span> q.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Strictness.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Equality of 2-sided displayed functors
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

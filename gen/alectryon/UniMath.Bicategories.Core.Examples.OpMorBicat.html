@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpMorBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* *********************************************************************************** *)</span>
+<span class="sd">(** op1 bicategory.</span>
+
+<span class="sd">    Bicategory obtained by formally reversing 1-arrows.</span>
+
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    June 2018                                                                          *)</span>
+<span class="c">(* *********************************************************************************** *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">op1_2cell_struct</span> (<span class="nv">C</span> : prebicat_1_id_comp_cells)
+  : prebicat_2cell_struct (opp_precat_data C)
+  := <span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C ⟦ b, a ⟧), f ==&gt; g.
+
+<span class="kn">Definition</span> <span class="nf">op1_prebicat_1_id_comp_cells</span> (<span class="nv">C</span> : prebicat_1_id_comp_cells)
+  : prebicat_1_id_comp_cells
+  := (opp_precat_data C),, op1_2cell_struct C.
+
+<span class="kn">Definition</span> <span class="nf">op1_prebicat_data</span> (<span class="nv">C</span> : prebicat_data)
+  : prebicat_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">op1_prebicat_1_id_comp_cells</span> <span class="nv">C</span>).
+  <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">unfold</span> op1_2cell_struct.
+  <span class="kp">repeat</span> use make_dirprod; <span class="nb">intros</span> *.
+  - <span class="nb">apply</span> id2.
+  - <span class="nb">apply</span> runitor.
+  - <span class="nb">apply</span> lunitor.
+  - <span class="nb">apply</span> rinvunitor.
+  - <span class="nb">apply</span> linvunitor.
+  - <span class="nb">apply</span> lassociator.
+  - <span class="nb">apply</span> rassociator.
+  - <span class="nb">intros</span> α β. <span class="bp">exact</span> ( α • β ).
+  - <span class="nb">intros</span> α. <span class="bp">exact</span> (α ▹ f).
+  - <span class="nb">intros</span> α. <span class="bp">exact</span> (g ◃ α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">op1_prebicat_laws</span> (<span class="nv">C</span> : prebicat) : prebicat_laws (op1_prebicat_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">unfold</span> op1_2cell_struct. <span class="nb">cbn</span>.
+  <span class="kp">repeat</span> use tpair; <span class="nb">cbn</span>; <span class="nb">intros</span> *.
+  - <span class="nb">apply</span> id2_left.
+  - <span class="nb">apply</span> id2_right.
+  - <span class="nb">apply</span> vassocr.
+  - <span class="nb">apply</span> id2_rwhisker.
+  - <span class="nb">apply</span> lwhisker_id2.
+  - <span class="nb">apply</span> rwhisker_vcomp.
+  - <span class="nb">apply</span> lwhisker_vcomp.
+  - <span class="nb">apply</span> vcomp_runitor.
+  - <span class="nb">apply</span> vcomp_lunitor.
+  - <span class="nb">apply</span> rwhisker_rwhisker_alt.
+  - <span class="nb">apply</span> pathsinv0, rwhisker_lwhisker_rassociator.
+  - <span class="nb">apply</span> lwhisker_lwhisker_rassociator.
+  - <span class="nb">apply</span> pathsinv0, vcomp_whisker.
+  - <span class="nb">apply</span> runitor_rinvunitor.
+  - <span class="nb">apply</span> rinvunitor_runitor.
+  - <span class="nb">apply</span> lunitor_linvunitor.
+  - <span class="nb">apply</span> linvunitor_lunitor.
+  - <span class="nb">apply</span> rassociator_lassociator.
+  - <span class="nb">apply</span> lassociator_rassociator.
+  - <span class="nb">apply</span> lunitor_lwhisker.
+  - <span class="nb">apply</span> rassociator_rassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_prebicat</span> (<span class="nv">C</span> : prebicat) : prebicat
+  := op1_prebicat_data C,, op1_prebicat_laws C.
+
+<span class="kn">Definition</span> <span class="nf">op1_isaset_cells</span> (<span class="nv">C</span> : bicat) : isaset_cells (op1_prebicat C)
+  := <span class="k">λ</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C ⟦ b, a ⟧), cellset_property f g.
+
+<span class="kn">Definition</span> <span class="nf">op1_bicat</span> (<span class="nv">C</span> : bicat) : bicat
+  := op1_prebicat C,, op1_isaset_cells C.
+
+<span class="kn">Definition</span> <span class="nf">op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">α</span> : f ==&gt; g)
+  : is_invertible_2cell α → @is_invertible_2cell C Y X f g α.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hα.
+  use tpair.
+  - <span class="nb">apply</span> Hα.
+  - <span class="nb">split</span> ; <span class="nb">apply</span> Hα.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">α</span> : f ==&gt; g)
+  : @is_invertible_2cell C Y X f g α → is_invertible_2cell α.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hα.
+  use tpair.
+  - <span class="nb">apply</span> Hα.
+  - <span class="nb">split</span> ; <span class="nb">apply</span> Hα.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+           (<span class="nv">α</span> : f ==&gt; g)
+  : @is_invertible_2cell C Y X f g α ≃ is_invertible_2cell α.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell α).
+  - <span class="bp">exact</span> (op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell α).
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_invertible_2cell_is_op1_bicat_invertible_2cell</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           (<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y)
+  : @invertible_2cell C Y X f g ≃ invertible_2cell f g.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> α.
+  <span class="nb">apply</span> op1_bicat_is_invertible_2cell_is_bicat_is_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           (<span class="nv">f</span> : X --&gt; Y)
+  : left_adjoint_equivalence f → @left_adjoint_equivalence C Y X f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (left_adjoint_right_adjoint Hf).
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> ((left_equivalence_counit_iso Hf)^-<span class="mi">1</span>).
+      * <span class="bp">exact</span> ((left_equivalence_unit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="nb">split</span> ; <span class="nb">split</span>.
+    + use inv_cell_eq ; <span class="nb">cbn</span>.
+      * is_iso.
+        ** <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+        ** <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+      * is_iso.
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="bp">exact</span> (internal_triangle1 Hf).
+    + use inv_cell_eq ; <span class="nb">cbn</span>.
+      * is_iso.
+        ** <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+        ** <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+           is_iso.
+      * is_iso.
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="bp">exact</span> (internal_triangle2 Hf).
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+      is_iso.
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> op1_bicat_is_invertible_2cell_to_bicat_is_invertible_2cell.
+      is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_left_adjoint_equivalence_to_op1_bicat_left_adjoint_equivalence</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           (<span class="nv">f</span> : X --&gt; Y)
+  : @left_adjoint_equivalence C Y X f → left_adjoint_equivalence f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (left_adjoint_right_adjoint Hf).
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> ((left_equivalence_counit_iso Hf)^-<span class="mi">1</span>).
+      * <span class="bp">exact</span> ((left_equivalence_unit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="nb">split</span> ; <span class="nb">split</span>.
+    + use inv_cell_eq ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+        is_iso.
+      * <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+        is_iso.
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="bp">exact</span> (internal_triangle1 Hf).
+    + use inv_cell_eq ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+        is_iso.
+      * <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+        is_iso.
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="bp">exact</span> (internal_triangle2 Hf).
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+      is_iso.
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> bicat_is_invertible_2cell_to_op1_bicat_is_invertible_2cell.
+      is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">op1_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C}
+           (<span class="nv">f</span> : X --&gt; Y)
+  : @left_adjoint_equivalence C Y X f ≃ left_adjoint_equivalence f.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> (bicat_left_adjoint_equivalence_to_op1_bicat_left_adjoint_equivalence f).
+  - use isweq_iso.
+    + <span class="bp">exact</span> (op1_bicat_left_adjoint_equivalence_to_bicat_left_adjoint_equivalence f).
+    + <span class="nb">intros</span> x.
+      use subtypePath.
+      * <span class="nb">intro</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> C) ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      * <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> x.
+      use subtypePath.
+      * <span class="nb">intro</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> C) ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      * <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_adjoint_equivalence_is_op1_bicat_adjoint_equivalence</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">X</span> <span class="nv">Y</span> : op1_bicat C)
+  : @adjoint_equivalence C Y X ≃ adjoint_equivalence X Y.
+<span class="kn">Proof</span>.
+  use weqfibtototal.
+  <span class="nb">intro</span> α.
+  <span class="nb">apply</span> op1_bicat_left_adjoint_equivalence_is_bicat_left_adjoint_equivalence.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Examples/OpMorBicat.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     June 2018                                                                          *)
+  &gt; (* *********************************************************************************** *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

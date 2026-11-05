@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Kernels.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Direct implementation of kernels *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of [Kernel]</span>
+<span class="sd">- Correspondence of Kernels and Equalizers</span>
+<span class="sd">- Kernel up to isomorphism</span>
+<span class="sd">- Kernel of morphism · [Monic]</span>
+<span class="sd">- KernelIn of equal morphisms</span>
+<span class="sd">- Transport of kernels</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** Definition of kernels *)</span>
+<span class="kn">Section</span> <span class="nf">def_kernels</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+
+  <span class="sd">(** Definition and construction of Kernels *)</span>
+  <span class="kn">Definition</span> <span class="nf">isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> : f · g = ZeroArrow Z x z) : UU :=
+    ∏ (w : C) (h : w --&gt; y) (H : h · g = ZeroArrow Z w z), <span class="k">∃</span>! φ : w --&gt; x, φ · f = h.
+
+  <span class="kn">Lemma</span> <span class="nf">isKernel_paths</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> <span class="nv">H'</span> : f · g = ZeroArrow Z x z)
+        (<span class="nv">isK</span> : isKernel f g H) : isKernel f g H'.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (e : H = H') <span class="bp">by</span> <span class="nb">apply</span> hs.
+    <span class="nb">induction</span> e. <span class="bp">exact</span> isK.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H1</span> : f · g = ZeroArrow Z x z)
+             (<span class="nv">H2</span> : ∏ (w : C) (h : w --&gt; y) (H' : h · g = ZeroArrow Z w z),
+                   <span class="k">∃</span>! ψ : w --&gt; x, ψ · f = h) : isKernel f g H1.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isKernel.
+    <span class="nb">intros</span> w h H.
+    use unique_exists.
+    - <span class="bp">exact</span> (pr1 (iscontrpr1 (H2 w h H))).
+    - <span class="bp">exact</span> (pr2 (iscontrpr1 (H2 w h H))).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="bp">exact</span> (base_paths _ _ (pr2 (H2 w h H) (tpair _ y0 X))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">g</span> : y --&gt; z) : UU :=
+    ∑ D : (∑ x : ob C, x --&gt; y),
+          ∑ (e : (pr2 D) · g = ZeroArrow Z (pr1 D) z), isKernel (pr2 D) g e.
+
+  <span class="kn">Definition</span> <span class="nf">make_Kernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> : f · g = ZeroArrow Z x z)
+             (<span class="nv">isE</span> : isKernel f g H) : Kernel g := ((x,,f),,(H,,isE)).
+
+  <span class="kn">Definition</span> <span class="nf">Kernels</span> : UU := ∏ (y z : C) (g : y --&gt; z), Kernel g.
+
+  <span class="kn">Definition</span> <span class="nf">hasKernels</span> : UU := ∏ (y z : C) (g : y --&gt; z), ishinh (Kernel g).
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">KernelOb</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) : C := pr1 (pr1 K).
+  <span class="kn">Coercion</span> <span class="nf">KernelOb</span> : Kernel &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">KernelArrow</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) :  C⟦K, y⟧ := pr2 (pr1 K).
+
+  <span class="kn">Definition</span> <span class="nf">KernelCompZero</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) :
+    KernelArrow K · g = ZeroArrow Z K z := pr1 (pr2 K).
+
+  <span class="kn">Definition</span> <span class="nf">KernelisKernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) :
+    isKernel (KernelArrow K) g (KernelCompZero K) := pr2 (pr2 K).
+
+  <span class="kn">Definition</span> <span class="nf">KernelIn</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) (<span class="nv">w</span> : C) (<span class="nv">h</span> : w --&gt; y)
+             (<span class="nv">H</span> : h · g = ZeroArrow Z w z) : C⟦w, K⟧ :=
+    pr1 (iscontrpr1 ((KernelisKernel K) w h H)).
+
+  <span class="kn">Definition</span> <span class="nf">KernelCommutes</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) (<span class="nv">w</span> : C) (<span class="nv">h</span> : w --&gt; y)
+             (<span class="nv">H</span> : h · g = ZeroArrow Z w z) : (KernelIn K w h H) · (KernelArrow K) = h :=
+    pr2 (iscontrpr1 ((KernelisKernel K) w h H)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelInUnique</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : f · g = ZeroArrow Z x z}
+        (<span class="nv">isK</span> : isKernel f g H) {<span class="nv">w</span> : C} {<span class="nv">h</span> : w --&gt; y} (<span class="nv">H'</span> : h · g = ZeroArrow Z w z) {<span class="nv">φ</span> : w --&gt; x}
+        (<span class="nv">H''</span> : φ · f = h) :
+    φ = (pr1 (pr1 (isK w h H'))).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (base_paths _ _ (pr2 (isK w h H') (tpair _ φ H''))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelInsEq</span> {<span class="nv">y</span> <span class="nv">z</span>: C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) {<span class="nv">w</span> : C} (<span class="nv">φ1</span> <span class="nv">φ2</span> : C⟦w, K⟧)
+        (<span class="nv">H</span> : φ1 · (KernelArrow K) = φ2 · (KernelArrow K)) : φ1 = φ2.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H1 : φ1 · (KernelArrow K) · g = ZeroArrow Z _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">rewrite</span> (KernelInUnique (KernelisKernel K) H1 (idpath _)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (tmp := pr2 (KernelisKernel K w (φ1 · KernelArrow K) H1) (tpair _ φ2 (! H))).
+    <span class="bp">exact</span> (base_paths _ _ tmp).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelInComp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : y --&gt; z} (<span class="nv">K</span> : Kernel f) {<span class="nv">x</span> <span class="nv">x'</span> : C}
+        (<span class="nv">h1</span> : x --&gt; x') (<span class="nv">h2</span> : x' --&gt; y)
+        (<span class="nv">H1</span> : h1 · h2 · f = ZeroArrow Z _ _) (<span class="nv">H2</span> : h2 · f = ZeroArrow Z _ _) :
+    KernelIn K x (h1 · h2) H1 = h1 · KernelIn K x' h2 H2.
+  <span class="kn">Proof</span>.
+    use KernelInsEq. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Results on morphisms between Kernels. *)</span>
+  <span class="kn">Definition</span> <span class="nf">identity_is_KernelIn</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) :
+    ∑ φ : C⟦K, K⟧, φ · (KernelArrow K) = (KernelArrow K).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">K</span>).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelEndo_is_identity</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} {<span class="nv">K</span> : Kernel g}
+        (<span class="nv">φ</span> : C⟦K, K⟧) (<span class="nv">H</span> : φ · (KernelArrow K) = KernelArrow K) :
+    identity K = φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H1 := tpair ((<span class="k">fun</span> <span class="nv">φ'</span> : C⟦K, K⟧ =&gt; φ' · _ = _)) φ H).
+    <span class="nb">assert</span> (H2 : identity_is_KernelIn K = H1).
+    - <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">apply</span> (KernelisKernel K).
+      <span class="nb">apply</span> KernelCompZero.
+    - <span class="nb">apply</span> (base_paths _ _ H2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_Kernel_to_Kernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> <span class="nv">K'</span>: Kernel g) : C⟦K, K'⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (KernelIn K' K (KernelArrow K)). <span class="nb">apply</span> KernelCompZero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Kernel_to_Kernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> <span class="nv">K'</span>: Kernel g) :
+    is_inverse_in_precat (from_Kernel_to_Kernel K K') (from_Kernel_to_Kernel K' K).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> pathsinv0. use KernelEndo_is_identity. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">unfold</span> from_Kernel_to_Kernel. <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">rewrite</span> KernelCommutes. <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> pathsinv0. use KernelEndo_is_identity. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">unfold</span> from_Kernel_to_Kernel. <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">rewrite</span> KernelCommutes. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">from_Kernel_to_Kernel_is_iso</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> <span class="nv">K'</span> : Kernel g) :
+    is_iso (from_Kernel_to_Kernel K K').
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_qinv _ (from_Kernel_to_Kernel K' K)).
+    <span class="nb">apply</span> are_inverses_from_Kernel_to_Kernel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_from_Kernel_to_Kernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> <span class="nv">K'</span> : Kernel g) : z_iso K K' :=
+    make_z_iso (from_Kernel_to_Kernel K K') (from_Kernel_to_Kernel K' K)
+             (are_inverses_from_Kernel_to_Kernel K K').
+
+  <span class="sd">(** Kernel of the ZeroArrow is given by identity *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">KernelOfZeroArrow_isKernel</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    isKernel (identity x) (ZeroArrow Z x y) (id_left (ZeroArrow Z x y)).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> h.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> <span class="k">in</span> X. <span class="nb">rewrite</span> id_right <span class="k">in</span> X. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelofZeroArrow</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : Kernel (@ZeroArrow C Z x y).
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> (identity x).
+    - use id_left.
+    - <span class="bp">exact</span> (KernelOfZeroArrow_isKernel x y).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Kernel of identity is given by arrow from zero *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">KernelOfIdentity_isKernel</span> (<span class="nv">x</span> : C) :
+    isKernel (ZeroArrowFrom x) (identity x)
+             (ArrowsFromZero C Z x (ZeroArrowFrom x · identity x) (ZeroArrow Z Z x)).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> (ZeroArrowTo w).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_right <span class="k">in</span> H'. <span class="nb">rewrite</span> H'. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y X. <span class="nb">cbn</span> <span class="k">in</span> X. use ArrowsToZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelOfIdentity</span> (<span class="nv">x</span> : C) : Kernel (identity x).
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> Z.
+    - <span class="bp">exact</span> (ZeroArrowFrom x).
+    - use ArrowsFromZero.
+    - <span class="bp">exact</span> (KernelOfIdentity_isKernel x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** More generally, the KernelArrow of the kernel of the ZeroArrow is an isomorphism. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">KernelofZeroArrow_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">K</span> : Kernel (ZeroArrow Z x y)) :
+    is_inverse_in_precat (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K).
+  <span class="kn">Proof</span>.
+    use make_is_inverse_in_precat.
+    - use KernelInsEq. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">unfold</span> from_Kernel_to_Kernel. <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> from_Kernel_to_Kernel. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelofZeroArrow_iso</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">K</span> : Kernel (@ZeroArrow C Z x y)) : z_iso K x :=
+    make_z_iso (KernelArrow K) (from_Kernel_to_Kernel (KernelofZeroArrow x y) K)
+             (KernelofZeroArrow_is_iso K).
+
+  <span class="sd">(** It follows that KernelArrow is monic. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">KernelArrowisMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel g) : isMonic (KernelArrow K).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isMonic.
+    <span class="nb">intros</span> z0 g0 h X.
+    use KernelInsEq.
+    <span class="bp">exact</span> X.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelsIn_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">K1</span> <span class="nv">K2</span> : Kernel f) :
+    is_iso (KernelIn K1 K2 (KernelArrow K2) (KernelCompZero K2)).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - use KernelIn.
+      + use KernelArrow.
+      + use KernelCompZero.
+    - <span class="nb">split</span>.
+      + use KernelInsEq. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+      + use KernelInsEq. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_kernels</span>.
+<span class="kn">Arguments</span> KernelArrow [C] [Z] [y] [z] [g] _.
+
+
+<span class="sd">(** * Correspondence of kernels and equalizers *)</span>
+<span class="kn">Section</span> <span class="nf">kernel_equalizers</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="sd">(** ** Equalizer from Kernel *)</span>
+  <span class="kn">Lemma</span> <span class="nf">KernelEqualizer_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">K</span> : Kernel Z f) :
+    KernelArrow K · f = KernelArrow K · ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelEqualizer_isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">K</span> : Kernel Z f) :
+    isEqualizer f (ZeroArrow Z x y) (KernelArrow K) (KernelEqualizer_eq K).
+  <span class="kn">Proof</span>.
+    use make_isEqualizer.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - use KernelIn.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">rewrite</span> ZeroArrow_comp_right <span class="k">in</span> H'. <span class="bp">exact</span> H'.
+    - <span class="nb">cbn</span>. use KernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. use KernelInsEq. <span class="nb">rewrite</span> KernelCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">K</span> : Kernel Z f) :
+    Equalizer f (ZeroArrow Z _ _).
+  <span class="kn">Proof</span>.
+    use make_Equalizer.
+    - <span class="bp">exact</span> K.
+    - <span class="bp">exact</span> (KernelArrow K).
+    - <span class="bp">exact</span> (KernelEqualizer_eq K).
+    - <span class="bp">exact</span> (KernelEqualizer_isEqualizer K).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Kernel from Equalizer *)</span>
+  <span class="kn">Lemma</span> <span class="nf">EqualizerKernel_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">E</span> : Equalizer f (ZeroArrow Z _ _)) :
+    EqualizerArrow E · f = ZeroArrow Z E y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ (EqualizerArrow E)).
+    <span class="bp">exact</span> (EqualizerEqAr E).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerKernel_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">E</span> : Equalizer f (ZeroArrow Z _ _)) :
+    isKernel Z (EqualizerArrow E) f (EqualizerKernel_eq E).
+  <span class="kn">Proof</span>.
+    use (make_isKernel).
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - use EqualizerIn.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="bp">exact</span> H'.
+    - use EqualizerCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. use EqualizerInsEq. <span class="nb">rewrite</span> EqualizerCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">EqualizerKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">E</span> : Equalizer f (ZeroArrow Z _ _)) :
+    Kernel Z f.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> (EqualizerArrow E).
+    - <span class="bp">exact</span> (EqualizerKernel_eq E).
+    - <span class="bp">exact</span> (EqualizerKernel_isKernel E).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">kernel_equalizers</span>.
+
+
+<span class="sd">(** * Kernel up to isomorphism *)</span>
+<span class="kn">Section</span> <span class="nf">kernels_iso</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel_up_to_iso_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+             (<span class="nv">K</span> : Kernel Z g) (<span class="nv">h</span> : z_iso x K) (<span class="nv">H</span> : f = h · (KernelArrow K)) :
+    f · g = ZeroArrow Z x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> K <span class="k">as</span> [t p]. <span class="nb">induction</span> t <span class="k">as</span> [t' p']. <span class="nb">induction</span> p <span class="k">as</span> [t'' p''].
+    <span class="nb">unfold</span> isEqualizer <span class="k">in</span> p''.
+    <span class="nb">rewrite</span> H.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ h).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Kernel_up_to_iso_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">K</span> : Kernel Z g)
+        (<span class="nv">h</span> : z_iso x K) (<span class="nv">H</span> : f = h · (KernelArrow K)) (<span class="nv">H''</span> : f · g = ZeroArrow Z x z) :
+    isKernel Z f g H''.
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    <span class="nb">intros</span> w h0 H'.
+    use unique_exists.
+    - <span class="bp">exact</span> (KernelIn Z K w h0 H' · inv_from_z_iso h).
+    - <span class="nb">cbn</span> beta. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ _ h).
+      <span class="nb">cbn</span>. <span class="nb">rewrite</span> (is_inverse_in_precat2 h). <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> KernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> beta <span class="k">in</span> X.
+      use (post_comp_with_z_iso_is_inj h). <span class="nb">rewrite</span> &lt;- assoc.
+      use (pathscomp0 _ (! (maponpaths (<span class="k">λ</span> <span class="nv">gg</span> : _, KernelIn Z K w h0 H' · gg)
+                                       (is_inverse_in_precat2 h)))).
+      <span class="nb">rewrite</span> id_right. use KernelInsEq. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> &lt;- X.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel_up_to_iso</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">K</span> : Kernel Z g)
+             (<span class="nv">h</span> : z_iso x K) (<span class="nv">H</span> : f = h · (KernelArrow K)) : Kernel Z g :=
+    make_Kernel Z f _ (Kernel_up_to_iso_eq f g K h H)
+              (Kernel_up_to_iso_isKernel f g K h H (Kernel_up_to_iso_eq f g K h H)).
+
+  <span class="kn">Lemma</span> <span class="nf">Kernel_up_to_iso2_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f1</span> : x --&gt; y} {<span class="nv">f2</span> : x --&gt; z} (<span class="nv">h</span> : z_iso y z)
+        (<span class="nv">H</span> : f1 · h = f2) (<span class="nv">K</span> : Kernel Z f1) : KernelArrow K · f2 = ZeroArrow Z K z.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- H. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCompZero.
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel_up_to_iso2_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : x --&gt; y) (<span class="nv">f2</span> : x --&gt; z)
+             (<span class="nv">h</span> : z_iso y z) (<span class="nv">H</span> : f1 · h = f2) (<span class="nv">K</span> : Kernel Z f1) :
+    isKernel Z (KernelArrow K) f2 (Kernel_up_to_iso2_eq h H K).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    <span class="nb">intros</span> w h0 H'.
+    use unique_exists.
+    - use KernelIn.
+      + <span class="bp">exact</span> h0.
+      + <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> H'. <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ h) <span class="k">in</span> H'.
+        <span class="nb">rewrite</span> assoc <span class="k">in</span> H'. <span class="nb">apply</span> (post_comp_with_z_iso_is_inj h) <span class="k">in</span> H'.
+        <span class="bp">exact</span> H'.
+    - <span class="nb">cbn</span>. use KernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 H''. use KernelInsEq.
+      <span class="nb">rewrite</span> H''. <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> KernelCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Kernel_up_to_iso2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f1</span> : x --&gt; y} {<span class="nv">f2</span> : x --&gt; z} {<span class="nv">h</span> : z_iso y z}
+             (<span class="nv">H</span> : f1 · h = f2) (<span class="nv">K</span> : Kernel Z f1) : Kernel Z f2 :=
+    make_Kernel Z (KernelArrow K) _ (Kernel_up_to_iso2_eq h H K)
+              (Kernel_up_to_iso2_isKernel f1 f2 h H K).
+
+<span class="kn">End</span> <span class="nf">kernels_iso</span>.
+
+
+<span class="sd">(** * Kernel of morphism · monic *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   Suppose f : x --&gt; y is a morphism and M : y --&gt; z is a Monic. Then kernel of f · M is</span>
+<span class="sd">   isomorphic to kernel of f.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">kernels_monics</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelCompMonic_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+        (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) :
+    KernelArrow K1 · f = ZeroArrow Z K1 y.
+  <span class="kn">Proof</span>.
+    use (MonicisMonic C M). <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> &lt;- assoc. use KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelCompMonic_mor1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+        (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) : C⟦K1, K2⟧ :=
+    KernelIn Z K2 _ (KernelArrow K1) (KernelCompMonic_eq1 f M K1 K2).
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelCompMonic_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+        (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) : KernelArrow K2 · (f · M) = ZeroArrow Z K2 z.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelCompMonic_mor2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+             (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) : C⟦K2, K1⟧ :=
+    KernelIn Z K1 _ (KernelArrow K2) (KernelCompMonic_eq2 f M K1 K2).
+
+  <span class="kn">Lemma</span> <span class="nf">KernelCompMonic1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+             (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) :
+    is_iso (KernelCompMonic_mor1 f M K1 K2).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - <span class="bp">exact</span> (KernelCompMonic_mor2 f M K1 K2).
+    - <span class="nb">split</span>.
+      + <span class="nb">unfold</span> KernelCompMonic_mor1. <span class="nb">unfold</span> KernelCompMonic_mor2.
+        use KernelInsEq.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+      + <span class="nb">unfold</span> KernelCompMonic_mor1. <span class="nb">unfold</span> KernelCompMonic_mor2.
+        use KernelInsEq.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelCompMonic2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+             (<span class="nv">K1</span> : Kernel Z (f · M)) (<span class="nv">K2</span> : Kernel Z f) :
+    is_iso (KernelCompMonic_mor2 f M K1 K2).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - <span class="bp">exact</span> (KernelCompMonic_mor1 f M K1 K2).
+    - <span class="nb">split</span>.
+      + <span class="nb">unfold</span> KernelCompMonic_mor1. <span class="nb">unfold</span> KernelCompMonic_mor2.
+        use KernelInsEq.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+      + <span class="nb">unfold</span> KernelCompMonic_mor1. <span class="nb">unfold</span> KernelCompMonic_mor2.
+        use KernelInsEq.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelCompMonic_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+        (<span class="nv">K</span> : Kernel Z (f · M)) : KernelArrow K · f = ZeroArrow Z K y.
+  <span class="kn">Proof</span>.
+    use (MonicisMonic C M). <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> &lt;- assoc. use KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelCompMonic_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z)
+        (<span class="nv">K</span> : Kernel Z (f · M)) :
+    isKernel Z (KernelArrow K) f (KernelCompMonic_eq f M K).
+  <span class="kn">Proof</span>.
+    use make_isKernel.
+    - <span class="nb">intros</span> w h H'.
+      use unique_exists.
+      + use KernelIn.
+        * <span class="bp">exact</span> h.
+        * <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ M). <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> H'.
+      + <span class="nb">cbn</span>. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+      + <span class="nb">intros</span> y0 X.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span> <span class="k">in</span> X.
+        use (MonicisMonic C (make_Monic _ _ (KernelArrowisMonic Z K))). <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> KernelCommutes. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelCompMonic</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">M</span> : Monic C y z) (<span class="nv">K</span> : Kernel Z (f · M)) :
+    Kernel Z f.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> K.
+    - use KernelArrow.
+    - <span class="bp">exact</span> (KernelCompMonic_eq f M K).
+    - <span class="bp">exact</span> (KernelCompMonic_isKernel f M K).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">kernels_monics</span>.
+
+
+<span class="sd">(** * KernelIn of equal, not necessarily definitionally equal, morphisms is iso *)</span>
+<span class="kn">Section</span> <span class="nf">kernel_in_paths</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Definition</span> <span class="nf">KernelInPaths_is_iso_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+             (<span class="nv">K1</span> : Kernel Z f) (<span class="nv">K2</span> : Kernel Z f') : K1 --&gt; K2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    use KernelIn.
+    - use KernelArrow.
+    - use KernelCompZero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">KernelInPaths_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+        (<span class="nv">K1</span> : Kernel Z f) (<span class="nv">K2</span> : Kernel Z f') : is_iso (KernelInPaths_is_iso_mor e K1 K2).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> KernelsIn_is_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelPath_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">K</span> : Kernel Z f) :
+    KernelArrow K · f' = ZeroArrow Z K y.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. use KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelPath_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">K</span> : Kernel Z f) :
+    isKernel Z (KernelArrow K) f' (KernelPath_eq e K).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. use KernelisKernel.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Constructs a cokernel of f' from a cokernel of f in a natural way *)</span>
+  <span class="kn">Definition</span> <span class="nf">KernelPath</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">K</span> : Kernel Z f) : Kernel Z f'.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> K.
+    - use KernelArrow.
+    - <span class="bp">exact</span> (KernelPath_eq e K).
+    - <span class="bp">exact</span> (KernelPath_isKernel e K).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">kernel_in_paths</span>.
+
+
+<span class="sd">(** * Transports of kernels *)</span>
+<span class="kn">Section</span> <span class="nf">transport_kernels</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Local Lemma</span> <span class="nf">transport_source_KernelIn_eq</span> {<span class="nv">x'</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) {<span class="nv">g</span> : y --&gt; z}
+        (<span class="nv">K</span> : Kernel Z g) (<span class="nv">e</span> : x = x') (<span class="nv">H</span> : f · g = ZeroArrow Z _ _) :
+    (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' y) e f) · g = ZeroArrow Z _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_source_KernelIn</span> {<span class="nv">x'</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) {<span class="nv">g</span> : y --&gt; z} (<span class="nv">K</span> : Kernel Z g)
+        (<span class="nv">e</span> : x = x') (<span class="nv">H</span> : f · g = ZeroArrow Z _ _) :
+    transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' K) e (KernelIn Z K _ f H) =
+    KernelIn Z K _ (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' y) e f)
+             (transport_source_KernelIn_eq f K e H).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. use KernelInsEq. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">transport_kernels</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Kernels.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Transport of kernels
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

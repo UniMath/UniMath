@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedCatToBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Discrete displayed bicategories</span>
+
+<span class="sd">    Given a displayed category on some bicategory, we construct a displayed bicategory</span>
+<span class="sd">    from it. The 2-cells are from the unit type.                                       *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">Disp_Prebicat_Cells_Unit</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat} (<span class="nv">D</span> : disp_cat_data C).
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_cells_unit</span>
+    : disp_prebicat_1_id_comp_cells C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">D</span>. <span class="nb">red</span>. <span class="nb">intros</span>. <span class="bp">exact</span> unit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_cells_unit_ops</span>
+    : disp_prebicat_ops disp_prebicat_cells_unit.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> use tpair; <span class="nb">cbn</span>; <span class="nb">intros</span>; <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_cells_unit_data</span> : disp_prebicat_data C
+    := _ ,, disp_prebicat_cells_unit_ops.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_prebicat_cells_unit_laws</span>
+    : disp_prebicat_laws disp_prebicat_cells_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> use tpair; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> (proofirrelevance _ isapropunit).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_prebicat</span> : disp_prebicat C
+    := _ ,, disp_prebicat_cells_unit_laws.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat</span> : disp_bicat C.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disp_cell_unit_prebicat ,, _).
+    <span class="nb">intros</span> a b f g x aa bb ff gg.
+    <span class="nb">apply</span> isasetunit.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Local Univalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_univalent_2_1</span>
+             (<span class="nv">H</span> : ∏ (a b : C)
+                    (f : a --&gt; b)
+                    (aa : D a) (bb : D b),
+                  isaprop (aa --&gt;[ f] bb))
+    : disp_univalent_2_1 disp_cell_unit_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f g p aa bb ff gg.
+    use isweqimplimpl.
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> isasetaprop.
+      <span class="bp">exact</span> (H a b g aa bb).
+    - <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">η</span> , _ ,, _)).
+      + <span class="bp">exact</span> isapropunit.
+      + <span class="nb">apply</span> (@isaprop_is_disp_invertible_2cell C disp_cell_unit_bicat).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Global Univalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_is_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_cell_unit_bicat a}
+             {<span class="nv">bb</span> : disp_cell_unit_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f ] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+    : is_disp_invertible_2cell x xx.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> tt.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_left_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_cell_unit_bicat a}
+             {<span class="nv">bb</span> : disp_cell_unit_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : bb --&gt;[ left_adjoint_right_adjoint f] aa
+      →
+      disp_left_adjoint_equivalence f ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> gg.
+    use tpair.
+    - use tpair.
+      + <span class="bp">exact</span> gg.
+      + <span class="bp">exact</span> (tt ,, tt).
+    - <span class="nb">split</span> ; <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="bp">exact</span> (disp_cell_unit_bicat_is_disp_invertible_2cell
+                  (left_adjoint_unit f ,, _)
+                  tt).
+      + <span class="bp">exact</span> (disp_cell_unit_bicat_is_disp_invertible_2cell
+                 (left_adjoint_counit f ,, _)
+                 tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_left_adjoint_equivalence_inv</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_cell_unit_bicat a}
+             {<span class="nv">bb</span> : disp_cell_unit_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : disp_left_adjoint_equivalence f ff
+      →
+      bb --&gt;[ left_adjoint_right_adjoint f] aa.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_disp_cellset</span> : has_disp_cellset disp_cell_unit_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_left_adjoint_equivalence_weq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_cell_unit_bicat a}
+             {<span class="nv">bb</span> : disp_cell_unit_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : (bb --&gt;[ left_adjoint_right_adjoint f] aa)
+        ≃
+        disp_left_adjoint_equivalence f ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disp_cell_unit_bicat_left_adjoint_equivalence f ff ,, _).
+    use isweq_iso.
+    - <span class="bp">exact</span> (disp_cell_unit_bicat_left_adjoint_equivalence_inv f ff).
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> y.
+      use subtypePath.
+      + <span class="nb">intro</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod.
+        * <span class="nb">apply</span> disp_cell_unit_bicat_disp_cellset.
+        * <span class="nb">apply</span> disp_cell_unit_bicat_disp_cellset.
+        * <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+        * <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+      + <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> disp_cell_unit_bicat_left_adjoint_equivalence_inv.
+        use total2_paths_b.
+        * <span class="bp">reflexivity</span>.
+        * use total2_paths_b ; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_adjoint_equivalent</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             (<span class="nv">aa</span> : disp_cell_unit_bicat a)
+             (<span class="nv">bb</span> : disp_cell_unit_bicat b)
+    : (aa --&gt;[ f] bb × bb --&gt;[ left_adjoint_right_adjoint f] aa)
+        ≃
+        disp_adjoint_equivalence f aa bb.
+  <span class="kn">Proof</span>.
+    use weqfibtototal ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> disp_cell_unit_bicat_left_adjoint_equivalence_weq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_idtoiso</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">p</span> : a = b)
+             (<span class="nv">aa</span> : disp_cell_unit_bicat a)
+             (<span class="nv">bb</span> : disp_cell_unit_bicat b)
+    : transportf disp_cell_unit_bicat p aa = bb
+      →
+      (aa --&gt;[ idtoiso_2_0 _ _ p ] bb)
+        ×
+        (bb --&gt;[ left_adjoint_right_adjoint (idtoiso_2_0 _ _ p)] aa).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> pp.
+    <span class="nb">induction</span> pp ; <span class="nb">cbn</span>.
+    <span class="nb">split</span> ; <span class="nb">apply</span> id_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_univalent_2_0</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HDP</span> : ∏ (a b : C)
+                     (f : a --&gt; b)
+                     (aa : D a) (bb : D b),
+                   isaprop (aa --&gt;[ f] bb))
+             (<span class="nv">Dset</span> : ∏ (a : C), isaset (D a))
+             (<span class="nv">inv</span> : ∏ (a : C) (aa bb : disp_cell_unit_bicat a),
+                    (aa --&gt;[ id₁ a ] bb × bb --&gt;[ id₁ a ] aa)
+                    →
+                    aa = bb)
+    : disp_univalent_2_0 disp_cell_unit_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> a aa bb.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> η ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> inv.
+      <span class="bp">exact</span> (invmap (disp_cell_unit_bicat_adjoint_equivalent
+                       (idtoiso_2_0 a a (idpath a))
+                       aa bb) η).
+    - <span class="nb">apply</span> (Dset a).
+    - <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span> (disp_cell_unit_bicat_adjoint_equivalent _ _ _)).
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> HDP.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cell_unit_bicat_univalent_2</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HDP</span> : ∏ (a b : C)
+                     (f : a --&gt; b)
+                     (aa : D a) (bb : D b),
+                   isaprop (aa --&gt;[ f] bb))
+             (<span class="nv">Dset</span> : ∏ (a : C), isaset (D a))
+             (<span class="nv">inv</span> : ∏ (a : C) (aa bb : disp_cell_unit_bicat a),
+                    (aa --&gt;[ id₁ a ] bb × bb --&gt;[ id₁ a ] aa)
+                    →
+                    aa = bb)
+    : disp_univalent_2 disp_cell_unit_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> disp_cell_unit_bicat_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> disp_cell_unit_bicat_univalent_2_1; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Disp_Prebicat_Cells_Unit</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_cells_unit</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">D</span> : disp_cat_data C)
+  : disp_2cells_iscontr (disp_cell_unit_bicat D).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> iscontrunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_cell_unit_bicat</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">D</span> : disp_cat_data C)
+  : disp_2cells_isaprop (disp_cell_unit_bicat D).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isapropifcontr.
+  <span class="nb">apply</span> (disp_2cells_iscontr_disp_bicat_cells_unit D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_cell_unit_bicat</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">D</span> : disp_cat_data C)
+  : disp_locally_groupoid (disp_cell_unit_bicat D).
+<span class="kn">Proof</span>.
+  use make_disp_locally_groupoid.
+  - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="bp">exact</span> tt.
+  - <span class="bp">exact</span> (disp_2cells_isaprop_cell_unit_bicat D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_disp_left_adjoint_data_cell_unit_bicat</span>
+      {<span class="nv">C</span> : bicat}
+      {<span class="nv">D</span> : disp_cat_data C}
+      {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦ a, b ⟧}
+      (<span class="nv">l</span> : left_adjoint_data f)
+      {<span class="nv">aa</span> : (disp_cell_unit_bicat D) a} {<span class="nv">bb</span> : (disp_cell_unit_bicat D) b}
+      (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+  : isaprop (bb --&gt;[ left_adjoint_right_adjoint l] aa)
+    -&gt; isaprop (disp_left_adjoint_data l ff).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  use isaproptotal2.
+  - <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_disp_left_adjoint_axioms_cell_unit_bicat</span>
+  {<span class="nv">C</span> : bicat}
+  {<span class="nv">D</span> : disp_cat_data C}
+  {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦ a, b ⟧}
+  (<span class="nv">j</span> : left_adjoint f)
+  {<span class="nv">aa</span> : (disp_cell_unit_bicat D) a} {<span class="nv">bb</span> : (disp_cell_unit_bicat D) b}
+  {<span class="nv">ff</span> : aa --&gt;[ f] bb}
+  (<span class="nv">jj</span> : disp_left_adjoint_data j ff)
+  : isaprop (disp_left_adjoint_axioms j jj).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isasetaprop, isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="c">(* To be moved more upstream *)</span>
+<span class="kn">Lemma</span> <span class="nf">isaprop_disp_left_equivalence_axioms</span>
+  {<span class="nv">C</span> : bicat}
+  {<span class="nv">D</span> : disp_cat_data C}
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  {<span class="nv">aa</span> : (disp_cell_unit_bicat D) a} {<span class="nv">bb</span> : (disp_cell_unit_bicat D) b}
+  {<span class="nv">f</span> : C⟦ a, b ⟧}
+  {<span class="nv">j</span> : left_equivalence f}
+  {<span class="nv">ff</span> : aa --&gt;[ f] bb}
+  (<span class="nv">jj</span> : disp_left_adjoint_data j ff)
+    : isaprop (disp_left_equivalence_axioms j jj).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+  <span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_disp_left_adjoint_equivalence_cell_unit_bicat</span>
+  {<span class="nv">C</span> : bicat}
+  {<span class="nv">D</span> : disp_cat_data C}
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  {<span class="nv">aa</span> : (disp_cell_unit_bicat D) a} {<span class="nv">bb</span> : (disp_cell_unit_bicat D) b}
+  (<span class="nv">f</span> : adjoint_equivalence a b)
+  (<span class="nv">ff</span> : aa --&gt;[ f ] bb)
+  : isaprop (bb --&gt;[ left_adjoint_right_adjoint f] aa)
+    -&gt; isaprop (disp_left_adjoint_equivalence f ff).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_disp_left_adjoint_axioms_cell_unit_bicat.
+    + <span class="nb">apply</span> isaprop_disp_left_equivalence_axioms.
+  - <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_disp_left_adjoint_data_cell_unit_bicat, p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_disp_adjoint_equivalence_cell_unit_bicat</span>
+  {<span class="nv">C</span> : bicat}
+  {<span class="nv">D</span> : disp_cat_data C}
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  {<span class="nv">aa</span> : (disp_cell_unit_bicat D) a} {<span class="nv">bb</span> : (disp_cell_unit_bicat D) b}
+  {<span class="nv">f</span> : adjoint_equivalence a b}
+  (<span class="nv">ff</span> : aa --&gt;[ f ] bb)
+  : isaprop (bb --&gt;[left_adjoint_right_adjoint f] aa)
+    -&gt; isaprop (aa --&gt;[ f] bb)
+    -&gt; isaprop (disp_adjoint_equivalence f aa bb).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span> <span class="nv">q</span>, isaprop_total2 (_,,q) (<span class="k">λ</span> <span class="nv">_</span> , _ ,, isaprop_disp_left_adjoint_equivalence_cell_unit_bicat _ _ p)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/DisplayedCatToBicat.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     Given a displayed category on some bicategory, we construct a displayed bicategory
+  &gt;     from it. The 2-cells are from the unit type.                                       *)
+  &gt; (* ----------------------------------------------------------------------------------- *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.MoreFoundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

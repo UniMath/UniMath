@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichmentEquiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Equivalence of enrichments and enriched categories</span>
+
+<span class="sd"> We have two notions of enriched categories: one is the usual</span>
+<span class="sd"> definition that can be found in textbooks and the other makes</span>
+<span class="sd"> use of enrichments. In this file, we prove that these two notions</span>
+<span class="sd"> are actually equivalent.</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.UnderlyingCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">EnrichmentToEnrichedCat</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          (<span class="nv">E</span> : cat_with_enrichment V).
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_cat_data</span>
+    : enriched_precat_data V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, (_ ,, _))).
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, E ⦃ x , y ⦄).
+    - <span class="bp">exact</span> (enriched_id E).
+    - <span class="bp">exact</span> (enriched_comp E).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_cat_id_ax</span>
+    : enriched_id_ax make_enriched_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr2 E).
+    - <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr2 E).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_cat_assoc_ax</span>
+    : enriched_assoc_ax make_enriched_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> (pr2 E).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_cat</span>
+    : enriched_precat V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> make_enriched_cat_data.
+    - <span class="bp">exact</span> make_enriched_cat_id_ax.
+    - <span class="bp">exact</span> make_enriched_cat_assoc_ax.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichmentToEnrichedCat</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt_data_help</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">ob</span> : UU)
+           (<span class="nv">arr</span> : ob -&gt; ob -&gt; V)
+  : UU
+  := ∑ (mor : ob -&gt; ob -&gt; UU),
+     (∏ (x : ob), mor x x)
+     ×
+     (∏ (x y z : ob), mor x y → mor y z → mor x z)
+     ×
+     (∏ (x y : ob), mor x y → I_{V} --&gt; arr x y)
+     ×
+     (∏ (x y : ob), I_{V} --&gt; arr x y → mor x y).
+
+<span class="kn">Definition</span> <span class="nf">path_cat_with_enrichment_alt_data_help_lemma</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">ob</span> : UU}
+           {<span class="nv">arr</span> : ob -&gt; ob -&gt; V}
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : cat_with_enrichment_alt_data_help ob arr}
+           (<span class="nv">p</span> : pr1 E₁ = pr1 E₂)
+           (<span class="nv">q₁</span> : ∏ (x : ob),
+                 transportf (<span class="k">λ</span> <span class="nv">T</span>, T x x) p (pr12 E₁ x)
+                 =
+                 pr12 E₂ x)
+           (<span class="nv">q₂</span> : ∏ (x y z : ob)
+                   (g₁ : pr1 E₁ x y)
+                   (g₂ : pr1 E₁ y z),
+                 transportf
+                   (<span class="k">λ</span> <span class="nv">T</span>, T x z)
+                   p
+                   (pr122 E₁ _ _ _ g₁ g₂)
+                 =
+                 pr122 E₂ _ _ _
+                     (transportf (<span class="k">λ</span> <span class="nv">T</span>, T x y) p g₁)
+                     (transportf (<span class="k">λ</span> <span class="nv">T</span>, T y z) p g₂))
+           (<span class="nv">q₃</span> : ∏ (x y : ob) (g : pr1 E₁ x y),
+                 (pr1 (pr222 E₁)) _ _ g
+                 =
+                 (pr1 (pr222 E₂)) _ _ (transportf (<span class="k">λ</span> <span class="nv">T</span>, T x y) p g))
+           (<span class="nv">q₄</span> : ∏ (x y : ob) (g : I_{V} --&gt; arr x y),
+                 transportf (<span class="k">λ</span> <span class="nv">T</span>, T x y) p (pr2 (pr222 E₁) _ _ g)
+                 =
+                 pr2 (pr222 E₂) _ _ g)
+  : E₁ = E₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> E₁ <span class="k">as</span> [ D₁ E₁ ].
+  <span class="nb">induction</span> E₂ <span class="k">as</span> [ D₂ E₂ ].
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> maponpaths.
+  <span class="kp">repeat</span> (use pathsdirprod).
+  - use funextsec ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> q₁.
+  - <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> q₂.
+  - <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> q₃.
+  - <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> q₄.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_eq</span>
+           {<span class="nv">X</span> : UU}
+           {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → X → UU}
+           (<span class="nv">p</span> : ∏ (x₁ x₂ : X), Y₁ x₁ x₂ ≃ Y₂ x₁ x₂)
+  : Y₁ = Y₂.
+<span class="kn">Proof</span>.
+  use funextsec ; <span class="nb">intro</span> x₁.
+  use funextsec ; <span class="nb">intro</span> x₂.
+  <span class="bp">exact</span> (invmap (univalence (Y₁ x₁ x₂) (Y₂ x₁ x₂)) (p x₁ x₂)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_fam_eq</span>
+           {<span class="nv">X</span> : UU}
+           {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → X → UU}
+           (<span class="nv">p</span> : ∏ (x₁ x₂ : X), Y₁ x₁ x₂ ≃ Y₂ x₁ x₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : X}
+           (<span class="nv">y</span> : Y₁ x₁ x₂)
+  : transportf
+      (<span class="k">λ</span> <span class="nv">T</span>, T _ _)
+      (fam_eq p)
+      y
+    =
+    p x₁ x₂ y.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> fam_eq.
+  etrans.
+  {
+    <span class="nb">apply</span> (transportf_funextfun (<span class="k">λ</span> <span class="nv">T</span>, T x₂)).
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> (transportf_funextfun (idfun UU)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> pr1_eqweqmap.
+  <span class="bp">exact</span> (maponpaths
+           (<span class="k">λ</span> <span class="nv">z</span>, pr1 z y)
+           (homotweqinvweq (univalence (Y₁ x₁ x₂) (Y₂ x₁ x₂)) (p x₁ x₂))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_cat_with_enrichment_alt_data_help</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">ob</span> : UU}
+           {<span class="nv">arr</span> : ob -&gt; ob -&gt; V}
+           {<span class="nv">E₁</span> <span class="nv">E₂</span> : cat_with_enrichment_alt_data_help ob arr}
+           (<span class="nv">f</span> : ∏ (x y : ob), pr1 E₁ x y → pr1 E₂ x y)
+           (<span class="nv">Hf</span> : ∏ (x y : ob), isweq (f x y))
+           (<span class="nv">p₁</span> : ∏ (x : ob), f _ _ (pr12 E₁ x) = pr12 E₂ x)
+           (<span class="nv">p₂</span> : ∏ (x y z : ob)
+                   (g₁ : pr1 E₁ x y)
+                   (g₂ : pr1 E₁ y z),
+                 f _ _ (pr122 E₁ _ _ _ g₁ g₂)
+                 =
+                 pr122 E₂ _ _ _ (f _ _ g₁) (f _ _ g₂))
+           (<span class="nv">p₃</span> : ∏ (x y : ob) (g : pr1 E₁ x y),
+                 (pr1 (pr222 E₁)) _ _ g
+                 =
+                 (pr1 (pr222 E₂)) _ _ (f _ _ g))
+           (<span class="nv">p₄</span> : ∏ (x y : ob) (g : I_{V} --&gt; arr x y),
+                 f _ _ (pr2 (pr222 E₁) _ _ g)
+                 =
+                 pr2 (pr222 E₂) _ _ g)
+  : E₁ = E₂.
+<span class="kn">Proof</span>.
+  use path_cat_with_enrichment_alt_data_help_lemma.
+  - use fam_eq.
+    <span class="nb">intros</span> x₁ x₂.
+    use make_weq.
+    + <span class="bp">exact</span> (f x₁ x₂).
+    + <span class="bp">exact</span> (Hf x₁ x₂).
+  - <span class="nb">intros</span> x.
+    <span class="nb">rewrite</span> transportf_fam_eq.
+    <span class="nb">apply</span> p₁.
+  - <span class="nb">intros</span> x y z g₁ g₂.
+    <span class="nb">rewrite</span> !transportf_fam_eq.
+    <span class="nb">apply</span> p₂.
+  - <span class="nb">intros</span> x y g.
+    <span class="nb">rewrite</span> !transportf_fam_eq.
+    <span class="nb">apply</span> p₃.
+  - <span class="nb">intros</span> x y g.
+    <span class="nb">rewrite</span> !transportf_fam_eq.
+    <span class="nb">apply</span> p₄.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt_data</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : UU
+  := ∑ (ob : UU)
+       (arr : ob -&gt; ob -&gt; V),
+     (∏ (x : ob), I_{V} --&gt; arr x x)
+     ×
+     (∏ (x y z : ob), arr y z ⊗ arr x y --&gt; arr x z)
+     ×
+     cat_with_enrichment_alt_data_help ob arr.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt_data_precategory_data</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment_alt_data V)
+  : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
+    + <span class="bp">exact</span> (pr1 E).
+    + <span class="bp">exact</span> (pr12 (pr222 E)).
+  - <span class="bp">exact</span> (pr122 (pr222 E)).
+  - <span class="bp">exact</span> (pr1 (pr222 (pr222 E))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt_data_enrichment</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment_alt_data V)
+  : enrichment_data (cat_with_enrichment_alt_data_precategory_data E) V.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (pr12 E).
+  - <span class="bp">exact</span> (pr122 E).
+  - <span class="bp">exact</span> (pr1 (pr222 E)).
+  - <span class="bp">exact</span> (pr12 (pr222 (pr222 E))).
+  - <span class="bp">exact</span> (pr22 (pr222 (pr222 E))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt_laws</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment_alt_data V)
+  : UU
+  := has_homsets (cat_with_enrichment_alt_data_precategory_data E)
+     ×
+     is_precategory (cat_with_enrichment_alt_data_precategory_data E)
+     ×
+     enrichment_laws (cat_with_enrichment_alt_data_enrichment E).
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_alt</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : UU
+  := ∑ (E : cat_with_enrichment_alt_data V), cat_with_enrichment_alt_laws E.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_to_alt</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment V)
+  : cat_with_enrichment_alt V.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _)) ,, _).
+  - <span class="bp">exact</span> (ob (pr1 E)).
+  - <span class="bp">exact</span> (pr11 (pr2 E)).
+  - <span class="bp">exact</span> (pr121 (pr2 E)).
+  - <span class="bp">exact</span> (pr1 (pr221 (pr2 E))).
+  - <span class="bp">exact</span> (pr21 (pr111 E)).
+  - <span class="nb">apply</span> identity.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+  - <span class="bp">exact</span> (pr12 (pr221 (pr2 E))).
+  - <span class="bp">exact</span> (pr22 (pr221 (pr2 E))).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">apply</span> homset_property.
+    + <span class="bp">exact</span> (pr211 E).
+    + <span class="bp">exact</span> (pr22 E).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_from_alt</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment_alt V)
+  : cat_with_enrichment V.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (((((_ ,, _) ,, (_ ,, _)) ,, _) ,, _) ,, _).
+  - <span class="bp">exact</span> (pr11 E).
+  - <span class="bp">exact</span> (pr122 (pr221 E)).
+  - <span class="bp">exact</span> (pr1 (pr222 (pr221 E))).
+  - <span class="bp">exact</span> (pr12 (pr222 (pr221 E))).
+  - <span class="bp">exact</span> (pr122 E).
+  - <span class="bp">exact</span> (pr12 E).
+  - <span class="nb">simple refine</span> ((_ ,, _ ,, _ ,, _ ,, _) ,, _).
+    + <span class="bp">exact</span> (pr121 E).
+    + <span class="bp">exact</span> (pr1 (pr221 E)).
+    + <span class="bp">exact</span> (pr12 (pr221 E)).
+    + <span class="bp">exact</span> (pr122 (pr222 (pr221 E))).
+    + <span class="bp">exact</span> (pr222 (pr222 (pr221 E))).
+    + <span class="bp">exact</span> (pr222 E).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_weq_alt</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : cat_with_enrichment V ≃ cat_with_enrichment_alt V.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> cat_with_enrichment_to_alt.
+  - <span class="bp">exact</span> cat_with_enrichment_from_alt.
+  - <span class="nb">intro</span> E.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> E.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_precat_weq_cat_with_enrichment_inv_left</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : enriched_precat V)
+  : make_enriched_cat (underlying_cat_with_enrichment V E)
+    =
+    E.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod.
+    + <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">cbn</span> -[isofhlevel].
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    + <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">cbn</span> -[isofhlevel].
+      <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_precat_weq_cat_with_enrichment_inv_right</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">E</span> : cat_with_enrichment V)
+  : underlying_cat_with_enrichment V (make_enriched_cat E)
+    =
+    E.
+<span class="kn">Proof</span>.
+    use (invmaponpathsweq (cat_with_enrichment_weq_alt V)).
+    use subtypePath.
+    {
+      <span class="nb">intro</span> z.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      <span class="kp">repeat</span> (use pathsdirprod) ;
+        <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> homset_property) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> φ₁) ;
+        <span class="nb">apply</span> isapropiscontr.
+    }
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+    use path_cat_with_enrichment_alt_data_help.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, enriched_to_arr (pr2 E) f).
+    - <span class="nb">apply</span> isweq_enriched_to_arr.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> enriched_to_arr_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y z f g.
+      <span class="nb">rewrite</span> (enriched_to_arr_comp (pr2 E)).
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y f.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> enriched_from_to_arr.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_precat_weq_cat_with_enrichment</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : enriched_precat V ≃ cat_with_enrichment V.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (underlying_cat_with_enrichment V).
+  - <span class="bp">exact</span> make_enriched_cat.
+  - <span class="bp">exact</span> enriched_precat_weq_cat_with_enrichment_inv_left.
+  - <span class="bp">exact</span> enriched_precat_weq_cat_with_enrichment_inv_right.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Enriched/EnrichmentEquiv.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  are actually equivalent.
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

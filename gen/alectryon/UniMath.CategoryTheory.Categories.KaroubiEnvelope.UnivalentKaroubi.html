@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnivalentKaroubi.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Univalent Karoubi Envelope</span>
+
+<span class="sd">  The univalent Karoubi envelope (or cauchy completion) of a category C,</span>
+<span class="sd">  is the full subcategory of presheaves on C classified by the predicate:</span>
+<span class="sd">  A presheaf P is a retract of X(-, x), for some x : ob X.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The univalent Karoubi envelope</span>
+<span class="sd">  1.1. The category [univalent_karoubi_cat]</span>
+<span class="sd">  1.2. The fully faithful embedding [embedding_into_karoubi]</span>
+<span class="sd">  1.3. Every idempotent in the karoubi envelope splits [univalent_karoubi_idempotents_split]</span>
+<span class="sd">  1.4. Every object of the karoubi envelope is a retract of an element of C</span>
+<span class="sd">    [univalent_karoubi_objects_are_retracts]</span>
+<span class="sd">  1.5. The bundling of the above into a term of univalent_karoubi_envelope [univalent_karoubi]</span>
+<span class="sd">  1.6. Every idempotent in the karoubi envelope splits [idempotents_in_karoubi_envelope_split]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.<span class="kt">Set</span>.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Fullsub.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The univalent Karoubi envelope *)</span>
+<span class="sd">(** ** 1.1. The category *)</span>
+<span class="kn">Section</span> <span class="nf">RetractsOfPresheaves</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_is_retract</span> (<span class="nv">F</span> : [X^op, SET]) : UU
+    := <span class="k">∃</span> (<span class="nv">x</span> : X), retraction F (yoneda X x).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_presheaf_is_retract</span> (<span class="nv">F</span> : [X^op, SET])
+    : isaprop (presheaf_is_retract F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropishinh.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">representable_presheaf_is_retract</span>
+    : ∏ x : X, presheaf_is_retract (yoneda X x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">x</span>.
+    use make_retraction.
+    - <span class="nb">apply</span> identity.
+    - <span class="nb">apply</span> identity.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">RetractsOfPresheaves</span>.
+
+<span class="kn">Section</span> <span class="nf">DefinitionOfKaroubi</span>.
+
+  <span class="kn">Context</span> (<span class="nv">X</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">univalent_karoubi_cat</span>
+    : category
+    := full_subcat [X^op, SET] presheaf_is_retract.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_karoubi_cat</span>
+    : is_univalent univalent_karoubi_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_full_subcat.
+    - <span class="nb">apply</span> is_univalent_functor_category, is_univalent_HSET.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_presheaf_is_retract.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DefinitionOfKaroubi</span>.
+
+<span class="kn">Section</span> <span class="nf">HelperLemmas</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">univalent_karoubi_eq_on_mor</span>
+    {<span class="nv">X</span> : category} {<span class="nv">o₁</span> <span class="nv">o₂</span> : univalent_karoubi_cat X} (<span class="nv">f</span> <span class="nv">g</span> : _⟦o₁, o₂⟧)
+    : pr1 f = pr1 g → f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">HelperLemmas</span>.
+
+<span class="sd">(** ** 1.2. The fully faithful embedding *)</span>
+<span class="kn">Section</span> <span class="nf">EmbeddingIntoKaroubi</span>.
+
+  <span class="kn">Context</span> (<span class="nv">X</span> : category).
+
+  <span class="kn">Let</span> <span class="nf">KE</span> : category := univalent_karoubi_cat X.
+
+  <span class="kn">Definition</span> <span class="nf">embedding_into_karoubi_data</span>
+    : functor_data X KE.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> x.
+      <span class="k">exists</span> (<span class="nv">yoneda</span> <span class="nv">X</span> <span class="nv">x</span>).
+      <span class="nb">apply</span> representable_presheaf_is_retract.
+    - <span class="nb">intros</span> x₀ x₁ f.
+      <span class="bp">exact</span> (#(yoneda X) f ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">embedding_into_karoubi_is_functor</span>
+    : is_functor embedding_into_karoubi_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span>
+    ; <span class="nb">apply</span> univalent_karoubi_eq_on_mor ; <span class="nb">apply</span> (yoneda X).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">embedding_into_karoubi</span>
+    : X ⟶ KE.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> embedding_into_karoubi_data.
+    - <span class="nb">apply</span> embedding_into_karoubi_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">univalent_karoubi_eq_on_mor_from_embedding</span>
+    {<span class="nv">x₁</span> <span class="nv">x₂</span> : X}
+    (<span class="nv">f</span> : KE⟦embedding_into_karoubi x₁, embedding_into_karoubi x₂⟧)
+    (<span class="nv">g</span> : X ⟦x₁, x₂⟧)
+    : (#(yoneda X) g = pr1 f) ≃ #(yoneda X) g ,, tt = f.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> p.
+      <span class="nb">apply</span> (univalent_karoubi_eq_on_mor (#embedding_into_karoubi g) f).
+      <span class="bp">exact</span> p.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span>.
+      use proofirrelevance.
+      <span class="nb">apply</span> (homset_property KE (embedding_into_karoubi _) (embedding_into_karoubi _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">embedding_into_karoubi_is_fully_faithful</span>
+    : fully_faithful embedding_into_karoubi.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂.
+    <span class="nb">intro</span> f.
+    use iscontrweqf.
+    - <span class="bp">exact</span> (∑ g : X ⟦x₁, x₂⟧, #(yoneda X) g = pr1 f).
+    - <span class="nb">unfold</span> hfiber.
+      use weqfibtototal.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> univalent_karoubi_eq_on_mor_from_embedding.
+    - <span class="bp">exact</span> (yoneda_fully_faithful X x₁ x₂ (pr1 f)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EmbeddingIntoKaroubi</span>.
+
+<span class="sd">(** ** 1.3. Every idempotent in the karoubi envelope splits *)</span>
+<span class="kn">Section</span> <span class="nf">SplitIdempotents</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">X</span> : univalent_karoubi_cat C).
+  <span class="kn">Context</span> (<span class="nv">f</span> : idempotent X).
+
+  <span class="kn">Definition</span> <span class="nf">univalent_karoubi_split_idempotent_presheaf</span>
+    : PreShv C
+    := Equalizers_PreShv _ _ (identity _) (pr1 (idempotent_morphism f)).
+
+  <span class="kn">Definition</span> <span class="nf">univalent_karoubi_split_idempotent_presheaf_retraction</span>
+    : retraction univalent_karoubi_split_idempotent_presheaf (pr1 X).
+  <span class="kn">Proof</span>.
+    use make_retraction.
+    - <span class="nb">apply</span> EqualizerArrow.
+    - <span class="nb">refine</span> (EqualizerIn _ _ (pr1 (idempotent_morphism f)) _).
+      <span class="nb">refine</span> (id_right _ @ !base_paths _ _ (idempotent_is_idempotent f)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">apply</span> EqualizerInsEq;
+        <span class="nb">refine</span> (assoc' _ _ _ @ _);
+        <span class="nb">refine</span> (maponpaths _ (EqualizerCommutes _ _ _ _) @ _);
+        <span class="nb">refine</span> (_ @ !id_left _);
+        <span class="nb">refine</span> (_ @ id_right _);
+        <span class="bp">exact</span> (!EqualizerEqAr _)
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_karoubi_split_idempotent_object</span>
+    : univalent_karoubi_cat C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">univalent_karoubi_split_idempotent_presheaf</span>.
+    <span class="nb">refine</span> (hinhfun _ (pr2 X)).
+    <span class="nb">intro</span> HX.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">HX</span>).
+    <span class="bp">exact</span> (compose_retraction
+      univalent_karoubi_split_idempotent_presheaf_retraction
+      (pr2 HX)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univalent_karoubi_split_idempotent</span>
+    : is_split_idempotent f.
+  <span class="kn">Proof</span>.
+    use make_is_split_idempotent.
+    - <span class="bp">exact</span> univalent_karoubi_split_idempotent_object.
+    - <span class="nb">apply</span> (fully_faithful_functor_reflects_retraction _ (full_subcat_pr1_fully_faithful _ _)).
+      <span class="bp">exact</span> univalent_karoubi_split_idempotent_presheaf_retraction.
+    - <span class="kp">abstract</span> (
+        <span class="nb">apply</span> univalent_karoubi_eq_on_mor;
+        <span class="bp">exact</span> (!EqualizerCommutes _ _ _ _)
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SplitIdempotents</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_karoubi_idempotents_split</span>
+  (<span class="nv">C</span> : category)
+  : idempotents_split (univalent_karoubi_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X f.
+  <span class="nb">apply</span> hinhpr.
+  <span class="nb">apply</span> univalent_karoubi_split_idempotent.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.4. Every object of the karoubi envelope is a retract of an element of C *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_karoubi_objects_are_retracts</span>
+  (<span class="nv">C</span> : category)
+  : objects_are_retracts (embedding_into_karoubi C).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">refine</span> (hinhfun _ (pr2 X)).
+  <span class="nb">intro</span> HX.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">HX</span>).
+  <span class="nb">apply</span> (fully_faithful_functor_reflects_retraction _ (full_subcat_pr1_fully_faithful _ _)).
+  <span class="bp">exact</span> (pr2 HX).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.5. The bundling of the above into a term of univalent_karoubi_envelope *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_karoubi</span>
+  (<span class="nv">C</span> : category)
+  : univalent_karoubi_envelope C.
+<span class="kn">Proof</span>.
+  use make_univalent_karoubi_envelope.
+  - use make_karoubi_envelope.
+    + use make_karoubi_envelope_data.
+      * <span class="bp">exact</span> (univalent_karoubi_cat C).
+      * <span class="bp">exact</span> (embedding_into_karoubi C).
+    + <span class="nb">apply</span> make_is_karoubi_envelope.
+      * <span class="bp">exact</span> (univalent_karoubi_idempotents_split C).
+      * <span class="bp">exact</span> (embedding_into_karoubi_is_fully_faithful C).
+      * <span class="bp">exact</span> (univalent_karoubi_objects_are_retracts C).
+  - <span class="nb">apply</span> (is_univalent_karoubi_cat C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.6. Another proof of the splitting *)</span>
+<span class="kn">Proposition</span> <span class="nf">idempotents_in_karoubi_envelope_split</span> (<span class="nv">X</span> : category)
+    : idempotents_split (univalent_karoubi_cat X).
+<span class="kn">Proof</span>.
+  use idempotents_split_in_full_subcat.
+  - <span class="nb">apply</span> idempotents_split_in_functor_cat.
+    + <span class="nb">apply</span> is_univalent_HSET.
+    + <span class="nb">apply</span> idempotents_split_in_set.
+  - <span class="nb">intros</span> F G r.
+    use (factor_through_squash _ _ (pr2 F)).
+    { <span class="nb">apply</span> isapropishinh. }
+    <span class="nb">intros</span> [x r'].
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">x</span>.
+    <span class="bp">exact</span> (compose_retraction r r').
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/KaroubiEnvelope/UnivalentKaroubi.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   1.6. Every idempotent in the karoubi envelope splits [idempotents_in_karoubi_envelope_split]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

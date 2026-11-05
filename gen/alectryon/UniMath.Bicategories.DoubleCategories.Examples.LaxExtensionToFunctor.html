@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LaxExtensionToFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Lax extensions and lax double functors</span>
+
+<span class="sd"> We show that the type of functors together with a lax extension is equivalent to the type</span>
+<span class="sd"> of lax double functors. The notion of lax extension is fundamental in the study of</span>
+<span class="sd"> bisimulation. To define bisimulations for coalgebras for an endofunctors, one needs to be</span>
+<span class="sd"> able to lift relations along that functor. There are various notions to define such liftings,</span>
+<span class="sd"> and one of them is given by lax extensions. Lax extensions are closely related to lax double</span>
+<span class="sd"> functors, and we prove their equivalence (see Section 1.13 in "Monoidal Topology: A Categorical</span>
+<span class="sd"> Approach to Order, Metric and Topology"). We also give a specialized builder for lax double</span>
+<span class="sd"> endofunctors on the double category of quantale-enriched relations.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - Section 1.13 in "Monoidal Topology: A Categorical Approach to Order, Metric and Topology",</span>
+<span class="sd">   editors Dirk Hofmann, Gavin Seal, Walter Tholen.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Every lax extension gives rise to a lax double functor</span>
+<span class="sd"> 2. Every lax double functor gives rise to a lax extension</span>
+<span class="sd"> 3. Equivalence between lax double functors and functors with a lax extension</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.EnrichedRels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.EnrichedRelDoubleCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichedRelation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.LaxExtension.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Every lax extension gives rise to a lax double functor *)</span>
+<span class="kn">Section</span> <span class="nf">LaxDoubleFunctorRel</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : quantale_cosmos}
+          {<span class="nv">F</span> : SET ⟶ SET}
+          (<span class="nv">L</span> : lax_extension V F)
+          (<span class="nv">FR</span> : ∏ (X Y : hSet),
+                enriched_relation V X Y
+                →
+                enriched_relation V (F X) (F Y))
+          (<span class="nv">FS</span> : ∏ (X₁ X₂ Y₁ Y₂ : hSet)
+                  (R₁ : enriched_relation V X₁ Y₁)
+                  (R₂ : enriched_relation V X₂ Y₂)
+                  (f : X₁ → X₂)
+                  (g : Y₁ → Y₂)
+                  (p : enriched_relation_square f g R₁ R₂),
+                enriched_relation_square
+                  (#F f) (#F g)
+                  (FR X₁ Y₁ R₁) (FR X₂ Y₂ R₂))
+          (<span class="nv">FI</span> : ∏ (X : hSet),
+                enriched_relation_square
+                  (idfun _) (idfun _)
+                  (id_enriched_relation (F X))
+                  (FR X X (id_enriched_relation X)))
+          (<span class="nv">FC</span> : ∏ (X Y Z : hSet)
+                  (R : enriched_relation V X Y)
+                  (S : enriched_relation V Y Z),
+                enriched_relation_square
+                  (idfun _) (idfun _)
+                  (FR X Y R ·e FR Y Z S) (FR X Z (R ·e S))).
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_relation_twosided_disp_functor_data</span>
+    : twosided_disp_functor_data
+        F F
+        (enriched_relation_twosided_disp_cat V)
+        (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> FR.
+    - <span class="bp">exact</span> FS.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_relation_twosided_disp_functor</span>
+    : twosided_disp_functor
+        F F
+        (enriched_relation_twosided_disp_cat V)
+        (enriched_relation_twosided_disp_cat V).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> make_enriched_relation_twosided_disp_functor_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_relation_double_functor_hor_id</span>
+    : double_functor_hor_id
+        make_enriched_relation_twosided_disp_functor
+        (enriched_rel_double_cat_hor_id V)
+        (enriched_rel_double_cat_hor_id V).
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_id.
+    - <span class="bp">exact</span> FI.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_relation_double_functor_hor_comp</span>
+    : double_functor_hor_comp
+        make_enriched_relation_twosided_disp_functor
+        (enriched_rel_double_cat_hor_comp V)
+        (enriched_rel_double_cat_hor_comp V).
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_comp.
+    - <span class="bp">exact</span> FC.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_relation_lax_double_functor</span>
+    : lax_double_functor
+        (enriched_rel_univalent_double_cat V)
+        (enriched_rel_univalent_double_cat V).
+  <span class="kn">Proof</span>.
+    use make_lax_double_functor.
+    - <span class="bp">exact</span> F.
+    - <span class="bp">exact</span> make_enriched_relation_twosided_disp_functor.
+    - <span class="bp">exact</span> make_enriched_relation_double_functor_hor_id.
+    - <span class="bp">exact</span> make_enriched_relation_double_functor_hor_comp.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_enriched_relation_square).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_enriched_relation_square).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+         <span class="nb">apply</span> isaprop_enriched_relation_square).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LaxDoubleFunctorRel</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_extension_to_lax_double_functor</span>
+           {<span class="nv">V</span> : quantale_cosmos}
+           {<span class="nv">F</span> : SET ⟶ SET}
+           (<span class="nv">L</span> : lax_extension V F)
+  : lax_double_functor
+      (enriched_rel_univalent_double_cat V)
+      (enriched_rel_univalent_double_cat V).
+<span class="kn">Proof</span>.
+  use make_enriched_relation_lax_double_functor.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">R</span>, L X Y R).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">R</span> <span class="nv">S</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">p</span>, lax_extension_enriched_relation_square L p).
+  - <span class="bp">exact</span> (lax_extension_id_enriched_relation L).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">R</span> <span class="nv">S</span>, lax_extension_enriched_rel_comp L R S).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Every lax double functor gives rise to a lax extension *)</span>
+<span class="kn">Section</span> <span class="nf">FunctorToExtension</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : quantale_cosmos}
+          (<span class="nv">F</span> : lax_double_functor
+                 (enriched_rel_univalent_double_cat V)
+                 (enriched_rel_univalent_double_cat V)).
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_extension_data</span>
+    : lax_extension_data V F
+    := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">R</span>, #h F R.
+
+  <span class="kn">Arguments</span> lax_double_functor_to_extension_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">lax_double_functor_to_extension_laws</span>
+    : lax_extension_laws lax_double_functor_to_extension_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y R S p.
+      <span class="nb">pose</span> (enriched_relation_square_to_le
+              (#s F (enriched_relation_le_to_square p)))
+        <span class="k">as</span> e.
+      <span class="nb">unfold</span> lax_double_functor_to_extension_data.
+      <span class="nb">refine</span> (enriched_relation_le_trans e _).
+      <span class="nb">rewrite</span> &lt;- enriched_relation_comp_conj.
+      <span class="nb">rewrite</span> !(lax_double_functor_id_v F).
+      <span class="nb">rewrite</span> companion_enriched_relation_id.
+      <span class="nb">rewrite</span> conjoint_enriched_relation_id.
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> enriched_relation_lunitor.
+      }
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_runitor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> (lax_double_functor_comp_h F).
+    - <span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_eq_to_le.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(id_left (#F f)) @ _).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="bp">exact</span> (companion_enriched_relation_comp (identity (F X)) (#F f)).
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+        <span class="nb">rewrite</span> companion_enriched_relation_id.
+        <span class="bp">exact</span> (enriched_relation_square_to_le (lax_double_functor_id_h F X)).
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+        <span class="bp">exact</span> (#s F (companion_enriched_relation_right f)).
+      }
+      <span class="nb">rewrite</span> &lt;- enriched_relation_comp_conj.
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_eq_to_le.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (lax_double_functor_id_v F X).
+        }
+        <span class="nb">rewrite</span> companion_enriched_relation_id.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> enriched_relation_lunitor.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> enriched_relation_lassociator.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> comp_conjoint_companion_enriched_relation.
+      }
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_runitor.
+    - <span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_eq_to_le.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(id_left (#F f)) @ _).
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="bp">exact</span> (conjoint_enriched_relation_comp (identity (F X)) (#F f)).
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+        <span class="nb">rewrite</span> conjoint_enriched_relation_id.
+        <span class="bp">exact</span> (enriched_relation_square_to_le (lax_double_functor_id_h F X)).
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+        <span class="bp">exact</span> (enriched_relation_square_to_le (#s F (conjoint_enriched_relation_left f))).
+      }
+      <span class="nb">rewrite</span> &lt;- enriched_relation_comp_conj.
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_eq_to_le.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (lax_double_functor_id_v F X).
+        }
+        <span class="nb">rewrite</span> conjoint_enriched_relation_id.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+        <span class="nb">refine</span> (enriched_relation_le_comp (enriched_relation_le_refl _) _).
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> enriched_relation_runitor.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> enriched_relation_rassociator.
+      }
+      <span class="nb">refine</span> (enriched_relation_le_trans _ _).
+      {
+        <span class="nb">refine</span> (enriched_relation_le_comp _ (enriched_relation_le_refl _)).
+        use enriched_relation_square_to_le.
+        <span class="nb">apply</span> comp_conjoint_companion_enriched_relation.
+      }
+      use enriched_relation_square_to_le.
+      <span class="nb">apply</span> enriched_relation_lunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_lax_extension</span>
+    : lax_extension V F.
+  <span class="kn">Proof</span>.
+    use make_lax_extension.
+    - <span class="bp">exact</span> lax_double_functor_to_extension_data.
+    - <span class="bp">exact</span> lax_double_functor_to_extension_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_double_functor_to_functor_with_lax_extension</span>
+    : functor_with_lax_extension V
+    := _ ,, lax_double_functor_to_lax_extension.
+<span class="kn">End</span> <span class="nf">FunctorToExtension</span>.
+
+<span class="sd">(** * 3. Equivalence between lax double functors and functors with a lax extension *)</span>
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_weq_functor_with_lax_extension_left</span>
+             {<span class="nv">V</span> : quantale_cosmos}
+             (<span class="nv">F</span> : lax_double_functor
+                    (enriched_rel_univalent_double_cat V)
+                    (enriched_rel_univalent_double_cat V))
+  : lax_extension_to_lax_double_functor (lax_double_functor_to_lax_extension F) = F.
+<span class="kn">Proof</span>.
+  use subtypePath.
+
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use isapropdirprod) ;
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+    <span class="nb">apply</span> isasetaprop ;
+    <span class="nb">apply</span> isaprop_enriched_relation_square.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod.
+    - use isaproptotal2.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+      }
+      <span class="nb">intros</span>.
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (is_poset_category_quantale_cosmos V).
+    - use isaproptotal2.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+      }
+      <span class="nb">intros</span>.
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (is_poset_category_quantale_cosmos V).
+  }
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_twosided_disp_functor_laws.
+    }
+    <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> V.
+    }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_weq_functor_with_lax_extension_right</span>
+            {<span class="nv">V</span> : quantale_cosmos}
+            (<span class="nv">F</span> : functor_with_lax_extension V)
+  : lax_double_functor_to_functor_with_lax_extension
+      (lax_extension_to_lax_double_functor (lax_extension_of_functor F))
+    =
+    F.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+  use eq_lax_extension.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_weq_functor_with_lax_extension</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+  : lax_double_functor
+      (enriched_rel_univalent_double_cat V)
+      (enriched_rel_univalent_double_cat V)
+    ≃
+    functor_with_lax_extension V.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> lax_double_functor_to_functor_with_lax_extension.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, lax_extension_to_lax_double_functor
+                  (lax_extension_of_functor F)).
+  - <span class="bp">exact</span> lax_double_functor_weq_functor_with_lax_extension_left.
+  - <span class="bp">exact</span> lax_double_functor_weq_functor_with_lax_extension_right.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/LaxExtensionToFunctor.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Equivalence between lax double functors and functors with a lax extension
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

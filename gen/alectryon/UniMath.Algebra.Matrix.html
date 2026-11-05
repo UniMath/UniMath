@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Matrix.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Matrices</span>
+
+<span class="sd">Operations on vectors and matrices.</span>
+
+<span class="sd">Author: Langston Barrett (@siddharthist) (March 2018)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd"> - Vectors</span>
+<span class="sd">   - Standard conditions on one binary operation</span>
+<span class="sd">   - Standard conditions on a pair of binary operations</span>
+<span class="sd">   - Structures</span>
+<span class="sd"> - Matrices</span>
+<span class="sd">   - Standard conditions on one binary operation</span>
+<span class="sd">   - Structures</span>
+<span class="sd">   - Matrix rig</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Vectors *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pointwise</span> {<span class="nv">X</span> : UU} (<span class="nv">n</span> : nat) (<span class="nv">op</span> : binop X) : binop (Vector X n) :=
+  <span class="k">λ</span> <span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">i</span>, op (v1 i) (v2 i).
+
+<span class="sd">(** *** Standard conditions on one binary operation *)</span>
+
+<span class="sd">(** Most features of binary operations (associativity, unity, etc) carry over to</span>
+<span class="sd">    pointwise operations. *)</span>
+<span class="kn">Section</span> <span class="nf">OneOp</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} {<span class="nv">op</span> : binop X}.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_assoc</span> (<span class="nv">assocax</span> : isassoc op) : isassoc (pointwise n op).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> assocax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_lunit</span> (<span class="nv">lun</span> : X) (<span class="nv">lunax</span> : islunit op lun) :
+    islunit (pointwise n op) (const_vec lun).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> lunax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_runit</span> (<span class="nv">run</span> : X) (<span class="nv">runax</span> : isrunit op run) :
+    isrunit (pointwise n op) (const_vec run).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> runax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_unit</span> (<span class="nv">un</span> : X) (<span class="nv">unax</span> : isunit op un) :
+    isunit (pointwise n op) (const_vec un).
+  <span class="kn">Proof</span>.
+    use make_isunit.
+    - <span class="nb">apply</span> pointwise_lunit; <span class="bp">exact</span> (pr1 unax).
+    - <span class="nb">apply</span> pointwise_runit; <span class="bp">exact</span> (pr2 unax).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_comm</span> (<span class="nv">commax</span> : iscomm op) : iscomm (pointwise n op).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> commax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_monoidop</span> (<span class="nv">monoidax</span> : ismonoidop op) :
+    ismonoidop (pointwise n op).
+  <span class="kn">Proof</span>.
+    use make_ismonoidop.
+    - <span class="nb">apply</span> pointwise_assoc, assocax_is; <span class="bp">assumption</span>.
+    - use make_isunital.
+      + <span class="nb">apply</span> (const_vec (unel_is monoidax)).
+      + <span class="nb">apply</span> pointwise_unit, unax_is.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_abmonoidop</span> (<span class="nv">abmonoidax</span> : isabmonoidop op) :
+    isabmonoidop (pointwise n op).
+  <span class="kn">Proof</span>.
+    use make_isabmonoidop.
+    - <span class="nb">apply</span> pointwise_monoidop; <span class="bp">exact</span> (pr1isabmonoidop _ _ abmonoidax).
+    - <span class="nb">apply</span> pointwise_comm; <span class="bp">exact</span> (pr2 abmonoidax).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">OneOp</span>.
+
+<span class="sd">(** *** Standard conditions on a pair of binary operations *)</span>
+
+<span class="kn">Section</span> <span class="nf">TwoOps</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} {<span class="nv">op</span> : binop X} {<span class="nv">op'</span> : binop X}.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_ldistr</span> (<span class="nv">isldistrax</span> : isldistr op op') :
+    isldistr (pointwise n op) (pointwise n op').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> isldistrax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_rdistr</span> (<span class="nv">isrdistrax</span> : isrdistr op op') :
+    isrdistr (pointwise n op) (pointwise n op').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> isrdistrax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_distr</span> (<span class="nv">isdistrax</span> : isdistr op op') :
+    isdistr (pointwise n op) (pointwise n op').
+  <span class="kn">Proof</span>.
+    use make_dirprod.
+    - <span class="nb">apply</span> pointwise_ldistr; <span class="nb">apply</span> (dirprod_pr1 isdistrax).
+    - <span class="nb">apply</span> pointwise_rdistr; <span class="nb">apply</span> (dirprod_pr2 isdistrax).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TwoOps</span>.
+
+<span class="sd">(** *** Structures *)</span>
+
+<span class="kn">Section</span> <span class="nf">Structures</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_hSet</span> (<span class="nv">X</span> : hSet) (<span class="nv">n</span> : nat) : hSet.
+  <span class="kn">Proof</span>.
+    use make_hSet.
+    - <span class="bp">exact</span> (Vector X n).
+    - <span class="nb">change</span> isaset <span class="k">with</span> (isofhlevel <span class="mi">2</span>).
+      <span class="nb">apply</span> vector_hlevel, setproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_setwithbinop</span> (<span class="nv">X</span> : setwithbinop) (<span class="nv">n</span> : nat) : setwithbinop.
+  <span class="kn">Proof</span>.
+    use make_setwithbinop.
+    - <span class="nb">apply</span> pointwise_hSet; [<span class="bp">exact</span> X|<span class="bp">assumption</span>].
+    - <span class="bp">exact</span> (pointwise n op).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_setwith2binop</span> (<span class="nv">X</span> : setwith2binop) (<span class="nv">n</span> : nat) : setwith2binop.
+  <span class="kn">Proof</span>.
+    use make_setwith2binop.
+    - <span class="nb">apply</span> pointwise_hSet; [<span class="bp">exact</span> X|<span class="bp">assumption</span>].
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (pointwise n op1).
+      + <span class="bp">exact</span> (pointwise n op2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_monoid</span> (<span class="nv">X</span> : monoid) (<span class="nv">n</span> : nat) : monoid.
+  <span class="kn">Proof</span>.
+    use make_monoid.
+    - <span class="nb">apply</span> pointwise_setwithbinop; [<span class="bp">exact</span> X|<span class="bp">assumption</span>].
+    - <span class="nb">apply</span> pointwise_monoidop; <span class="bp">exact</span> (pr2 X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_abmonoid</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">n</span> : nat) : abmonoid.
+  <span class="kn">Proof</span>.
+    use make_abmonoid.
+    - <span class="nb">apply</span> pointwise_setwithbinop; [<span class="bp">exact</span> X|<span class="bp">assumption</span>].
+    - <span class="nb">apply</span> pointwise_abmonoidop; <span class="bp">exact</span> (pr2 X).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Structures</span>.
+
+<span class="sd">(** ** Matrices *)</span>
+
+<span class="kn">Definition</span> <span class="nf">entrywise</span> {<span class="nv">X</span> : UU} (<span class="nv">n</span> <span class="nv">m</span> : nat) (<span class="nv">op</span> : binop X) : binop (Matrix X n m) :=
+  <span class="k">λ</span> <span class="nv">mat1</span> <span class="nv">mat2</span> <span class="nv">i</span>, pointwise _ op (mat1 i) (mat2 i).
+
+<span class="sd">(** *** Standard conditions on one binary operation *)</span>
+
+<span class="kn">Section</span> <span class="nf">OneOpMat</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat} {<span class="nv">op</span> : binop X}.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_assoc</span> (<span class="nv">assocax</span> : isassoc op) : isassoc (entrywise n m op).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> pointwise_assoc, assocax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_lunit</span> (<span class="nv">lun</span> : X) (<span class="nv">lunax</span> : islunit op lun) :
+    islunit (entrywise n m op) (const_matrix lun).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> pointwise_lunit, lunax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_runit</span> (<span class="nv">run</span> : X) (<span class="nv">runax</span> : isrunit op run) :
+    isrunit (entrywise n m op) (const_matrix run).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> pointwise_runit, runax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_unit</span> (<span class="nv">un</span> : X) (<span class="nv">unax</span> : isunit op un) :
+    isunit (entrywise n m op) (const_matrix un).
+  <span class="kn">Proof</span>.
+    use make_isunit.
+    - <span class="nb">apply</span> entrywise_lunit; <span class="bp">exact</span> (pr1 unax).
+    - <span class="nb">apply</span> entrywise_runit; <span class="bp">exact</span> (pr2 unax).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_comm</span> (<span class="nv">commax</span> : iscomm op) : iscomm (entrywise n m op).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ?; <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> pointwise_comm, commax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_monoidop</span> (<span class="nv">monoidax</span> : ismonoidop op) :
+    ismonoidop (entrywise n m op).
+  <span class="kn">Proof</span>.
+    use make_ismonoidop.
+    - <span class="nb">apply</span> entrywise_assoc, assocax_is; <span class="bp">assumption</span>.
+    - use make_isunital.
+      + <span class="nb">apply</span> (const_matrix (unel_is monoidax)).
+      + <span class="nb">apply</span> entrywise_unit, unax_is.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">entrywise_abmonoidop</span> (<span class="nv">abmonoidax</span> : isabmonoidop op) :
+    isabmonoidop (entrywise n m op).
+  <span class="kn">Proof</span>.
+    use make_isabmonoidop.
+    - <span class="nb">apply</span> entrywise_monoidop; <span class="bp">exact</span> (pr1isabmonoidop _ _ abmonoidax).
+    - <span class="nb">apply</span> entrywise_comm; <span class="bp">exact</span> (pr2 abmonoidax).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">OneOpMat</span>.
+
+<span class="sd">(** It is uncommon to consider two entrywise binary operations on matrices,</span>
+<span class="sd">    so we don't derive "standard conditions on a pair of binar operations"</span>
+<span class="sd">    for matrices. *)</span>
+
+<span class="sd">(** *** Structures *)</span>
+
+<span class="sd">(** *** Matrix rig *)</span>
+
+<span class="kn">Section</span> <span class="nf">MatrixMult</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : rig}.
+
+  <span class="sd">(** Summation and pointwise multiplication *)</span>
+  <span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun rigunel1 op1).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 ^ R2"</span> := ((pointwise _ op2) R1 R2).
+
+  <span class="sd">(** If A is m × n (so B is n × p),</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">        AB(i, j) = A(i, 1) * B(1, j) + A(i, 2) * B(2, j) + ⋯ + A(i, n) * B(n, j)</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">      The order of the arguments allows currying the first matrix.</span>
+<span class="sd">  *)</span>
+  <span class="kn">Definition</span> <span class="nf">matrix_mult</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat1</span> : Matrix R m n)
+                         {<span class="nv">p</span> : nat} (<span class="nv">mat2</span> : Matrix R n p) : (Matrix R m p) :=
+    <span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span>, Σ ((row mat1 i) ^ (col mat2 j)).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (matrix_mult A B) (<span class="kn">at level</span> <span class="mi">80</span>).
+
+  <span class="kn">Lemma</span> <span class="nf">identity_matrix</span> {<span class="nv">n</span> : nat} : (Matrix R n n).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i j.
+    <span class="nb">induction</span> (stn_eq_or_neq i j).
+    - <span class="bp">exact</span> (rigunel2). <span class="c">(* The multiplicative identity *)</span>
+    - <span class="bp">exact</span> (rigunel1). <span class="c">(* The additive identity *)</span>
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MatrixMult</span>.
+
+<span class="kn">Local Notation</span> <span class="nf">Σ</span> := (iterop_fun rigunel1 op1).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"R1 ^ R2"</span> := ((pointwise _ op2) R1 R2).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ** B"</span> := (matrix_mult A B) (<span class="kn">at level</span> <span class="mi">80</span>).
+
+<span class="sd">(** The following is based on "The magnitude of metric spaces" by Tom Leinster</span>
+<span class="sd">    (arXiv:1012.5857v3). *)</span>
+<span class="kn">Section</span> <span class="nf">Weighting</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : rig}.
+
+  <span class="sd">(** Definition 1.1.1 in arXiv:1012.5857v3 *)</span>
+  <span class="kn">Definition</span> <span class="nf">weighting</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix R m n) : UU :=
+    ∑ vec : Vector R n, (mat ** (col_vec vec)) = col_vec (const_vec (<span class="mi">1</span>%rig)).
+
+  <span class="kn">Definition</span> <span class="nf">coweighting</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix R m n) : UU :=
+    ∑ vec : Vector R m, ((row_vec vec) ** mat) = row_vec (const_vec (<span class="mi">1</span>%rig)).
+
+  <span class="kn">Lemma</span> <span class="nf">matrix_mult_vectors</span> {<span class="nv">n</span> : nat} (<span class="nv">vec1</span> <span class="nv">vec2</span> : Vector R n) :
+    ((row_vec vec1) ** (col_vec vec2)) = weq_matrix_1_1 (Σ (vec1 ^ vec2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> i; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> j; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Multiplying a column vector by the identity row vector is the same as</span>
+<span class="sd">      taking the sum of its entries. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">sum_entries1</span> {<span class="nv">n</span> : nat} (<span class="nv">vec</span> : Vector R n) :
+    weq_matrix_1_1 (Σ vec) = ((row_vec (const_vec (<span class="mi">1</span>%rig))) ** (col_vec vec)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !matrix_mult_vectors _ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (pointwise_lunit <span class="mi">1</span>%rig _ vec).
+    <span class="nb">apply</span> riglunax2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">sum_entries2</span> {<span class="nv">n</span> : nat} (<span class="nv">vec</span> : Vector R n) :
+      weq_matrix_1_1 (Σ vec) = (row_vec vec ** col_vec (const_vec <span class="mi">1</span>%rig)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ !matrix_mult_vectors _ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (pointwise_runit <span class="mi">1</span>%rig _ vec).
+    <span class="nb">apply</span> rigrunax2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** TODO: prove this so that the below isn't hypothetical *)</span>
+  <span class="kn">Definition</span> <span class="nf">matrix_mult_assoc_statement</span> : UU :=
+    ∏ (m n : nat) (mat1 : Matrix R m n)
+      (p : nat) (mat2 : Matrix R n p)
+      (q : nat) (mat3 : Matrix R p q),
+    ((mat1 ** mat2) ** mat3) = (mat1 ** (mat2 ** mat3)).
+
+  <span class="sd">(** Lemma 1.1.2 in arXiv:1012.5857v3 *)</span>
+  <span class="kn">Lemma</span> <span class="nf">weighting_coweighting_sum</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">mat</span> : Matrix R m n)
+        (<span class="nv">wei</span> : weighting mat) (<span class="nv">cowei</span> : coweighting mat)
+        (<span class="nv">assocax</span> : matrix_mult_assoc_statement) :
+    Σ (pr1 wei) = Σ (pr1 cowei).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (invmaponpathsweq weq_matrix_1_1).
+    intermediate_path ((row_vec (const_vec (<span class="mi">1</span>%rig))) ** (col_vec (pr1 wei))).
+    - <span class="nb">apply</span> sum_entries1.
+    - <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ** _) (pr2 cowei) @ _).
+      <span class="nb">refine</span> (assocax _ _ _ _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ** z) (pr2 wei) @ _).
+      <span class="nb">apply</span> pathsinv0, sum_entries2 .
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Definition 1.1.3 in arXiv:1012.5857v3 *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_magnitude</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} (<span class="nv">mat</span> : Matrix R m n) : UU :=
+    (weighting mat) × (coweighting mat).
+
+  <span class="kn">Definition</span> <span class="nf">magnitude</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} (<span class="nv">m</span> : Matrix R m n) (<span class="nv">has</span> : has_magnitude m) : R :=
+    Σ (pr1 (dirprod_pr1 has)).
+
+<span class="kn">End</span> <span class="nf">Weighting</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Matrix.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Author: Langston Barrett (&#64;siddharthist) (March 2018)
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.Algebra.BinaryOperations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

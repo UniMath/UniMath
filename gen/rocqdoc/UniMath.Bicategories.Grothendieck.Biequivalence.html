@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Grothendieck.Biequivalence</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Grothendieck.Biequivalence</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.OppositeCategory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.OppositeCategory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fibrations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fibrations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedTransformation.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.NatTransToIndexed.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.NatTransToIndexed</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedTransformationToTransformation.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedTransformationToTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Discreteness.html#"><span class="id" title="library">UniMath.Bicategories.Core.Discreteness</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#"><span class="id" title="library">UniMath.Bicategories.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.EquivToAdjequiv.html#"><span class="id" title="library">UniMath.Bicategories.Core.EquivToAdjequiv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.DiscreteBicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.DiscreteBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.FibSlice.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.FibSlice</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Adjunctions.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Adjunctions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#Notations"><span class="id" title="module">PseudoFunctor.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Identity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Composition.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Composition</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#"><span class="id" title="library">UniMath.Bicategories.Transformations.PseudoTransformation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Transformations.Examples.PseudoTransformationIntoCat.html#"><span class="id" title="library">UniMath.Bicategories.Transformations.Examples.PseudoTransformationIntoCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Modifications.Modification.html#"><span class="id" title="library">UniMath.Bicategories.Modifications.Modification</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.html#"><span class="id" title="library">UniMath.Bicategories.Modifications.Examples.ModificationIntoCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Biequivalence.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Biequivalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.html#"><span class="id" title="library">UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.Unit.html#"><span class="id" title="library">UniMath.Bicategories.Grothendieck.Unit</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.Counit.html#"><span class="id" title="library">UniMath.Bicategories.Grothendieck.Counit</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="GrothendieckConstruction" class="idref" href="#GrothendieckConstruction"><span class="id" title="section">GrothendieckConstruction</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="GrothendieckConstruction.C" class="idref" href="#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. Collecting the data of the biequivalence
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="psfunctor_fib_to_psfunctor_bicat_unit_counit" class="idref" href="#psfunctor_fib_to_psfunctor_bicat_unit_counit"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat_unit_counit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Biequivalence.html#is_biequivalence_unit_counit"><span class="id" title="definition">is_biequivalence_unit_counit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.html#psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.html#psfunctor_psfunctor_bicat_to_fib"><span class="id" title="definition">psfunctor_psfunctor_bicat_to_fib</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.Unit.html#psfunctor_fib_to_psfunctor_unit"><span class="id" title="definition">psfunctor_fib_to_psfunctor_unit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.Counit.html#psfunctor_fib_to_psfunctor_counit"><span class="id" title="definition">psfunctor_fib_to_psfunctor_counit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. Collecting that the unit and counit are adjoint equivalences
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat" class="idref" href="#is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Biequivalence.html#is_biequivalence_adjoints"><span class="id" title="definition">is_biequivalence_adjoints</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#psfunctor_fib_to_psfunctor_bicat_unit_counit"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat_unit_counit</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#pointwise_adjequiv_to_adjequiv"><span class="id" title="definition">pointwise_adjequiv_to_adjequiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Core.Examples.FibSlice.html#is_univalent_2_fib_slice_bicat"><span class="id" title="lemma">is_univalent_2_fib_slice_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">P</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.EquivToAdjequiv.html#equiv_to_adjequiv"><span class="id" title="definition">equiv_to_adjequiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Grothendieck.Unit.html#psfunctor_fib_to_psfunctor_unit_equiv"><span class="id" title="definition">psfunctor_fib_to_psfunctor_unit_equiv</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">P</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">P</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#pointwise_adjequiv_to_adjequiv"><span class="id" title="definition">pointwise_adjequiv_to_adjequiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_bicat_is_univalent_2"><span class="id" title="definition">psfunctor_bicat_is_univalent_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#univalent_cat_is_univalent_2"><span class="id" title="definition">univalent_cat_is_univalent_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intro</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Transformations.PseudoTransformation.html#pointwise_adjequiv_to_adjequiv"><span class="id" title="definition">pointwise_adjequiv_to_adjequiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#univalent_cat_is_univalent_2"><span class="id" title="definition">univalent_cat_is_univalent_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.Core.EquivToAdjequiv.html#equiv_to_adjequiv"><span class="id" title="definition">equiv_to_adjequiv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Grothendieck.Counit.html#equiv_psfunctor_fib_to_psfunctor_counit_data_ob_data_functor"><span class="id" title="definition">equiv_psfunctor_fib_to_psfunctor_counit_data_ob_data_functor</span></a> <span class="id" title="var">F</span> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   3. The Grothendieck construction as biequivalence
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_biequivalence_psfunctor_fib_to_psfunctor_bicat" class="idref" href="#is_biequivalence_psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">is_biequivalence_psfunctor_fib_to_psfunctor_bicat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Biequivalence.html#is_biequivalence"><span class="id" title="definition">is_biequivalence</span></a> (<a class="idref" href="UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.html#psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.html#psfunctor_psfunctor_bicat_to_fib"><span class="id" title="definition">psfunctor_psfunctor_bicat_to_fib</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#psfunctor_fib_to_psfunctor_bicat_unit_counit"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat_unit_counit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">is_biequivalence_adjoints_psfunctor_fib_to_psfunctor_bicat</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="grothendieck_construction" class="idref" href="#grothendieck_construction"><span class="id" title="definition">grothendieck_construction</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Biequivalence.html#biequivalence"><span class="id" title="definition">biequivalence</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.Core.Examples.FibSlice.html#fib_slice_bicat"><span class="id" title="definition">fib_slice_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#psfunctor_bicat"><span class="id" title="definition">psfunctor_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.Core.Examples.DiscreteBicat.html#cat_to_bicat"><span class="id" title="definition">cat_to_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a>) <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.html#psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">psfunctor_fib_to_psfunctor_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#is_biequivalence_psfunctor_fib_to_psfunctor_bicat"><span class="id" title="definition">is_biequivalence_psfunctor_fib_to_psfunctor_bicat</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.Grothendieck.Biequivalence.html#GrothendieckConstruction"><span class="id" title="section">GrothendieckConstruction</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

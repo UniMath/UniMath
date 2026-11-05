@@ -1,0 +1,1169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CurriedMonoidalCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Tensor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_data</span> (<span class="nv">C</span> : category) : UU :=
+    ∑ T : C -&gt; C -&gt; C, ∏ (x1 x2 y1 y2 : C), C⟦x1,x2⟧ -&gt; C⟦y1,y2⟧ -&gt; C⟦T x1 y1, T x2 y2⟧.
+
+  <span class="kn">Definition</span> <span class="nf">make_tensor_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : C -&gt; C -&gt; C)
+             (<span class="nv">h</span> : ∏ (x1 x2 y1 y2 : C), C⟦x1,x2⟧ -&gt; C⟦y1,y2⟧ -&gt; C⟦T x1 y1, T x2 y2⟧)
+    : tensor_data C := (T,,h).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_on_ob</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : C -&gt; C -&gt; C := pr1 T.
+  <span class="kn">Notation</span> <span class="s2">"x ⊗_{ T } y"</span> := (tensor_on_ob T x y) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_on_hom</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C)
+    : ∏ (x1 x2 y1 y2 : C), C⟦x1,x2⟧ -&gt; C⟦y1,y2⟧ -&gt; C⟦x1 ⊗_{T} y1, x2 ⊗_{T} y2⟧ := pr2 T.
+  <span class="kn">Notation</span> <span class="s2">"f ⊗^{ T } g"</span> := (tensor_on_hom T _ _ _ _ f g) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_idax</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C)
+    := ∏ (x y : C), (identity x) ⊗^{T} (identity y) = identity (x ⊗_{T} y).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_compax</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C)
+    := ∏ (x1 x2 x3 y1 y2 y3 : C) (f1 : C⟦x1,x2⟧) (f2 : C⟦x2,x3⟧) (g1 : C⟦y1,y2⟧) (g2 : C⟦y2,y3⟧),
+      (f1 · f2) ⊗^{T} (g1 · g2) = (f1 ⊗^{T} g1) · (f2 ⊗^{T} g2).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_ax</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor_data C) : UU
+    := tensor_idax T × tensor_compax T.
+
+  <span class="kn">Definition</span> <span class="nf">tensor</span> (<span class="nv">C</span> : category) : UU :=
+    ∑ T : tensor_data C, tensor_ax T.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_to_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C) : tensor_data C := pr1 T.
+  <span class="kn">Coercion</span> <span class="nf">tensor_to_data</span> : tensor &gt;-&gt; tensor_data.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_to_ax</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C) : tensor_ax T := pr2 T.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_id</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C) : tensor_idax T
+    := pr1 (tensor_to_ax T).
+
+  <span class="kn">Definition</span> <span class="nf">tensor_comp</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C) : tensor_compax T
+    := pr2 (tensor_to_ax T).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_tensor_data</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">TC</span> : tensor_data C) (<span class="nv">TD</span> : tensor_data D) (<span class="nv">F</span> : functor C D) : UU :=
+    ∏ (x y : C), D ⟦ F x ⊗_{TD} F y, F (x ⊗_{TC} y) ⟧.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_tensor_nat</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">TC</span> : tensor C} {<span class="nv">TD</span> : tensor D} {<span class="nv">F</span> : functor C D} (<span class="nv">ptF</span> : preserves_tensor_data TC TD F) : UU
+    := ∏ (x1 x2 y1 y2 : C) (f : C⟦x1,x2⟧) (g : C⟦y1,y2⟧),
+      (ptF x1 y1) · (functor_on_morphisms F  (f ⊗^{TC} g)) = ((functor_on_morphisms F f) ⊗^{TD} (functor_on_morphisms F g)) · ptF x2 y2.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_tensor</span>  {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">TC</span> : tensor C) (<span class="nv">TD</span> : tensor D) (<span class="nv">F</span> : functor C D) : UU
+    := ∑ (ptF : preserves_tensor_data TC TD F), preserves_tensor_nat ptF.
+
+  <span class="kn">Definition</span> <span class="nf">preservestensor_into_preservestensordata</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">TC</span> : tensor C} {<span class="nv">TD</span> : tensor D} {<span class="nv">F</span> : functor C D} (<span class="nv">pt</span> : preserves_tensor TC TD F)
+    : preserves_tensor_data TC TD F := pr1 pt.
+  <span class="kn">Coercion</span> <span class="nf">preservestensor_into_preservestensordata</span> : preserves_tensor &gt;-&gt; preserves_tensor_data.
+
+  <span class="kn">Lemma</span> <span class="nf">identityfunctor_preserves_tensor_data</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C)
+    : preserves_tensor_data T T (functor_identity C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identityfunctor_preserves_tensor_nat</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C)
+    : preserves_tensor_nat (identityfunctor_preserves_tensor_data T).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y1 y2 f g.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">identityfunctor_preserves_tensor</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : tensor C)
+    : preserves_tensor T T (functor_identity C)
+    := (identityfunctor_preserves_tensor_data T,, identityfunctor_preserves_tensor_nat T).
+
+  <span class="kn">Lemma</span> <span class="nf">compositions_preserves_tensor_data</span>
+        {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        {<span class="nv">TC</span> : tensor C} {<span class="nv">TD</span> : tensor D} {<span class="nv">TE</span> : tensor E}
+        {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+        (<span class="nv">ptF</span> : preserves_tensor_data TC TD F) (<span class="nv">ptG</span> : preserves_tensor_data TD TE G)
+    : preserves_tensor_data TC TE (functor_composite F G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> ((ptG (F x) (F y)) · (functor_on_morphisms G) (ptF x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">compositions_preserves_tensor_nat</span>
+        {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        {<span class="nv">TC</span> : tensor C} {<span class="nv">TD</span> : tensor D} {<span class="nv">TE</span> : tensor E}
+        {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+        (<span class="nv">ptF</span> : preserves_tensor TC TD F) (<span class="nv">ptG</span> : preserves_tensor TD TE G)
+    : preserves_tensor_nat (compositions_preserves_tensor_data ptF ptG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y1 y2 f g.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> assoc'.
+    etrans. {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (pathsinv0 (functor_comp G _ _)).
+    }
+    <span class="nb">rewrite</span> (pr2 ptF).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (pr2 ptG).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositions_preserves_tensor</span>
+        {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+        {<span class="nv">TC</span> : tensor C} {<span class="nv">TD</span> : tensor D} {<span class="nv">TE</span> : tensor E}
+        {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+        (<span class="nv">ptF</span> : preserves_tensor TC TD F) (<span class="nv">ptG</span> : preserves_tensor TD TE G)
+    : preserves_tensor TC TE (functor_composite F G)
+    := (compositions_preserves_tensor_data ptF ptG,, compositions_preserves_tensor_nat ptF ptG).
+
+  <span class="kn">Definition</span> <span class="nf">preservestensor_commutes</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">TC</span> : tensor C}
+             {<span class="nv">TD</span> : tensor D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">ptF</span> : preserves_tensor_data TC TD F)
+             (<span class="nv">ptG</span> : preserves_tensor_data TC TD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : UU := ∏ (x y : C),
+    (ptF x y) ·  α (x ⊗_{TC} y)
+    = (α x) ⊗^{TD} (α y) · (ptG x y).
+
+  <span class="kn">Definition</span> <span class="nf">identitynattrans_preservestensor_commutes</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">TC</span> : tensor C}
+             {<span class="nv">TD</span> : tensor D}
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">ptF</span> : preserves_tensor_data TC TD F)
+    : preservestensor_commutes ptF ptF (nat_trans_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_id.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_preservestensor_commutes</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">TC</span> : tensor C}
+             {<span class="nv">TD</span> : tensor D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">ptF</span> : preserves_tensor_data TC TD F)
+             (<span class="nv">ptG</span> : preserves_tensor_data TC TD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : isaprop (preservestensor_commutes ptF ptG α).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Tensor</span>.
+
+<span class="kn">Module</span> <span class="nf">TensorNotation</span>.
+
+  <span class="kn">Notation</span> <span class="s2">"x ⊗_{ T } y"</span> := (tensor_on_ob T x y) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f ⊗^{ T } g"</span> := (tensor_on_hom T _ _ _ _ f g) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="kn">End</span> <span class="nf">TensorNotation</span>.
+
+<span class="kn">Section</span> <span class="nf">Unit</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_unit</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">IC</span> : C) (<span class="nv">ID</span> : D) (<span class="nv">F</span> : functor C D)
+    : UU := D⟦ID, (pr1 F) IC⟧.
+
+  <span class="kn">Definition</span> <span class="nf">identityfunctor_preserves_unit</span> {<span class="nv">C</span> : category} (<span class="nv">IC</span> : C)
+    : preserves_unit IC IC (functor_identity C) := identity IC.
+
+  <span class="kn">Definition</span> <span class="nf">composition_preserves_unit</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">IC</span> : C} {<span class="nv">ID</span> : D} {<span class="nv">IE</span> : E}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             (<span class="nv">puF</span> : preserves_unit IC ID F)
+             (<span class="nv">puG</span> : preserves_unit ID IE G)
+    : preserves_unit IC IE (functor_composite F G)
+    := puG · (functor_on_morphisms (pr1 G) puF).
+
+  <span class="kn">Definition</span> <span class="nf">preservesunit_commutes</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">IC</span> : C}
+             {<span class="nv">ID</span> : D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">puF</span> : preserves_unit IC ID F)
+             (<span class="nv">puG</span> : preserves_unit IC ID G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : UU := puF · (α IC) = puG.
+
+  <span class="kn">Definition</span> <span class="nf">identitynattrans_preservesunit_commutes</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">IC</span> : C}
+             {<span class="nv">ID</span> : D}
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">puF</span> : preserves_unit IC ID F)
+    : preservesunit_commutes puF puF (nat_trans_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_preservesunit_commutes</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        {<span class="nv">IC</span> : C}
+        {<span class="nv">ID</span> : D}
+        {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+        (<span class="nv">puF</span> : preserves_unit IC ID F)
+        (<span class="nv">puG</span> : preserves_unit IC ID G)
+        (<span class="nv">α</span> : nat_trans F G)
+    : isaprop (preservesunit_commutes puF puG α).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Unit</span>.
+
+<span class="kn">Section</span> <span class="nf">TensorUnit</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit</span> (<span class="nv">C</span> : category) : UU := tensor C × C.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_to_tensor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C)
+    : tensor C := pr1 tu.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_to_tensor</span> : tensor_unit &gt;-&gt; tensor.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_to_unit</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C)
+    : ob C := pr2 tu.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_to_unit</span> : tensor_unit &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+             (<span class="nv">tuC</span> : tensor_unit C) (<span class="nv">tuD</span> : tensor_unit D)
+             (<span class="nv">F</span> : functor C D)
+    : UU
+    := preserves_tensor tuC tuD F × preserves_unit tuC tuD F.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit_to_preserves_tensor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">ptu</span> : functor_tensor_unit tuC tuD F)
+    : preserves_tensor tuC tuD F := pr1 ptu.
+  <span class="kn">Coercion</span> <span class="nf">functor_tensor_unit_to_preserves_tensor</span> : functor_tensor_unit &gt;-&gt; preserves_tensor.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit_to_preserves_unit</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">ptu</span> : functor_tensor_unit tuC tuD F)
+    : preserves_unit tuC tuD F := pr2 ptu.
+  <span class="kn">Coercion</span> <span class="nf">functor_tensor_unit_to_preserves_unit</span> : functor_tensor_unit &gt;-&gt; preserves_unit.
+
+  <span class="kn">Definition</span> <span class="nf">identity_functor_tensor_unit</span> {<span class="nv">C</span> : category}
+             (<span class="nv">tu</span> : tensor_unit C)
+    : functor_tensor_unit tu tu (functor_identity C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> identityfunctor_preserves_tensor.
+    - <span class="nb">apply</span> identityfunctor_preserves_unit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">composite_functor_tensor_unit</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">tuC</span> : tensor_unit C}
+             {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">tuE</span> : tensor_unit E}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">ptuG</span> : functor_tensor_unit tuD tuE G)
+    : functor_tensor_unit tuC tuE (functor_composite F G).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (compositions_preserves_tensor ptuF ptuG).
+    - <span class="nb">apply</span> (composition_preserves_unit ptuF ptuG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nattrans_tensor_unit</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">ptuG</span> : functor_tensor_unit tuC tuD G)
+             (<span class="nv">α</span> : nat_trans F G)
+    : UU := preservestensor_commutes ptuF ptuG α × preservesunit_commutes ptuF ptuG α.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_nattrans_tensor_unit</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+        {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+        (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+        (<span class="nv">ptuG</span> : functor_tensor_unit tuC tuD G)
+        (<span class="nv">α</span> : nat_trans F G)
+    : isaprop (nattrans_tensor_unit ptuF ptuG α).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_preservestensor_commutes.
+    - <span class="nb">apply</span> isaprop_preservesunit_commutes.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TensorUnit</span>.
+
+<span class="kn">Module</span> <span class="nf">TensorUnitNotation</span>.
+
+  <span class="kn">Notation</span> <span class="s2">"T_{ tu }"</span> := (tensor_unit_to_tensor tu).
+  <span class="kn">Notation</span> <span class="s2">"I_{ tu }"</span> := (tensor_unit_to_unit tu).
+  <span class="kn">Notation</span> <span class="s2">"pt_{ ptu }"</span> := (functor_tensor_unit_to_preserves_tensor ptu).
+  <span class="kn">Notation</span> <span class="s2">"pu_{ ptu }"</span> := (functor_tensor_unit_to_preserves_unit ptu).
+
+<span class="kn">End</span> <span class="nf">TensorUnitNotation</span>.
+
+
+<span class="kn">Section</span> <span class="nf">LeftUnitor</span>.
+
+  <span class="kn">Import</span> TensorNotation.
+  <span class="kn">Import</span> TensorUnitNotation.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor_data</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∏ x : C, C⟦I_{tu} ⊗_{tu} x, x⟧.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor_nat</span> {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">lu</span> : lunitor_data tu) : UU
+    := ∏ (x y : C) (f : C⟦x,y⟧), ((identity I_{tu}) ⊗^{tu} f) · (lu y) = (lu x) · f.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ lu : lunitor_data tu, lunitor_nat lu.
+
+  <span class="c">(* For some reason I can't just do pt_{ptuF} _ _, but I really have to</span>
+<span class="c">     project on the first component, however there are coercions.. *)</span>
+  <span class="kn">Definition</span> <span class="nf">preserves_lunitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">luC</span> : lunitor tuC) (<span class="nv">luD</span> : lunitor tuD)
+    : UU := ∏ x : C,
+        (pu_{ptuF} ⊗^{tuD} (identity (F x))) · (pr1 pt_{ptuF} I_{tuC} x)
+                                             · (functor_on_morphisms F (pr1 luC x))
+        = pr1 luD (F x).
+
+  <span class="kn">Definition</span> <span class="nf">id_preserves_lunitor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">lu</span> : lunitor tu)
+    : preserves_lunitor (identity_functor_tensor_unit tu) lu lu.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> id_right.
+    }
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> tensor_id.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_preserves_lunitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C}
+             {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">tuE</span> : tensor_unit E}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">G</span> : functor D E}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             {<span class="nv">ptuG</span> : functor_tensor_unit tuD tuE G}
+             {<span class="nv">luC</span> : lunitor tuC}
+             {<span class="nv">luD</span> : lunitor tuD}
+             {<span class="nv">luE</span> : lunitor tuE}
+             (<span class="nv">pluF</span> : preserves_lunitor ptuF luC luD)
+             (<span class="nv">pluG</span> : preserves_lunitor ptuG luD luE)
+    : preserves_lunitor (composite_functor_tensor_unit ptuF ptuG) luC luE.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+
+    use pathscomp0.
+    <span class="mi">3</span>: <span class="bp">exact</span> (pluG (F x)).
+
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (! id_right _).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> tensor_comp.
+    }
+
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> assoc.
+    }
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pluF x).
+    }
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">unfold</span> composite_functor_tensor_unit.
+    <span class="nb">unfold</span> compositions_preserves_tensor.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! functor_comp _ _ _).
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! functor_comp _ _ _).
+    }
+
+    use pathscomp0.
+    <span class="mi">3</span>: { <span class="nb">apply</span> assoc'. }
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> (! pr21 ptuG _ _ _ _ _ _).
+    }
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (! functor_id _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_preserves_lunitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">luC</span> : lunitor tuC) (<span class="nv">luD</span> : lunitor tuD)
+    : isaprop (preserves_lunitor ptuF luC luD).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">LeftUnitor</span>.
+
+
+<span class="kn">Section</span> <span class="nf">RightUnitor</span>.
+
+  <span class="kn">Import</span> TensorNotation.
+  <span class="kn">Import</span> TensorUnitNotation.
+
+  <span class="kn">Definition</span> <span class="nf">runitor_data</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∏ x : C, C⟦x ⊗_{tu} I_{tu}, x⟧.
+
+  <span class="kn">Definition</span> <span class="nf">runitor_nat</span> {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ru</span> : runitor_data tu) : UU
+    := ∏ (x y : C) (f : C⟦x,y⟧), (f ⊗^{tu} (identity I_{tu})) · (ru y) = (ru x) · f.
+
+  <span class="kn">Definition</span> <span class="nf">runitor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ ru : runitor_data tu, runitor_nat ru.
+
+  <span class="c">(* For some reason I can't just do pt_{ptuF} _ _, but I really have to</span>
+<span class="c">     project on the first component, however there are coercions.. *)</span>
+  <span class="kn">Definition</span> <span class="nf">preserves_runitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">ruC</span> : runitor tuC) (<span class="nv">ruD</span> : runitor tuD)
+    : UU := ∏ x : C,
+        ((identity (F x)) ⊗^{tuD} pu_{ptuF}) · (pr1 pt_{ptuF} x I_{tuC})
+                                             · (functor_on_morphisms F (pr1 ruC x))
+        = pr1 ruD (F x).
+  <span class="kn">Definition</span> <span class="nf">id_preserves_runitor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ru</span> : runitor tu)
+    : preserves_runitor (identity_functor_tensor_unit tu) ru ru.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> id_right.
+    }
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> tensor_id.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_preserves_runitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C}
+             {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">tuE</span> : tensor_unit E}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">G</span> : functor D E}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             {<span class="nv">ptuG</span> : functor_tensor_unit tuD tuE G}
+             {<span class="nv">ruC</span> : runitor tuC}
+             {<span class="nv">ruD</span> : runitor tuD}
+             {<span class="nv">ruE</span> : runitor tuE}
+             (<span class="nv">pruF</span> : preserves_runitor ptuF ruC ruD)
+             (<span class="nv">pruG</span> : preserves_runitor ptuG ruD ruE)
+    : preserves_runitor (composite_functor_tensor_unit ptuF ptuG) ruC ruE.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+
+    use pathscomp0.
+    <span class="mi">3</span>: <span class="bp">exact</span> (pruG (F x)).
+
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">assert</span> (pf :  (identity (G (F x))) =  (identity (G (F x)))· (identity (G (F x)))). {
+        <span class="nb">apply</span> (! id_right _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> pf.
+      <span class="nb">apply</span> tensor_comp.
+    }
+
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> assoc.
+    }
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pruF x).
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! functor_comp _ _ _).
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! functor_comp _ _ _).
+    }
+
+    use pathscomp0.
+    <span class="mi">3</span>: { <span class="nb">apply</span> assoc'. }
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">apply</span> (! pr21 ptuG _ _ _ _ _ _).
+    }
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> (! functor_id _ _).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_preserves_runitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">ruC</span> : runitor tuC) (<span class="nv">ruD</span> : runitor tuD)
+    : isaprop (preserves_runitor ptuF ruC ruD).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">RightUnitor</span>.
+
+<span class="kn">Section</span> <span class="nf">Associator</span>.
+
+  <span class="kn">Import</span> TensorNotation.
+  <span class="kn">Import</span> TensorUnitNotation.
+
+  <span class="kn">Definition</span> <span class="nf">associator_data</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∏ x y z : C, C⟦(x ⊗_{tu} y) ⊗_{tu} z, x ⊗_{tu} (y ⊗_{tu} z)⟧.
+
+  <span class="kn">Definition</span> <span class="nf">associator_nat</span> {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : associator_data tu) : UU
+    := ∏ (x x' y y' z z' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧),
+      (α x y z)· (f ⊗^{tu} (g ⊗^{tu} h)) = ((f ⊗^{tu} g) ⊗^{tu} h) · (α x' y' z').
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_associator_nat</span> {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : associator_data tu)
+    : isaprop (associator_nat α).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">associator</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ α : associator_data tu, associator_nat α.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">αC</span> : associator tuC) (<span class="nv">αD</span> : associator tuD)
+    : UU := ∏ (x y z : C),
+      ((pr1 pt_{ptuF} x y) ⊗^{tuD} (identity (F z)))
+        · (pr1 pt_{ptuF} (x ⊗_{tuC} y) z)
+        · (functor_on_morphisms F (pr1 αC x y z))
+      = (pr1 αD (F x) (F y) (F z))
+          · ((identity (F x)) ⊗^{tuD} (pr1 pt_{ptuF} y z))
+          · (pr1 pt_{ptuF} x (y ⊗_{tuC} z)).
+
+  <span class="kn">Definition</span> <span class="nf">id_preserves_associator</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">α</span> :  associator tu)
+    : preserves_associator (identity_functor_tensor_unit tu) α α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+      etrans. {
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> id_right.
+      }
+      etrans. {
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> tensor_id.
+      }
+      etrans. {
+        <span class="nb">apply</span> id_left.
+      }
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. {
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> tensor_id.
+      }
+      etrans. {
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_preserves_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C}
+             {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">tuE</span> : tensor_unit E}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">G</span> : functor D E}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             {<span class="nv">ptuG</span> : functor_tensor_unit tuD tuE G}
+             {<span class="nv">assC</span> : associator tuC}
+             {<span class="nv">assD</span> : associator tuD}
+             {<span class="nv">assE</span> : associator tuE}
+             (<span class="nv">paF</span> : preserves_associator ptuF assC assD)
+             (<span class="nv">paG</span> : preserves_associator ptuG assD assE)
+    : preserves_associator (composite_functor_tensor_unit ptuF ptuG) assC assE.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> compositions_preserves_tensor_data.
+
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (! id_right _).
+    }
+    etrans. {
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> tensor_comp.
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> (! functor_id _ _).
+      <span class="nb">apply</span> (! pr21 ptuG _ _ _ _ _ _ ).
+    }
+    etrans. {
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> (! functor_comp _ _ _).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> (! functor_comp _ _ _).
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> (paF x y z).
+    }
+
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    etrans. {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> paG.
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    <span class="nb">assert</span> (pf : (identity (G (F x))) =  (identity (G (F x)))·  (identity (G (F x)))). {
+      <span class="nb">apply</span> (! id_right _).
+    }
+
+    use pathscomp0.
+    <span class="mi">3</span>: {
+      <span class="nb">rewrite</span> pf.
+      <span class="nb">rewrite</span> tensor_comp.
+      <span class="nb">apply</span> assoc.
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. { <span class="nb">apply</span> (pr21 ptuG). }
+    <span class="nb">rewrite</span> (functor_id _ _).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_preserves_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+             (<span class="nv">assC</span> : associator tuC) (<span class="nv">assD</span> : associator tuD)
+    : isaprop (preserves_associator ptuF assC assD).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Associator</span>.
+
+<span class="kn">Section</span> <span class="nf">UnitorsAssociator</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unitors_associator</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := lunitor tu × runitor tu × associator tu.
+
+  <span class="kn">Definition</span> <span class="nf">unitors_associator_to_lunitor</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ua</span> : unitors_associator tu)
+    : lunitor tu := pr1 ua.
+  <span class="c">(* Coercion unitors_associator_to_lunitor : unitors_associator &gt;-&gt; lunitor. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">unitors_associator_to_runitor</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ua</span> : unitors_associator tu)
+    : runitor tu := pr12 ua.
+  <span class="c">(* Coercion unitors_associator_to_runitor : unitors_associator &gt;-&gt; runitor. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">unitors_associator_to_associator</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ua</span> : unitors_associator tu)
+    : associator tu := pr22 ua.
+  <span class="c">(* Coercion unitors_associator_to_associator : unitors_associator &gt;-&gt; associator. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">functor_unitors_associator</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             (<span class="nv">uaC</span> : unitors_associator tuC)
+             (<span class="nv">uaD</span> : unitors_associator tuD)
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+    : UU
+    := preserves_lunitor ptuF (pr1 uaC) (pr1 uaD)
+                         × preserves_runitor ptuF (pr12 uaC) (pr12 uaD)
+                         × preserves_associator ptuF (pr22 uaC) (pr22 uaD).
+  <span class="c">(* := preserves_lunitor ptuF uaC uaD</span>
+<span class="c">                         × preserves_runitor ptuF uaC uaD</span>
+<span class="c">                         × preserves_associator ptuF uaC uaD. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">functor_unitors_associator_to_preserves_lunitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF)
+    : preserves_lunitor ptuF (pr1 uaC) (pr1 uaD) := pr1 puaF.
+    <span class="c">(* : preserves_lunitor ptuF (pr1 uaC) uaD := pr1 puaF. *)</span>
+  <span class="kn">Coercion</span> <span class="nf">functor_unitors_associator_to_preserves_lunitor</span>
+    : functor_unitors_associator &gt;-&gt; preserves_lunitor.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unitors_associator_to_preserves_runitor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF)
+    : preserves_runitor ptuF (pr12 uaC) (pr12 uaD) := pr12 puaF.
+  <span class="kn">Coercion</span> <span class="nf">functor_unitors_associator_to_preserves_runitor</span>
+    : functor_unitors_associator &gt;-&gt; preserves_runitor.
+
+  <span class="kn">Definition</span> <span class="nf">functor_unitors_associator_to_preserves_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF)
+    : preserves_associator ptuF (pr22 uaC) (pr22 uaD) := pr22 puaF.
+  <span class="kn">Coercion</span> <span class="nf">functor_unitors_associator_to_preserves_associator</span>
+    : functor_unitors_associator &gt;-&gt; preserves_associator.
+
+  <span class="kn">Definition</span> <span class="nf">identity_functor_unitors_associator</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : functor_unitors_associator ua ua (identity_functor_tensor_unit tu).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> id_preserves_lunitor.
+    - <span class="nb">apply</span> id_preserves_runitor.
+    - <span class="nb">apply</span> id_preserves_associator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_functor_unitors_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             {<span class="nv">tuC</span> : tensor_unit C}
+             {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">tuE</span> : tensor_unit E}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             {<span class="nv">ptuG</span> : functor_tensor_unit tuD tuE G}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">uaE</span> : unitors_associator tuE}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF)
+             (<span class="nv">puaG</span> : functor_unitors_associator uaD uaE ptuG)
+    : functor_unitors_associator uaC uaE (composite_functor_tensor_unit ptuF ptuG).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> (comp_preserves_lunitor puaF puaG).
+    - <span class="nb">apply</span> (comp_preserves_runitor puaF puaG).
+    - <span class="nb">apply</span> (comp_preserves_associator puaF puaG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_functor_unitors_associator</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+        (<span class="nv">uaC</span> : unitors_associator tuC)
+        (<span class="nv">uaD</span> : unitors_associator tuD)
+        {<span class="nv">F</span> : functor C D}
+        (<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F)
+    : isaprop (functor_unitors_associator uaC uaD ptuF).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod).
+    - <span class="nb">apply</span> isaprop_preserves_lunitor.
+    - <span class="nb">apply</span> isaprop_preserves_runitor.
+    - <span class="nb">apply</span> isaprop_preserves_associator.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UnitorsAssociator</span>.
+
+<span class="kn">Module</span> <span class="nf">UnitorsAssociatorNotation</span>.
+
+  <span class="kn">Notation</span> <span class="s2">"lu^{ ua }"</span> := (unitors_associator_to_lunitor ua).
+  <span class="kn">Notation</span> <span class="s2">"ru^{ ua }"</span> := (unitors_associator_to_runitor ua).
+  <span class="kn">Notation</span> <span class="s2">"ass^{ ua }"</span> := (unitors_associator_to_associator ua).
+
+<span class="kn">End</span> <span class="nf">UnitorsAssociatorNotation</span>.
+
+<span class="kn">Section</span> <span class="nf">PentagonTriangle</span>.
+
+  <span class="kn">Import</span> TensorNotation.
+  <span class="kn">Import</span> TensorUnitNotation.
+  <span class="kn">Import</span> UnitorsAssociatorNotation.
+
+  <span class="kn">Definition</span> <span class="nf">triangle</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := ∏ (x y : C),
+      (pr1 ass^{ua} x I_{tu} y) · ((identity x) ⊗^{tu} (pr1 lu^{ua} y))
+      = (pr1 ru^{ua} x) ⊗^{tu} (identity y).
+
+  <span class="kn">Definition</span> <span class="nf">pentagon</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := ∏ (w x y z : C),
+      ((pr1 ass^{ua} w x y) ⊗^{tu} (identity z)) · (pr1 ass^{ua} w (x⊗_{tu} y) z)
+                                                 · ((identity w) ⊗^{tu} (pr1 ass^{ua} x y z))
+      = (pr1 ass^{ua} (w ⊗_{tu} x) y z) · (pr1 ass^{ua} w x (y ⊗_{tu} z)).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_pentagon</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := triangle ua × pentagon ua.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_triangle</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (triangle ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_pentagon</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (pentagon ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_triangle_pentagon</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (triangle_pentagon ua).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_triangle.
+    - <span class="nb">apply</span> isaprop_pentagon.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">PentagonTriangle</span>.
+
+<span class="kn">Section</span> <span class="nf">CurriedLaxMonoidalCategories</span>.
+
+  <span class="kn">Import</span> TensorNotation.
+  <span class="kn">Import</span> TensorUnitNotation.
+  <span class="kn">Import</span> UnitorsAssociatorNotation.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := ∏ (x : C), is_z_isomorphism (pr1 lu^{ua} x).
+
+  <span class="kn">Definition</span> <span class="nf">runitor_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := ∏ (x : C), is_z_isomorphism (pr1 ru^{ua} x).
+
+  <span class="kn">Definition</span> <span class="nf">associator_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu) : UU
+    := ∏ (x y z : C), is_z_isomorphism (pr1 ass^{ua} x y z).
+
+  <span class="kn">Definition</span> <span class="nf">unitors_associator_are_z_isos</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+             : UU
+    := lunitor_invertible ua × runitor_invertible ua × associator_invertible ua.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_lunitor_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (lunitor_invertible ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_runitor_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (runitor_invertible ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_associator_invertible</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             (<span class="nv">ua</span> : unitors_associator tu)
+    : isaprop (associator_invertible ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_invertible_data</span> {<span class="nv">C</span> : category}
+             {<span class="nv">tu</span> : tensor_unit C}
+             {<span class="nv">ua</span> : unitors_associator tu}
+    : isaprop (unitors_associator_are_z_isos ua).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod).
+    - <span class="nb">apply</span> isaprop_lunitor_invertible.
+    - <span class="nb">apply</span> isaprop_runitor_invertible.
+    - <span class="nb">apply</span> isaprop_associator_invertible.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CurriedLaxMonoidalCategories</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongMonoidalFunctors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_strong</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF) : UU
+    := is_z_isomorphism (pr2 ptuF) × ∏ x y : C, is_z_isomorphism (pr11 ptuF x y).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_functor_strong</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">tuC</span> : tensor_unit C} {<span class="nv">tuD</span> : tensor_unit D}
+             {<span class="nv">uaC</span> : unitors_associator tuC}
+             {<span class="nv">uaD</span> : unitors_associator tuD}
+             {<span class="nv">F</span> : functor C D}
+             {<span class="nv">ptuF</span> : functor_tensor_unit tuC tuD F}
+             (<span class="nv">puaF</span> : functor_unitors_associator uaC uaD ptuF)
+    : isaprop (functor_strong puaF).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">StrongMonoidalFunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalSigmaStructure</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator</span> (<span class="nv">C</span> : category) : UU
+    := ∑ tu : tensor_unit C, unitors_associator tu.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_to_tensor_unit</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : tensor_unit C := pr1 tuua.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_unitors_associator_to_tensor_unit</span>
+    : tensor_unit_unitors_associator &gt;-&gt; tensor_unit.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_to_unitors_associator</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : unitors_associator (tensor_unit_unitors_associator_to_tensor_unit tuua)
+    := pr2 tuua.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_unitors_associator_to_unitors_associator</span>
+    : tensor_unit_unitors_associator &gt;-&gt; unitors_associator.
+
+  <span class="kn">Definition</span> <span class="nf">mon_structure</span> (<span class="nv">C</span> : category) : UU
+    := ∑ tuua : tensor_unit_unitors_associator C, triangle_pentagon tuua × unitors_associator_are_z_isos tuua.
+
+  <span class="kn">Definition</span> <span class="nf">mon_structure_to_tensor_unit_unitors_associator</span>
+             {<span class="nv">C</span> : category} (<span class="nv">lm</span> : mon_structure C)
+    : tensor_unit_unitors_associator C := pr1 lm.
+  <span class="kn">Coercion</span> <span class="nf">mon_structure_to_tensor_unit_unitors_associator</span>
+    : mon_structure &gt;-&gt; tensor_unit_unitors_associator.
+  <span class="kn">Definition</span> <span class="nf">mon_structure_triangle_pentagon</span>
+             {<span class="nv">C</span> : category} (<span class="nv">lm</span> : mon_structure C)
+    : triangle_pentagon lm × unitors_associator_are_z_isos lm := pr2 lm.
+
+<span class="kn">End</span> <span class="nf">MonoidalSigmaStructure</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalFunctorSigmaStructure</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit_unitors_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+             (<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C)
+             (<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D)
+    : UU
+    := ∑ ftu : functor_tensor_unit tuuaC tuuaD F, functor_unitors_associator tuuaC tuuaD ftu.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit_unitors_associator_to_tensor_unit</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C}
+             {<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D}
+             (<span class="nv">ftuua</span> : functor_tensor_unit_unitors_associator F tuuaC tuuaD)
+    : functor_tensor_unit tuuaC tuuaD F := pr1 ftuua.
+  <span class="kn">Coercion</span> <span class="nf">functor_tensor_unit_unitors_associator_to_tensor_unit</span>
+    : functor_tensor_unit_unitors_associator &gt;-&gt; functor_tensor_unit.
+
+  <span class="kn">Definition</span> <span class="nf">functor_tensor_unit_unitors_associator_to_unitors_associator</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C}
+             {<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D}
+             (<span class="nv">ftuua</span> : functor_tensor_unit_unitors_associator F tuuaC tuuaD)
+    : functor_unitors_associator tuuaC tuuaD (functor_tensor_unit_unitors_associator_to_tensor_unit ftuua)
+    := pr2 ftuua.
+  <span class="kn">Coercion</span> <span class="nf">functor_tensor_unit_unitors_associator_to_unitors_associator</span>
+    : functor_tensor_unit_unitors_associator &gt;-&gt; functor_unitors_associator.
+
+  <span class="kn">Definition</span> <span class="nf">functor_lax_monoidal</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+             (<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C)
+             (<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D) : UU
+    := functor_tensor_unit_unitors_associator F tuuaC tuuaD.
+  <span class="kn">Identity Coercion</span> <span class="nf">functor_lax_monoidal_tensorunitunitorsassociator</span>
+    : functor_lax_monoidal &gt;-&gt; functor_tensor_unit_unitors_associator.
+
+  <span class="kn">Definition</span> <span class="nf">functor_strong_monoidal</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+             (<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C)
+             (<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D) : UU
+    := ∑ ftuua : functor_lax_monoidal F tuuaC tuuaD, functor_strong ftuua.
+
+  <span class="kn">Definition</span> <span class="nf">functor_strong_monoidal_to_lax_monoidal</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             {<span class="nv">tuuaC</span> : tensor_unit_unitors_associator C}
+             {<span class="nv">tuuaD</span> : tensor_unit_unitors_associator D}
+             (<span class="nv">ftuuas</span> : functor_strong_monoidal F tuuaC tuuaD)
+    : functor_lax_monoidal F tuuaC tuuaD := pr1 ftuuas.
+
+<span class="kn">End</span> <span class="nf">MonoidalFunctorSigmaStructure</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

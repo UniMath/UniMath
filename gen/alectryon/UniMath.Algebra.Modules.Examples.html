@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Examples of Ring Modules</span>
+
+<span class="sd">  This file lists some examples of ring modules, like the identity multimodule morphism, the</span>
+<span class="sd">  R-module structure on a ring S from a morphism R → S (the identity on R gives the R-module</span>
+<span class="sd">  structure on R). It also gives the zero module, and the definition of R-S bimodules (a module with</span>
+<span class="sd">  a left R-action and a right S-action) via multimodules.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The identity multimodule morphism</span>
+<span class="sd">  2. Constructing a module from a ring morphism</span>
+<span class="sd">  3. The zero module</span>
+<span class="sd">  4. Bimodules</span>
+
+<span class="sd">  Originally written by Langston Barrett (@siddharthist), November-December 2017</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.ModuleCore.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.Modules.Core.
+<span class="kn">Require Import</span> UniMath.Algebra.Modules.Multimodules.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="sd">(** * 1. The identity multimodule morphism *)</span>
+
+<span class="sd">(** The identity function is multilinear *)</span>
+<span class="kn">Lemma</span> <span class="nf">idfun_multilinear</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings) :
+  ismultilinear (rings := rings) (idfun MM).
+<span class="kn">Proof</span>.
+  <span class="bp">easy</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The identity function is a multimodule morphism *)</span>
+<span class="kn">Lemma</span> <span class="nf">id_multimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings)
+  : ismultimodulefun (rings := rings) (idfun MM).
+<span class="kn">Proof</span>.
+  <span class="bp">easy</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Constructing a module from a ring morphism *)</span>
+
+<span class="sd">(** The left action of a ring through a ring homomorphism</span>
+<span class="sd">    See Bourbaki's Algebra, II §1.4, no. 1, Example 1.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">ringfun_left_mult</span> {<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>} (<span class="nv">f</span> : ringfun R S) (<span class="nv">r</span> : R)
+  : group_endomorphism_ring S.
+<span class="kn">Proof</span>.
+  use make_abelian_group_morphism.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (f r * x).
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+    <span class="nb">apply</span> (rigldistr S _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** An important special case: the left action of a ring on itself *)</span>
+<span class="kn">Example</span> <span class="nf">ring_left_mult</span> {<span class="nv">R</span> : <span class="bp">ring</span>} : R → group_endomorphism_ring R :=
+  ringfun_left_mult (rigisotorigfun (idrigiso R)).
+
+
+<span class="sd">(** A ring morphism R -&gt; S defines an R-module structure on the additive abelian</span>
+<span class="sd">    group of S *)</span>
+<span class="kn">Definition</span> <span class="nf">ringfun_module</span> {<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>} (<span class="nv">f</span> : ringfun R S) : module R.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_module (@ringaddabgr S)).
+  <span class="nb">apply</span> (@mult_to_module_struct R S (<span class="k">λ</span> <span class="nv">x</span>, (ringfun_left_mult f x : abelian_group_morphism _ _)));
+    <span class="nb">unfold</span> funcomp, pr1, ringfun_left_mult.
+  - <span class="nb">intros</span> r x y.
+    <span class="nb">apply</span> ringldistr.
+  - <span class="nb">intros</span> r s x.
+    <span class="nb">refine</span> (_ @ ringrdistr _ _ _ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _)).
+    <span class="nb">apply</span> (binopfunisbinopfun (ringaddfun f)).
+  - <span class="nb">intros</span> r s x.
+    <span class="nb">refine</span> (_ @ rigassoc2 S _ _ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _)).
+    <span class="nb">apply</span> (binopfunisbinopfun (ringmultfun f)).
+  - <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (_ @ riglunax2 S _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _)).
+    <span class="nb">apply</span> (monoidfununel (ringmultfun f)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** An important special case: a ring is a module over itself *)</span>
+<span class="kn">Definition</span> <span class="nf">ring_is_module</span> (<span class="nv">R</span> : <span class="bp">ring</span>) : module R :=
+  ringfun_module (rigisotorigfun (idrigiso R)).
+
+<span class="sd">(** * 3. The zero module *)</span>
+<span class="kn">Definition</span> <span class="nf">zero_module</span> (<span class="nv">R</span> : <span class="bp">ring</span>) : module R.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (unitabgr,, _).
+  <span class="nb">apply</span> (@mult_to_module_struct _ _ (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">u</span>, u));
+    <span class="bp">easy</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** 4. Bimodules *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="bp">ring</span>.
+
+<span class="sd">(** An R-S-bimodule is a left R module and a right S module, that is</span>
+<span class="sd">    With our definitions, this means a multimodule over bool with an R-module</span>
+<span class="sd">    structre, an S⁰-module structure, and some compatibility between them. *)</span>
+<span class="kn">Definition</span> <span class="nf">bimodule</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) : UU := @multimodule _ (bool_rect _ R (S⁰)).
+
+<span class="sd">(** The more immediate/intuitive description of a bimodule. Below, we provide a</span>
+<span class="sd">    way to construct a bimodule from this definition (make_bimodule). *)</span>
+<span class="kn">Definition</span> <span class="nf">bimodule_struct'</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) (<span class="nv">G</span> : abgr) : UU :=
+  <span class="c">(* A bimodule structure consists of two modules structures... *)</span>
+  ∑ (mr : module_struct R G) (ms : module_struct (S⁰) G),
+    <span class="c">(* ...and a notion of compatibility between them. *)</span>
+    <span class="k">let</span> <span class="nv">mulr</span> := module_mult (G,, mr) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">muls</span> := module_mult (G,, ms) <span class="k">in</span>
+    ∏ (r : R) (s : S), mulr r ∘ muls s = muls s ∘ mulr r.
+
+<span class="kn">Definition</span> <span class="nf">make_bimodule</span> (<span class="nv">R</span> <span class="nv">S</span> : <span class="bp">ring</span>) {<span class="nv">G</span>} (<span class="nv">str</span> : bimodule_struct' R S G) : bimodule R S.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (G,, _).
+
+  <span class="sd">(** Index the module structs over bool *)</span>
+  <span class="nb">refine</span> (bool_rect _ (pr1 str) (pr1 (pr2 str)),, _).
+
+  <span class="nb">unfold</span> multimodule_struct.
+  <span class="sd">(** the [ | ] pattern yields cases with hypotheses false ≠ false and</span>
+<span class="sd">      true ≠ true, so we use them as contradictions or clear the useless</span>
+<span class="sd">      hypothesis *)</span>
+  <span class="nb">intros</span> [ | ] [ | ] neq r s;
+    <span class="kp">try</span> (<span class="bp">contradiction</span> (neq (idpath _))); <span class="nb">clear</span> neq; <span class="nb">cbn</span> <span class="k">in</span> *.
+
+  - <span class="bp">exact</span> ((pr2 (pr2 str)) r s).
+  - <span class="bp">exact</span> (!((pr2 (pr2 str)) s r)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A commutative ring is a bimodule over itself *)</span>
+<span class="kn">Example</span> <span class="nf">commring_bimodule</span> (<span class="nv">R</span> : commring) : bimodule R R.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@make_bimodule R R (@ringaddabgr R)).
+  <span class="nb">unfold</span> bimodule_struct'.
+  <span class="nb">refine</span> (pr2module (ring_is_module R),, _).
+
+  <span class="sd">(** We transport the module structure across the isomorphism R ≅ R⁰ *)</span>
+  <span class="nb">refine</span> (pr2module
+            (ringfun_module
+               (rigisotorigfun (invrigiso (iso_commring_opposite R)))),, _).
+
+  <span class="nb">simpl</span>.
+  <span class="nb">intros</span> r s.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intros</span> x.
+  <span class="bp">exact</span> (!@rigassoc2 R r s x @ (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; z * x) (@ringcomm2 R r s))
+                      @ (rigassoc2 R s r x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Close Scope</span> <span class="bp">ring</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Modules/Examples.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Originally written by Langston Barrett (&#64;siddharthist), November-December 2017
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Categories.ModuleCore.
+  &gt; Require Import UniMath.Algebra.Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

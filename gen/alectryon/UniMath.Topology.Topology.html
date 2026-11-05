@@ -1,0 +1,1354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Topology.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Results about Topology *)</span>
+<span class="sd">(** Author: Catherine LELAY. Jan 2016 - *)</span>
+<span class="sd">(** Based on Bourbaki *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Export</span> UniMath.Topology.Filters.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.DivisionRig.
+<span class="kn">Require Import</span> UniMath.Algebra.ConstructiveStructures.
+
+<span class="kn">Section</span> <span class="nf">Open</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">O</span> : (X → hProp) → hProp).
+
+<span class="kn">Definition</span> <span class="nf">isSetOfOpen_union</span> :=
+  ∏ P : (X → hProp) → hProp,
+    (∏ A : X → hProp, P A → O A) → O (union P).
+<span class="kn">Lemma</span> <span class="nf">isaprop_isSetOfOpen_union</span> :
+  isaprop isSetOfOpen_union.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, isapropimpl _ _ (propproperty _))).
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">isSetOfOpen_finite_intersection</span> :=
+  ∏ (P : Sequence (X → hProp)), (∏ m, O (P m)) → O (finite_intersection P).
+<span class="kn">Lemma</span> <span class="nf">isaprop_isSetOfOpen_finite_intersection</span> :
+  isaprop isSetOfOpen_finite_intersection.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, isapropimpl _ _ (propproperty _))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isSetOfOpen_htrue</span> :=
+  O (<span class="k">λ</span> <span class="nv">_</span>, htrue).
+
+<span class="kn">Definition</span> <span class="nf">isSetOfOpen_and</span> :=
+  ∏ A B, O A → O B → O (<span class="k">λ</span> <span class="nv">x</span>, A x ∧ B x).
+<span class="kn">Lemma</span> <span class="nf">isaprop_isSetOfOpen_and</span> :
+  isaprop isSetOfOpen_and.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> A.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> B.
+  <span class="nb">apply</span> isapropimpl, isapropimpl.
+  <span class="bp">now</span> <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isSetOfOpen_hfalse</span> :
+  isSetOfOpen_union
+  → O (<span class="k">λ</span> <span class="nv">_</span> : X, hfalse).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H0.
+  <span class="nb">rewrite</span> &lt;- union_hfalse.
+  <span class="nb">apply</span> H0.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> fromempty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isSetOfOpen_finite_intersection_htrue</span> :
+  isSetOfOpen_finite_intersection
+  → isSetOfOpen_htrue.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H0.
+  <span class="nb">unfold</span> isSetOfOpen_htrue.
+  <span class="nb">rewrite</span> &lt;- finite_intersection_htrue.
+  <span class="nb">apply</span> H0.
+  <span class="nb">intros</span> m.
+  <span class="nb">induction</span> (nopathsfalsetotrue (pr2 m)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isSetOfOpen_finite_intersection_and</span> :
+  isSetOfOpen_finite_intersection
+  → isSetOfOpen_and.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H0 A B Ha Hb.
+  <span class="nb">rewrite</span> &lt;- finite_intersection_and.
+  <span class="nb">apply</span> H0.
+  <span class="nb">intros</span> m ; <span class="nb">simpl</span>.
+  <span class="nb">induction</span> m <span class="k">as</span> [m Hm].
+  <span class="bp">now</span> <span class="nb">induction</span> m.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isSetOfOpen_finite_intersection_carac</span> :
+  isSetOfOpen_htrue
+  → isSetOfOpen_and
+  → isSetOfOpen_finite_intersection.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Htrue Hpair L.
+  <span class="nb">apply</span> (pr2 (finite_intersection_hProp O)).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> Htrue.
+  - <span class="bp">exact</span> Hpair.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isSetOfOpen</span> :=
+  isSetOfOpen_union × isSetOfOpen_finite_intersection.
+
+<span class="kn">End</span> <span class="nf">Open</span>.
+
+<span class="kn">Definition</span> <span class="nf">isTopologicalSpace</span> (<span class="nv">X</span> : hSet) :=
+  ∑ O : (X → hProp) → hProp, isSetOfOpen O.
+<span class="kn">Definition</span> <span class="nf">TopologicalSpace</span> := ∑ X : hSet, isTopologicalSpace X.
+
+<span class="kn">Definition</span> <span class="nf">make_TopologicalSpace</span> (<span class="nv">X</span> : hSet) (<span class="nv">O</span> : (X → hProp) → hProp)
+           (<span class="nv">isc</span> : isSetOfOpen_union O)
+           (<span class="nv">is0</span> : isSetOfOpen_htrue O)
+           (<span class="nv">is1</span> : isSetOfOpen_and O) : TopologicalSpace :=
+  (X,,O,,isc,,(isSetOfOpen_finite_intersection_carac _ is0 is1)).
+
+<span class="kn">Definition</span> <span class="nf">pr1TopologicatSpace</span> : TopologicalSpace → hSet := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1TopologicatSpace</span> : TopologicalSpace &gt;-&gt; hSet.
+
+<span class="kn">Definition</span> <span class="nf">isOpen</span> {<span class="nv">T</span> : TopologicalSpace} : (T → hProp) → hProp := pr1 (pr2 T).
+<span class="kn">Definition</span> <span class="nf">Open</span> {<span class="nv">T</span> : TopologicalSpace} :=
+  ∑ O : T → hProp, isOpen O.
+<span class="kn">Definition</span> <span class="nf">pr1Open</span> {<span class="nv">T</span> : TopologicalSpace} : Open → (T → hProp) := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1Open</span> : Open &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Section</span> <span class="nf">Topology_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">T</span> : TopologicalSpace}.
+
+<span class="kn">Lemma</span> <span class="nf">isOpen_union</span> :
+  ∏ P : (T → hProp) → hProp,
+    (∏ A : T → hProp, P A → isOpen A)
+    → isOpen (union P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr1 (pr2 (pr2 T))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOpen_finite_intersection</span> :
+  ∏ (P : Sequence (T → hProp)),
+    (∏ m , isOpen (P m))
+    → isOpen (finite_intersection P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 T))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isOpen_hfalse</span> :
+  isOpen (<span class="k">λ</span> <span class="nv">_</span> : T, hfalse).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isSetOfOpen_hfalse.
+  <span class="nb">intros</span> P H.
+  <span class="bp">now</span> <span class="nb">apply</span> isOpen_union.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOpen_htrue</span> :
+  isOpen (<span class="k">λ</span> <span class="nv">_</span> : T, htrue).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- finite_intersection_htrue.
+  <span class="nb">apply</span> isOpen_finite_intersection.
+  <span class="nb">intros</span> m.
+  <span class="nb">induction</span> (nopathsfalsetotrue (pr2 m)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOpen_and</span> :
+  ∏ A B : T → hProp,
+    isOpen A → isOpen B → isOpen (<span class="k">λ</span> <span class="nv">x</span> : T, A x ∧ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isSetOfOpen_finite_intersection_and.
+  <span class="nb">intros</span> P Hp.
+  <span class="nb">apply</span> isOpen_finite_intersection.
+  <span class="nb">apply</span> Hp.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isOpen_or</span> :
+  ∏ A B : T → hProp,
+    isOpen A → isOpen B → isOpen (<span class="k">λ</span> <span class="nv">x</span> : T, A x ∨ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb.
+  <span class="nb">rewrite</span> &lt;- union_or.
+  <span class="nb">apply</span> isOpen_union.
+  <span class="nb">intros</span> C.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> -&gt;.
+  - <span class="bp">exact</span> Ha.
+  - <span class="bp">exact</span> Hb.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Topology_pty</span>.
+
+<span class="sd">(** ** Neighborhood *)</span>
+
+<span class="kn">Section</span> <span class="nf">Neighborhood</span>.
+
+<span class="kn">Context</span> {<span class="nv">T</span> : TopologicalSpace}.
+
+<span class="kn">Definition</span> <span class="nf">neighborhood</span> (<span class="nv">x</span> : T) : (T → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">P</span> : T → hProp, <span class="k">∃</span> <span class="nv">O</span> : Open, O x × (∏ y : T, O y → P y).
+
+<span class="kn">Lemma</span> <span class="nf">neighborhood_isOpen</span> (<span class="nv">P</span> : T → hProp) :
+  (∏ x, P x → neighborhood x P) &lt;-&gt; isOpen P.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hp.
+    <span class="nb">assert</span> (H : ∏ A : T → hProp, isaprop (∏ y : T, A y → P y)).
+    { <span class="nb">intros</span> A.
+      <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span> y.
+      <span class="nb">apply</span> isapropimpl.
+      <span class="nb">apply</span> propproperty. }
+    <span class="nb">set</span> (Q := <span class="k">λ</span> <span class="nv">A</span> : T → hProp, isOpen A ∧ (make_hProp (∏ y : T, A y → P y) (H A))).
+    <span class="nb">assert</span> (X : P = (union Q)).
+    { <span class="nb">apply</span> funextfun.
+      <span class="nb">intros</span> x.
+      <span class="nb">apply</span> hPropUnivalence.
+      - <span class="nb">intros</span> Px.
+        <span class="nb">generalize</span> (Hp _ Px).
+        <span class="nb">apply</span> hinhfun.
+        <span class="nb">intros</span> A.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>) ; <span class="nb">split</span>.
+        + <span class="nb">split</span>.
+          * <span class="nb">apply</span> (pr2 (pr1 A)).
+          * <span class="bp">exact</span> (pr2 (pr2 A)).
+        + <span class="bp">exact</span> (pr1 (pr2 A)).
+      - <span class="nb">apply</span> hinhuniv.
+        <span class="nb">intros</span> A.
+        <span class="nb">apply</span> (pr2 (pr1 (pr2 A))).
+        <span class="bp">exact</span> (pr2 (pr2 A)). }
+    <span class="nb">rewrite</span> X.
+    <span class="nb">apply</span> isOpen_union.
+    <span class="nb">intros</span> A Ha.
+    <span class="nb">apply</span> (pr1 Ha).
+  - <span class="nb">intros</span> Hp x Px.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">P</span>,,<span class="nv">Hp</span>).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> Px.
+    + <span class="nb">intros</span> y Py.
+      <span class="bp">exact</span> Py.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neighborhood_imply</span> :
+  ∏ (x : T) (P Q : T → hProp),
+    (∏ y : T, P y → Q y) → neighborhood x P → neighborhood x Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P Q H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> O.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">O</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 (pr2 O)).
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">apply</span> H.
+    <span class="nb">apply</span> (pr2 (pr2 O)).
+    <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">neighborhood_forall</span> :
+  ∏ (x : T) (P : T → hProp),
+    (∏ y, P y) → neighborhood x P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P H.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> ((<span class="k">λ</span> <span class="nv">_</span> : T, htrue),,isOpen_htrue).
+  <span class="nb">split</span>.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> y _.
+    <span class="bp">now</span> <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">neighborhood_and</span> :
+  ∏ (x : T) (A B : T → hProp),
+    neighborhood x A → neighborhood x B → neighborhood x (<span class="k">λ</span> <span class="nv">y</span>, A y ∧ B y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> Oa Ob.
+  <span class="k">exists</span> ((<span class="k">λ</span> <span class="nv">x</span>, pr1 Oa x ∧ pr1 Ob x) ,, isOpen_and _ _ (pr2 (pr1 Oa)) (pr2 (pr1 Ob))).
+  <span class="nb">simpl</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr1 (pr2 Oa)).
+    + <span class="nb">apply</span> (pr1 (pr2 Ob)).
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr2 (pr2 Oa)).
+      <span class="nb">apply</span> (pr1 Hy).
+    + <span class="nb">apply</span> (pr2 (pr2 Ob)).
+      <span class="nb">apply</span> (pr2 Hy).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">neighborhood_point</span> :
+  ∏ (x : T) (P : T → hProp),
+    neighborhood x P → P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> O.
+  <span class="nb">apply</span> (pr2 (pr2 O)).
+  <span class="nb">apply</span> (pr1 (pr2 O)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">neighborhood_neighborhood</span> :
+  ∏ (x : T) (P : T → hProp),
+    neighborhood x P
+    → <span class="k">∃</span> <span class="nv">Q</span> : T → hProp, neighborhood x Q
+                        × ∏ y : T, Q y → neighborhood y P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> Q.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Q</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+    + <span class="nb">apply</span> (pr2 (pr1 Q)).
+    + <span class="nb">apply</span> (pr1 (pr2 Q)).
+  - <span class="nb">intros</span> y Qy.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Q</span>).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> Qy.
+    + <span class="bp">exact</span> (pr2 (pr2 Q)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Neighborhood</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) : Filter T.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_Filter _ _ _ _ _).
+  - <span class="nb">apply</span> (neighborhood x).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> A B ;
+              <span class="nb">apply</span> neighborhood_imply).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> (pr2 (neighborhood_isOpen _)) ;
+              [ <span class="nb">apply</span> isOpen_htrue |
+                <span class="nb">apply</span> tt]).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> A B ;
+              <span class="nb">apply</span> neighborhood_and).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> A Ha ;
+              <span class="nb">apply</span> hinhpr ;
+              <span class="k">exists</span> <span class="nv">x</span> ;
+              <span class="bp">now</span> <span class="nb">apply</span> neighborhood_point <span class="k">in</span> Ha).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Base of Neighborhood *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_base_of_neighborhood</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">B</span> : (T → hProp) → hProp) :=
+  (∏ P : T → hProp, B P → neighborhood x P)
+    × (∏ P : T → hProp, neighborhood x P → <span class="k">∃</span> <span class="nv">Q</span> : T → hProp, B Q × (∏ t : T, Q t → P t)).
+
+<span class="kn">Definition</span> <span class="nf">base_of_neighborhood</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) :=
+  ∑ (B : (T → hProp) → hProp), is_base_of_neighborhood x B.
+<span class="kn">Definition</span> <span class="nf">pr1base_of_neighborhood</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) :
+  base_of_neighborhood x → ((T → hProp) → hProp) := pr1.
+<span class="kn">Coercion</span> <span class="nf">pr1base_of_neighborhood</span> : base_of_neighborhood &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Section</span> <span class="nf">base_default</span>.
+
+<span class="kn">Context</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T).
+
+<span class="kn">Definition</span> <span class="nf">base_default</span> : (T → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">P</span> : T → hProp, isOpen P ∧ P x.
+
+<span class="kn">Lemma</span> <span class="nf">base_default_1</span> :
+  ∏ P : T → hProp, base_default P → neighborhood x P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P Hp.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">P</span>,,(pr1 Hp)) ; <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 Hp).
+  - <span class="nb">intros</span>. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">base_default_2</span> :
+  ∏ P : T → hProp, neighborhood x P → <span class="k">∃</span> <span class="nv">Q</span> : T → hProp, base_default Q × (∏ t : T, Q t → P t).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> Q.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Q</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr2 (pr1 Q)).
+  - <span class="bp">exact</span> (pr1 (pr2 Q)).
+  - <span class="bp">exact</span> (pr2 (pr2 Q)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">base_default</span>.
+
+<span class="kn">Definition</span> <span class="nf">base_of_neighborhood_default</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) : base_of_neighborhood x.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">base_default</span> <span class="nv">x</span>).
+  <span class="nb">split</span>.
+  - <span class="bp">now</span> <span class="nb">apply</span> base_default_1.
+  - <span class="bp">now</span> <span class="nb">apply</span> base_default_2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">neighborhood'</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">B</span> : base_of_neighborhood x) : (T → hProp) → hProp :=
+  <span class="k">λ</span> <span class="nv">P</span> : T → hProp, <span class="k">∃</span> <span class="nv">O</span> : T → hProp, B O × (∏ t : T, O t → P t).
+
+<span class="kn">Lemma</span> <span class="nf">neighborhood_equiv</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">B</span> : base_of_neighborhood x) :
+  ∏ P, neighborhood' x B P &lt;-&gt; neighborhood x P.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> O.
+    <span class="nb">generalize</span> ((pr1 (pr2 B)) (pr1 O) (pr1 (pr2 O))).
+    <span class="nb">apply</span> neighborhood_imply.
+    <span class="bp">exact</span> (pr2 (pr2 O)).
+  - <span class="nb">intros</span> Hp.
+    <span class="nb">generalize</span> (pr2 (pr2 B) P Hp).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> O.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">O</span>).
+    <span class="bp">exact</span> (pr2 O).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Some topologies *)</span>
+
+<span class="sd">(** *** Topology from neighborhood *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isNeighborhood</span> {<span class="nv">X</span> : UU} (<span class="nv">B</span> : X → (X → hProp) → hProp) :=
+  (∏ x, isfilter_imply (B x))
+    × (∏ x, isfilter_htrue (B x))
+    × (∏ x, isfilter_and (B x))
+    × (∏ x P, B x P → P x)
+    × (∏ x P, B x P → <span class="k">∃</span> <span class="nv">Q</span>, B x Q × ∏ y, Q y → B y P).
+
+<span class="kn">Lemma</span> <span class="nf">isNeighborhood_neighborhood</span> {<span class="nv">T</span> : TopologicalSpace} :
+  isNeighborhood (neighborhood (T := T)).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x A B.
+    <span class="nb">apply</span> (neighborhood_imply x).
+  - <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+    + <span class="bp">exact</span> (isOpen_htrue (T := T)).
+    + <span class="nb">apply</span> tt.
+  - <span class="nb">intros</span> A B.
+    <span class="nb">apply</span> neighborhood_and.
+  - <span class="nb">intros</span> x P.
+    <span class="nb">apply</span> neighborhood_point.
+  - <span class="nb">intros</span> x P.
+    <span class="nb">apply</span> neighborhood_neighborhood.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">TopologyFromNeighborhood</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}.
+<span class="kn">Context</span> (<span class="nv">N</span> : X → (X → hProp) → hProp).
+<span class="kn">Context</span> (<span class="nv">Himpl</span> : ∏ x, isfilter_imply (N x))
+        (<span class="nv">Htrue</span> : ∏ x, isfilter_htrue (N x))
+        (<span class="nv">Hand</span> : ∏ x, isfilter_and (N x))
+        (<span class="nv">Hpt</span> : ∏ x P, N x P → P x)
+        (<span class="nv">H</span> : ∏ x P, N x P → <span class="k">∃</span> <span class="nv">Q</span>, N x Q × ∏ y, Q y → N y P).
+
+<span class="kn">Definition</span> <span class="nf">topologyfromneighborhood</span> (<span class="nv">A</span> : X → hProp) :=
+  ∏ x : X, A x → N x A.
+<span class="kn">Lemma</span> <span class="nf">isaprop_topologyfromneighborhood</span> :
+  ∏ A, isaprop (topologyfromneighborhood A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> x ;
+  <span class="nb">apply</span> isapropimpl, propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologyfromneighborhood_open</span> :
+  isSetOfOpen_union
+   (<span class="k">λ</span> <span class="nv">A</span> : X → hProp,
+          make_hProp (topologyfromneighborhood A)
+                    (isaprop_topologyfromneighborhood A)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L Hl x.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> Himpl <span class="k">with</span> (pr1 A).
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">now</span> <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>), (pr1 (pr2 A)).
+  - <span class="nb">apply</span> Hl.
+    + <span class="bp">exact</span> (pr1 (pr2 A)).
+    + <span class="bp">exact</span> (pr2 (pr2 A)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TopologyFromNeighborhood</span>.
+
+<span class="kn">Definition</span> <span class="nf">TopologyFromNeighborhood</span> {<span class="nv">X</span> : hSet}
+  (<span class="nv">N</span> : X → (X → hProp) → hProp)
+  (<span class="nv">H</span> : isNeighborhood N)
+  : TopologicalSpace.
+<span class="kn">Proof</span>.
+  use make_TopologicalSpace.
+  - <span class="nb">apply</span> X.
+  - <span class="nb">intros</span> A.
+    <span class="nb">simple refine</span> (make_hProp _ _).
+    + <span class="nb">apply</span> (topologyfromneighborhood N A).
+    + <span class="nb">apply</span> isaprop_topologyfromneighborhood.
+  - <span class="nb">apply</span> topologyfromneighborhood_open.
+    <span class="nb">apply</span> (pr1 H).
+  - <span class="nb">intros</span> x _.
+    <span class="nb">apply</span> (pr1 (pr2 H)).
+  - <span class="nb">intros</span> A B Ha Hb x Hx.
+    <span class="nb">apply</span> (pr1 (pr2 (pr2 H))).
+    + <span class="bp">now</span> <span class="nb">apply</span> Ha, (pr1 Hx).
+    + <span class="bp">now</span> <span class="nb">apply</span> Hb, (pr2 Hx).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">TopologyFromNeighborhood_correct</span> {<span class="nv">X</span> : hSet}
+  (<span class="nv">N</span> : X → (X → hProp) → hProp)
+  (<span class="nv">H</span> : isNeighborhood N)
+  : ∏ (x : X) (P : X → hProp),
+    N x P &lt;-&gt; neighborhood (T := TopologyFromNeighborhood N H) x P.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hx.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">simple refine</span> (tpair _ _ _).
+    + <span class="nb">simple refine</span> (tpair _ _ _).
+      * <span class="nb">intros</span> y.
+        <span class="nb">apply</span> (N y P).
+      * <span class="nb">simpl</span> ; <span class="nb">intros</span> y Hy.
+        <span class="nb">generalize</span> (pr2 (pr2 (pr2 (pr2 H))) _ _ Hy).
+        <span class="nb">apply</span> hinhuniv.
+        <span class="nb">intros</span> Q.
+        <span class="nb">apply</span> (pr1 H) <span class="k">with</span> (<span class="mi">2</span> := pr1 (pr2 Q)).
+        <span class="bp">exact</span> (pr2 (pr2 Q)).
+    + <span class="nb">split</span> ; <span class="nb">simpl</span>.
+      * <span class="bp">exact</span> Hx.
+      * <span class="nb">intros</span> y.
+        <span class="bp">now</span> <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr2 H)))).
+  - <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> O.
+    <span class="nb">apply</span> (pr1 H) <span class="k">with</span> (pr1 (pr1 O)).
+    + <span class="nb">apply</span> (pr2 (pr2 O)).
+    + <span class="nb">simple refine</span> (pr2 (pr1 O) _ _).
+      <span class="bp">exact</span> (pr1 (pr2 O)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isNeighborhood_isPreFilter</span> {<span class="nv">X</span> : hSet} <span class="nv">N</span> :
+  isNeighborhood N -&gt; ∏ x : X, isPreFilter (N x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hn x.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 Hn).
+  - <span class="nb">apply</span> isfilter_finite_intersection_carac.
+    + <span class="nb">apply</span> (pr1 (pr2 Hn)).
+    + <span class="nb">apply</span> (pr1 (pr2 (pr2 Hn))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isNeighborhood_isFilter</span> {<span class="nv">X</span> : hSet} <span class="nv">N</span> :
+  isNeighborhood N -&gt; ∏ x : X, isFilter (N x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hn x.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> isNeighborhood_isPreFilter, Hn.
+  - <span class="nb">intros</span> A Fa.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">x</span>.
+    <span class="nb">apply</span> ((pr1 (pr2 (pr2 (pr2 Hn)))) _ _ Fa).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Generated Topology *)</span>
+
+<span class="kn">Section</span> <span class="nf">topologygenerated</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet} (<span class="nv">O</span> : (X → hProp) → hProp).
+
+<span class="kn">Definition</span> <span class="nf">topologygenerated</span> :=
+  <span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">A</span> : X → hProp),
+  (<span class="k">∃</span> <span class="nv">L</span> : Sequence (X → hProp), (∏ n, O (L n)) × (finite_intersection L x) × (∏ y, finite_intersection L y → A y)).
+
+<span class="kn">Lemma</span> <span class="nf">topologygenerated_imply</span> :
+  ∏ x : X, isfilter_imply (topologygenerated x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> L.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">L</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 (pr2 L)).
+  - <span class="bp">exact</span> (pr1 (pr2 (pr2 L))).
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">apply</span> H, (pr2 (pr2 (pr2 L))), Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologygenerated_htrue</span> :
+  ∏ x : X, isfilter_htrue (topologygenerated x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">nil</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span> n; <span class="nb">induction</span> (nopathsfalsetotrue (pr2 n)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologygenerated_and</span> :
+  ∏ x : X, isfilter_and (topologygenerated x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> La Lb.
+  <span class="k">exists</span> (<span class="nv">concatenate</span> (pr1 La) (pr1 Lb)).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">simpl</span> ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> (coprod_rect (<span class="k">λ</span> <span class="nv">x</span>, O (coprod_rect _ _ _ x))) ; <span class="nb">intros</span> m.
+    + <span class="nb">rewrite</span> coprod_rect_compute_1.
+      <span class="bp">exact</span> (pr1 (pr2 La) _).
+    + <span class="nb">rewrite</span> coprod_rect_compute_2.
+      <span class="bp">exact</span> (pr1 (pr2 Lb) _).
+  - <span class="nb">simpl</span> ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> (coprod_rect (<span class="k">λ</span> <span class="nv">y</span>, (coprod_rect (<span class="k">λ</span> <span class="nv">_</span> : stn (length (pr1 La)) ⨿ stn (length (pr1 Lb)), X → hProp) (<span class="k">λ</span> <span class="nv">j</span> : stn (length (pr1 La)), (pr1 La) j)
+       (<span class="k">λ</span> <span class="nv">k</span> : stn (length (pr1 Lb)), (pr1 Lb) k) y) x)) ; <span class="nb">intros</span> m.
+    + <span class="nb">rewrite</span> coprod_rect_compute_1.
+      <span class="bp">exact</span> (pr1 (pr2 (pr2 La)) _).
+    + <span class="nb">rewrite</span> coprod_rect_compute_2.
+      <span class="bp">exact</span> (pr1 (pr2 (pr2 Lb)) _).
+  - <span class="nb">apply</span> (pr2 (pr2 (pr2 La))).
+    <span class="nb">intros</span> n.
+    <span class="nb">simpl</span> <span class="k">in</span> X0.
+    <span class="nb">unfold</span> concatenate' <span class="k">in</span> X0.
+    <span class="nb">specialize</span> (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii1 n))).
+    <span class="bp">now</span> <span class="nb">rewrite</span> (weqfromcoprodofstn_eq1 _ _) , coprod_rect_compute_1 <span class="k">in</span> X0.
+  - <span class="nb">apply</span> (pr2 (pr2 (pr2 Lb))).
+    <span class="nb">intros</span> n.
+    <span class="nb">simpl</span> <span class="k">in</span> X0.
+    <span class="nb">unfold</span> concatenate' <span class="k">in</span> X0.
+    <span class="nb">specialize</span> (X0 (weqfromcoprodofstn_map (length (pr1 La)) (length (pr1 Lb)) (ii2 n))).
+    <span class="bp">now</span> <span class="nb">rewrite</span> (weqfromcoprodofstn_eq1 _ _), coprod_rect_compute_2 <span class="k">in</span> X0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologygenerated_point</span> :
+  ∏ (x : X) (P : X → hProp), topologygenerated x P → P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> L.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 L))).
+  <span class="bp">exact</span> (pr1 (pr2 (pr2 L))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologygenerated_neighborhood</span> :
+∏ (x : X) (P : X → hProp),
+ topologygenerated x P
+ → <span class="k">∃</span> <span class="nv">Q</span> : X → hProp,
+    topologygenerated x Q × (∏ y : X, Q y → topologygenerated y P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x P.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> L.
+  <span class="k">exists</span> (<span class="nv">finite_intersection</span> (pr1 L)).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">L</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 L)).
+    + <span class="bp">exact</span> (pr1 (pr2 (pr2 L))).
+    + <span class="nb">intros</span>. <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">L</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 L)).
+    + <span class="bp">exact</span> Hy.
+    + <span class="bp">exact</span> (pr2 (pr2 (pr2 L))).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">topologygenerated</span>.
+
+<span class="kn">Definition</span> <span class="nf">TopologyGenerated</span> {<span class="nv">X</span> : hSet} (<span class="nv">O</span> : (X → hProp) → hProp) : TopologicalSpace.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (TopologyFromNeighborhood _ _).
+  - <span class="nb">apply</span> X.
+  - <span class="nb">apply</span> topologygenerated, O.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> topologygenerated_imply.
+    + <span class="nb">apply</span> topologygenerated_htrue.
+    + <span class="nb">apply</span> topologygenerated_and.
+    + <span class="nb">apply</span> topologygenerated_point.
+    + <span class="nb">apply</span> topologygenerated_neighborhood.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">TopologyGenerated_included</span> {<span class="nv">X</span> : hSet} :
+  ∏ (O : (X → hProp) → hProp) (P : X → hProp),
+    O P → isOpen (T := TopologyGenerated O) P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> O P Op.
+  <span class="nb">apply</span> neighborhood_isOpen.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> TopologyFromNeighborhood_correct.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">singletonSequence</span> <span class="nv">P</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">induction</span> n <span class="k">as</span> [n Hn].
+    <span class="bp">exact</span> Op.
+  - <span class="nb">intros</span> n ;
+    <span class="nb">induction</span> n <span class="k">as</span> [n Hn].
+    <span class="bp">exact</span> Hx.
+  - <span class="nb">intros</span> y Hy.
+    <span class="bp">now</span> <span class="nb">apply</span> (Hy (<span class="mi">0</span>%nat,,paths_refl _)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">TopologyGenerated_smallest</span> {<span class="nv">X</span> : hSet} :
+  ∏ (O : (X → hProp) → hProp) (T : isTopologicalSpace X),
+    (∏ P : X → hProp, O P → pr1 T P)
+    → ∏ P : X → hProp, isOpen (T := TopologyGenerated O) P → pr1 T P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> O T Ht P Hp.
+  <span class="nb">apply</span> (neighborhood_isOpen (T := (X,,T))).
+  <span class="nb">intros</span> x Px.
+  <span class="nb">generalize</span> (Hp x Px) ; <span class="nb">clear</span> Hp.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> L.
+  <span class="nb">simple refine</span> (tpair _ _ _).
+  - <span class="nb">simple refine</span> (tpair _ _ _).
+    + <span class="nb">apply</span> (finite_intersection (pr1 L)).
+    + <span class="nb">apply</span> (isOpen_finite_intersection (T := X,,T)).
+      <span class="nb">intros</span> m.
+      <span class="nb">apply</span> Ht.
+      <span class="nb">apply</span> (pr1 (pr2 L)).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 (pr2 L))).
+    + <span class="bp">exact</span> (pr2 (pr2 (pr2 L))).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Product of topologies *)</span>
+
+<span class="kn">Section</span> <span class="nf">topologydirprod</span>.
+
+<span class="kn">Context</span> (<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace).
+
+<span class="kn">Definition</span> <span class="nf">topologydirprod</span> :=
+  <span class="k">λ</span> (<span class="nv">z</span> : U × V) (<span class="nv">A</span> : U × V → hProp),
+  (<span class="k">∃</span> (<span class="nv">Ax</span> : U → hProp) (<span class="nv">Ay</span> : V → hProp),
+      (Ax (pr1 z) × isOpen Ax)
+        × (Ay (pr2 z) × isOpen Ay)
+        × (∏ x y, Ax x → Ay y → A (x,,y))).
+
+<span class="kn">Lemma</span> <span class="nf">topologydirprod_imply</span> :
+  ∏ x : U × V, isfilter_imply (topologydirprod x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> AB.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">AB</span>), (pr1 (pr2 AB)) ; <span class="nb">split</span> ; [ | <span class="nb">split</span>].
+  - <span class="bp">exact</span> (pr1 (pr2 (pr2 AB))).
+  - <span class="bp">exact</span> (pr1 (pr2 (pr2 (pr2 AB)))).
+  - <span class="nb">intros</span> x' y' Hx' Hy'.
+    <span class="bp">now</span> <span class="nb">apply</span> H, (pr2 (pr2 (pr2 (pr2 AB)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologydirprod_htrue</span> :
+  ∏ x : U × V, isfilter_htrue (topologydirprod x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">htrue</span>), (<span class="k">λ</span> <span class="nv">_</span>, htrue).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> isOpen_htrue.
+  - <span class="nb">apply</span> isOpen_htrue.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologydirprod_and</span> :
+  ∏ x : U × V, isfilter_and (topologydirprod x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> A' B'.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">pr1</span> <span class="nv">A'</span> <span class="nv">x</span> ∧ pr1 B' x), (<span class="k">λ</span> <span class="nv">y</span>, pr1 (pr2 A') y ∧ pr1 (pr2 B') y).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr2 A')))).
+  - <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr2 B')))).
+  - <span class="nb">apply</span> isOpen_and.
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr2 A')))).
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr2 B')))).
+  - <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
+  - <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr2 (pr2 B'))))).
+  - <span class="nb">apply</span> isOpen_and.
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr2 (pr2 B'))))).
+  - <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 A')))).
+    + <span class="nb">apply</span> (pr1 X).
+    + <span class="nb">apply</span> (pr1 X0).
+  - <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 B')))).
+    + <span class="nb">apply</span> (pr2 X).
+    + <span class="nb">apply</span> (pr2 X0).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologydirprod_point</span> :
+  ∏ (x : U × V) (P : U × V → hProp), topologydirprod x P → P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xy A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> A'.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 A')))).
+  - <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 A')))).
+  - <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 (pr2 A'))))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologydirprod_neighborhood</span> :
+  ∏ (x : U × V) (P : U × V → hProp),
+    topologydirprod x P
+    → <span class="k">∃</span> <span class="nv">Q</span> : U × V → hProp,
+      topologydirprod x Q
+                      × (∏ y : U × V, Q y → topologydirprod y P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xy P.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> A'.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">z</span>, <span class="nv">pr1</span> <span class="nv">A'</span> (pr1 z) ∧ pr1 (pr2 A') (pr2 z)).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A'</span>), (pr1 (pr2 A')).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 (pr2 A'))).
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 (pr2 (pr2 (pr2 A')))).
+      * <span class="nb">intros</span> x' y' Ax' Ay'.
+        <span class="bp">now</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> z Az.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A'</span>), (pr1 (pr2 A')).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 Az).
+    + <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 A')))).
+    + <span class="bp">exact</span> (pr2 Az).
+    + <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 (pr2 A'))))).
+    + <span class="bp">exact</span> (pr2 (pr2 (pr2 (pr2 A')))).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">topologydirprod</span>.
+
+<span class="kn">Definition</span> <span class="nf">TopologyDirprod</span> (<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace) : TopologicalSpace.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (TopologyFromNeighborhood _ _).
+  - <span class="nb">apply</span> (U × V)%<span class="nb">set</span>.
+  - <span class="nb">apply</span> topologydirprod.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> topologydirprod_imply.
+    + <span class="nb">apply</span> topologydirprod_htrue.
+    + <span class="nb">apply</span> topologydirprod_and.
+    + <span class="nb">apply</span> topologydirprod_point.
+    + <span class="nb">apply</span> topologydirprod_neighborhood.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally2d</span> {<span class="nv">T</span> <span class="nv">S</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">y</span> : S) : Filter (T × S) :=
+  FilterDirprod (locally x) (locally y).
+
+<span class="kn">Lemma</span> <span class="nf">locally2d_correct</span> {<span class="nv">T</span> <span class="nv">S</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">y</span> : S) :
+  ∏ P : T × S → hProp, locally2d x y P &lt;-&gt; locally (T := TopologyDirprod T S) (x,,y) P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P.
+  <span class="nb">split</span> ; <span class="nb">apply</span> hinhuniv.
+  - <span class="nb">intros</span> A.
+    <span class="nb">apply</span> TopologyFromNeighborhood_correct.
+    <span class="nb">generalize</span> (pr1 (pr2 (pr2 A))) (pr1 (pr2 (pr2 (pr2 A)))).
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> Ox Oy.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Ox</span>), (pr1 Oy).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 Ox)).
+    + <span class="bp">exact</span> (pr2 (pr1 Ox)).
+    + <span class="bp">exact</span> (pr1 (pr2 Oy)).
+    + <span class="bp">exact</span> (pr2 (pr1 Oy)).
+    + <span class="nb">intros</span> x' y' Hx' Hy'.
+      <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 A)))).
+      * <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 Ox)).
+      * <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 Oy)).
+  - <span class="nb">intros</span> O.
+    <span class="nb">generalize</span> (pr2 (pr1 O) _ (pr1 (pr2 O))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> A.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A</span>), (pr1 (pr2 A)).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+      * <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 A)))).
+      * <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 A)))).
+    + <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+      * <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 (pr2 A))))).
+      * <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 (pr2 A))))).
+    + <span class="nb">intros</span> x' y' Ax' Ay'.
+      <span class="nb">apply</span> (pr2 (pr2 O)).
+      <span class="bp">now</span> <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 A)))).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Topology on a subtype *)</span>
+
+<span class="kn">Section</span> <span class="nf">topologysubtype</span>.
+
+<span class="kn">Context</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">dom</span> : T → hProp).
+
+<span class="kn">Definition</span> <span class="nf">topologysubtype</span> :=
+  <span class="k">λ</span> (<span class="nv">x</span> : ∑ x : T, dom x) (<span class="nv">A</span> : (∑ x0 : T, dom x0) → hProp),
+  <span class="k">∃</span> <span class="nv">B</span> : T → hProp,
+    (B (pr1 x) × isOpen B) × (∏ y : ∑ x0 : T, dom x0, B (pr1 y) → A y).
+
+<span class="kn">Lemma</span> <span class="nf">topologysubtype_imply</span> :
+  ∏ x : ∑ x : T, dom x, isfilter_imply (topologysubtype x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> A'.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">A'</span>).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 (pr2 A')).
+  - <span class="nb">intros</span> y Hy.
+    <span class="bp">now</span> <span class="nb">apply</span> H, (pr2 (pr2 A')).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologysubtype_htrue</span> :
+  ∏ x : ∑ x : T, dom x, isfilter_htrue (topologysubtype x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">htrue</span>).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> isOpen_htrue.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologysubtype_and</span> :
+  ∏ x : ∑ x : T, dom x, isfilter_and (topologysubtype x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A B.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> A' B'.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">pr1</span> <span class="nv">A'</span> <span class="nv">x</span> ∧ pr1 B' x).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (pr1 (pr1 (pr2 A'))).
+  - <span class="bp">exact</span> (pr1 (pr1 (pr2 B'))).
+  - <span class="nb">apply</span> isOpen_and.
+    + <span class="bp">exact</span> (pr2 (pr1 (pr2 A'))).
+    + <span class="bp">exact</span> (pr2 (pr1 (pr2 B'))).
+  - <span class="nb">apply</span> (pr2 (pr2 A')), (pr1 X).
+  - <span class="nb">apply</span> (pr2 (pr2 B')), (pr2 X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologysubtype_point</span> :
+  ∏ (x : ∑ x : T, dom x) (P : (∑ x0 : T, dom x0) → hProp),
+    topologysubtype x P → P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> B.
+  <span class="nb">apply</span> (pr2 (pr2 B)), (pr1 (pr1 (pr2 B))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">topologysubtype_neighborhood</span> :
+  ∏ (x : ∑ x : T, dom x) (P : (∑ x0 : T, dom x0) → hProp),
+    topologysubtype x P
+    → <span class="k">∃</span> <span class="nv">Q</span> : (∑ x0 : T, dom x0) → hProp,
+      topologysubtype x Q
+       × (∏ y : ∑ x0 : T, dom x0, Q y → topologysubtype y P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x A.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> B.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">y</span> : ∑ x : T, dom x, pr1 B (pr1 y)).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">B</span>).
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr1 (pr2 B)).
+    + <span class="nb">intros</span>.
+      <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> y By.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">B</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> By.
+    + <span class="bp">exact</span> (pr2 (pr1 (pr2 B))).
+    + <span class="bp">exact</span> (pr2 (pr2 B)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">topologysubtype</span>.
+
+<span class="kn">Definition</span> <span class="nf">TopologySubtype</span> {<span class="nv">T</span> : TopologicalSpace}
+  (<span class="nv">dom</span> : T → hProp)
+  : TopologicalSpace.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (TopologyFromNeighborhood _ _).
+  - <span class="bp">exact</span> (carrier_subset dom).
+  - <span class="nb">apply</span> topologysubtype.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> topologysubtype_imply.
+    + <span class="nb">apply</span> topologysubtype_htrue.
+    + <span class="nb">apply</span> topologysubtype_and.
+    + <span class="nb">apply</span> topologysubtype_point.
+    + <span class="nb">apply</span> topologysubtype_neighborhood.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Limits in a Topological Set *)</span>
+
+<span class="kn">Section</span> <span class="nf">locally_base</span>.
+
+<span class="kn">Context</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">base</span> : base_of_neighborhood x).
+
+<span class="kn">Lemma</span> <span class="nf">locally_base_imply</span> :
+  isfilter_imply (neighborhood' x base).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B H Ha.
+  <span class="nb">apply</span> (pr2 (neighborhood_equiv _ _ _)).
+  <span class="nb">eapply</span> neighborhood_imply.
+  - <span class="bp">exact</span> H.
+  - <span class="nb">eapply</span> neighborhood_equiv.
+    <span class="bp">exact</span> Ha.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">locally_base_htrue</span> :
+  isfilter_htrue (neighborhood' x base).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (neighborhood_equiv _ _ _)).
+  <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+  - <span class="nb">apply</span> isOpen_htrue.
+  - <span class="nb">apply</span> tt.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">locally_base_and</span> :
+  isfilter_and (neighborhood' x base).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B Ha Hb.
+  <span class="nb">apply</span> (pr2 (neighborhood_equiv _ _ _)).
+  <span class="nb">eapply</span> neighborhood_and.
+  - <span class="nb">eapply</span> neighborhood_equiv, Ha.
+  - <span class="nb">eapply</span> neighborhood_equiv, Hb.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">locally_base</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally_base</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">x</span> : T) (<span class="nv">base</span> : base_of_neighborhood x) : Filter T.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_Filter _ _ _ _ _).
+  - <span class="nb">apply</span> (neighborhood' x base).
+  - <span class="nb">apply</span> locally_base_imply.
+  - <span class="nb">apply</span> locally_base_htrue.
+  - <span class="nb">apply</span> locally_base_and.
+  - <span class="nb">intros</span> A Ha.
+    <span class="nb">apply</span> neighborhood_equiv <span class="k">in</span> Ha.
+    <span class="nb">apply</span> neighborhood_point <span class="k">in</span> Ha.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">now</span> <span class="k">exists</span> <span class="nv">x</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Limit of a filter *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_filter_lim</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) (<span class="nv">x</span> : T) :=
+  filter_le F (locally x).
+<span class="kn">Definition</span> <span class="nf">ex_filter_lim</span>  {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) :=
+  <span class="k">∃</span> (<span class="nv">x</span> : T), is_filter_lim F x.
+
+<span class="kn">Definition</span> <span class="nf">is_filter_lim_base</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) (<span class="nv">x</span> : T) <span class="nv">base</span> :=
+  filter_le F (locally_base x base).
+<span class="kn">Definition</span> <span class="nf">ex_filter_lim_base</span>  {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) :=
+  <span class="k">∃</span> (<span class="nv">x</span> : T) <span class="nv">base</span>, is_filter_lim_base F x base.
+
+<span class="kn">Lemma</span> <span class="nf">is_filter_lim_base_correct</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) (<span class="nv">x</span> : T) <span class="nv">base</span> :
+  is_filter_lim_base F x base &lt;-&gt; is_filter_lim F x.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hx P HP.
+    <span class="nb">apply</span> (pr2 (neighborhood_equiv _ base _)) <span class="k">in</span> HP.
+    <span class="nb">apply</span> Hx.
+    <span class="bp">exact</span> HP.
+  - <span class="nb">intros</span> Hx P HP.
+    <span class="nb">apply</span> neighborhood_equiv <span class="k">in</span> HP.
+    <span class="nb">apply</span> Hx.
+    <span class="bp">exact</span> HP.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">ex_filter_lim_base_correct</span> {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">F</span> : Filter T) :
+  ex_filter_lim_base F &lt;-&gt; ex_filter_lim F.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> x.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+    <span class="nb">eapply</span> is_filter_lim_base_correct.
+    <span class="bp">exact</span> (pr2 (pr2 x)).
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> x.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>), (base_of_neighborhood_default (pr1 x)).
+    <span class="nb">apply</span> (pr2 (is_filter_lim_base_correct _ _ _)).
+    <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Limit of a function *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_lim</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) (<span class="nv">x</span> : T) :=
+  filterlim f F (locally x).
+
+<span class="kn">Definition</span> <span class="nf">ex_lim</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) :=
+  <span class="k">∃</span> (<span class="nv">x</span> : T), is_lim f F x.
+
+<span class="kn">Definition</span> <span class="nf">is_lim_base</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) (<span class="nv">x</span> : T) <span class="nv">base</span> :=
+  filterlim f F (locally_base x base).
+<span class="kn">Definition</span> <span class="nf">ex_lim_base</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) :=
+  <span class="k">∃</span> (<span class="nv">x</span> : T) <span class="nv">base</span>, is_lim_base f F x base.
+
+<span class="kn">Lemma</span> <span class="nf">is_lim_base_correct</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) (<span class="nv">x</span> : T) <span class="nv">base</span> :
+  is_lim_base f F x base &lt;-&gt; is_lim f F x.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hx P HP.
+    <span class="nb">apply</span> Hx, (pr2 (neighborhood_equiv _ _ _)).
+    <span class="bp">exact</span> HP.
+  - <span class="nb">intros</span> Hx P HP.
+    <span class="nb">eapply</span> Hx, neighborhood_equiv.
+    <span class="bp">exact</span> HP.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">ex_lim_base_correct</span> {<span class="nv">X</span> : UU} {<span class="nv">T</span> : TopologicalSpace} (<span class="nv">f</span> : X → T) (<span class="nv">F</span> : Filter X) :
+  ex_lim_base f F &lt;-&gt; ex_lim f F.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> x.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+    <span class="nb">eapply</span> is_lim_base_correct.
+    <span class="bp">exact</span> (pr2 (pr2 x)).
+  - <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> x.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>), (base_of_neighborhood_default (pr1 x)).
+    <span class="nb">apply</span> (pr2 (is_lim_base_correct _ _ _ _)).
+    <span class="bp">exact</span> (pr2 x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Continuity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">continuous_at</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} (<span class="nv">f</span> : U → V) (<span class="nv">x</span> : U) :=
+  is_lim f (locally x) (f x).
+
+<span class="kn">Definition</span> <span class="nf">continuous_on</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} (<span class="nv">dom</span> : U → hProp) (<span class="nv">f</span> : ∏ (x : U), dom x → V) :=
+  ∏ (x : U) (Hx : dom x),
+    <span class="k">∃</span> <span class="nv">H</span>,
+      is_lim (<span class="k">λ</span> <span class="nv">y</span> : (∑ x : U, dom x), f (pr1 y) (pr2 y)) (FilterSubtype (locally x) dom H) (f x Hx).
+<span class="kn">Definition</span> <span class="nf">continuous</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} (<span class="nv">f</span> : U → V) :=
+  ∏ x : U, continuous_at f x.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_continuous</span> (<span class="nv">x</span> <span class="nv">y</span> : TopologicalSpace)
+  (<span class="nv">f</span> : x → y)
+  : isaprop (continuous (<span class="k">λ</span> <span class="nv">x0</span> : x,  f x0)).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+  <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">continuous_base_at</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} (<span class="nv">f</span> : U → V) (<span class="nv">x</span> : U) <span class="nv">base_x</span> <span class="nv">base_fx</span> :=
+  is_lim_base f (locally_base x base_x) (f x) base_fx.
+
+<span class="sd">(** *** Continuity for 2 variable functions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">continuous2d_at</span> {<span class="nv">U</span> <span class="nv">V</span> <span class="nv">W</span> : TopologicalSpace} (<span class="nv">f</span> : U → V → W) (<span class="nv">x</span> : U) (<span class="nv">y</span> : V) :=
+  is_lim (<span class="k">λ</span> <span class="nv">z</span> : U × V, f (pr1 z) (pr2 z)) (FilterDirprod (locally x) (locally y)) (f x y).
+<span class="kn">Definition</span> <span class="nf">continuous2d</span> {<span class="nv">U</span> <span class="nv">V</span> <span class="nv">W</span> : TopologicalSpace} (<span class="nv">f</span> : U → V → W) :=
+  ∏ (x : U) (y : V), continuous2d_at f x y.
+
+<span class="kn">Definition</span> <span class="nf">continuous2d_base_at</span> {<span class="nv">U</span> <span class="nv">V</span> <span class="nv">W</span> : TopologicalSpace} (<span class="nv">f</span> : U → V → W)
+           (<span class="nv">x</span> : U) (<span class="nv">y</span> : V) <span class="nv">base_x</span> <span class="nv">base_y</span> <span class="nv">base_fxy</span> :=
+  is_lim_base (<span class="k">λ</span> <span class="nv">z</span> : U × V, f (pr1 z) (pr2 z))
+              (FilterDirprod (locally_base x base_x) (locally_base y base_y))
+              (f x y) base_fxy.
+
+<span class="sd">(** *** Continuity of basic functions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">continuous_comp</span> {<span class="nv">X</span> : UU} {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace}
+  (<span class="nv">f</span> : X → U) (<span class="nv">g</span> : U → V) (<span class="nv">F</span> : Filter X) (<span class="nv">l</span> : U)
+  : is_lim f F l → continuous_at g l →
+    is_lim (funcomp f g) F (g l).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> filterlim_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">continuous_funcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : TopologicalSpace} (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z) :
+  continuous f → continuous g →
+  continuous (funcomp f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf Hg x.
+  <span class="nb">refine</span> (continuous_comp _ _ _ _ _ _).
+  - <span class="nb">apply</span> Hf.
+  - <span class="nb">apply</span> Hg.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">continuous2d_comp</span> {<span class="nv">X</span> : UU} {<span class="nv">U</span> <span class="nv">V</span> <span class="nv">W</span> : TopologicalSpace}
+  (<span class="nv">f</span> : X → U) (<span class="nv">g</span> : X → V)
+  (<span class="nv">h</span> : U → V → W)
+  (<span class="nv">F</span> : Filter X)
+  (<span class="nv">lf</span> : U) (<span class="nv">lg</span> : V)
+  : is_lim f F lf → is_lim g F lg → continuous2d_at h lf lg →
+    is_lim (<span class="k">λ</span> <span class="nv">x</span>, h (f x) (g x)) F (h lf lg).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hf Hg.
+  <span class="nb">apply</span> (filterlim_comp (<span class="k">λ</span> <span class="nv">x</span>, (f x ,, g x))).
+  <span class="nb">intros</span> P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> Hp.
+  <span class="nb">generalize</span> (filter_and F _ _ (Hf _ (pr1 (pr2 (pr2 Hp)))) (Hg _ (pr1 (pr2 (pr2 (pr2 Hp)))))).
+  <span class="nb">apply</span> (filter_imply F).
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 Hp)))).
+  - <span class="bp">exact</span> (pr1 Hx).
+  - <span class="bp">exact</span> (pr2 Hx).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">continuous_tpair</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} :
+  continuous2d (W := TopologyDirprod U V) (<span class="k">λ</span> (<span class="nv">x</span> : U) (<span class="nv">y</span> : V), (x,,y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> O.
+  <span class="nb">simple refine</span> (filter_imply _ _ _ _ _).
+  - <span class="bp">exact</span> (pr1 O).
+  - <span class="bp">exact</span> (pr2 (pr2 O)).
+  - <span class="nb">generalize</span> (pr2 (pr1 O) _ (pr1 (pr2 O))).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">intros</span> Ho.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Ho</span>), (pr1 (pr2 Ho)).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+      * <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 Ho)))).
+      * <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 Ho)))).
+    + <span class="nb">apply</span> (pr2 (neighborhood_isOpen _)).
+      * <span class="bp">exact</span> (pr2 (pr1 (pr2 (pr2 (pr2 Ho))))).
+      * <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr2 (pr2 Ho))))).
+    + <span class="bp">exact</span> (pr2 (pr2 (pr2 (pr2 Ho)))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">continuous_pr1</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} :
+  continuous (U := TopologyDirprod U V) (<span class="k">λ</span> (<span class="nv">xy</span> : U × V), pr1 xy).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xy P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> O.
+  <span class="nb">simple refine</span> (filter_imply _ _ _ _ _).
+  - <span class="bp">exact</span> (pr1 (pr1 O)).
+  - <span class="bp">exact</span> (pr2 (pr2 O)).
+  - <span class="nb">apply</span> hinhpr.
+    use tpair.
+    + use tpair.
+      * <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">xy</span> : U × V, pr1 O (pr1 xy)).
+      * <span class="nb">intros</span> xy' Oxy.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">O</span>), (<span class="k">λ</span> <span class="nv">_</span>, htrue).
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        ** <span class="bp">exact</span> Oxy.
+        ** <span class="bp">exact</span> (pr2 (pr1 O)).
+        ** <span class="bp">exact</span> isOpen_htrue.
+        ** <span class="nb">intros</span>.
+           <span class="bp">assumption</span>.
+    + <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 (pr2 O)).
+      * <span class="nb">intros</span>. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">continuous_pr2</span> {<span class="nv">U</span> <span class="nv">V</span> : TopologicalSpace} :
+  continuous (U := TopologyDirprod U V) (<span class="k">λ</span> (<span class="nv">xy</span> : U × V), pr2 xy).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xy P.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">intros</span> O.
+  <span class="nb">simple refine</span> (filter_imply _ _ _ _ _).
+  - <span class="bp">exact</span> (pr1 (pr1 O)).
+  - <span class="bp">exact</span> (pr2 (pr2 O)).
+  - <span class="nb">apply</span> hinhpr.
+    use tpair.
+    + use tpair.
+      * <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">xy</span> : U × V, pr1 O (pr2 xy)).
+      * <span class="nb">intros</span> xy' Oxy.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">htrue</span>), (pr1 O).
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        ** <span class="bp">exact</span> isOpen_htrue.
+        ** <span class="bp">exact</span> Oxy.
+        ** <span class="bp">exact</span> (pr2 (pr1 O)).
+        ** <span class="nb">intros</span>. <span class="bp">assumption</span>.
+    + <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (pr1 (pr2 O)).
+      * <span class="nb">intros</span>. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Topology in algebraic structures *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isTopological_monoid</span> (<span class="nv">X</span> : monoid) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  continuous2d (U := (pr11 X) ,, isc)
+               (V := (pr11 X) ,, isc)
+               (W := (pr11 X) ,, isc)
+               BinaryOperations.op.
+<span class="kn">Definition</span> <span class="nf">Topological_monoid</span> :=
+  ∑ (X : monoid) (isc : isTopologicalSpace X), isTopological_monoid X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_gr</span> (<span class="nv">X</span> : gr) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  isTopological_monoid X isc
+    × continuous (U := (pr11 X) ,, isc)
+                 (V := (pr11 X) ,, isc)
+                 (grinv X).
+<span class="kn">Definition</span> <span class="nf">Topological_gr</span> :=
+  ∑ (X : gr) isc, isTopological_gr X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_rig</span> (<span class="nv">X</span> : rig) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  isTopological_monoid (rigaddabmonoid X) isc
+  × isTopological_monoid (rigmultmonoid X) isc.
+<span class="kn">Definition</span> <span class="nf">Topological_rig</span> :=
+  ∑ (X : rig) isc, isTopological_rig X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_ring</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  isTopological_gr (ringaddabgr X) isc
+  × isTopological_monoid (rigmultmonoid X) isc.
+<span class="kn">Definition</span> <span class="nf">Topological_ring</span> :=
+  ∑ (X : <span class="bp">ring</span>) isc, isTopological_ring X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_DivRig</span> (<span class="nv">X</span> : DivRig) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  isTopological_rig (pr1 X) isc
+  × continuous_on (U := (pr111 X) ,, isc)
+                  (V := (pr111 X) ,, isc)
+                  (<span class="k">λ</span> <span class="nv">x</span> : X, make_hProp (x != <span class="mi">0</span>%dr) (isapropneg _)) (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">Hx</span>, invDivRig (x,,Hx)).
+<span class="kn">Definition</span> <span class="nf">Topological_DivRig</span> :=
+  ∑ (X : DivRig) isc, isTopological_DivRig X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_fld</span> (<span class="nv">X</span> : fld) (<span class="nv">isc</span> : isTopologicalSpace X) :=
+  isTopological_ring (pr1 X) isc
+  × continuous_on (U := (pr111 X) ,, isc)
+                  (V := (pr111 X) ,, isc)
+                  (<span class="k">λ</span> <span class="nv">x</span> : X, make_hProp (x != <span class="mi">0</span>%<span class="bp">ring</span>) (isapropneg _))
+                  fldmultinv.
+<span class="kn">Definition</span> <span class="nf">Topological_fld</span> :=
+  ∑ (X : fld) isc, isTopological_fld X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_ConstructiveDivisionRig</span>
+  (<span class="nv">X</span> : ConstructiveDivisionRig)
+  (<span class="nv">isc</span> : isTopologicalSpace X)
+  := isTopological_rig X isc
+       × continuous_on (U := (pr111 X) ,, isc)
+                       (V := (pr111 X) ,, isc)
+                       (<span class="k">λ</span> <span class="nv">x</span> : X, (x ≠ <span class="mi">0</span>)%CDR)
+                       CDRinv.
+
+<span class="kn">Definition</span> <span class="nf">Topological_ConstructiveDivisionRig</span> :=
+  ∑ (X : ConstructiveDivisionRig) isc, isTopological_ConstructiveDivisionRig X isc.
+
+<span class="kn">Definition</span> <span class="nf">isTopological_ConstructiveField</span>
+  (<span class="nv">X</span> : ConstructiveField)
+  (<span class="nv">isc</span> : isTopologicalSpace X)
+  := isTopological_ring X isc
+       × continuous_on (U := (pr111 X) ,, isc)
+                       (V := (pr111 X) ,, isc)
+                       (<span class="k">λ</span> <span class="nv">x</span> : X, (x ≠ <span class="mi">0</span>)%CF)
+                       CFinv.
+
+<span class="kn">Definition</span> <span class="nf">Topological_ConstructiveField</span> :=
+  ∑ (X : ConstructiveField) isc, isTopological_ConstructiveField X isc.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Topology/Topology.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Author: Catherine LELAY. Jan 2016 - *)
+  &gt; (** Based on Bourbaki *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Export UniMath.Topology.Filters.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

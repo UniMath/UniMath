@@ -1,0 +1,879 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>hcomp_bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.WkCatEnrichment.prebicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_data</span>
+  : UU
+  := ∑ (ob : UU)
+       (mor : ob → ob → UU)
+       (cell : ∏ (x y : ob), mor x y → mor x y → UU)
+       (id1 : ∏ (x : ob), mor x x)
+       (comp1 : ∏ (x y z : ob), mor x y → mor y z → mor x z),
+     (∏ (x y : ob) (f : mor x y), cell _ _ f f)
+     × (∏ (x y : ob) (f g h : mor x y),
+        cell _ _ f g → cell _ _ g h → cell _ _ f h)
+     × (∏ (x y : ob) (f : mor x y),
+        cell _ _ (comp1 _ _ _ f (id1 y)) f)
+     × (∏ (x y : ob) (f : mor x y),
+        cell _ _ f (comp1 _ _ _ f (id1 y)))
+     × (∏ (x y : ob) (f : mor x y),
+        cell _ _ (comp1 _ _ _ (id1 x) f) f)
+     × (∏ (x y : ob) (f : mor x y),
+        cell _ _ f (comp1 _ _ _ (id1 x) f))
+     × (∏ (w x y z : ob) (f : mor w x) (g : mor x y) (h : mor y z),
+        cell _ _
+             (comp1 _ _ _ (comp1 _ _ _ f g) h)
+             (comp1 _ _ _ f (comp1 _ _ _ g h)))
+     × (∏ (w x y z : ob) (f : mor w x) (g : mor x y) (h : mor y z),
+        cell _ _
+             (comp1 _ _ _ f (comp1 _ _ _ g h))
+             (comp1 _ _ _ (comp1 _ _ _ f g) h))
+     × (∏ (x y z : ob) (f₁ f₂ : mor x y) (g₁ g₂ : mor y z),
+        cell _ _ f₁ f₂
+        → cell _ _ g₁ g₂
+        → cell _ _ (comp1 _ _ _ f₁ g₁) (comp1 _ _ _ f₂ g₂)).
+
+<span class="kn">Coercion</span> <span class="nf">hcomp_bicat_ob</span>
+         (B : hcomp_bicat_data)
+  : UU
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">hb_mor</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           (<span class="nv">b₁</span> <span class="nv">b₂</span> : B)
+  : UU
+  := pr12 B b₁ b₂.
+
+<span class="kn">Definition</span> <span class="nf">hb_cell</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> <span class="nv">g</span> : hb_mor b₁ b₂)
+  : UU
+  := pr122 B _ _ f g.
+
+<span class="kn">Definition</span> <span class="nf">hb_id1</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           (<span class="nv">b</span> : B)
+  : hb_mor b b
+  := pr1 (pr222 B) b .
+
+<span class="kn">Definition</span> <span class="nf">hb_comp1</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+           (<span class="nv">g</span> : hb_mor b₂ b₃)
+  : hb_mor b₁ b₃
+  := pr12 (pr222 B) _ _ _ f g.
+
+<span class="kn">Definition</span> <span class="nf">hb_id2</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+  : hb_cell f f
+  := pr122 (pr222 B) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">hb_vcomp</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : hb_mor b₁ b₂}
+           (<span class="nv">α</span> : hb_cell f g)
+           (<span class="nv">β</span> : hb_cell g h)
+  : hb_cell f h
+  := pr1 (pr222 (pr222 B)) _ _ _ _ _ α β.
+
+<span class="kn">Definition</span> <span class="nf">hb_runit</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+  : hb_cell (hb_comp1 f (hb_id1 b₂)) f
+  := pr12 (pr222 (pr222 B)) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">hb_rinvunit</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+  : hb_cell f (hb_comp1 f (hb_id1 b₂))
+  := pr122 (pr222 (pr222 B)) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">hb_lunit</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+  : hb_cell (hb_comp1 (hb_id1 b₁) f) f
+  := pr1 (pr222 (pr222 (pr222 B))) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">hb_linvunit</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+  : hb_cell f (hb_comp1 (hb_id1 b₁) f)
+  := pr12 (pr222 (pr222 (pr222 B))) _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">hb_lassoc</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> <span class="nv">b₄</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+           (<span class="nv">g</span> : hb_mor b₂ b₃)
+           (<span class="nv">h</span> : hb_mor b₃ b₄)
+  : hb_cell (hb_comp1 (hb_comp1 f g) h) (hb_comp1 f (hb_comp1 g h))
+  := pr122 (pr222 (pr222 (pr222 B))) _ _ _ _ f g h.
+
+<span class="kn">Definition</span> <span class="nf">hb_rassoc</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> <span class="nv">b₄</span> : B}
+           (<span class="nv">f</span> : hb_mor b₁ b₂)
+           (<span class="nv">g</span> : hb_mor b₂ b₃)
+           (<span class="nv">h</span> : hb_mor b₃ b₄)
+  : hb_cell (hb_comp1 f (hb_comp1 g h)) (hb_comp1 (hb_comp1 f g) h)
+  := pr1 (pr222 (pr222 (pr222 (pr222 B)))) _ _ _ _ f g h.
+
+<span class="kn">Definition</span> <span class="nf">hb_hcomp</span>
+           {<span class="nv">B</span> : hcomp_bicat_data}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : hb_mor b₁ b₂}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : hb_mor b₂ b₃}
+           (<span class="nv">α</span> : hb_cell f₁ f₂)
+           (<span class="nv">β</span> : hb_cell g₁ g₂)
+  : hb_cell (hb_comp1 f₁ g₁) (hb_comp1 f₂ g₂)
+  := pr2 (pr222 (pr222 (pr222 (pr222 B)))) _ _ _ _ _ _ _ α β.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_laws</span>
+           (<span class="nv">B</span> : hcomp_bicat_data)
+  : UU
+  := (∏ (b₁ b₂ : B)
+        (f g : hb_mor b₁ b₂)
+        (α : hb_cell f g),
+      hb_vcomp (hb_id2 _) α = α)
+       × (∏ (b₁ b₂ : B)
+            (f g : hb_mor b₁ b₂)
+            (α : hb_cell f g),
+          hb_vcomp α (hb_id2 _) = α)
+       × (∏ (b₁ b₂ : B)
+            (f₁ f₂ f₃ f₄ : hb_mor b₁ b₂)
+            (α : hb_cell f₁ f₂)
+            (β : hb_cell f₂ f₃)
+            (γ : hb_cell f₃ f₄),
+          hb_vcomp α (hb_vcomp β γ) = hb_vcomp (hb_vcomp α β) γ)
+       × (∏ (b₁ b₂ : B)
+            (f₁ f₂ f₃ f₄ : hb_mor b₁ b₂)
+            (α : hb_cell f₁ f₂)
+            (β : hb_cell f₂ f₃)
+            (γ : hb_cell f₃ f₄),
+          hb_vcomp (hb_vcomp α β) γ = hb_vcomp α (hb_vcomp β γ))
+       × (∏ (b₁ b₂ : B)
+            (f g : hb_mor b₁ b₂),
+          isaset (hb_cell f g))
+       × (∏ (b₁ b₂ b₃ : B)
+            (f : hb_mor b₁ b₂)
+            (g : hb_mor b₂ b₃),
+          hb_hcomp (hb_id2 f) (hb_id2 g)
+          =
+          hb_id2 (hb_comp1 f g))
+       × (∏ (b₁ b₂ b₃ : B)
+            (f₁ g₁ h₁ : hb_mor b₁ b₂)
+            (f₂ g₂ h₂ : hb_mor b₂ b₃)
+            (α₁ : hb_cell f₁ g₁)
+            (α₂ : hb_cell f₂ g₂)
+            (β₁ : hb_cell g₁ h₁)
+            (β₂ : hb_cell g₂ h₂),
+          hb_hcomp (hb_vcomp α₁ β₁) (hb_vcomp α₂ β₂)
+          =
+          hb_vcomp (hb_hcomp α₁ α₂) (hb_hcomp β₁ β₂))
+       × (∏ (a b c d : B)
+            (f₁ f₂ : hb_mor a b)
+            (g₁ g₂ : hb_mor b c)
+            (h₁ h₂ : hb_mor c d)
+            (α₁ : hb_cell f₁ f₂)
+            (α₂ : hb_cell g₁ g₂)
+            (α₃ : hb_cell h₁ h₂),
+          hb_vcomp
+            (hb_hcomp α₁ (hb_hcomp α₂ α₃))
+            (hb_rassoc _ _ _)
+          =
+          hb_vcomp
+            (hb_rassoc _ _ _)
+            (hb_hcomp (hb_hcomp α₁ α₂) α₃))
+       × (∏ (a b : B)
+            (f₁ f₂ : hb_mor a b)
+            (α : hb_cell f₁ f₂),
+          hb_vcomp (hb_hcomp (hb_id2 (hb_id1 a)) α) (hb_lunit f₂)
+          =
+          hb_vcomp (hb_lunit f₁) α)
+       × (∏ (a b : B)
+            (f₁ f₂ : hb_mor a b)
+            (α : hb_cell f₁ f₂),
+          hb_vcomp (hb_hcomp α (hb_id2 (hb_id1 b))) (hb_runit f₂)
+          =
+          hb_vcomp (hb_runit f₁) α)
+       × (∏ (b₁ b₂ b₃ b₄ : B)
+            (f : hb_mor b₁ b₂)
+            (g : hb_mor b₂ b₃)
+            (h : hb_mor b₃ b₄),
+          hb_vcomp
+            (hb_rassoc f g h)
+            (hb_lassoc f g h)
+          =
+          hb_id2 _)
+       × (∏ (b₁ b₂ b₃ b₄ : B)
+            (f : hb_mor b₁ b₂)
+            (g : hb_mor b₂ b₃)
+            (h : hb_mor b₃ b₄),
+          hb_vcomp
+            (hb_lassoc f g h)
+            (hb_rassoc f g h)
+          =
+          hb_id2 _)
+       × (∏ (b₁ b₂ : B)
+            (f : hb_mor b₁ b₂),
+          hb_vcomp
+            (hb_lunit f)
+            (hb_linvunit f)
+          =
+          hb_id2 _)
+       × (∏ (b₁ b₂ : B)
+            (f : hb_mor b₁ b₂),
+          hb_vcomp
+            (hb_linvunit f)
+            (hb_lunit f)
+          =
+          hb_id2 _)
+       × (∏ (b₁ b₂ : B)
+            (f : hb_mor b₁ b₂),
+          hb_vcomp
+            (hb_runit f)
+            (hb_rinvunit f)
+          =
+          hb_id2 _)
+       × (∏ (b₁ b₂ : B)
+            (f : hb_mor b₁ b₂),
+          hb_vcomp
+            (hb_rinvunit f)
+            (hb_runit f)
+          =
+          hb_id2 _)
+       × (∏ (a b c d e : B)
+            (k : hb_mor a b)
+            (h : hb_mor b c)
+            (g : hb_mor c d)
+            (f : hb_mor d e),
+          hb_vcomp
+            (hb_rassoc k h (hb_comp1 g f))
+            (hb_rassoc (hb_comp1 k h) g f)
+          =
+          hb_vcomp
+            (hb_vcomp
+               (hb_hcomp (hb_id2 k) (hb_rassoc h g f))
+               (hb_rassoc k (hb_comp1 h g) f))
+            (hb_hcomp (hb_rassoc k h g) (hb_id2 f)))
+       × (∏ (a b c : B)
+            (f : hb_mor a b)
+            (g : hb_mor b c),
+          hb_hcomp (hb_id2 f) (hb_lunit g)
+          =
+          hb_vcomp
+            (hb_rassoc f (hb_id1 b) g)
+            (hb_hcomp (hb_runit f) (hb_id2 g))).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_hcomp_prebicat_laws</span>
+      (<span class="nv">B</span> : hcomp_bicat_data)
+      (<span class="nv">H</span> : ∏ (a b : B) (f g : hb_mor a b), isaset (hb_cell f g))
+  : isaprop (hcomp_bicat_laws B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+  ; <span class="kp">try</span> (<span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>)
+         ; <span class="nb">apply</span> H).
+  <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisaset.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat</span>
+  : UU
+  := ∑ (B : hcomp_bicat_data), hcomp_bicat_laws B.
+
+<span class="kn">Coercion</span> <span class="nf">hcomp_bicat_to_data</span>
+         (B : hcomp_bicat)
+  : hcomp_bicat_data
+  := pr1 B.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_hom_cat</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+           (<span class="nv">b₁</span> <span class="nv">b₂</span> : B)
+  : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - use make_precategory.
+    + use make_precategory_data.
+      * use make_precategory_ob_mor.
+        ** <span class="bp">exact</span> (hb_mor b₁ b₂).
+        ** <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, hb_cell f g).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, hb_id2 f).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, hb_vcomp f g).
+    + <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">simpl</span> ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (pr12 B b₁ b₂).
+      * <span class="bp">exact</span> (pr122 B b₁ b₂).
+      * <span class="bp">exact</span> (pr1 (pr222 B) b₁ b₂).
+      * <span class="bp">exact</span> (pr12 (pr222 B) b₁ b₂).
+  - <span class="bp">exact</span> (pr122 (pr222 B) b₁ b₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_hcomp</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+           (<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : pr11 B)
+  : precategory_binproduct_data
+      (hcomp_bicat_hom_cat B b₁ b₂)
+      (hcomp_bicat_hom_cat B b₂ b₃)
+    ⟶
+    hcomp_bicat_hom_cat B b₁ b₃.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span>, hb_comp1 (pr1 fg) (pr2 fg)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span> <span class="nv">fg'</span> <span class="nv">α</span>, hb_hcomp (pr1 α) (pr2 α)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (pr1 (pr222 (pr222 B)) b₁ b₂ b₃ (pr1 f) (pr2 f)).
+    + <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (pr12 (pr222 (pr222 B)) b₁ b₂ b₃ _ _ _ _ _ _ (pr1 α) (pr2 α) (pr1 β) (pr2 β)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicategory_ob_hom</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicategory_ob_hom.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> B.
+  - <span class="bp">exact</span> (hcomp_bicat_hom_cat B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicategory_id_comp</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicategory_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicategory_ob_hom B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, hb_id1 a).
+  - <span class="bp">exact</span> (hcomp_bicat_hcomp B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_associator</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+           (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : hcomp_bicat_to_prebicategory_id_comp B)
+  : associator_trans_type a b c d.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, hb_rassoc (pr1 f) (pr12 f) (pr22 f)).
+  - <span class="nb">intros</span> f₁ f₂ α.
+    <span class="nb">apply</span> (pr122 (pr222 (pr222 B))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_lunitor</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+           (<span class="nv">a</span> <span class="nv">b</span> : hcomp_bicat_to_prebicategory_id_comp B)
+  : left_unitor_trans_type a b.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, hb_lunit f).
+  - <span class="nb">intros</span> f₁ f₂ α.
+    <span class="nb">apply</span> (pr1 (pr222 (pr222 (pr222 B)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_runitor</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+           (<span class="nv">a</span> <span class="nv">b</span> : hcomp_bicat_to_prebicategory_id_comp B)
+  : right_unitor_trans_type a b.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, hb_runit f).
+  - <span class="nb">intros</span> f₁ f₂ α.
+    <span class="nb">apply</span> (pr2 (pr222 (pr222 (pr222 B)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicategory_data</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicategory_id_comp B).
+  - <span class="bp">exact</span> (hcomp_bicat_associator B).
+  - <span class="bp">exact</span> (hcomp_bicat_lunitor B).
+  - <span class="bp">exact</span> (hcomp_bicat_runitor B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_is_prebicategory</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : is_prebicategory (hcomp_bicat_to_prebicategory_data B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> b₁ b₂ b₃ b₄ f g h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_is_z_isomorphism.
+    + <span class="bp">exact</span> (hb_lassoc f g h).
+    + <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 B).
+  - <span class="nb">intros</span> b₁ b₂ f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_is_z_isomorphism.
+    + <span class="bp">exact</span> (hb_linvunit f).
+    + <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 B).
+  - <span class="nb">intros</span> b₁ b₂ f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_is_z_isomorphism.
+    + <span class="bp">exact</span> (hb_rinvunit f).
+    + <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 B).
+  - <span class="nb">apply</span> (pr2 B).
+  - <span class="nb">apply</span> (pr2 B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicategory</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicategory.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicategory_data B).
+  - <span class="bp">exact</span> (hcomp_bicat_is_prebicategory B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_to_hcomp_bicat_data</span>
+           (<span class="nv">B</span> : prebicategory)
+  : hcomp_bicat_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (pr1 (pr111 B)).
+  - <span class="nb">intros</span> b₁ b₂.
+    <span class="bp">exact</span> (pr2 (pr111 B) b₁ b₂).
+  - <span class="nb">intros</span> b₁ b₂ f g.
+    <span class="bp">exact</span> (f --&gt; g).
+  - <span class="bp">exact</span> (pr1 (pr211 B)).
+  - <span class="nb">intros</span> b₁ b₂ b₃ f g.
+    <span class="bp">exact</span> (pr2 (pr211 B) b₁ b₂ b₃ (f ,, g)).
+  - <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> identity.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span> <span class="nv">β</span>, α · β).
+  - <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">intros</span> b₁ b₂ f.
+    <span class="bp">exact</span> (pr1 (pr2 (pr221 B) b₁ b₂) f).
+  - <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> (pr2 (pr212 B) _ _ f).
+  - <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">intros</span> b₁ b₂ f.
+    <span class="bp">exact</span> (pr1 (pr1 (pr221 B) b₁ b₂) f).
+  - <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> (pr1 (pr212 B) _ _ f).
+  - <span class="nb">intros</span> b₁ b₂ b₃ b₄ f g h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> ((pr112 B) _ _ _ _ f g h).
+  - <span class="nb">intros</span> b₁ b₂ b₃ b₄ f g h ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (pr1 ((pr121 B) _ _ _ _) (f ,, g ,, h)).
+  - <span class="nb">intros</span> b₁ b₂ b₃ f₁ f₂ g₁ g₂ α β ; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (#(pr2 (pr211 B) b₁ b₂ b₃)).
+    <span class="bp">exact</span> (α ,, β).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebicategory_to_hcomp_bicat</span>
+           (<span class="nv">B</span> : prebicategory)
+  : hcomp_bicat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (prebicategory_to_hcomp_bicat_data B).
+  - <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">intros</span>.
+    + <span class="nb">apply</span> id_left.
+    + <span class="nb">apply</span> id_right.
+    + <span class="nb">apply</span> assoc.
+    + <span class="nb">apply</span> assoc'.
+    + <span class="nb">apply</span> homset_property.
+    + <span class="nb">apply</span> (functor_id ((pr221 (pr1 B)) b₁ b₂ b₃)).
+    + <span class="nb">apply</span> (@functor_comp
+               _ _
+               ((pr221 (pr1 B)) b₁ b₂ b₃)
+               (_ ,, _) (_ ,, _) (_ ,, _)
+               (_ ,, _) (_ ,, _)).
+    + <span class="nb">apply</span> (@nat_trans_ax
+               _ _ _ _
+               ((pr121 B) a b c d)
+               (_ ,, (_ ,, _))
+               (_ ,, (_ ,, _))
+               (_ ,, (_ ,, _))).
+    + <span class="nb">apply</span> (nat_trans_ax ((pr122 (pr1 B)) a b)).
+    + <span class="nb">apply</span> (nat_trans_ax ((pr222 (pr1 B)) a b)).
+    + <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso _ _ ((pr112 B) b₁ b₂ b₃ b₄ f g h))).
+    + <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso _ _ ((pr112 B) b₁ b₂ b₃ b₄ f g h))).
+    + <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso _ _ ((pr121 (pr2 B)) b₁ b₂ f))).
+    + <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso _ _ ((pr121 (pr2 B)) b₁ b₂ f))).
+    + <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso _ _ ((pr221 (pr2 B)) b₁ b₂ f))).
+    + <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso _ _ ((pr221 (pr2 B)) b₁ b₂ f))).
+    + <span class="nb">apply</span> B.
+    + <span class="nb">apply</span> B.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_weq_prebicategory</span>
+  : hcomp_bicat ≃ prebicategory.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> hcomp_bicat_to_prebicategory.
+  - use isweq_iso.
+    + <span class="bp">exact</span> prebicategory_to_hcomp_bicat.
+    + <span class="nb">intros</span> b.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> b.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_precategory_ob_mor</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> B.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b₁</span> <span class="nv">b₂</span>, hb_mor b₁ b₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_precategory_id_comp</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : precategory_id_comp (hcomp_bicat_to_precategory_ob_mor B).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, hb_id1 _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, hb_comp1 f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_precategory_data</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_precategory_ob_mor B).
+  - <span class="bp">exact</span> (hcomp_bicat_to_precategory_id_comp B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicat_1_id_comp_cells</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicat_1_id_comp_cells.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_precategory_data B).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, hb_cell f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicat_2_id_comp_struct</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicat_2_id_comp_struct (hcomp_bicat_to_prebicat_1_id_comp_cells B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_id2.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_lunit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_runit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_linvunit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_rinvunit.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_lassoc.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> hb_rassoc.
+  - <span class="nb">intros</span> ? ? ? ? ? α β.
+    <span class="bp">exact</span> (hb_vcomp α β).
+  - <span class="nb">intros</span> ? ? ? f ? ? α.
+    <span class="bp">exact</span> (hb_hcomp (hb_id2 _) α).
+  - <span class="nb">intros</span> ? ? ? f ? ? α.
+    <span class="bp">exact</span> (hb_hcomp α (hb_id2 _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicat_data</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicat_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicat_1_id_comp_cells B).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicat_2_id_comp_struct B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicat_laws</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicat_laws (hcomp_bicat_to_prebicat_data B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">intros</span> ; <span class="nb">apply</span> (pr2 B)).
+  - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr12 (pr222 (pr222 B))).
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr12 (pr222 (pr222 B))).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (pr122 (pr222 ((pr222 B)))).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> a b c d f₁ f₂ g h α ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (pr122 (pr222 ((pr222 B))) a b c d f₁ f₂ g g h h α (hb_id2 _) (hb_id2 _)) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    etrans.
+    {
+      <span class="bp">exact</span> (!p).
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> a b c f₁ f₂ g h α β ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr12 (pr222 (pr222 B))).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr12 (pr222 (pr222 B))).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> B.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> B.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> B.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> B.
+  - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> B.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_prebicat</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : prebicat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicat_data B).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicat_laws B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_bicat</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : bicat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (hcomp_bicat_to_prebicat B).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> (pr122 (pr222 B)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_to_hcomp_bicat_data</span>
+           (<span class="nv">B</span> : bicat)
+  : hcomp_bicat_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> B.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt; y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, f ==&gt; g).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, id₁ _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, id2 f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span> <span class="nv">β</span>, α • β).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, runitor f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, rinvunitor f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, lunitor f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, linvunitor f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, rassociator f g h).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, lassociator f g h).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span> <span class="nv">β</span>, β ⋆⋆ α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_to_hcomp_bicat_laws</span>
+           (<span class="nv">B</span> : bicat)
+  : hcomp_bicat_laws (bicat_to_hcomp_bicat_data B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> id2_left.
+  - <span class="nb">apply</span> id2_right.
+  - <span class="nb">apply</span> vassocr.
+  - <span class="nb">apply</span> vassocl.
+  - <span class="nb">apply</span> cellset_property.
+  - <span class="nb">apply</span> hcomp_identity.
+  - <span class="nb">apply</span> interchange.
+  - <span class="nb">apply</span> hcomp_lassoc.
+  - <span class="nb">apply</span> lunitor_natural.
+  - <span class="nb">apply</span> runitor_natural.
+  - <span class="nb">apply</span> lassociator_rassociator.
+  - <span class="nb">apply</span> rassociator_lassociator.
+  - <span class="nb">apply</span> lunitor_linvunitor.
+  - <span class="nb">apply</span> linvunitor_lunitor.
+  - <span class="nb">apply</span> runitor_rinvunitor.
+  - <span class="nb">apply</span> rinvunitor_runitor.
+  - <span class="nb">rewrite</span> &lt;- lwhisker_hcomp, &lt;- rwhisker_hcomp.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> lassociator_lassociator.
+  - <span class="nb">rewrite</span> &lt;- lwhisker_hcomp, &lt;- rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- lunitor_lwhisker.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lassociator_rassociator.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_to_hcomp_bicat</span>
+           (<span class="nv">B</span> : bicat)
+  : hcomp_bicat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (bicat_to_hcomp_bicat_data B).
+  - <span class="bp">exact</span> (bicat_to_hcomp_bicat_laws B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_to_bicat_to_hcomp_bicat</span>
+           (<span class="nv">B</span> : hcomp_bicat)
+  : bicat_to_hcomp_bicat (hcomp_bicat_to_bicat B) = B.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="kp">do</span> <span class="mi">13</span> (use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span>).
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intro</span> f₁.
+    use funextsec ; <span class="nb">intro</span> f₂.
+    use funextsec ; <span class="nb">intro</span> g₁.
+    use funextsec ; <span class="nb">intro</span> g₂.
+    use funextsec ; <span class="nb">intro</span> α.
+    use funextsec ; <span class="nb">intro</span> β.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr12 (pr222 (pr222 B))).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr12 B).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pr122 B).
+    }
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_hcomp_prebicat_laws.
+    <span class="nb">apply</span> B.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_to_hcomp_bicat_to_bicat</span>
+           (<span class="nv">B</span> : bicat)
+  : hcomp_bicat_to_bicat (bicat_to_hcomp_bicat B) = B.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropisaset.
+  }
+  use total2_paths_f.
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="kp">repeat</span> (use pathsdirprod) ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      * <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_prebicat_laws.
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">hcomp_bicat_weq_bicat</span>
+  : hcomp_bicat ≃ bicat.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> hcomp_bicat_to_bicat.
+  - use isweq_iso.
+    + <span class="bp">exact</span> bicat_to_hcomp_bicat.
+    + <span class="bp">exact</span> hcomp_bicat_to_bicat_to_hcomp_bicat.
+    + <span class="bp">exact</span> bicat_to_hcomp_bicat_to_bicat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_bicat_prebicategory</span> : bicat ≃ prebicategory.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> weqcomp.
+  - <span class="nb">apply</span> (invweq hcomp_bicat_weq_bicat).
+  - <span class="nb">apply</span> hcomp_bicat_weq_prebicategory.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/WkCatEnrichment/hcomp_bicat.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

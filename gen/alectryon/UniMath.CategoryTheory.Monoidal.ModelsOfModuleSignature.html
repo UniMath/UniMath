@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ModelsOfModuleSignature.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************</span>
+
+<span class="sd"> Models of a Module Signature</span>
+
+<span class="sd"> In this file, we define models of some given module signature Σ as a monoid R</span>
+<span class="sd"> and a morphism of right modules Σ(R) --&gt; trivial_module(R).</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definitions</span>
+<span class="sd"> 2. Initial models as fixed points of I + Σ(-)</span>
+<span class="sd"> 3. Total category of models and signatures</span>
+<span class="sd"> 4. Modularity</span>
+
+<span class="sd"> ***************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="c">(* Require Import UniMath.Tactics.EnsureStructuredProofs. *)</span>
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RModules.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.TotalCategoriesOfRModules.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.ModuleSignatures.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">ModelsOfModuleSignature</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+
+  <span class="kn">Context</span> (<span class="nv">Σ</span> : @module_signature_cat C).
+
+  <span class="sd">(**</span>
+<span class="sd">     1. Definitions</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_model_of_signature_mor</span>
+    {<span class="nv">R</span> <span class="nv">R'</span> : MON C}
+    (<span class="nv">r</span> : pr1 (Σ R) --&gt; pr1 R)
+    (<span class="nv">r'</span> : pr1 (Σ R') --&gt; pr1 R')
+    (<span class="nv">f</span> : R --&gt; R')
+    :=
+    r · pr1 f = pr1 (section_disp_on_morphisms (pr1 Σ) f) · r'.
+
+  <span class="kn">Definition</span> <span class="nf">models_of_module_signatures_disp_cat_ob_mor</span> : disp_cat_ob_mor (MON C).
+  <span class="kn">Proof</span>.
+    use make_disp_cat_ob_mor.
+    - <span class="nb">intro</span> R; <span class="bp">exact</span> (Σ R --&gt; trivial_module (pr1 R) (pr2 R)).
+    - <span class="nb">intros</span> R R' r r' f; <span class="bp">exact</span> (is_model_of_signature_mor (pr1 r) (pr1 r') f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">models_of_module_signatures_disp_cat_id_comp</span>
+    : disp_cat_id_comp (MON C) models_of_module_signatures_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intros</span>.
+    - <span class="nb">cbn</span>; <span class="nb">unfold</span> is_model_of_signature_mor;
+      <span class="bp">now</span> <span class="nb">rewrite</span> @section_disp_id, id_left, id_right.
+    - <span class="nb">simpl</span>; <span class="nb">unfold</span> is_model_of_signature_mor.
+      <span class="nb">rewrite</span> @section_disp_comp; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc; <span class="nb">cbn</span>; etrans.
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) X).
+      + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="bp">now</span> use maponpaths.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">models_of_module_signatures_disp_cat_data</span> : disp_cat_data (MON C)
+    := models_of_module_signatures_disp_cat_ob_mor ,, models_of_module_signatures_disp_cat_id_comp.
+
+  <span class="kn">Definition</span> <span class="nf">models_of_module_signatures_disp_cat</span> : disp_cat (MON C).
+  <span class="kn">Proof</span>.
+    use (make_disp_cat_locally_prop (D:=models_of_module_signatures_disp_cat_data)).
+    <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> homset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">models_of_module_signatures_cat</span> : category
+    := total_category models_of_module_signatures_disp_cat.
+
+  <span class="kn">Coercion</span> <span class="nf">monoid_of_models_of_module_signatures</span>
+    (M : models_of_module_signatures_cat)
+    : MON C := pr1 M.
+
+  <span class="kn">Definition</span> <span class="nf">is_representable</span> := Initial models_of_module_signatures_cat.
+<span class="kn">End</span> <span class="nf">ModelsOfModuleSignature</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   2. Initial models as fixed points of I + Σ(-)</span>
+<span class="sd">  *)</span>
+
+<span class="c">(* A lemma very similar to Lambek's on initial algebras as fixed points *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">lambek</span> (<span class="nv">D</span> : category)
+  (<span class="nv">F</span> : D ⟶ D)
+  (<span class="nv">α</span> : F ⟹ functor_identity _)
+  (<span class="nv">O</span> : Initial D)
+  (<span class="nv">H</span> : pre_whisker F α = post_whisker α F)
+  : isInitial D (F (InitialObject O)).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (#F (InitialArrow O _) · α _ = identity _) <span class="k">as</span> H'.
+  {
+    <span class="nb">transitivity</span> (#F (InitialArrow O _) · #F (α (InitialObject O))).
+    - use maponpaths; <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f _) H).
+    - <span class="nb">rewrite</span> &lt;- functor_comp, &lt;- functor_id;
+      use maponpaths;
+      use InitialArrowEq.
+  }
+
+  <span class="nb">assert</span> (∏ (d : D) (f : F (InitialObject O) --&gt; d),
+      InitialArrow O d = InitialArrow O _ · f
+  ) <span class="k">as</span> H'' <span class="bp">by</span> (<span class="nb">intros</span>; use InitialArrowEq).
+
+  use make_isInitial; <span class="nb">intro</span> d.
+  <span class="k">exists</span> (<span class="nv">α</span> (InitialObject O) · InitialArrow _ _).
+  <span class="nb">intro</span> f; <span class="nb">symmetry</span>;
+  <span class="nb">rewrite</span> &lt;- id_left, &lt;- H', (H'' _ f), assoc.
+  use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · f));
+  use (!nat_trans_ax α _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">InitialModelsAsFixedPoints</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+  <span class="kn">Context</span> (<span class="nv">Σ</span> : @module_signature_cat C).
+  <span class="kn">Context</span> (<span class="nv">Copr</span> : BinCoproducts C).
+  <span class="kn">Context</span> (<span class="nv">Hpres</span> : ∏ Z, preserves_bincoproduct (rightwhiskering_functor C Z)).
+
+  <span class="kn">Let</span> <span class="nf">copr</span> (<span class="nv">A</span> : C) (<span class="nv">B</span> : C) : C := BinCoproductObject (Copr A B).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"A ++ B"</span> := (copr A B) (<span class="kn">at level</span> <span class="mi">60</span>).
+
+  <span class="kn">Let</span> <span class="nf">inl</span> {<span class="nv">A</span> <span class="nv">B</span> : C} : A --&gt; (A ++ B) := BinCoproductIn1 _.
+  <span class="kn">Let</span> <span class="nf">inr</span> {<span class="nv">A</span> <span class="nv">B</span> : C} : B --&gt; (A ++ B) := BinCoproductIn2 _.
+
+  <span class="kn">Lemma</span> <span class="nf">iscopr</span> {<span class="nv">X</span> <span class="nv">Y</span> : C}
+    : isBinCoproduct C X Y (X ++ Y) inl inr.
+  <span class="kn">Proof</span>.
+    use isBinCoproduct_BinCoproduct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗l f"</span> := (x ⊗^{C}_{l} f) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⊗r y"</span> := (f ⊗^{C}_{r} y) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Local Definition</span> <span class="nf">ProdSum</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C} : BinCoproduct (X ⊗ Z) (Y ⊗ Z)
+    := make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr).
+
+  <span class="kn">Local Definition</span> <span class="nf">arrow_from_prod_sum</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+    : (X ++ Y) ⊗ Z --&gt; (X ⊗ Z ++ Y ⊗ Z)
+    := BinCoproductArrow ProdSum inl inr.
+
+  <span class="kn">Local Lemma</span> <span class="nf">arrow_from_prod_sum_inl</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+    : inl ⊗r Z · @arrow_from_prod_sum X Y Z = inl.
+  <span class="kn">Proof</span>.
+    use (BinCoproductIn1Commutes _ _ _ ProdSum).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">arrow_from_prod_sum_inr</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+    : inr ⊗r Z · @arrow_from_prod_sum X Y Z = inr.
+  <span class="kn">Proof</span>.
+    use (BinCoproductIn2Commutes _ _ _ ProdSum).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">arrow_from_prod_sum_nat</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">W</span> : C}
+    : (X ++ Y) ⊗l inl · @arrow_from_prod_sum X Y (Z ++ W)
+    = arrow_from_prod_sum · BinCoproductOfArrows _ _ _ (_ ⊗l inl) (_ ⊗l inl).
+  <span class="kn">Proof</span>.
+    use (BinCoproductArrowsEq _ _ _ ProdSum _); <span class="nb">cbn</span>.
+    - etrans; etrans; <span class="kp">try</span> <span class="nb">rewrite</span> assoc; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+        use tensor_swap.
+      + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+        <span class="nb">refine</span> (maponpaths _ _).
+        use arrow_from_prod_sum_inl.
+      + <span class="nb">symmetry</span>; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use arrow_from_prod_sum_inl.
+      + <span class="nb">symmetry</span>; use BinCoproductOfArrowsIn1.
+    - etrans; etrans; <span class="kp">try</span> <span class="nb">rewrite</span> assoc; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+        use tensor_swap.
+      + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+        <span class="nb">refine</span> (maponpaths _ _).
+        use arrow_from_prod_sum_inr.
+      + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use arrow_from_prod_sum_inr.
+      + <span class="nb">symmetry</span>; use BinCoproductOfArrowsIn2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">FixAModel</span>.
+    <span class="kn">Context</span> (<span class="nv">M</span> : models_of_module_signatures_cat Σ).
+
+    <span class="kn">Let</span> <span class="nf">rM</span> : pr1 (Σ M) --&gt; pr11 M := pr12 M.
+    <span class="kn">Let</span> <span class="nf">ηM</span> : I_{C} --&gt; pr11 M := monoid_data_unit _ (pr121 M).
+    <span class="kn">Let</span> <span class="nf">μM</span> : pr11 M ⊗ pr11 M --&gt; pr11 M := monoid_data_multiplication _ (pr121 M).
+    <span class="kn">Let</span> <span class="nf">pM</span> : pr1 (Σ M) ⊗ pr11 M --&gt; pr1 (Σ M) := pr12 (Σ M).
+
+    <span class="kn">Let</span> <span class="nf">M'</span> := I_{C} ++ pr1 (Σ M).
+    <span class="kn">Let</span> <span class="nf">η</span> : I_{C} --&gt; M' := inl.
+
+    <span class="kn">Local Definition</span> <span class="nf">f</span> : M' --&gt; pr11 M
+      := BinCoproductArrow _ ηM rM.
+
+    <span class="c">(* Multiplication is defined as the following</span>
+
+<span class="c">                 ≅                       [λ,u]</span>
+<span class="c">       M' ⊗ M' -----&gt; I ⊗ M' + Σ(M) ⊗ M' -----&gt; M'</span>
+<span class="c">                 μ₁                        μ₂</span>
+
+
+<span class="c">       where λ is the left unitor and u is defined as the composite of</span>
+
+
+<span class="c">                  Σ(M) ⊗ f              p            inr</span>
+<span class="c">       Σ(M) ⊗ M' ---------&gt; Σ(M) ⊗ M -------&gt; Σ(M) -------&gt; M'</span>
+
+<span class="c">       where p is the module substitution of Σ(M) ∈ MOD M</span>
+<span class="c">    *)</span>
+
+    <span class="kn">Local Definition</span> <span class="nf">μ₁</span> : M' ⊗ M' --&gt; (I_{C} ⊗ M' ++ pr1 (Σ M) ⊗ M')
+      := arrow_from_prod_sum.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ₂</span> : (I_{C} ⊗ M' ++ pr1 (Σ M) ⊗ M') --&gt; M'.
+    <span class="kn">Proof</span>.
+      use BinCoproductArrow.
+      - use lu_{C}.
+      - use (pr1 (Σ M) ⊗l f · pM · inr).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">μ</span> : M' ⊗ M' --&gt; M' := μ₁ · μ₂.
+
+    <span class="kn">Local Lemma</span> <span class="nf">multiplication_inl</span>
+      : inl ⊗r M' · μ = lu^{ C }_{ M'}.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> μ, η, μ₁; <span class="nb">rewrite</span> assoc.
+      etrans.
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) arrow_from_prod_sum_inl).
+      - use BinCoproductIn1Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">multiplication_inr</span>
+      : inr ⊗r M' · μ = pr1 (Σ M) ⊗l f · pM · inr.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> μ, η, μ₁; <span class="nb">rewrite</span> assoc.
+      etrans.
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) arrow_from_prod_sum_inr).
+      - use BinCoproductIn2Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">f_inl</span> : inl · f = ηM.
+    <span class="kn">Proof</span>.
+      use BinCoproductIn1Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">f_inr</span> : inr · f = rM.
+    <span class="kn">Proof</span>.
+      use BinCoproductIn2Commutes.
+    <span class="kn">Qed</span>.
+
+
+    <span class="c">(* Three laws for M' to be a monoid *)</span>
+
+    <span class="kn">Local Lemma</span> <span class="nf">μ_lunit</span> : η ⊗r M' · μ = lu^{ C }_{ M'}.
+    <span class="kn">Proof</span>.
+      use multiplication_inl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">μ_runit</span> : M' ⊗l η · μ = ru^{ C }_{ M'}.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrowsEq _ _ _ ProdSum _); <span class="nb">cbn</span>.
+      - etrans; etrans. etrans.
+        + <span class="nb">rewrite</span> assoc, tensor_mor_left, tensor_mor_right.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _). use tensor_swap.
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+          use maponpaths; [|use multiplication_inl].
+        + use monoidal_leftunitornat.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use unitors_coincide_on_unit.
+        + <span class="nb">symmetry</span>; use monoidal_rightunitornat.
+      - etrans; (etrans; [etrans|]).
+        + <span class="nb">rewrite</span> assoc, tensor_mor_left, tensor_mor_right.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use tensor_swap].
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+          <span class="nb">refine</span> (maponpaths _ _); use multiplication_inr.
+        + <span class="nb">rewrite</span> assoc, assoc.
+          <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _).
+          use (bifunctor_leftcomp C).
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ⊗l x · _ · _) _); use BinCoproductIn1Commutes.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (pr222 (Σ M))).
+        + <span class="nb">symmetry</span>; use monoidal_rightunitornat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">f_respects_multiplication</span> : μ · f = (f #⊗ f) · μM.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrowsEq _ _ _ ProdSum (pr11 M)).
+      - <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; <span class="nb">symmetry</span>; etrans; [etrans;etrans|etrans]; <span class="nb">symmetry</span>.
+        + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          <span class="nb">rewrite</span> tensor_split', &lt;- tensor_mor_left, &lt;- tensor_mor_right, assoc.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use (bifunctor_rightcomp C)].
+        + use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _ · _)); [|use (!f_inl)].
+        + <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use tensor_swap'].
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_right, &lt;- tensor_mor_left, &lt;- assoc.
+          <span class="nb">refine</span> (!maponpaths _ _); use monoid_to_unit_left_law.
+        + <span class="nb">symmetry</span>; use monoidal_leftunitornat.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)  multiplication_inl).
+      - <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; <span class="nb">symmetry</span>; etrans; [etrans;etrans|etrans]; <span class="nb">symmetry</span>.
+        + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          <span class="nb">rewrite</span> tensor_split', &lt;- tensor_mor_left, &lt;- tensor_mor_right, assoc.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use (bifunctor_rightcomp C)].
+        + use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _ · _)); [|use (!f_inr)].
+        + <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use tensor_swap'].
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_right, &lt;- tensor_mor_left, &lt;- assoc.
+          <span class="nb">refine</span> (!maponpaths _ (pr22 M)).
+        + <span class="nb">fold</span> rM; <span class="bp">now</span> <span class="nb">rewrite</span> assoc.
+        + etrans.
+          * <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) multiplication_inr).
+          * <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="kp">do</span> <span class="mi">2</span> use maponpaths; use f_inr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">ProdProdSum</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">W</span> : C}
+      : BinCoproduct ((X ⊗ W) ⊗ Z) ((Y ⊗ W) ⊗ Z)
+      := make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr)).
+
+    <span class="kn">Local Lemma</span> <span class="nf">μ_assoc</span> : α^{ C }_{ M', M', M'} · M' ⊗l μ · μ = μ ⊗r M' · μ.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrowsEq _ _ _ ProdProdSum M').
+      <span class="nb">cbn</span>; <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      - <span class="kp">do</span> <span class="mi">3</span> etrans; <span class="nb">swap</span> <span class="mi">7</span> <span class="mi">8</span>.
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _); use monoidal_associatornatright.
+        + <span class="nb">rewrite</span> &lt;- assoc, &lt;- assoc, @tensor_mor_right, @tensor_mor_left.
+          <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> assoc.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use tensor_swap.
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_right, &lt;- tensor_mor_left, &lt;- assoc.
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> (maponpaths _ _)).
+          use multiplication_inl.
+        + <span class="nb">refine</span> (maponpaths _ _); use monoidal_leftunitornat.
+        + use assoc.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use right_whisker_with_lunitor.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use (bifunctor_rightcomp C).
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _) _); use multiplication_inl.
+      - <span class="nb">symmetry</span>; <span class="kp">do</span> <span class="mi">3</span> etrans.
+        <span class="mi">8</span>: etrans; <span class="nb">swap</span> <span class="mi">1</span> <span class="mi">2</span>; <span class="nb">symmetry</span>; etrans.
+        + <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc; etrans.
+          * <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use (bifunctor_rightcomp C).
+          * <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _) _); use multiplication_inr.
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_rightcomp C), &lt;- assoc.
+          <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> (maponpaths _ _)).
+          use multiplication_inr.
+        + <span class="nb">rewrite</span> @tensor_mor_right, @tensor_mor_left, @tensor_mor_right; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _).
+          <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _). use tensor_swap.
+        + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _ · _) _). use tensor_swap.
+        + <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- tensor_mor_left; <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- tensor_mor_right.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ (pr122 (Σ M))).
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _ · _) _).
+          <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ _).
+          use monoidal_associatornatleftright.
+        + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _ · _ · _) _).
+          use monoidal_associatornatleft.
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _ ) _).
+          use monoidal_associatornatright.
+        + <span class="nb">rewrite</span> &lt;- assoc, &lt;- assoc, @tensor_mor_left, @tensor_mor_right.
+          <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> assoc.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (tensor_swap _ _)).
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right.
+          <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (maponpaths _ _); use multiplication_inr.
+        + <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · pM · inr)).
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x)).
+          etrans; [etrans|].
+          * <span class="nb">symmetry</span>; use (bifunctor_leftcomp C).
+          * <span class="nb">refine</span> (maponpaths _ _); use f_respects_multiplication.
+          * <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp C).
+            use maponpaths.
+            <span class="bp">now</span> <span class="nb">rewrite</span> assoc, @tensor_split, @tensor_mor_left, @tensor_mor_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">iter_model_monoid</span> : monoid C (I_{C} ++ pr1 (Σ M))
+      := make_monoid _ μ η μ_lunit μ_runit μ_assoc.
+
+    <span class="kn">Local Definition</span> <span class="nf">M'_mon</span> : MON C := M' ,, iter_model_monoid.
+
+    <span class="kn">Local Definition</span> <span class="nf">f_mon</span> : MON C⟦M'_mon, pr1 M⟧
+      := f ,, (!f_respects_multiplication ,, f_inl).
+
+
+    <span class="c">(* To make M' a model, we use the following morphism as model evaluation</span>
+
+<span class="c">                   Σ(f)          inr</span>
+<span class="c">           Σ(M') -------&gt; Σ(M) ------&gt; M'</span>
+<span class="c">     *)</span>
+
+
+    <span class="kn">Local Definition</span> <span class="nf">r</span> : pr1 (Σ M'_mon) --&gt; M'
+      := pr1 (section_disp_on_morphisms (pr1 Σ) f_mon) · inr.
+
+    <span class="kn">Local Lemma</span> <span class="nf">r_is_module_mor</span>
+      : is_module_mor _ _ (pr2 (Σ M'_mon)) (pr2 (trivial_module _ _)) r.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_module_mor, r; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc, (bifunctor_rightcomp C).
+      etrans.
+      - <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ multiplication_inr).
+      - <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+        <span class="bp">exact</span> (pr2 (section_disp_on_morphisms (pr1 Σ) f_mon)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">r_mon</span>
+      : (Σ M'_mon) --&gt; trivial_module _ (pr2 M'_mon)
+      := r ,, r_is_module_mor.
+
+    <span class="kn">Definition</span> <span class="nf">iter_model</span>
+      : models_of_module_signatures_cat Σ
+      := M'_mon ,, r_mon.
+
+    <span class="kn">Lemma</span> <span class="nf">iter_model_map_is_model_morphism</span>
+      : is_model_of_signature_mor Σ r rM f_mon.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_model_of_signature_mor, r; <span class="nb">rewrite</span> &lt;- assoc.
+      use maponpaths.
+      use f_inr.
+    <span class="kn">Qed</span>.
+
+
+  <span class="kn">End</span> <span class="nf">FixAModel</span>.
+
+
+  <span class="c">(* The mapping M ↦ M' is functorial *)</span>
+
+  <span class="kn">Section</span> <span class="nf">FixAModelMorphism</span>.
+    <span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">N</span> : models_of_module_signatures_cat Σ).
+    <span class="kn">Context</span> (<span class="nv">h</span> : M --&gt; N).
+
+    <span class="kn">Let</span> <span class="nf">M'_mon</span>: MON C := pr1 (iter_model M).
+    <span class="kn">Let</span> <span class="nf">N'_mon</span>: MON C := pr1 (iter_model N).
+
+    <span class="kn">Let</span> <span class="nf">M'</span> : C := pr1 M'_mon.
+    <span class="kn">Let</span> <span class="nf">N'</span> : C := pr1 N'_mon.
+
+    <span class="kn">Let</span> <span class="nf">μM'</span> : M' ⊗ M' --&gt; M' := monoid_data_multiplication _ (pr12 M'_mon).
+    <span class="kn">Let</span> <span class="nf">μN'</span> : N' ⊗ N' --&gt; N' := monoid_data_multiplication _ (pr12 N'_mon).
+
+    <span class="kn">Let</span> <span class="nf">ηM'</span> : I_{C} --&gt; M' := monoid_data_unit _ (pr12 M'_mon).
+    <span class="kn">Let</span> <span class="nf">ηN'</span> : I_{C} --&gt; N' := monoid_data_unit _ (pr12 N'_mon).
+
+    <span class="kn">Local Definition</span> <span class="nf">h'</span> : M' --&gt; N'
+      := BinCoproductOfArrows _ _ _ (identity _)
+        (pr1 (section_disp_on_morphisms (pr1 Σ) (pr1 h))).
+
+    <span class="kn">Local Lemma</span> <span class="nf">f_nat</span> : h' · f N = f M · pr11 h.
+    <span class="kn">Proof</span>.
+      use (BinCoproductArrowsEq _ _ _ _ (pr11 N)); <span class="nb">cbn</span>.
+      - <span class="nb">rewrite</span> assoc, assoc; etrans; etrans; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use BinCoproductOfArrowsIn1.
+        + <span class="nb">rewrite</span> id_left; use f_inl.
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (f_inl _)).
+        + <span class="nb">refine</span> (!pr221 h).
+      - <span class="nb">rewrite</span> assoc, assoc; etrans; etrans; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+        + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use BinCoproductOfArrowsIn2.
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _); use f_inr.
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (f_inr _)).
+        + use (!pr2 h).
+    <span class="kn">Qed</span>.
+
+
+
+    <span class="kn">Local Lemma</span> <span class="nf">h'_respects_multiplication</span>
+      : h' #⊗ h' · μN' = μM' · h'.
+    <span class="kn">Proof</span>.
+      use (
+        BinCoproductArrowsEq _ _ _
+        (make_BinCoproduct _ _ _ _ _ _ (Hpres _ _ _ _ _ _ iscopr))
+        N'
+      ); <span class="nb">cbn</span>.
+      - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; etrans; [etrans; etrans|etrans]; <span class="nb">cycle</span> <span class="mi">5</span>.
+        + <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use multiplication_inl.
+        + <span class="nb">rewrite</span> tensor_split', tensor_mor_right, assoc,
+            &lt;- tensor_mor_right, &lt;- tensor_mor_right, &lt;- tensor_mor_left.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _)); [|<span class="nb">symmetry</span>; use (bifunctor_rightcomp C)].
+        + use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _ · _)); [|use BinCoproductOfArrowsIn1].
+        + <span class="nb">rewrite</span> id_left, tensor_mor_left, tensor_mor_right.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ )); [|use tensor_swap].
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+          use maponpaths; [|use multiplication_inl].
+        + use monoidal_leftunitornat.
+      - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; etrans; etrans; etrans; <span class="nb">cycle</span> <span class="mi">6</span>; <span class="nb">swap</span> <span class="mi">1</span> <span class="mi">2</span>; <span class="nb">swap</span> <span class="mi">7</span> <span class="mi">8</span>.
+        + use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use (!multiplication_inr _)].
+        + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">symmetry</span>; use maponpaths; [|use BinCoproductOfArrowsIn2].
+        + <span class="nb">rewrite</span> tensor_split', tensor_mor_right, assoc,
+            &lt;- tensor_mor_right, &lt;- tensor_mor_right, &lt;- tensor_mor_left.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _)); [|<span class="nb">symmetry</span>; use (bifunctor_rightcomp C)].
+        + use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ⊗r _ · _ · _)); [|use BinCoproductOfArrowsIn2].
+        + <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+          use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ )); [|use tensor_swap].
+        + <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc,
+            (bifunctor_rightcomp C), &lt;- assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ _).
+          use multiplication_inr.
+        + <span class="nb">rewrite</span> assoc. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use (pr2 (section_disp_on_morphisms (pr1 Σ) (pr1 h))).
+        + <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">5</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _)).
+          etrans; etrans.
+          * <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+            <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right. use tensor_swap'.
+          * <span class="nb">rewrite</span> &lt;- tensor_mor_left, &lt;- tensor_mor_right, &lt;- assoc.
+            <span class="nb">refine</span> (!maponpaths _ _). use (bifunctor_leftcomp C).
+          * use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · _ ⊗l x)); [|use f_nat].
+          * <span class="nb">rewrite</span> (bifunctor_leftcomp C), assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right.
+            use tensor_swap.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Local Lemma</span> <span class="nf">h'_is_module_mor</span>
+      : is_monoid_mor C (pr2 M'_mon) (pr2 N'_mon) h'.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use h'_respects_multiplication.
+      - etrans; [use BinCoproductOfArrowsIn1|use id_left].
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">h'_mon</span> : M'_mon --&gt; N'_mon
+      := h' ,, h'_is_module_mor.
+
+    <span class="kn">Local Lemma</span> <span class="nf">f_nat_mon</span> : f_mon M · pr1 h = h'_mon · f_mon N.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> MON_mor_eq.
+      use (!f_nat).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">h'_is_model_mor</span>
+      : is_model_of_signature_mor Σ (r M) (r N) h'_mon.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> r; etrans; etrans; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+      + <span class="nb">rewrite</span> &lt;- assoc; use maponpaths; [|use BinCoproductOfArrowsIn2].
+      + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use (!maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
+      + <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
+      + <span class="nb">eassert</span> _  <span class="k">as</span> H <span class="bp">by</span> <span class="bp">exact</span> (
+          transport_section
+          (<span class="k">λ</span> <span class="nv">x</span>, pr1 (section_disp_on_morphisms (pr1 Σ) x) · inr (A := I_{C}))
+          f_nat_mon
+        ); <span class="nb">cbn</span> <span class="k">in</span> H.
+        <span class="nb">rewrite</span> transportf_const <span class="k">in</span> H.
+        use H.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Definition</span> <span class="nf">iter_model_morphism</span>
+      : iter_model M --&gt; iter_model N
+      := h'_mon ,, h'_is_model_mor.
+  <span class="kn">End</span> <span class="nf">FixAModelMorphism</span>.
+
+  <span class="c">(* iter_model_functor is the functor I + Σ(-) : Model(Σ) ⟶ Model(Σ) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">iter_model_functor_data</span>
+    : functor_data (models_of_module_signatures_cat Σ) (models_of_module_signatures_cat Σ)
+    := make_functor_data iter_model iter_model_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">iter_model_is_functor</span> : is_functor iter_model_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> M.
+      use subtypePath.
+      { <span class="nb">intro</span>; use homset_property. }
+      <span class="nb">apply</span> MON_mor_eq.
+      <span class="nb">symmetry</span>; use BinCoproduct_endo_is_identity.
+      + etrans; [use BinCoproductOfArrowsIn1|use id_left].
+      + etrans; [use BinCoproductOfArrowsIn2|].
+        <span class="nb">rewrite</span> &lt;- id_left; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+        use (maponpaths pr1 (section_disp_id Σ _)).
+    - <span class="nb">intros</span> M N P h g.
+      use subtypePath.
+      { <span class="nb">intro</span>; use homset_property. }
+      <span class="nb">apply</span> MON_mor_eq.
+      <span class="nb">symmetry</span>; use BinCoproductArrowUnique.
+      + <span class="nb">cbn</span>; <span class="nb">rewrite</span> id_left, assoc; etrans; [etrans|].
+        * use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use BinCoproductOfArrowsIn1].
+        * <span class="nb">rewrite</span> id_left; use BinCoproductOfArrowsIn1.
+        * use id_left.
+      + <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; etrans; etrans; <span class="nb">swap</span> <span class="mi">3</span> <span class="mi">4</span>.
+        * use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); [|use BinCoproductOfArrowsIn2].
+        * <span class="nb">rewrite</span> &lt;- assoc; use maponpaths; [|use BinCoproductOfArrowsIn2].
+        * <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          <span class="nb">refine</span> (maponpaths pr1 (section_disp_comp Σ _ _ _ _ _)).
+        * use assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iter_model_functor</span>
+    : models_of_module_signatures_cat Σ ⟶ models_of_module_signatures_cat Σ
+    := make_functor iter_model_functor_data iter_model_is_functor.
+
+
+  <span class="c">(* The mapping M' → M forms a natural transformation *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">iter_model_to_model_nat_trans_data</span>
+    : nat_trans_data iter_model_functor (functor_identity _)
+    := <span class="k">λ</span> <span class="nv">M</span>, f_mon M ,, iter_model_map_is_model_morphism M.
+
+  <span class="kn">Lemma</span> <span class="nf">iter_model_to_model_nat_is_nat</span>
+    : is_nat_trans _ _ iter_model_to_model_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> M N h.
+    use subtypePath.
+    { <span class="nb">intro</span>; use homset_property. }
+    <span class="nb">apply</span> MON_mor_eq.
+    use f_nat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iter_model_to_model_nat_trans</span>
+    : iter_model_functor ⟹ functor_identity _
+    := make_nat_trans _ _
+      iter_model_to_model_nat_trans_data
+      iter_model_to_model_nat_is_nat.
+
+  <span class="kn">Lemma</span> <span class="nf">iter_model_functor_nat_commutes</span>
+    : pre_whisker iter_model_functor iter_model_to_model_nat_trans
+    = post_whisker iter_model_to_model_nat_trans iter_model_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trans_eq; [use homset_property|]; <span class="nb">intro</span> M.
+    use subtypePath.
+    { <span class="nb">intro</span>; use homset_property. }
+    <span class="nb">apply</span> MON_mor_eq.
+    <span class="nb">cbn</span>.
+    use BinCoproductArrowsEq; <span class="nb">cbn</span>.
+    - etrans; [etrans|]; <span class="nb">swap</span> <span class="mi">2</span> <span class="mi">3</span>.
+      + use (f_inl (iter_model M)).
+      + <span class="nb">symmetry</span>; use BinCoproductOfArrowsIn1.
+      + <span class="nb">symmetry</span>; use id_left.
+    - etrans.
+      + use (f_inr (iter_model M)).
+      + <span class="nb">symmetry</span>; use BinCoproductOfArrowsIn2.
+  <span class="kn">Qed</span>.
+
+
+  <span class="c">(* If M is the initial model of Σ then I + Σ(M) is also initial</span>
+<span class="c">     (and thus a fixed point by uniqueness of initial objects) *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">initial_model_fixed_point</span> (<span class="nv">HΣ</span> : is_representable Σ)
+    : isInitial _ (iter_model (InitialObject HΣ)).
+  <span class="kn">Proof</span>.
+    use (lambek _ _ _ HΣ iter_model_functor_nat_commutes).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">InitialModelsAsFixedPoints</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   3. Total category of models and signatures</span>
+
+<span class="sd">   Objects are pairs (Σ, M) where Σ is a module signature and M is a model of Σ</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">TotalCategoriesOfModels</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+
+  <span class="c">(*</span>
+<span class="c">     Given h : Σ → Σ', a model (M, r) for Σ' can be transformed into a model</span>
+<span class="c">     (M, r') for Σ where r' is the morphism</span>
+
+<span class="c">                    h(M)            r</span>
+<span class="c">             Σ(M) -------&gt; Σ'(M) ------&gt; M</span>
+<span class="c">  *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor_data</span>
+    {<span class="nv">Σ</span> <span class="nv">Σ'</span> : @module_signature_cat C} (<span class="nv">h</span> : Σ --&gt; Σ')
+    : functor_data (models_of_module_signatures_cat Σ') (models_of_module_signatures_cat Σ).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intros</span> (R, r); <span class="k">exists</span> <span class="nv">R</span>.
+      <span class="nb">refine</span> (_ · _).
+      + <span class="nb">refine</span> (pr1 h R).
+      + <span class="nb">refine</span> (pr1 r ,, _).
+        <span class="kp">abstract</span> (
+          <span class="nb">cbn</span>; <span class="nb">unfold</span> pullback_functor_funct, is_module_mor; <span class="nb">cbn</span>;
+          <span class="nb">rewrite</span> @tensor_mor_left, tensor_id_id, id_left;
+          use (pr2 r)
+        ).
+    - <span class="nb">intros</span> (R, r) (R', r') (f, H).
+      <span class="nb">eexists</span> f; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span> (
+        etrans;
+        [
+          <span class="nb">rewrite</span> &lt;- assoc; use maponpaths; [| use H]
+        | <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _));
+          <span class="nb">eassert</span> _ <span class="k">as</span> X <span class="bp">by</span> <span class="bp">exact</span> (maponpaths pr1 (pr2 h R R' f));
+          <span class="nb">cbn</span> <span class="k">in</span> X; <span class="nb">unfold</span> mor_disp <span class="k">in</span> X;
+          <span class="nb">cbn</span> <span class="k">in</span> X; <span class="nb">rewrite</span> transportf_total2 <span class="k">in</span> X;
+          <span class="nb">cbn</span> <span class="k">in</span> X; <span class="nb">rewrite</span> transportf_const <span class="k">in</span> X;
+          <span class="nb">cbn</span> <span class="k">in</span> X; use (!X)
+        ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_functor_is_functor</span>
+    {<span class="nv">Σ</span> <span class="nv">Σ'</span> : @module_signature_cat C} (<span class="nv">h</span> : Σ --&gt; Σ')
+    : is_functor (pullback_functor_data h).
+  <span class="kn">Proof</span>.
+    use make_is_functor; <span class="nb">unfold</span> functor_idax, functor_compax;
+    <span class="nb">intros</span>; (use subtypePath; [<span class="nb">intro</span>|]);
+    <span class="bp">now</span> <span class="kp">try</span> use homset_property.
+  <span class="kn">Qed</span>.
+
+
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor</span>
+    {<span class="nv">Σ</span> <span class="nv">Σ'</span> : @module_signature_cat C} (<span class="nv">h</span> : Σ --&gt; Σ')
+    : (models_of_module_signatures_cat Σ') ⟶ (models_of_module_signatures_cat Σ)
+    := make_functor (pullback_functor_data h) (pullback_functor_is_functor h).
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_models_disp_cat_ob_mor</span> : disp_cat_ob_mor (@module_signature_cat C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use models_of_module_signatures_cat.
+    - <span class="nb">intros</span> Σ Σ' Rr Rr' h. use (Rr --&gt; pullback_functor h Rr').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_models_disp_cat_id_comp</span>
+    : disp_cat_id_comp module_signature_cat total_category_of_models_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intros</span>; use tpair.
+    - use identity.
+    - <span class="nb">cbn</span>; <span class="nb">unfold</span> is_model_of_signature_mor; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span> (<span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right, @section_disp_id, id_left).
+    - <span class="nb">cbn</span>; <span class="nb">induction</span> X <span class="k">as</span> [u _]; <span class="nb">induction</span> X0 <span class="k">as</span> [v _]; use (u · v).
+    - <span class="kp">abstract</span> (
+        <span class="nb">rename</span> x <span class="nb">into</span> Σ, y <span class="nb">into</span> Σ', z <span class="nb">into</span> Σ'', X <span class="nb">into</span> u, X0 <span class="nb">into</span> v;
+        <span class="nb">induction</span> xx <span class="k">as</span> [R r]; <span class="nb">induction</span> yy <span class="k">as</span> [R' r']; <span class="nb">induction</span> zz <span class="k">as</span> [R'' r''];
+        <span class="nb">simpl</span>; <span class="nb">unfold</span> mor_disp, total_category_of_modules_disp_cat_ob_mor;
+        <span class="nb">simpl</span>; <span class="nb">unfold</span> is_model_of_signature_mor;
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_total2;
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_const;
+        <span class="nb">simpl</span>; <span class="nb">rewrite</span> @section_disp_comp, assoc, assoc, assoc; <span class="nb">cbn</span>;
+        etrans; [|<span class="nb">symmetry</span>; etrans];
+        [
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (pr2 u))
+        | <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _);
+          <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _);
+          <span class="nb">eassert</span> _ <span class="bp">by</span> <span class="bp">exact</span> (maponpaths pr1 (pr2 f0 R' R'' (pr1 v)));
+          <span class="nb">simpl</span> <span class="k">in</span> X; <span class="nb">unfold</span> mor_disp, total_category_of_modules_disp_cat_ob_mor <span class="k">in</span> X;
+          <span class="nb">simpl</span> <span class="k">in</span> X; <span class="nb">rewrite</span> transportf_total2 <span class="k">in</span> X;
+          <span class="nb">simpl</span> <span class="k">in</span> X; <span class="nb">rewrite</span> transportf_const <span class="k">in</span> X;
+          use X
+        | <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="kp">do</span> <span class="mi">2</span> use maponpaths; use (!pr2 v)
+        ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_models_disp_cat_data</span> : disp_cat_data module_signature_cat
+    := total_category_of_models_disp_cat_ob_mor ,, total_category_of_models_disp_cat_id_comp.
+
+
+  <span class="kn">Lemma</span> <span class="nf">total_category_of_models_disp_cat_axioms</span>
+    : disp_cat_axioms _ total_category_of_models_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">cycle</span> <span class="mi">3</span>.
+    {
+      use isaset_total2; [|<span class="nb">intros</span>; use isasetaprop]; use homset_property.
+    }
+    <span class="kp">all</span>:
+      use subtypePath; [<span class="nb">intro</span>; use homset_property|];
+      <span class="nb">apply</span> MON_mor_eq;
+      <span class="nb">simpl</span>; <span class="nb">unfold</span> transportb, mor_disp, total_category_of_models_disp_cat_ob_mor;
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_total2;
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_const;
+      <span class="nb">simpl</span>.
+    - use id_left.
+    - use id_right.
+    - use assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_models_disp_cat</span> : disp_cat module_signature_cat
+    := total_category_of_models_disp_cat_data ,, total_category_of_models_disp_cat_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_models</span> : category
+    := total_category total_category_of_models_disp_cat.
+<span class="kn">End</span> <span class="nf">TotalCategoriesOfModels</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   4. Modularity</span>
+
+<span class="sd">    A pushout of representable signatures induces a pushout of initial models in total_category_of_models.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Section</span> <span class="nf">Modularity</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+  <span class="kn">Context</span> {<span class="nv">Σ</span> <span class="nv">Σ₁</span> <span class="nv">Σ₂</span> : @module_signature_cat C}.
+
+  <span class="kn">Context</span> {<span class="nv">h₁</span> : Σ --&gt; Σ₁} {<span class="nv">h₂</span> : Σ --&gt; Σ₂}.
+
+  <span class="kn">Context</span> (<span class="nv">H_pushout</span> : Pushout h₁ h₂).
+  <span class="kn">Let</span> <span class="nf">Σ₁₂</span> := PushoutObject H_pushout.
+
+  <span class="kn">Context</span> (<span class="nv">HΣ</span>   : is_representable Σ  ).
+  <span class="kn">Context</span> (<span class="nv">HΣ₁</span>  : is_representable Σ₁ ).
+  <span class="kn">Context</span> (<span class="nv">HΣ₂</span>  : is_representable Σ₂ ).
+
+  <span class="kn">Context</span> (<span class="nv">HΣ₁₂</span> : is_representable Σ₁₂).
+
+
+  <span class="c">(*                                modularity_morphism₁</span>
+<span class="c">                        (Σ, M) ---------------------------&gt; (Σ₁, M₁)</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">     modularity_morphism₂  |                                     |  modularity_morphism_in₁</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           |                               ⌜     |</span>
+<span class="c">                           |                                     |</span>
+<span class="c">                           v                                     v</span>
+<span class="c">                        (Σ₂, M₂) -------------------------&gt; (Σ₁₂, M₁₂)</span>
+<span class="c">                                  modularity_morphism_in₂</span>
+<span class="c">    *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">modularity_morphism₁</span>
+    : total_category_of_models⟦
+      (Σ,, InitialObject HΣ) ,
+      (Σ₁,, InitialObject HΣ₁)
+    ⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">h₁</span>; use InitialArrow.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modularity_morphism₂</span>
+    : total_category_of_models⟦
+      (Σ,, InitialObject HΣ) ,
+      (Σ₂,, InitialObject HΣ₂)
+    ⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">h₂</span>; use InitialArrow.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modularity_morphism_in₁</span>
+    : total_category_of_models⟦
+      (Σ₁,, InitialObject HΣ₁) ,
+      (Σ₁₂,, InitialObject HΣ₁₂)
+    ⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">PushoutIn1</span> <span class="nv">_</span>); use InitialArrow.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modularity_morphism_in₂</span>
+    : total_category_of_models⟦
+      (Σ₂,, InitialObject HΣ₂) ,
+      (Σ₁₂,, InitialObject HΣ₁₂)
+    ⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">PushoutIn2</span> <span class="nv">_</span>); use InitialArrow.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">modularity_commutes</span>
+    : modularity_morphism₁ · modularity_morphism_in₁
+    = modularity_morphism₂ · modularity_morphism_in₂.
+  <span class="kn">Proof</span>.
+    use invmap; [|use total2_paths_equiv|]; use tpair.
+    - <span class="nb">apply</span> (PushoutSqrCommutes H_pushout).
+    - use InitialArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">ModularityPushoutInducedMorphism</span>.
+    <span class="kn">Context</span> (<span class="nv">Σ'</span> : @module_signature_cat C).
+    <span class="kn">Context</span> (<span class="nv">Rr</span> : models_of_module_signatures_cat Σ').
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : total_category_of_models⟦(Σ₁,,InitialObject HΣ₁), (Σ',,Rr)⟧).
+    <span class="kn">Context</span> (<span class="nv">g</span> : total_category_of_models⟦(Σ₂,,InitialObject HΣ₂), (Σ',,Rr)⟧).
+
+    <span class="kn">Context</span> (<span class="nv">H</span> : modularity_morphism₁ · f = modularity_morphism₂ · g).
+
+    <span class="kn">Definition</span> <span class="nf">modularity_induced_morphism</span>
+      : total_category_of_models ⟦ (Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr) ⟧
+      := PushoutArrow H_pushout _ (pr1 f) (pr1 g) (maponpaths pr1 H) ,,
+        InitialArrow HΣ₁₂ _.
+
+    <span class="kn">Lemma</span> <span class="nf">modularity_morphism_commutes1</span>
+      : modularity_morphism_in₁ · modularity_induced_morphism = f.
+    <span class="kn">Proof</span>.
+      use invmap; [|use total2_paths_equiv|]; use tpair.
+      - use (PushoutArrow_PushoutIn1 H_pushout).
+      - use InitialArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">modularity_morphism_commutes2</span>
+      : modularity_morphism_in₂ · modularity_induced_morphism = g.
+    <span class="kn">Proof</span>.
+      use invmap; [|use total2_paths_equiv|]; use tpair.
+      - use (PushoutArrow_PushoutIn2 H_pushout).
+      - use InitialArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">triplet</span>
+      : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
+        modularity_morphism_in₁ · u = f
+        × modularity_morphism_in₂ · u = g
+      := (modularity_induced_morphism ,,
+          modularity_morphism_commutes1 ,,
+          modularity_morphism_commutes2).
+
+    <span class="kn">Context</span> (<span class="nv">triplet'</span>
+      : ∑(u : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧),
+        modularity_morphism_in₁ · u = f
+        × modularity_morphism_in₂ · u = g).
+
+    <span class="kn">Let</span> <span class="nf">u</span> : total_category_of_models⟦(Σ₁₂,, InitialObject HΣ₁₂), (Σ',,Rr)⟧
+      := pr1 triplet'.
+
+    <span class="kn">Let</span> <span class="nf">H'</span> : modularity_morphism_in₁ · u = f
+      := pr12 triplet'.
+
+    <span class="kn">Let</span> <span class="nf">H''</span> : modularity_morphism_in₂ · u = g
+      := pr22 triplet'.
+
+    <span class="kn">Lemma</span> <span class="nf">modularity_induced_morphism_unique</span>
+      : u = modularity_induced_morphism.
+    <span class="kn">Proof</span>.
+      use invmap; [|use total2_paths_equiv|].
+      use tpair.
+      <span class="mi">2</span>: {use subtypePath.
+          { <span class="nb">intro</span>; use homset_property. }
+          <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_total2;
+            <span class="nb">simpl</span>; <span class="nb">rewrite</span> transportf_const;
+            <span class="nb">simpl</span>; <span class="nb">simpl</span> <span class="k">in</span> u.
+          use (maponpaths pr1 (InitialArrowUnique HΣ₁₂ (pr1 Rr ,, _) (pr12 u ,, _))).
+          <span class="nb">simpl</span>; etrans; [use (pr22 u)|].
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (pr1 x · _)) _).
+          <span class="bp">exact</span> (
+              maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x (pr1 Rr))
+                (PushoutArrowUnique _ _ _ _ _
+                   (isPushout_Pushout H_pushout) _ _ _
+                   (maponpaths pr1 H) _
+                   (maponpaths pr1 H')
+                   (maponpaths pr1 H'')
+                )
+            ).
+      }
+      use (PushoutArrowUnique _ _ _ _ _ (isPushout_Pushout H_pushout)).
+      + use (maponpaths pr1 H').
+      + use (maponpaths pr1 H'').
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">modularity_pushout_uniqueness</span> : triplet' = triplet.
+    <span class="kn">Proof</span>.
+      use subtypePath; [<span class="nb">intro</span>; use isapropdirprod|].
+      + use (homset_property total_category_of_models _ _ _ f).
+      + use (homset_property total_category_of_models _ _ _ g).
+      + use modularity_induced_morphism_unique.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">ModularityPushoutInducedMorphism</span>.
+
+  <span class="kn">Definition</span> <span class="nf">modularity_is_pushout</span>
+    : isPushout
+      modularity_morphism₁ modularity_morphism₂
+      modularity_morphism_in₁ modularity_morphism_in₂
+      modularity_commutes
+    := make_isPushout _ _ _ _ modularity_commutes
+      (<span class="k">λ</span> <span class="nv">Σ'</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">H</span>, _ ,, modularity_pushout_uniqueness _ _ _ _ H).
+
+  <span class="kn">Definition</span> <span class="nf">modularity</span>
+    : Pushout modularity_morphism₁ modularity_morphism₂
+    := (make_Pushout _ _ _ _ _ _ modularity_is_pushout).
+<span class="kn">End</span> <span class="nf">Modularity</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/ModelsOfModuleSignature.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ***************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

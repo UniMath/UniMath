@@ -1,0 +1,1398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Profunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Enriched profunctors</span>
+
+<span class="sd"> In this file, we define enriched profunctors. Usually, enriched profunctors are defined as</span>
+<span class="sd"> follows: let `V` be a symmetric monoidal closed category, then an enriched profunctor from</span>
+<span class="sd"> a `V`-enriched category `E₁` to a `V`-enriched category `E₂` is given by an enriched</span>
+<span class="sd"> profunctor from the tensor of `E₂^op` and `E₁` to the self-enriched category `V`.</span>
+
+<span class="sd"> We made a couple of variations to this definition.</span>
+<span class="sd"> 1. First of all, we use a whiskered style. Concretely, this that rather than having a</span>
+<span class="sd">    single functorial action which takes morphisms in `E₂` and in `E₁`, we have two</span>
+<span class="sd">    functorial actions. One that takes a morphism in `E₂` and one that takes a morphism in</span>
+<span class="sd">    `E₁`. This concept is further explained in the file `WhiskeredBifunctors` in the directory</span>
+<span class="sd">    `EnrichedCats.Bifunctors`.</span>
+<span class="sd"> 2. Second, since we are looking at `E₂^op`, we modify our definition accordingly. More</span>
+<span class="sd">    specifically, in [enriched_profunctor_data]. we do not mention the opposite category</span>
+<span class="sd">    explicitly. Instead, we have an action `E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y` where we</span>
+<span class="sd">    already reversed the direction.</span>
+<span class="sd"> 3. Third, the target of an enriched profunctor is the self-enriched category. In the</span>
+<span class="sd">    self-enriched category, the hom-objects are given by the right adjoint of the tensor</span>
+<span class="sd">    (i.e., linear function spaces). As such, whenever we are going to construct a morphism</span>
+<span class="sd">    to such a hom-object, we are going to use a exponential transposes (i.e., lambda</span>
+<span class="sd">    abstractions). For this reason, in the definition [enriched_profunctor_data], we do</span>
+<span class="sd">    not mention the right adjoint, but we already took all necessary exponential transposes.</span>
+<span class="sd"> 4. Finally, the laws are rephrased to fit nicely with the aforementioned changes. The</span>
+<span class="sd">    main difference is caused by the fact that the left and right action are both defined</span>
+<span class="sd">    as a exponential transpose (i.e., lambda abstraction), and this allows us to simplify</span>
+<span class="sd">    the laws of whiskered bifunctors (see [enriched_profunctor_laws]).</span>
+
+<span class="sd"> We also show that our definition is equivalent to the definition of enriched profunctors</span>
+<span class="sd"> via whiskered bifunctors, and thus it is equivalent to the usual definition of enriched</span>
+<span class="sd"> profunctors. Finally, we give an action on morphisms of profunctors</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Enriched profunctors</span>
+<span class="sd"> 2. Accessors</span>
+<span class="sd"> 3. Equivalence with whiskered bifunctors</span>
+<span class="sd"> 4. Action on morphisms in the underlying category</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.EnrichmentEquiv.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.Tensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Bifunctors.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="sd">(** * 1. Enriched profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_data</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : UU
+  := ∑ (P : C₂ → C₁ → V),
+     (∏ (x₁ x₂ : C₂)
+        (y : C₁),
+      E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y)
+     ×
+     (∏ (x : C₂)
+        (y₁ y₂ : C₁),
+      E₁ ⦃ y₁, y₂ ⦄ ⊗ P x y₁ --&gt; P x y₂).
+
+<span class="kn">Definition</span> <span class="nf">make_enriched_profunctor_data</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : C₂ → C₁ → V)
+           (<span class="nv">Pl</span> : ∏ (x₁ x₂ : C₂)
+                   (y : C₁),
+                 E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y)
+          (<span class="nv">Pr</span> : ∏ (x : C₂)
+                  (y₁ y₂ : C₁),
+                E₁ ⦃ y₁, y₂ ⦄ ⊗ P x y₁ --&gt; P x y₂)
+  : enriched_profunctor_data E₁ E₂
+  := P ,, Pl ,, Pr.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_ob</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+           (<span class="nv">y</span> : C₂)
+           (<span class="nv">x</span> : C₁)
+  : V
+  := pr1 P y x.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_profunctor_ob</span> : enriched_profunctor_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">lmap_e</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+           (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+           (<span class="nv">y</span> : C₁)
+  : E₂ ⦃ x₂, x₁ ⦄ ⊗ P x₁ y --&gt; P x₂ y
+  := pr12 P x₁ x₂ y.
+
+<span class="kn">Definition</span> <span class="nf">rmap_e</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+           (<span class="nv">x</span> : C₂)
+           (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₁)
+  : E₁ ⦃ y₁, y₂ ⦄ ⊗ P x y₁ --&gt; P x y₂
+  := pr22 P x y₁ y₂.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_laws</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+  : UU
+  := (∏ (x : C₂)
+        (y : C₁),
+      enriched_id E₂ x #⊗ identity (P x y) · lmap_e P x x y
+      =
+      mon_lunitor (P x y))
+     ×
+     (∏ (x : C₂)
+        (y : C₁),
+      enriched_id E₁ y #⊗ identity (P x y) · rmap_e P x y y
+      =
+      mon_lunitor (P x y))
+     ×
+     (∏ (x₁ x₂ x₃ : C₂)
+        (y : C₁),
+      (sym_mon_braiding V _ _ · enriched_comp E₂ x₃ x₂ x₁) #⊗ identity _
+      · lmap_e P x₁ x₃ y
+      =
+      mon_lassociator _ _ _
+      · identity _ #⊗ lmap_e P x₁ x₂ y
+      · lmap_e P x₂ x₃ y)
+     ×
+     (∏ (x : C₂)
+        (y₁ y₂ y₃ : C₁),
+      enriched_comp E₁ y₁ y₂ y₃ #⊗ identity (P x y₁)
+      · rmap_e P x y₁ y₃
+      =
+      mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P x y₁ y₂
+      · rmap_e P x y₂ y₃)
+     ×
+     (∏ (x₁ x₂ : C₂)
+        (y₁ y₂ : C₁),
+     sym_mon_braiding V _ _ #⊗ identity _
+     · mon_lassociator _ _ _
+     · identity _ #⊗ lmap_e P x₁ x₂ y₁
+     · rmap_e P x₂ y₁ y₂
+     =
+     mon_lassociator _ _ _
+     · identity _ #⊗ rmap_e P x₁ y₁ y₂
+     · lmap_e P x₁ x₂ y₂).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_enriched_profunctor_laws</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+  : isaprop (enriched_profunctor_laws P).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use isapropdirprod) ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : UU
+  := ∑ (P : enriched_profunctor_data E₁ E₂),
+     enriched_profunctor_laws P.
+
+<span class="kn">Notation</span> <span class="s2">"E₁ ↛e E₂"</span> := (enriched_profunctor E₁ E₂)
+                         (<span class="kn">at level</span> <span class="mi">99</span>, <span class="kn">only parsing</span>) : cat. <span class="c">(* \nrightarrow *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_enriched_profunctor</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : enriched_profunctor_data E₁ E₂)
+           (<span class="nv">HP</span> : enriched_profunctor_laws P)
+  : E₁ ↛e E₂
+  := P ,, HP.
+
+<span class="kn">Coercion</span> <span class="nf">enriched_profunctor_to_data</span>
+         {V : sym_mon_closed_cat}
+         {C₁ C₂ : category}
+         {E₁ : enrichment C₁ V}
+         {E₂ : enrichment C₂ V}
+         (P : E₁ ↛e E₂)
+  : enriched_profunctor_data E₁ E₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 P).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Accessors *)</span>
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          (<span class="nv">P</span> : E₁ ↛e E₂).
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_id</span>
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">y</span> : C₁)
+    : enriched_id E₂ x #⊗ identity (P x y) · lmap_e P x x y
+      =
+      mon_lunitor (P x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_e_id</span>
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">y</span> : C₁)
+    : enriched_id E₁ y #⊗ identity (P x y) · rmap_e P x y y
+      =
+      mon_lunitor (P x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 P x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_comp</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₂)
+              (<span class="nv">y</span> : C₁)
+    : (sym_mon_braiding V _ _ · enriched_comp E₂ x₃ x₂ x₁) #⊗ identity _
+      · lmap_e P x₁ x₃ y
+      =
+      mon_lassociator _ _ _
+      · identity _ #⊗ lmap_e P x₁ x₂ y
+      · lmap_e P x₂ x₃ y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 P) x₁ x₂ x₃ y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_comp'</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₂)
+              (<span class="nv">y</span> : C₁)
+    : enriched_comp E₂ x₃ x₂ x₁ #⊗ identity _
+      · lmap_e P x₁ x₃ y
+      =
+      (sym_mon_braiding V _ _ #⊗ identity _)
+      · mon_lassociator _ _ _
+      · identity _ #⊗ lmap_e P x₁ x₂ y
+      · lmap_e P x₂ x₃ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- lmap_e_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_lmap_e</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₂)
+              (<span class="nv">y</span> : C₁)
+    : identity _ #⊗ lmap_e P x₁ x₂ y
+      · lmap_e P x₂ x₃ y
+      =
+      mon_rassociator _ _ _
+      · (sym_mon_braiding V _ _ #⊗ identity _)
+      · enriched_comp E₂ x₃ x₂ x₁ #⊗ identity _
+      · lmap_e P x₁ x₃ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> lmap_e_comp'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_e_comp</span>
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₁)
+    : enriched_comp E₁ y₁ y₂ y₃ #⊗ identity (P x y₁)
+      · rmap_e P x y₁ y₃
+      =
+      mon_lassociator _ _ _
+      · identity _ #⊗ rmap_e P x y₁ y₂
+      · rmap_e P x y₂ y₃.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 P) x y₁ y₂ y₃).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_e_rmap_e</span>
+              (<span class="nv">x</span> : C₂)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₁)
+    : identity _ #⊗ rmap_e P x y₁ y₂
+      · rmap_e P x y₂ y₃
+      =
+      mon_rassociator _ _ _
+      · enriched_comp E₁ y₁ y₂ y₃ #⊗ identity (P x y₁)
+      · rmap_e P x y₁ y₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> rmap_e_comp.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_rmap_e</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₁)
+    : sym_mon_braiding V _ _ #⊗ identity _
+     · mon_lassociator _ _ _
+     · identity _ #⊗ lmap_e P x₁ x₂ y₁
+     · rmap_e P x₂ y₁ y₂
+     =
+     mon_lassociator _ _ _
+     · identity _ #⊗ rmap_e P x₁ y₁ y₂
+     · lmap_e P x₁ x₂ y₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (pr222 P) x₁ x₂ y₁ y₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lmap_e_rmap_e'</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₁)
+    : identity _ #⊗ lmap_e P x₁ x₂ y₁
+     · rmap_e P x₂ y₁ y₂
+     =
+     mon_rassociator _ _ _
+     · sym_mon_braiding V _ _ #⊗ identity _
+     · mon_lassociator _ _ _
+     · identity _ #⊗ rmap_e P x₁ y₁ y₂
+     · lmap_e P x₁ x₂ y₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- lmap_e_rmap_e.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">rmap_e_lmap_e</span>
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₂)
+              (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₁)
+    : identity _ #⊗ rmap_e P x₁ y₁ y₂
+      · lmap_e P x₁ x₂ y₂
+      =
+      mon_rassociator _ _ _
+     · sym_mon_braiding V _ _ #⊗ identity _
+     · mon_lassociator _ _ _
+     · identity _ #⊗ lmap_e P x₁ x₂ y₁
+     · rmap_e P x₂ y₁ y₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> lmap_e_rmap_e'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="sd">(** * 3. Equivalence with whiskered bifunctors *)</span>
+<span class="kn">Section</span> <span class="nf">FromEnrichedProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          (<span class="nv">P</span> : E₁ ↛e E₂).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_profunctor_to_whiskered_data</span>
+    : enriched_whiskered_bifunctor_data
+        (op_enrichment V E₂) E₁
+        (self_enrichment V).
+  <span class="kn">Proof</span>.
+    use make_enriched_whiskered_bifunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, P y x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span>, internal_lam (lmap_e P x₁ x₂ y)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span>, internal_lam (rmap_e P x y₁ y₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_profunctor_to_whiskered_laws</span>
+    : enriched_whiskered_bifunctor_laws
+        enriched_profunctor_to_whiskered_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> x y.
+      <span class="nb">unfold</span> internal_id.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> z h.
+      <span class="bp">exact</span> (lmap_e_id P x y).
+    - <span class="nb">intros</span> x y.
+      <span class="nb">unfold</span> internal_id.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> z h.
+      <span class="bp">exact</span> (rmap_e_id P x y).
+    - <span class="nb">intros</span> x₁ x₂ x₃ y.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> internal_comp.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_split.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> z h.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (lmap_e_comp P x₁ x₂ x₃ y).
+    - <span class="nb">intros</span> x y₁ y₂ y₃.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> internal_comp.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_split.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> z h.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (rmap_e_comp P x y₁ y₂ y₃).
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_split.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_comp_id_l.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_split.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_comp_id_l.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !tensor_id_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> z h.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> (lmap_e_rmap_e P x₁ x₂ y₁ y₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_profunctor_to_whiskered</span>
+    : enriched_whiskered_bifunctor
+        (op_enrichment V E₂) E₁
+        (self_enrichment V).
+  <span class="kn">Proof</span>.
+    use make_enriched_whiskered_bifunctor.
+    - <span class="bp">exact</span> enriched_profunctor_to_whiskered_data.
+    - <span class="bp">exact</span> enriched_profunctor_to_whiskered_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromEnrichedProfunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">ToEnrichedProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          (<span class="nv">P</span> : enriched_whiskered_bifunctor
+                 (op_enrichment V E₂) E₁
+                 (self_enrichment V)).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_whiskered_bifunctor_to_profunctor_data</span>
+    : enriched_profunctor_data E₁ E₂.
+  <span class="kn">Proof</span>.
+    use make_enriched_profunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, P x y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span>,
+             enriched_whiskered_bifunctor_left P x₁ x₂ y #⊗ identity _
+             · internal_eval _ _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span>,
+             enriched_whiskered_bifunctor_right P x y₁ y₂ #⊗ identity _
+             · internal_eval _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_whiskered_bifunctor_to_profunctor_laws</span>
+    : enriched_profunctor_laws
+        enriched_whiskered_bifunctor_to_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (enriched_whiskered_bifunctor_left_id P x y).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> internal_id.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (enriched_whiskered_bifunctor_right_id P x y).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> internal_id.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (enriched_whiskered_bifunctor_left_comp P x₁ x₂ x₃ y).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (enriched_whiskered_bifunctor_right_comp P x₁ x₂ x₃ y).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ ; <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z #⊗ identity _ · internal_eval _ _)
+              (enriched_whiskered_bifunctor_left_right P x₁ x₂ y₁ y₂)) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">unfold</span> internal_comp <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !internal_beta <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+      <span class="nb">rewrite</span> tensor_lassociator <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (_ @ p).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">clear</span> p.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_right, id_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_whiskered_bifunctor_to_profunctor</span>
+    : E₁ ↛e E₂.
+  <span class="kn">Proof</span>.
+    use make_enriched_profunctor.
+    - <span class="bp">exact</span> enriched_whiskered_bifunctor_to_profunctor_data.
+    - <span class="bp">exact</span> enriched_whiskered_bifunctor_to_profunctor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToEnrichedProfunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">Inverses</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_profunctor_whiskered_bifunctor_weq_left</span>
+              (<span class="nv">P</span> : enriched_whiskered_bifunctor
+                     (op_enrichment V E₂) E₁
+                     (self_enrichment V))
+    : enriched_profunctor_to_whiskered
+        (enriched_whiskered_bifunctor_to_profunctor P)
+      =
+      P.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_enriched_whiskered_bifunctor_laws.
+    }
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 P ,, z) _).
+    use pathsdirprod.
+    - use funextsec ; <span class="nb">intro</span> x₁.
+      use funextsec ; <span class="nb">intro</span> x₂.
+      use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">apply</span> idpath.
+    - use funextsec ; <span class="nb">intro</span> x₁.
+      use funextsec ; <span class="nb">intro</span> x₂.
+      use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_profunctor_whiskered_bifunctor_weq_right</span>
+              (<span class="nv">P</span> : E₁ ↛e E₂)
+    : enriched_whiskered_bifunctor_to_profunctor
+        (enriched_profunctor_to_whiskered P)
+      =
+      P.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_enriched_profunctor_laws.
+    }
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 P ,, z) _).
+    use pathsdirprod.
+    - use funextsec ; <span class="nb">intro</span> x₁.
+      use funextsec ; <span class="nb">intro</span> x₂.
+      use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> internal_beta.
+    - use funextsec ; <span class="nb">intro</span> x₁.
+      use funextsec ; <span class="nb">intro</span> x₂.
+      use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> internal_beta.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Inverses</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_whiskered_bifunctor_weq</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : enriched_whiskered_bifunctor
+      (op_enrichment V E₂) E₁
+      (self_enrichment V)
+    ≃
+    (E₁ ↛e E₂).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> enriched_whiskered_bifunctor_to_profunctor.
+  - <span class="bp">exact</span> enriched_profunctor_to_whiskered.
+  - <span class="bp">exact</span> enriched_profunctor_whiskered_bifunctor_weq_left.
+  - <span class="bp">exact</span> enriched_profunctor_whiskered_bifunctor_weq_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_bifunctor_weq</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">E₁</span> : enrichment C₁ V)
+           (<span class="nv">E₂</span> : enrichment C₂ V)
+  : enriched_functor
+      (tensor_enriched_precat (op_enrichment V E₂) E₁)
+      (make_enriched_cat (pr111 V ,, self_enrichment V))
+    ≃
+    (E₁ ↛e E₂)
+  := (enriched_profunctor_whiskered_bifunctor_weq _ _
+      ∘ enriched_bifunctor_whiskered_bifunctor_weq _ _ _)%weq.
+
+<span class="sd">(** * 4. Action on morphisms in the underlying category *)</span>
+<span class="kn">Definition</span> <span class="nf">lmap_e_arr</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : E₁ ↛e E₂)
+           (<span class="nv">x</span> : C₁)
+           {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+           (<span class="nv">g</span> : y₂ --&gt; y₁)
+  : P y₁ x --&gt; P y₂ x
+  := mon_linvunitor _
+     · (enriched_from_arr _ g #⊗ identity _)
+     · lmap_e P y₁ y₂ x.
+
+<span class="kn">Definition</span> <span class="nf">rmap_e_arr</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> : E₁ ↛e E₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           (<span class="nv">f</span> : x₁ --&gt; x₂)
+           (<span class="nv">y</span> : C₂)
+  : P y x₁ --&gt; P y x₂
+  := mon_linvunitor _
+     · (enriched_from_arr _ f #⊗ identity _)
+     · rmap_e P y x₁ x₂.
+
+<span class="kn">Proposition</span> <span class="nf">lmap_e_arr_id</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            (<span class="nv">x</span> : C₁)
+            (<span class="nv">y</span> : C₂)
+  : lmap_e_arr P x (identity y) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lmap_e_arr.
+  <span class="nb">rewrite</span> enriched_from_arr_id.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> lmap_e_id.
+  <span class="nb">apply</span> mon_linvunitor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lmap_e_arr_comp</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            (<span class="nv">x</span> : C₁)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂}
+            (<span class="nv">g₁</span> : y₂ --&gt; y₁)
+            (<span class="nv">g₂</span> : y₃ --&gt; y₂)
+  : lmap_e_arr P x (g₂ · g₁)
+    =
+    lmap_e_arr P x g₁ · lmap_e_arr P x g₂.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lmap_e_arr.
+  <span class="nb">rewrite</span> enriched_from_arr_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> lmap_e_comp'.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> sym_mon_braiding_linvunitor.
+  <span class="nb">rewrite</span> mon_linvunitor_I_mon_rinvunitor_I.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rmap_e_arr_id</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            (<span class="nv">x</span> : C₁)
+            (<span class="nv">y</span> : C₂)
+  : rmap_e_arr P (identity x) y = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> rmap_e_arr.
+  <span class="nb">rewrite</span> enriched_from_arr_id.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> rmap_e_id.
+  <span class="nb">apply</span> mon_linvunitor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rmap_e_arr_comp</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+            (<span class="nv">f₁</span> : x₁ --&gt; x₂)
+            (<span class="nv">f₂</span> : x₂ --&gt; x₃)
+            (<span class="nv">y</span> : C₂)
+  : rmap_e_arr P (f₁ · f₂) y
+    =
+    rmap_e_arr P f₁ y · rmap_e_arr P f₂ y.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> rmap_e_arr.
+  <span class="nb">rewrite</span> enriched_from_arr_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> rmap_e_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_linvunitor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- mon_linvunitor_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lmap_e_arr_lmap_e</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            (<span class="nv">x</span> : C₁)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            (<span class="nv">g</span> : y₂ --&gt; y₁)
+            (<span class="nv">y₃</span> : C₂)
+  : (identity _ #⊗ lmap_e_arr P x g) · lmap_e P y₂ y₃ x
+    =
+    (postcomp_arr E₂ y₃ g #⊗ identity _) · lmap_e P y₁ y₃ x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lmap_e_arr.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> lmap_e_lmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> postcomp_arr.
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">apply</span> id_right.
+  }
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> sym_mon_braiding_rinvunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rmap_e_arr_lmap_e</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂)
+  : (identity _ #⊗ rmap_e_arr P f y₁) · lmap_e P y₁ y₂ x₂
+    =
+    lmap_e P y₁ y₂ x₁ · rmap_e_arr P f y₂.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> rmap_e_arr.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> rmap_e_lmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_id_id.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> sym_mon_braiding_rinvunitor.
+  <span class="nb">rewrite</span> mon_linvunitor_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rmap_e_arr_rmap_e</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">x₃</span> : C₁)
+            (<span class="nv">y</span> : C₂)
+  : (identity _ #⊗ rmap_e_arr P f y) · rmap_e P y x₂ x₃
+    =
+    (precomp_arr E₁ x₃ f #⊗ identity _) · rmap_e P y x₁ x₃.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> rmap_e_arr.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> rmap_e_rmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">unfold</span> precomp_arr.
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> tensor_rassociator.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> mon_lassociator_rassociator.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lmap_e_arr_rmap_e</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            (<span class="nv">f</span> : y₁ --&gt; y₂)
+  : (identity _ #⊗ lmap_e_arr P x₁ f) · rmap_e P y₁ x₁ x₂
+    =
+    rmap_e P y₂ x₁ x₂ · lmap_e_arr P x₂ f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lmap_e_arr.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> lmap_e_rmap_e'.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_rassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_id_id.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> sym_mon_braiding_rinvunitor.
+  <span class="nb">rewrite</span> mon_linvunitor_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lmap_e_arr_rmap_e_arr</span>
+            {<span class="nv">V</span> : sym_mon_closed_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            (<span class="nv">P</span> : E₁ ↛e E₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            (<span class="nv">f</span> : x₂ --&gt; x₁)
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            (<span class="nv">g</span> : y₁ --&gt; y₂)
+  : lmap_e_arr P _ g · rmap_e_arr P f _
+    =
+    rmap_e_arr P f _ · lmap_e_arr P _ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> lmap_e_arr.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- rmap_e_arr_lmap_e.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">rewrite</span> tensor_split.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/Profunctor.v</tt>, line 42)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Action on morphisms in the underlying category
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

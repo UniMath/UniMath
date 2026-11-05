@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MorphismsInStructuredCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************</span>
+
+<span class="sd"> Morphisms in structured categories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Adjunctions of categories with a terminal object</span>
+<span class="sd"> 2. Adjunctions of categories with binary products</span>
+<span class="sd"> 3. Adjunctions of categories with pullbacks</span>
+<span class="sd"> 4. Adjunctions of categories with an initial object</span>
+<span class="sd"> 5. Adjunctions of categories with binary coproducts</span>
+
+<span class="sd"> ******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.MorphismsInBicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Adjunctions of categories with a terminal object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispAdjunctionTerminalObj</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">a</span> : adjunction C₁ C₂)
+          (<span class="nv">CC₁</span> : disp_bicat_terminal_obj C₁)
+          (<span class="nv">CC₂</span> : disp_bicat_terminal_obj C₂).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_adjunction_univ_cat_with_terminal_obj</span>
+    : isaprop (disp_adjunction a CC₁ CC₂).
+  <span class="kn">Proof</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isaprop_preserves_terminal.
+    - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+      + use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">apply</span> isaprop_preserves_terminal.
+        * <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> disp_bicat_terminal_obj.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">MakeDispAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : preserves_terminal (pr1 a)).
+
+    <span class="kn">Let</span> <span class="nf">F</span> : CC₁ --&gt;[ a ] CC₂ := tt ,, H.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_data_univ_cat_with_terminal_obj</span>
+      : disp_left_adjoint_data a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      <span class="bp">exact</span> (right_adjoint_preserves_terminal _ (left_adjoint_to_is_left_adjoint a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_axioms_univ_cat_with_terminal_obj</span>
+      : disp_left_adjoint_axioms a disp_left_adjoint_data_univ_cat_with_terminal_obj.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_terminal_obj</span>
+      : disp_left_adjoint a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> disp_left_adjoint_data_univ_cat_with_terminal_obj.
+      - <span class="bp">exact</span> disp_left_adjoint_axioms_univ_cat_with_terminal_obj.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjunction_univ_cat_with_terminal_obj</span>
+      : disp_adjunction a CC₁ CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> disp_left_adjoint_univ_cat_with_terminal_obj.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeDispAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_weq_preserves_terminal</span>
+    : disp_adjunction a CC₁ CC₂ ≃ preserves_terminal (pr1 a).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> aa.
+      <span class="nb">apply</span> aa.
+    - <span class="bp">exact</span> disp_adjunction_univ_cat_with_terminal_obj.
+    - <span class="nb">apply</span> isaprop_disp_adjunction_univ_cat_with_terminal_obj.
+    - <span class="nb">apply</span> isaprop_preserves_terminal.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispAdjunctionTerminalObj</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Adjunctions of categories with binary products</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispAdjunctionBinproduct</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">a</span> : adjunction C₁ C₂)
+          (<span class="nv">CC₁</span> : disp_bicat_binprod C₁)
+          (<span class="nv">CC₂</span> : disp_bicat_binprod C₂).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_adjunction_univ_cat_with_binprod</span>
+    : isaprop (disp_adjunction a CC₁ CC₂).
+  <span class="kn">Proof</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isaprop_preserves_binproduct.
+    - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+      + use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">apply</span> isaprop_preserves_binproduct.
+        * <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> disp_bicat_binprod.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">MakeDispAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : preserves_binproduct (pr1 a)).
+
+    <span class="kn">Let</span> <span class="nf">F</span> : CC₁ --&gt;[ a ] CC₂ := tt ,, H.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_data_univ_cat_with_binprod</span>
+      : disp_left_adjoint_data a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      <span class="bp">exact</span> (right_adjoint_preserves_binproduct _ (left_adjoint_to_is_left_adjoint a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_axioms_univ_cat_with_binprod</span>
+      : disp_left_adjoint_axioms a disp_left_adjoint_data_univ_cat_with_binprod.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_binprod</span>
+      : disp_left_adjoint a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> disp_left_adjoint_data_univ_cat_with_binprod.
+      - <span class="bp">exact</span> disp_left_adjoint_axioms_univ_cat_with_binprod.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjunction_univ_cat_with_binprod</span>
+      : disp_adjunction a CC₁ CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> disp_left_adjoint_univ_cat_with_binprod.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeDispAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_weq_preserves_binprod</span>
+    : disp_adjunction a CC₁ CC₂ ≃ preserves_binproduct (pr1 a).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> aa.
+      <span class="nb">apply</span> aa.
+    - <span class="bp">exact</span> disp_adjunction_univ_cat_with_binprod.
+    - <span class="nb">apply</span> isaprop_disp_adjunction_univ_cat_with_binprod.
+    - <span class="nb">apply</span> isaprop_preserves_binproduct.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispAdjunctionBinproduct</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Adjunctions of categories with pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispAdjunctionPullback</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">a</span> : adjunction C₁ C₂)
+          (<span class="nv">CC₁</span> : disp_bicat_pullback C₁)
+          (<span class="nv">CC₂</span> : disp_bicat_pullback C₂).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_adjunction_univ_cat_with_pb</span>
+    : isaprop (disp_adjunction a CC₁ CC₂).
+  <span class="kn">Proof</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isaprop_preserves_pullback.
+    - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+      + use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">apply</span> isaprop_preserves_pullback.
+        * <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> disp_bicat_pullback.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">MakeDispAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : preserves_pullback (pr1 a)).
+
+    <span class="kn">Let</span> <span class="nf">F</span> : CC₁ --&gt;[ a ] CC₂ := tt ,, H.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_data_univ_cat_with_pb</span>
+      : disp_left_adjoint_data a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((tt ,, _) ,, ((tt ,, tt) ,, (tt ,, tt))).
+      <span class="bp">exact</span> (right_adjoint_preserves_pullback _ (left_adjoint_to_is_left_adjoint a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_axioms_univ_cat_with_pb</span>
+      : disp_left_adjoint_axioms a disp_left_adjoint_data_univ_cat_with_pb.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_pb</span>
+      : disp_left_adjoint a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> disp_left_adjoint_data_univ_cat_with_pb.
+      - <span class="bp">exact</span> disp_left_adjoint_axioms_univ_cat_with_pb.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjunction_univ_cat_with_pb</span>
+      : disp_adjunction a CC₁ CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> disp_left_adjoint_univ_cat_with_pb.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeDispAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_weq_preserves_pb</span>
+    : disp_adjunction a CC₁ CC₂ ≃ preserves_pullback (pr1 a).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> aa.
+      <span class="nb">apply</span> aa.
+    - <span class="bp">exact</span> disp_adjunction_univ_cat_with_pb.
+    - <span class="nb">apply</span> isaprop_disp_adjunction_univ_cat_with_pb.
+    - <span class="nb">apply</span> isaprop_preserves_pullback.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispAdjunctionPullback</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Adjunctions of categories with an initial object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispAdjunctionInitial</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">a</span> : adjunction C₁ C₂)
+          (<span class="nv">CC₁</span> : disp_bicat_initial_obj C₁)
+          (<span class="nv">CC₂</span> : disp_bicat_initial_obj C₂).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_adjunction_univ_cat_with_initial</span>
+    : isaprop (disp_adjunction a CC₁ CC₂).
+  <span class="kn">Proof</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isaprop_preserves_initial.
+    - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+      + use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">apply</span> isaprop_preserves_initial.
+        * <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> disp_bicat_initial_obj.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">MakeDispAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : preserves_initial (pr112 a)).
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_initial_1cell</span>
+      : CC₁ --&gt;[ a ] CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (tt ,, _).
+      <span class="bp">exact</span> (left_adjoint_preserves_initial _ (left_adjoint_to_is_left_adjoint a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">F</span> := disp_left_adjoint_univ_cat_with_initial_1cell.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_data_univ_cat_with_initial</span>
+      : disp_left_adjoint_data a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((tt ,, H) ,, ((tt ,, tt) ,, (tt ,, tt))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_axioms_univ_cat_with_initial</span>
+      : disp_left_adjoint_axioms a disp_left_adjoint_data_univ_cat_with_initial.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_initial</span>
+      : disp_left_adjoint a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> disp_left_adjoint_data_univ_cat_with_initial.
+      - <span class="bp">exact</span> disp_left_adjoint_axioms_univ_cat_with_initial.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjunction_univ_cat_with_initial</span>
+      : disp_adjunction a CC₁ CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> disp_left_adjoint_univ_cat_with_initial.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeDispAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_weq_preserves_initial</span>
+    : disp_adjunction a CC₁ CC₂ ≃ preserves_initial (pr112 a).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> aa.
+      <span class="nb">apply</span> aa.
+    - <span class="bp">exact</span> disp_adjunction_univ_cat_with_initial.
+    - <span class="nb">apply</span> isaprop_disp_adjunction_univ_cat_with_initial.
+    - <span class="nb">apply</span> isaprop_preserves_initial.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispAdjunctionInitial</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Adjunctions of categories with binary coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DispAdjunctionCoprod</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          (<span class="nv">a</span> : adjunction C₁ C₂)
+          (<span class="nv">CC₁</span> : disp_bicat_bincoprod C₁)
+          (<span class="nv">CC₂</span> : disp_bicat_bincoprod C₂).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_adjunction_univ_cat_with_bincoprod</span>
+    : isaprop (disp_adjunction a CC₁ CC₂).
+  <span class="kn">Proof</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+    - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+      + use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+        * <span class="nb">apply</span> isapropdirprod.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+          ** <span class="nb">simpl</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> isapropunit.
+      + <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> disp_bicat_bincoprod.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">MakeDispAdj</span>.
+    <span class="kn">Context</span> (<span class="nv">H</span> : preserves_bincoproduct (pr112 a)).
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_bincoprod_1cell</span>
+      : CC₁ --&gt;[ a ] CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (tt ,, _).
+      <span class="bp">exact</span> (left_adjoint_preserves_bincoproduct
+               _
+               (left_adjoint_to_is_left_adjoint a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">F</span> := disp_left_adjoint_univ_cat_with_bincoprod_1cell.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_data_univ_cat_with_bincoprod</span>
+      : disp_left_adjoint_data a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> ((tt ,, H) ,, ((tt ,, tt) ,, (tt ,, tt))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_axioms_univ_cat_with_bincoprod</span>
+      : disp_left_adjoint_axioms a disp_left_adjoint_data_univ_cat_with_bincoprod.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_left_adjoint_univ_cat_with_bincoprod</span>
+      : disp_left_adjoint a F.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> disp_left_adjoint_data_univ_cat_with_bincoprod.
+      - <span class="bp">exact</span> disp_left_adjoint_axioms_univ_cat_with_bincoprod.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adjunction_univ_cat_with_bincoprod</span>
+      : disp_adjunction a CC₁ CC₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> F.
+      - <span class="bp">exact</span> disp_left_adjoint_univ_cat_with_bincoprod.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeDispAdj</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_weq_preserves_bincoprod</span>
+    : disp_adjunction a CC₁ CC₂ ≃ preserves_bincoproduct (pr112 a).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> aa.
+      <span class="nb">apply</span> aa.
+    - <span class="bp">exact</span> disp_adjunction_univ_cat_with_bincoprod.
+    - <span class="nb">apply</span> isaprop_disp_adjunction_univ_cat_with_bincoprod.
+    - <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispAdjunctionCoprod</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Examples/MorphismsInStructuredCat.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Adjunctions of categories with binary coproducts
+  &gt;
+  &gt;  ******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

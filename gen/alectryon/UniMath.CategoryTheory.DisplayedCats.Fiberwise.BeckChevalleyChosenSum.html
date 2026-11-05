@@ -1,0 +1,881 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BeckChevalleyChosenSum.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Beck-Chevalley conditions for chosen pullbacks (dependent sums)</span>
+
+<span class="sd"> Beck-Chevalley conditions for dependent sums are defined for arbitrary pullbacks. More</span>
+<span class="sd"> specifically, we express that some morphism is an isomorphism for every pullback square</span>
+<span class="sd"> in the base. One can use a more convenient formulation in concrete examples, because in</span>
+<span class="sd"> concrete examples one can take advantage from how the pullback are defined precisely.</span>
+<span class="sd"> Rather than requiring the Beck-Chevalley for all pullback squares in the base, it suffices</span>
+<span class="sd"> to only require the Beck-Chevalley condition for the chosen pullback squares. In this</span>
+<span class="sd"> file, we prove this statement.</span>
+
+<span class="sd"> The proof goes in two steps. First, we show that the Beck-Chevalley condition is</span>
+<span class="sd"> preserved under adjoint equivalences. If one assumes univalence, then this follows</span>
+<span class="sd"> immediately, but we need this statement for both univalent and non-univalent categories.</span>
+<span class="sd"> The proof is a calculation using adjunctions, and it involves naturality and triangle</span>
+<span class="sd"> equations. The second step is instantiating this statement to dependent sums in fibrations,</span>
+<span class="sd"> and concluding that the Beck-Chevalley condition holds for all pullbacks if it holds for</span>
+<span class="sd"> the chosen ones.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The Beck-Chevalley condition is preserved under adjoint equivalence</span>
+<span class="sd"> 2. The Beck-Chevalley condition for chosen pullbacks</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MoreFibrations.FiberEquivalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The Beck-Chevalley condition is preserved under adjoint equivalence *)</span>
+<span class="kn">Section</span> <span class="nf">BeckChevalleyAdjEquiv</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> <span class="nv">C₄'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">G</span> : C₁ ⟶ C₃}
+          {<span class="nv">H</span> : C₃ ⟶ C₄}
+          {<span class="nv">K</span> : C₂ ⟶ C₄}
+          {<span class="nv">H'</span> : C₃ ⟶ C₄'}
+          {<span class="nv">K'</span> : C₂ ⟶ C₄'}
+          (<span class="nv">HF</span> : is_right_adjoint F)
+          (<span class="nv">HH</span> : is_right_adjoint H)
+          (<span class="nv">HH'</span> : is_right_adjoint H')
+          (<span class="nv">τ</span> : nat_z_iso (F ∙ K) (G ∙ H))
+          (<span class="nv">τ'</span> : nat_z_iso (F ∙ K') (G ∙ H'))
+          (<span class="nv">E</span> : C₄ ⟶ C₄')
+          (<span class="nv">HE</span> : adj_equivalence_of_cats E)
+          (<span class="nv">θH</span> : nat_z_iso (H ∙ E) H')
+          (<span class="nv">θK</span> : nat_z_iso (K ∙ E) K').
+
+  <span class="kn">Definition</span> <span class="nf">left_beck_chevalley_adj_equiv_equality</span>
+    : UU
+    := ∏ (x : C₁), # E (τ x) · θH (G x) = θK (F x) · τ' x.
+
+  <span class="kn">Context</span> (<span class="nv">p</span> : left_beck_chevalley_adj_equiv_equality).
+
+  <span class="sd">(**</span>
+<span class="sd">     Notation for the components of the adjunctions</span>
+<span class="sd">   *)</span>
+  <span class="kn">Context</span> (<span class="nv">FL</span> := left_adjoint HF)
+          (<span class="nv">η₁</span> := unit_from_right_adjoint HF)
+          (<span class="nv">ε₁</span> := counit_from_right_adjoint HF)
+          (<span class="nv">HL</span> := left_adjoint HH)
+          (<span class="nv">η₂</span> := unit_from_right_adjoint HH)
+          (<span class="nv">ε₂</span> := counit_from_right_adjoint HH)
+          (<span class="nv">HL'</span> := left_adjoint HH')
+          (<span class="nv">η₂'</span> := unit_from_right_adjoint HH')
+          (<span class="nv">ε₂'</span> := counit_from_right_adjoint HH')
+          (<span class="nv">E'</span> := adj_equivalence_inv HE)
+          (<span class="nv">ηE</span> := unit_nat_z_iso_from_adj_equivalence_of_cats HE)
+          (<span class="nv">εE</span> := counit_nat_z_iso_from_adj_equivalence_of_cats HE).
+
+  <span class="kn">Let</span> <span class="nf">θH'</span> : nat_z_iso (H' ∙ E') H
+    := nat_z_iso_comp
+         (post_whisker_nat_z_iso
+            (nat_z_iso_inv θH)
+            E')
+         (pre_whisker_nat_z_iso H (nat_z_iso_inv ηE)).
+
+  <span class="kn">Lemma</span> <span class="nf">left_beck_chevalley_equiv_lemma_eq</span>
+        (<span class="nv">x</span> : C₃)
+    : θH' x
+      =
+      #E' (inv_from_z_iso (nat_z_iso_pointwise_z_iso θH x))
+      · inv_from_z_iso (nat_z_iso_pointwise_z_iso ηE (H x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_iso</span>
+             (<span class="nv">y</span> : C₄)
+    : HL y --&gt; HL' (E y).
+  <span class="kn">Proof</span>.
+    use (φ_adj_inv (pr2 HH)).
+    <span class="bp">exact</span> (ηE _ · #E' (η₂' (E y)) · θH' _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_inv</span>
+             (<span class="nv">y</span> : C₄)
+    : HL' (E y) --&gt; HL y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (#HL' (#E (η₂ _) · (θH (HL y))) · ε₂' (HL y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_inv_left</span>
+        (<span class="nv">y</span> : C₄)
+    : #HL' (#E (η₂ y) · θH (HL y))
+      · ε₂' (HL y)
+      · #HL (ηE y · #E' (η₂' (E y)) · θH' (HL' (E y)))
+      · ε₂ (HL' (E y))
+      =
+      identity (HL' (E y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (nat_trans_ax ε₂' _ _ (_ · _)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(functor_comp HL' _ _)).
+    }
+    <span class="nb">refine</span> (_ @ pr122 HH' (E y)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (functor_comp H').
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax θH).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(functor_comp E _ _)).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax η₂).
+    }
+    <span class="nb">cbn</span> -[ηE θH'].
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax θH).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(functor_comp E _ _)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr222 HH (HL' (E y))).
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (functor_comp E (ηE y)).
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (pr1 (pr221 HE)).
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(id_left _) @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso εE (E y))).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (functor_comp E).
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax (nat_z_iso_inv εE)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> left_beck_chevalley_equiv_lemma_eq.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax (nat_z_iso_inv εE)).
+    }
+    <span class="nb">refine</span> (_ @ z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso θH _)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+    <span class="nb">refine</span> (!_).
+    use z_iso_inv_on_left.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso εE _)).
+    }
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">cbn</span> -[εE ηE].
+    <span class="bp">exact</span> (pr1 (pr221 HE) (H (HL' (E y)))) .
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_inv_right</span>
+        (<span class="nv">y</span> : C₄)
+    : #HL (ηE y · #E' (η₂' (E y)) · θH' (HL' (E y)))
+      · ε₂ (HL' (E y))
+      · #HL' (#E (η₂ y) · θH (HL y))
+      · ε₂' (HL y)
+      =
+      identity (HL y).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ε₂).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(functor_comp HL _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax θH').
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (functor_comp E').
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax η₂').
+      }
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax ηE).
+      }
+      <span class="nb">rewrite</span> left_beck_chevalley_equiv_lemma_eq.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !(functor_comp HL).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (_ @ pr122 HH y).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ε₂).
+    }
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- !(functor_comp HL).
+    <span class="nb">refine</span> (!(functor_comp HL _ _) @ _).
+    <span class="nb">refine</span> (_ @ functor_id HL _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax (nat_z_iso_inv ηE)).
+    }
+    <span class="nb">refine</span> (_ @ z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso ηE _)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(functor_comp E' _ _) @ _ @ functor_id E' _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso θH _)).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax (nat_z_iso_inv θH)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (pr2 HH').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso_laws</span>
+              (<span class="nv">y</span> : C₄)
+    : is_inverse_in_precat
+        (left_beck_chevalley_nat_trans_adj_equiv_iso y)
+        (left_beck_chevalley_nat_trans_adj_equiv_inv y).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> left_beck_chevalley_nat_trans_adj_equiv_iso,
+        left_beck_chevalley_nat_trans_adj_equiv_inv,
+        φ_adj_inv.
+      <span class="nb">refine</span> (_ @ left_beck_chevalley_nat_trans_adj_equiv_inv_right y).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> left_beck_chevalley_nat_trans_adj_equiv_iso,
+        left_beck_chevalley_nat_trans_adj_equiv_inv,
+        φ_adj_inv.
+      <span class="nb">refine</span> (_ @ left_beck_chevalley_nat_trans_adj_equiv_inv_left y).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso</span>
+             (<span class="nv">y</span> : C₄)
+    : is_z_isomorphism (left_beck_chevalley_nat_trans_adj_equiv_iso y).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (left_beck_chevalley_nat_trans_adj_equiv_inv y).
+    - <span class="bp">exact</span> (is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso_laws y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_eq_lemma</span>
+        (<span class="nv">x</span> : C₂)
+    : #HL (#K (η₁ x))
+      · #HL (τ (FL x))
+      · ε₂ (G (FL x))
+      =
+      #HL (ηE (K x) · #E' (η₂' (E (K x))) · θH' (HL' (E (K x))))
+      · ε₂ (HL' (E (K x)))
+      · #HL' (θK x)
+      · #HL' (# K' (η₁ x))
+      · #HL' (τ' (FL x))
+      · ε₂' (G (FL x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (functor_comp HL').
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (functor_comp HL').
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (nat_trans_ax
+               ε₂
+               _ _
+               (#HL' (θK x · #K' (η₁ x) · τ' (FL x)) · ε₂' (G (FL x)))).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (functor_comp HL).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax θH').
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (functor_comp E').
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> (functor_comp H').
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax η₂').
+      }
+      <span class="nb">refine</span> (assoc' (_ · _) _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr2 HH').
+    }
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax θK).
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ηE).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> left_beck_chevalley_equiv_lemma_eq.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    use z_iso_inv_on_left.
+    <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+    <span class="nb">refine</span> (!_).
+    use z_iso_inv_on_left.
+    <span class="nb">cbn</span> -[ηE].
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax ηE).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(functor_comp E' _ _) @ _ @ functor_comp E' _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_eq</span>
+              (<span class="nv">x</span> : C₂)
+    : left_beck_chevalley_nat_trans HF HH τ x
+      =
+      left_beck_chevalley_nat_trans_adj_equiv_iso _
+      · #HL' (θK x)
+      · left_beck_chevalley_nat_trans HF HH' τ' x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !left_beck_chevalley_nat_trans_ob.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> left_beck_chevalley_nat_trans_adj_equiv_eq_lemma.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_beck_chevalley_nat_trans_adj_equiv_eq'</span>
+              (<span class="nv">x</span> : C₂)
+    : left_beck_chevalley_nat_trans HF HH' τ' x
+      =
+      #HL' (inv_from_z_iso (nat_z_iso_pointwise_z_iso θK x))
+      · left_beck_chevalley_nat_trans_adj_equiv_inv _
+      · left_beck_chevalley_nat_trans HF HH τ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> left_beck_chevalley_nat_trans_adj_equiv_eq.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso_laws.
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_beck_chevalley_adj_equiv</span>
+              {<span class="nv">x</span> : C₂}
+              (<span class="nv">Hx</span> : is_z_isomorphism (left_beck_chevalley_nat_trans HF HH τ x))
+    : is_z_isomorphism (left_beck_chevalley_nat_trans HF HH' τ' x).
+  <span class="kn">Proof</span>.
+    use (is_z_isomorphism_path (!(left_beck_chevalley_nat_trans_adj_equiv_eq' x))).
+    use is_z_isomorphism_comp.
+    - use is_z_isomorphism_comp.
+      + use functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+      + <span class="bp">exact</span> (is_z_iso_inv_from_z_iso
+                 (_ ,, is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso _)).
+    - <span class="bp">exact</span> Hx.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">left_beck_chevalley_adj_equiv'</span>
+              {<span class="nv">x</span> : C₂}
+              (<span class="nv">Hx</span> : is_z_isomorphism (left_beck_chevalley_nat_trans HF HH' τ' x))
+    : is_z_isomorphism (left_beck_chevalley_nat_trans HF HH τ x).
+  <span class="kn">Proof</span>.
+    use (is_z_isomorphism_path (!(left_beck_chevalley_nat_trans_adj_equiv_eq x))).
+    use is_z_isomorphism_comp.
+    - use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> is_z_iso_left_beck_chevalley_nat_trans_adj_equiv_iso.
+      + use functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso θK x).
+    - <span class="bp">exact</span> Hx.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BeckChevalleyAdjEquiv</span>.
+
+<span class="sd">(** * 2. The Beck-Chevalley condition for chosen pullbacks *)</span>
+<span class="kn">Definition</span> <span class="nf">has_dependent_sums_chosen</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+  : UU
+  := ∑ (L : ∏ (x y : C) (f : x --&gt; y), dependent_sum HD f),
+     ∏ (w x y : C)
+       (f : x --&gt; w)
+       (g : y --&gt; w)
+       (P := PB _ _ _ f g),
+     left_beck_chevalley
+       HD
+       _ _ _ _
+       (PullbackSqrCommutes _)
+       (L _ _ f)
+       (L _ _ (PullbackPr2 P)).
+
+<span class="kn">Definition</span> <span class="nf">make_has_dependent_sums_chosen</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+           (<span class="nv">L</span> : ∏ (x y : C) (f : x --&gt; y), dependent_sum HD f)
+           (<span class="nv">H</span> : ∏ (w x y : C)
+                  (f : x --&gt; w)
+                  (g : y --&gt; w)
+                  (P := PB _ _ _ f g),
+                left_beck_chevalley
+                  HD
+                  _ _ _ _
+                  (PullbackSqrCommutes _)
+                  (L _ _ f)
+                  (L _ _ (PullbackPr2 P)))
+  : has_dependent_sums_chosen PB HD
+  := L ,, H.
+
+<span class="kn">Section</span> <span class="nf">DependentSumWithChosenPB</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D)
+          (<span class="nv">H</span> : has_dependent_sums_chosen PB HD)
+          {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+          {<span class="nv">f</span> : x --&gt; w}
+          {<span class="nv">g</span> : y --&gt; w}
+          {<span class="nv">h</span> : z --&gt; y}
+          {<span class="nv">k</span> : z --&gt; x}
+          (<span class="nv">p</span> : k · f = h · g)
+          (<span class="nv">Hp</span> : isPullback p).
+
+  <span class="kn">Let</span> <span class="nf">PBfg</span> : Pullback f g := make_Pullback _ Hp.
+  <span class="kn">Let</span> <span class="nf">PBfg'</span> : Pullback f g := PB w x y f g.
+
+  <span class="kn">Definition</span> <span class="nf">has_dependent_sums_chosen_to_dependent_sum_adjequiv</span>
+    : D[{PBfg}] ⟶ D[{PBfg'}].
+  <span class="kn">Proof</span>.
+    use (fiber_functor_from_cleaving D HD).
+    <span class="bp">exact</span> (z_iso_from_Pullback_to_Pullback (PB w x y f g) PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_dependent_sums_chosen_to_dependent_sum_left</span>
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD h
+         ∙ has_dependent_sums_chosen_to_dependent_sum_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr2 (PB w x y f g))).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_dependent_sums_chosen_to_dependent_sum_right</span>
+    : nat_z_iso
+        (fiber_functor_from_cleaving D HD k
+         ∙ has_dependent_sums_chosen_to_dependent_sum_adjequiv)
+        (fiber_functor_from_cleaving D HD (PullbackPr1 (PB w x y f g))).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (nat_z_iso_comp
+              (fiber_functor_from_cleaving_comp_nat_z_iso HD _ _)
+              (fiber_functor_on_eq_nat_z_iso HD _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PBfg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Arguments</span> transportf {X P x x' e} _.
+
+  <span class="kn">Proposition</span> <span class="nf">has_dependent_sums_chosen_to_dependent_sum_eq</span>
+    : left_beck_chevalley_adj_equiv_equality
+        (comm_nat_z_iso HD f g h k p)
+        (comm_nat_z_iso HD _ _ _ _ (PullbackSqrCommutes PBfg'))
+        has_dependent_sums_chosen_to_dependent_sum_adjequiv
+        has_dependent_sums_chosen_to_dependent_sum_left
+        has_dependent_sums_chosen_to_dependent_sum_right.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ww.
+    <span class="nb">cbn</span> -[fiber_functor_from_cleaving_comp_nat_z_iso
+            fiber_functor_on_eq_nat_z_iso
+            fiber_functor_from_cleaving comm_nat_z_iso].
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">cbn</span> -[comm_nat_z_iso].
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> comm_nat_z_iso_ob.
+      }
+      <span class="nb">cbn</span> -[fiber_functor_on_eq].
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comm_nat_z_iso_ob.
+    }
+    etrans.
+    {
+      <span class="nb">cbn</span> -[fiber_functor_on_eq].
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    use (cartesian_factorisation_unique
+           (cartesian_lift_is_cartesian _ _ (HD _ _ _ _))).
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> fiber_functor_on_eq_comm.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">DependentSumWithChosenPB</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_dependent_sums_chosen_to_dependent_sum</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+           (<span class="nv">H</span> : has_dependent_sums_chosen PB HD)
+  : has_dependent_sums HD.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr1 H ,, _).
+  <span class="nb">intros</span> w x y z f g h k p Hp xx.
+  <span class="nb">pose</span> (PBfg := make_Pullback _ Hp).
+  <span class="nb">simple refine</span> (left_beck_chevalley_adj_equiv'
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   _
+                   (pr2 H w x y f g xx)).
+  - <span class="bp">exact</span> (has_dependent_sums_chosen_to_dependent_sum_adjequiv PB HD p Hp).
+  - <span class="nb">apply</span> fiber_functor_cleaving_of_z_iso_adj_equiv.
+  - <span class="nb">apply</span> has_dependent_sums_chosen_to_dependent_sum_left.
+  - <span class="nb">apply</span> has_dependent_sums_chosen_to_dependent_sum_right.
+  - <span class="nb">apply</span> has_dependent_sums_chosen_to_dependent_sum_eq.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/BeckChevalleyChosenSum.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The Beck-Chevalley condition for chosen pullbacks
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

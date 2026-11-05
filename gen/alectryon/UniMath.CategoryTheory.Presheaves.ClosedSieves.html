@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ClosedSieves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Closed sieves</span>
+
+<span class="sd"> Our goal is to define the subobject classifier in the category of sheaves. To do so, we</span>
+<span class="sd"> first recall that the subobject classifier of presheaves is given by the collection of</span>
+<span class="sd"> all sieves. Recall that a sieve on an object `x : C` is given by ` functor</span>
+<span class="sd"> `ω : (C/x)^op` ⟶ hProp`. Concretely, this is a collection of morphisms into `y` that</span>
+<span class="sd"> is downwards closed in the sense that if we have a morphism from `f₁ : y₁ --&gt; x` to</span>
+<span class="sd"> `f₂ : y₂ --&gt; x`, then `f₁` is included in `ω` if `f₂` is.</span>
+
+<span class="sd"> The subobject classifier of sheaves is rather similar, but slightly different. Instead</span>
+<span class="sd"> of looking at all sieves, we only look at the sieves that satisfy a property known as</span>
+<span class="sd"> 'closed'. The subobject classifier of sheaves is defined as the sheaf of closed sieves.</span>
+<span class="sd"> A sieve `ω` is closed if all arrows that cover `ω` are also contained in `ω`.</span>
+
+<span class="sd"> In this file, we define the basic notions and operations for closed sieves. In particular,</span>
+<span class="sd"> we define the closure operation.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Closed sieves</span>
+<span class="sd"> 2. Accessors for closed sieves</span>
+<span class="sd"> 3. Operations on closed sieves</span>
+<span class="sd"> 4. Laws for closed sieves</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ClosedSieves</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}.
+
+  <span class="sd">(** * 1. Closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">y</span> : C) (<span class="nv">f</span> : y --&gt; x), C y (f^* ω) ⇒ ω y f)%logic.
+
+  <span class="kn">Definition</span> <span class="nf">closed_sieve</span>
+             (<span class="nv">x</span> : C)
+    : UU
+    := ∑ (ω : sieve x), is_closed_sieve ω.
+
+  <span class="kn">Definition</span> <span class="nf">make_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+             (<span class="nv">Hω</span> : is_closed_sieve ω)
+    : closed_sieve x
+    := ω ,, Hω.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_closed_sieve</span>
+              (<span class="nv">x</span> : C)
+    : isaset (closed_sieve x).
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> isaset_sieve.
+    - <span class="nb">intro</span> ω.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_of_closed_sieves</span>
+             (<span class="nv">x</span> : C)
+    : hSet.
+  <span class="kn">Proof</span>.
+    use make_hSet.
+    - <span class="bp">exact</span> (closed_sieve x).
+    - <span class="bp">exact</span> (isaset_closed_sieve x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Accessors for closed sieves *)</span>
+  <span class="kn">Coercion</span> <span class="nf">closed_sieve_to_sieve</span>
+           {x : C}
+           (ω : closed_sieve x)
+    : sieve x
+    := pr1 ω.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_closed_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : closed_sieve x)
+    : is_closed_sieve ω.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 ω).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closed_sieve_closed</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : closed_sieve x)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+              (<span class="nv">p</span> : C y (f^* ω))
+    : ω y f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_closed_closed_sieve ω y f p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closed_sieve_eq</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x}
+              (<span class="nv">p</span> : (ω₁ : sieve x) = ω₂)
+    : ω₁ = ω₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sieve_eq_from_closed</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x}
+              (<span class="nv">p</span> : ω₁ = ω₂)
+    : (ω₁ : sieve x) = ω₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths pr1 p).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Operations on closed sieves *)</span>
+  <span class="kn">Definition</span> <span class="nf">truth_closed_sieve</span>
+             (<span class="nv">x</span> : C)
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (truth_sieve x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y f p ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_precomp</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+              (<span class="nv">f</span> : y --&gt; x)
+              (<span class="nv">Hω</span> : is_closed_sieve ω)
+    : is_closed_sieve (f^* ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (Hω z (g · f)).
+    <span class="nb">rewrite</span> comp_precomp_sieve.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_closed_sieve</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">ω</span> : closed_sieve x)
+             (<span class="nv">f</span> : y --&gt; x)
+    : closed_sieve y.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (f^* ω).
+    - <span class="bp">exact</span> (is_closed_precomp ω f (is_closed_closed_sieve ω)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closure_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+    : sieve x.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span>, C _ (f^* ω)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ g₁ g₂ h p q ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">rewrite</span> comp_precomp_sieve ;
+         use site_sieve_stable ;
+         <span class="bp">exact</span> q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_closure_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+    : is_closed_sieve (closure_sieve ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y f p.
+    use (site_trans_sieve p).
+    <span class="nb">intros</span> z g q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- comp_precomp_sieve.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closure_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (closure_sieve ω).
+    - <span class="nb">apply</span> is_closed_closure_sieve.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Laws for closed sieves *)</span>
+  <span class="kn">Proposition</span> <span class="nf">sieve_contains_to_eq_precomp</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+              {<span class="nv">y</span> : C}
+              {<span class="nv">f</span> : y --&gt; x}
+              (<span class="nv">p</span> : ω y f)
+    : f^* ω = truth_sieve y.
+  <span class="kn">Proof</span>.
+    use sieve_eq.
+    - <span class="nb">intros</span>.
+      <span class="bp">exact</span> tt.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> z g _.
+      <span class="bp">exact</span> (#ω ω g (idpath _) p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sieve_contains_closed</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+              (<span class="nv">p</span> : ω y f)
+    : C y (f^* ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (sieve_contains_to_eq_precomp ω p).
+    <span class="nb">apply</span> site_truth_sieve.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closure_sieve_contains</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+              (<span class="nv">p</span> : ω y f)
+    : closure_sieve ω y f.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> sieve_contains_closed.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">contains_closure_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω₁</span> : sieve x)
+              (<span class="nv">ω₂</span> : closed_sieve x)
+              (<span class="nv">H</span> : ∏ (y : C) (f : y --&gt; x), ω₁ y f → ω₂ y f)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+              (<span class="nv">p</span> : closure_sieve ω₁ y f)
+    : ω₂ y f.
+  <span class="kn">Proof</span>.
+    use closed_sieve_closed.
+    use (site_trans_sieve p) ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> w h q.
+    <span class="nb">rewrite</span> &lt;- comp_precomp_sieve.
+    use sieve_contains_closed.
+    <span class="nb">apply</span> H.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closure_closed_sieve_eq</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : closed_sieve x)
+    : closure_sieve ω = ω.
+  <span class="kn">Proof</span>.
+    use sieve_eq.
+    - use contains_closure_sieve.
+      <span class="nb">intros</span> y g p.
+      <span class="bp">exact</span> p.
+    - <span class="nb">intros</span> y g.
+      <span class="nb">apply</span> closure_sieve_contains.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">precomp_closure_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+    : f^* (closure_sieve ω) = closure_sieve (f^* ω).
+  <span class="kn">Proof</span>.
+    use sieve_eq.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> z g p.
+      <span class="nb">rewrite</span> &lt;- comp_precomp_sieve.
+      <span class="bp">exact</span> p.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> z g p.
+      <span class="nb">rewrite</span> comp_precomp_sieve.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closure_closure_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω</span> : sieve x)
+    : closure_sieve (closure_sieve ω) = closure_sieve ω.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (closure_closed_sieve_eq (closure_closed_sieve ω)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closure_monotone</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : sieve x}
+              (<span class="nv">H</span> : ∏ (y : C) (f : y --&gt; x), ω₁ y f → ω₂ y f)
+              {<span class="nv">y</span> : C}
+              (<span class="nv">f</span> : y --&gt; x)
+    : closure_sieve ω₁ y f → closure_sieve ω₂ y f.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> y f.
+    use (contains_closure_sieve ω₁ (closure_closed_sieve ω₂)).
+    <span class="nb">intros</span> y f p.
+    <span class="nb">apply</span> closure_sieve_contains.
+    <span class="nb">apply</span> H.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">closed_sieve_eq_cover</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">ψ</span> : sieve x}
+              (<span class="nv">H</span> : C x ψ)
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x}
+              (<span class="nv">p₁</span> : ∏ (y : C) (f : y --&gt; x), ψ y f → ω₁ y f → ω₂ y f)
+              (<span class="nv">p₂</span> : ∏ (y : C) (f : y --&gt; x), ψ y f → ω₂ y f → ω₁ y f)
+    : ω₁ = ω₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> propproperty.
+    }
+    use sieve_eq ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> y g q.
+      use (closed_sieve_closed ω₂).
+      <span class="nb">apply</span> sieve_contains_closed <span class="k">in</span> q.
+      use site_trans_sieve.
+      + <span class="bp">exact</span> (g^* ψ).
+      + use site_sieve_stable.
+        <span class="bp">exact</span> H.
+      + <span class="nb">intros</span> z h r.
+        <span class="nb">apply</span> sieve_contains_closed.
+        <span class="nb">apply</span> (p₁ z (h · g) r).
+        use (closed_sieve_closed ω₁).
+        <span class="nb">rewrite</span> comp_precomp_sieve.
+        use site_sieve_stable.
+        <span class="bp">exact</span> q.
+    - <span class="nb">intros</span> y g q.
+      use (closed_sieve_closed ω₁).
+      <span class="nb">apply</span> sieve_contains_closed <span class="k">in</span> q.
+      use site_trans_sieve.
+      + <span class="bp">exact</span> (g^* ψ).
+      + use site_sieve_stable.
+        <span class="bp">exact</span> H.
+      + <span class="nb">intros</span> z h r.
+        <span class="nb">apply</span> sieve_contains_closed.
+        <span class="nb">apply</span> (p₂ z (h · g) r).
+        use (closed_sieve_closed ω₂).
+        <span class="nb">rewrite</span> comp_precomp_sieve.
+        use site_sieve_stable.
+        <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ClosedSieves</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/ClosedSieves.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Laws for closed sieves
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.PosetCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

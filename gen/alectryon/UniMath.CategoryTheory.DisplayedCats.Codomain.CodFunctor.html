@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Pseudofunctoriality of the arrow category</span>
+
+<span class="sd"> We have a pseudofunctor that assigns to every category its arrow category. In this file,</span>
+<span class="sd"> we look at this construction.</span>
+
+<span class="sd"> We show that whenever we have a functor `F` from a category `C₁` to a category `C₂`, then we</span>
+<span class="sd"> also have a displayed functor between their codomain displayed categories. The obtained</span>
+<span class="sd"> functor is cartesian if `F` preserves pullbacks, and we show that this functor preserves</span>
+<span class="sd"> finite limits in the fiber category. We also show how a natural transformation gives rise</span>
+<span class="sd"> to a displayed natural transformation.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Displayed functor between codomain displayed categories</span>
+<span class="sd"> 2. Displayed natural transformation between codomain displayed categories</span>
+<span class="sd"> 3. Cartesianness of the displayed functor</span>
+<span class="sd"> 4. Preservation of limits</span>
+<span class="sd"> 5. Preservation of colimits</span>
+<span class="sd"> 6. Naturality for the slice of terminal objects</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Displayed functor between codomain displayed categories *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_on_cod_fib</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">y</span> : C₁}
+           (<span class="nv">f</span> : C₁/y)
+  : C₂/F y
+  := make_cod_fib_ob (#F (cod_mor f)).
+
+<span class="kn">Definition</span> <span class="nf">functor_on_cod_fib_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">y</span> : C₁}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : C₁/y}
+           (<span class="nv">h</span> : f₁ --&gt; f₂)
+  : functor_on_cod_fib F f₁ --&gt; functor_on_cod_fib F f₂.
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - <span class="bp">exact</span> (#F(dom_mor h)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> (mor_eq h)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_codomain_functor_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : disp_functor_data F (disp_codomain C₁) (disp_codomain C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">yf</span>, functor_on_cod_fib F yf).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">yf₁</span> <span class="nv">yf₂</span> <span class="nv">g</span> <span class="nv">hp</span>, #F (pr1 hp) ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> &lt;- !functor_comp ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (pr2 hp)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_codomain_functor_axioms</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : disp_functor_axioms (disp_codomain_functor_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x yf.
+    use eq_cod_mor.
+    <span class="nb">rewrite</span> transportb_cod_disp.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x₁ x₂ y₃ yf₁ yf₂ yf₃ f₁ f₂ gp₁ gp₂.
+    use eq_cod_mor.
+    <span class="nb">rewrite</span> transportb_cod_disp.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_codomain_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : disp_functor F (disp_codomain C₁) (disp_codomain C₂).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (disp_codomain_functor_data F).
+  - <span class="bp">exact</span> (disp_codomain_functor_axioms F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">codomain_functor</span>
+  {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+  (<span class="nv">F</span> : C₁ ⟶ C₂)
+  (<span class="nv">x</span> : C₁)
+  : (C₁ / x) ⟶ (C₂ / F x).
+<span class="kn">Proof</span>.
+  use fiber_functor.
+  use disp_codomain_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_codomain_fiber_functor_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">x</span> : C₁)
+            {<span class="nv">f</span> <span class="nv">g</span> : C₁/x}
+            (<span class="nv">h</span> : f --&gt; g)
+  : dom_mor (#(fiber_functor (disp_codomain_functor F) x) h)
+    =
+    #F(dom_mor h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> ; <span class="nb">unfold</span> dom_mor.
+  <span class="nb">rewrite</span> transportf_cod_disp.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Displayed natural transformation between codomain displayed categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_codomain_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+  : disp_nat_trans τ (disp_codomain_functor F) (disp_codomain_functor G).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">xf</span>, τ _ ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">apply</span> (!(nat_trans_ax τ _ _ _))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ g xf₁ xf₂ p ;
+       use eq_cod_mor ;
+       <span class="nb">rewrite</span> transportb_cod_disp ;
+       <span class="nb">apply</span> (nat_trans_ax τ _ _ _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Cartesianness of the displayed functor *)</span>
+<span class="kn">Definition</span> <span class="nf">is_cartesian_disp_codomain_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : preserves_pullback F)
+  : is_cartesian_disp_functor (disp_codomain_functor F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f xx yy ff H.
+  use isPullback_cartesian_in_cod_disp.
+  <span class="bp">exact</span> (HF _ _ _ _ _ _ _ _ _ _ (cartesian_isPullback_in_cod_disp _ H)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_disp_codomain_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : preserves_pullback F)
+  : cartesian_disp_functor F (disp_codomain C₁) (disp_codomain C₂).
+<span class="kn">Proof</span>.
+  use make_cartesian_disp_functor.
+  - <span class="bp">exact</span> (disp_codomain_functor F).
+  - <span class="bp">exact</span> (is_cartesian_disp_codomain_functor F HF).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   Laws for naturality of the fiber functor</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">codomain_fiber_functor_natural_nat_z_iso_pr1</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">PB₁</span> : Pullbacks C₁)
+            (<span class="nv">PB₂</span> : Pullbacks C₂)
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_pullback F)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">h</span> : C₁/y)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₂)
+         (cartesian_disp_codomain_functor F HF)
+         f
+         h)
+    · PullbackPr1 (functor_preserves_pullback_on_pullback _ HF _ _)
+    =
+    PullbackPr1 _.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+             (make_Pullback
+                _
+                (HF _ _ _ _ _ _
+                   _ _
+                   _
+                   _
+                   (cartesian_isPullback_in_cod_disp
+                      (disp_codomain_cleaving PB₁ y x f h)
+                      (disp_codomain_cleaving PB₁ y x f h))))).
+  }
+  <span class="bp">exact</span> (transportf_cod_disp
+           C₂
+           _
+           (disp_codomain_cleaving
+              PB₂
+              (F y) (F x) (#F f)
+              (cartesian_disp_codomain_functor F HF y h))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">codomain_fiber_functor_natural_nat_z_iso_pr2</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">PB₁</span> : Pullbacks C₁)
+            (<span class="nv">PB₂</span> : Pullbacks C₂)
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_pullback F)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">h</span> : C₁/y)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₂)
+         (cartesian_disp_codomain_functor F HF)
+         f
+         h)
+    · PullbackPr2 (functor_preserves_pullback_on_pullback _ HF _ _)
+    =
+    PullbackPr2 _.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2
+             (make_Pullback
+                _
+                (HF _ _ _ _ _ _
+                   _ _
+                   _
+                   _
+                   (cartesian_isPullback_in_cod_disp
+                      (disp_codomain_cleaving PB₁ y x f h)
+                      (disp_codomain_cleaving PB₁ y x f h))))).
+  }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Preservation of limits *)</span>
+<span class="kn">Proposition</span> <span class="nf">preserves_terminal_fiber_disp_codomain_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">x</span> : C₁)
+  : preserves_terminal (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y Hy.
+  use isTerminal_codomain_fib ; <span class="nb">cbn</span>.
+  use functor_on_is_z_isomorphism.
+  <span class="bp">exact</span> (is_z_iso_from_isTerminal_codomain _ Hy).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_binproduct_fiber_disp_codomain_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_pullback F)
+            (<span class="nv">x</span> : C₁)
+  : preserves_binproduct (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y₁ y₂ z π₁ π₂ H.
+  use isPullback_to_isBinProduct_cod_fib.
+  <span class="nb">apply</span> isBinProduct_to_isPullback_cod_fib <span class="k">in</span> H.
+  use (isPullback_mor_paths _ _ _ _ _ _ (HF _ _ _ _ _ _ _ _ _ _ H)).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> &lt;- !functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (fib_isPullback π₁ π₂).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_equalizer_fiber_disp_codomain_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_equalizer F)
+            (<span class="nv">x</span> : C₁)
+  : preserves_equalizer (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y₁ y₂ z f g e p Fp H.
+  <span class="nb">assert</span> (# F (dom_mor e) · # F (dom_mor f) = # F (dom_mor e) · # F (dom_mor g)) <span class="k">as</span> q.
+  {
+    <span class="nb">refine</span> (!(functor_comp F _ _) @ _ @ functor_comp F _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> dom_mor.
+    <span class="bp">exact</span> (!(comp_in_cod_fib _ _) @ maponpaths dom_mor p @ comp_in_cod_fib _ _).
+  }
+  use to_isEqualizer_cod_fib.
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !disp_codomain_fiber_functor_mor ;
+       <span class="bp">exact</span> q).
+  - use (isEqualizer_eq
+           _ _ _ _ _
+           (HF _ _ _ _ _ _ _ _ (from_isEqualizer_cod_fib _ _ _ _ _ H))).
+    + <span class="bp">exact</span> q.
+    + <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">unfold</span> dom_mor.
+      <span class="bp">exact</span> (!(comp_in_cod_fib _ _) @ maponpaths dom_mor p @ comp_in_cod_fib _ _).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Preservation of colimits *)</span>
+<span class="kn">Proposition</span> <span class="nf">preserves_initial_fiber_disp_codomain_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">I</span> : Initial C₁)
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_initial F)
+            (<span class="nv">x</span> : C₁)
+  : preserves_initial (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  use preserves_initial_if_preserves_chosen.
+  - <span class="bp">exact</span> (initial_cod_fib x I).
+  - use (iso_to_Initial (initial_cod_fib _ (make_Initial _ (HF _ (pr2 I))))).
+    use z_iso_fiber_from_z_iso_disp.
+    use make_z_iso_disp.
+    + use make_cod_fib_mor.
+      * <span class="nb">apply</span> identity.
+      * <span class="kp">abstract</span>
+          (use InitialArrowEq).
+    + use is_z_iso_disp_codomain.
+      <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_bincoproduct_fiber_disp_codomain_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">HC₁</span> : BinCoproducts C₁)
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">HF</span> : preserves_bincoproduct F)
+            (<span class="nv">x</span> : C₁)
+  : preserves_bincoproduct (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  use preserves_bincoproduct_if_preserves_chosen.
+  - <span class="bp">exact</span> (bincoproducts_cod_fib x HC₁).
+  - <span class="nb">intros</span> y₁ y₂.
+    use to_bincoproduct_slice.
+    <span class="nb">pose</span> (HC₁ (cod_dom y₁) (cod_dom y₂)) <span class="k">as</span> coprod.
+    <span class="nb">pose</span> (HF _ _ _ _ _ (isBinCoproduct_BinCoproduct _ coprod))
+      <span class="k">as</span> Fcoprod.
+    use (isBinCoproduct_eq_arrow _ _ Fcoprod).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> disp_codomain_fiber_functor_mor ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> disp_codomain_fiber_functor_mor ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Naturality for the slice of terminal objects *)</span>
+<span class="kn">Definition</span> <span class="nf">cod_fib_terminal_to_base_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : preserves_terminal F)
+           (<span class="nv">T₁</span> : Terminal C₁)
+           (<span class="nv">T₂</span> := make_Terminal _ (HF _ (pr2 T₁)))
+  : fiber_functor (disp_codomain_functor F) T₁ ∙ cod_fib_terminal_to_base T₂
+    ⟹
+    cod_fib_terminal_to_base T₁ ∙ F.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       <span class="nb">rewrite</span> id_right, id_left ;
+       <span class="nb">cbn</span> ; <span class="nb">unfold</span> dom_mor ;
+       <span class="nb">rewrite</span> transportf_cod_disp ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_fib_terminal_to_base_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : preserves_terminal F)
+           (<span class="nv">T₁</span> : Terminal C₁)
+           (<span class="nv">T₂</span> := make_Terminal _ (HF _ (pr2 T₁)))
+  : nat_z_iso
+      (fiber_functor (disp_codomain_functor F) T₁ ∙ cod_fib_terminal_to_base T₂)
+      (cod_fib_terminal_to_base T₁ ∙ F).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (cod_fib_terminal_to_base_nat_trans F HF T₁).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodFunctor.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Naturality for the slice of terminal objects
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FreeMonoidTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Free Monoid Theory</span>
+
+<span class="sd">  One can construct an algebraic theory T by taking T(n) to be the free monoid on n generators. Then</span>
+<span class="sd">  the type of algebras for this algebraic theory is equivalent to the type of monoids.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of the algebraic theory [free_monoid_theory]</span>
+<span class="sd">  2. The functor from monoids to algebras [monoid_to_algebra]</span>
+<span class="sd">  3. Constructing a monoid from an algebra [free_monoid_theory_algebra_to_monoid]</span>
+<span class="sd">  4. The equivalence of categories between algebras and monoids [monoid_algebra_equivalence]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Export</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Free_Monoids_and_Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.IteratedBinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Monoid.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Examples.FreeObjectTheory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> vec_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The definition of the algebraic theory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory</span>
+  : algebraic_theory
+  := free_object_theory monoid_free_forgetful_adjunction.
+
+<span class="sd">(** * 2. The functor from monoids to algebras *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_to_algebra</span>
+  : monoid_category ⟶ algebra_cat free_monoid_theory
+  := free_object_algebra_functor monoid_free_forgetful_adjunction.
+
+<span class="sd">(** * 3. Constructing a monoid from an algebra *)</span>
+
+<span class="kn">Definition</span> <span class="nf">op_el</span>
+  : free_monoid_theory <span class="mi">2</span>
+  := op
+    (free_monoid_unit (X := stnset _) (make_stn <span class="mi">2</span> <span class="mi">0</span> (idpath _)))
+    (free_monoid_unit (X := stnset _) (make_stn <span class="mi">2</span> <span class="mi">1</span> (idpath _))).
+
+<span class="kn">Definition</span> <span class="nf">unit_el</span>
+  : free_monoid_theory <span class="mi">0</span>
+  := unel (free_monoid _).
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory_algebra_to_setwithbinop</span>
+  (<span class="nv">A</span> : algebra free_monoid_theory)
+  : setwithbinop.
+<span class="kn">Proof</span>.
+  use make_setwithbinop.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">intros</span> a b.
+    <span class="bp">exact</span> (action op_el (weqvecfun _ [(a ; b)])).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">move_action_through_weqvecfun</span>
+  {<span class="nv">A</span> : algebra free_monoid_theory}
+  {<span class="nv">n</span> : nat}
+  {<span class="nv">f</span> <span class="nv">g</span> : free_monoid_theory n}
+  (<span class="nv">h</span> : stn n → A)
+  : weqvecfun _ [( action f h ; action g h )] = <span class="k">λ</span> <span class="nv">i</span>, action (weqvecfun _  [(f ; g)] i) h.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> (invmaponpathsweq (invweq (weqvecfun _))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_theory_algebra_to_setwithbinop_op_is_assoc</span>
+  (<span class="nv">A</span> : algebra free_monoid_theory)
+  : isassoc (op (X := free_monoid_theory_algebra_to_setwithbinop A)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c.
+  <span class="nb">pose</span> (f := weqvecfun _ [(a ; b ; c)]).
+  <span class="nb">pose</span> (Hf := <span class="k">λ</span> <span class="nv">i</span> <span class="nv">Hi</span>, !(var_action _ (make_stn <span class="mi">3</span> i Hi) f)).
+  <span class="nb">cbn</span> -[weqvecfun action].
+  <span class="nb">rewrite</span> (Hf <span class="mi">0</span> (idpath true) : a = _),
+    (Hf <span class="mi">1</span> (idpath true) : b = _),
+    (Hf <span class="mi">2</span> (idpath true) : c = _).
+  <span class="bp">now</span> <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> (move_action_through_weqvecfun f), &lt;- subst_action.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory_algebra_to_unit</span> (<span class="nv">A</span> : algebra free_monoid_theory)
+  : A
+  := action unit_el (weqvecfun _ [()]).
+
+<span class="kn">Lemma</span> <span class="nf">free_monoid_theory_algebra_to_isunit</span> (<span class="nv">A</span> : algebra free_monoid_theory)
+  : isunit
+    (op (X := free_monoid_theory_algebra_to_setwithbinop A))
+    (free_monoid_theory_algebra_to_unit A).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>;
+    <span class="nb">intro</span> x;
+    <span class="nb">cbn</span> -[weqvecfun action];
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (var_action _ (make_stn <span class="mi">1</span> <span class="mi">0</span> (idpath _)) (<span class="k">λ</span> <span class="nv">_</span>, x)),
+      &lt;- (lift_constant_action <span class="mi">1</span> _ (<span class="k">λ</span> <span class="nv">_</span>, x) : _ = free_monoid_theory_algebra_to_unit A),
+      (move_action_through_weqvecfun (<span class="k">λ</span> <span class="nv">_</span>, x)),
+      &lt;- subst_action.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory_algebra_to_setwithbinop_op_is_unital</span>
+  (<span class="nv">A</span> : algebra free_monoid_theory)
+  : isunital (op (X := free_monoid_theory_algebra_to_setwithbinop A))
+  := _ ,, free_monoid_theory_algebra_to_isunit A.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory_algebra_to_setwithbinop_op_is_monoidop</span>
+  (<span class="nv">A</span> : algebra free_monoid_theory)
+  : ismonoidop (op (X := free_monoid_theory_algebra_to_setwithbinop A))
+  := free_monoid_theory_algebra_to_setwithbinop_op_is_assoc A ,,
+    free_monoid_theory_algebra_to_setwithbinop_op_is_unital A.
+
+<span class="kn">Definition</span> <span class="nf">free_monoid_theory_algebra_to_monoid</span> (<span class="nv">A</span> : algebra free_monoid_theory)
+  : monoid
+  := free_monoid_theory_algebra_to_setwithbinop A ,,
+    free_monoid_theory_algebra_to_setwithbinop_op_is_monoidop A.
+
+<span class="sd">(** * 4. The equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">fully_faithful_monoid_to_algebra</span>
+  : fully_faithful monoid_to_algebra.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> M M'.
+  use isweq_iso.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">f</span> : algebra_morphism _ _), _).
+    <span class="nb">refine</span> (make_monoidfun (f := f) _).
+    <span class="kp">abstract</span> (
+      use make_ismonoidfun;
+      [ <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">m'</span>, mor_action f op_el (weqvecfun _ [(m ; m')]))
+      | <span class="bp">exact</span> (mor_action f unit_el (weqvecfun _ [()])) ]
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> f;
+      <span class="bp">now</span> <span class="nb">apply</span> monoidfun_eq
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> f;
+      <span class="bp">now</span> <span class="nb">apply</span> algebra_morphism_eq
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mor_action_ax_identity</span>
+  (<span class="nv">A</span> : algebra free_monoid_theory)
+  (<span class="nv">n</span> : nat)
+  (<span class="nv">f</span> : free_monoid_theory n)
+  (<span class="nv">a</span> : stn n → (monoid_to_algebra (free_monoid_theory_algebra_to_monoid A) : algebra _))
+  : mor_action_ax (identity _) (idfun A)
+    (@action free_monoid_theory
+      (monoid_to_algebra (free_monoid_theory_algebra_to_monoid A) : algebra _))
+    (@action free_monoid_theory A) n f a.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (A' := monoid_to_algebra (free_monoid_theory_algebra_to_monoid A) : algebra _).
+  <span class="nb">apply</span> (list_ind (<span class="k">λ</span> <span class="nv">x</span>, action (A := A') x a = action (A := A) x a)).
+  - <span class="bp">exact</span> (!(lift_constant_action (A := A) _ (unel (free_monoid _)) a)).
+  - <span class="nb">intros</span> i xs Haction.
+    <span class="nb">refine</span> (subst_action A' op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
+    <span class="nb">refine</span> (subst_action A op_el (weqvecfun _ [(free_monoid_unit i ; xs)]) a @ !_).
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (move_action_through_weqvecfun (A := A) a),
+      &lt;- Haction,
+      (var_action A _ _ :
+        action (free_monoid_unit i : free_monoid_theory n) _ = _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_algebra_equivalence</span>
+  : adj_equivalence_of_cats monoid_to_algebra.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> rad_equivalence_of_cats.
+  - <span class="nb">apply</span> is_univalent_monoid_category.
+  - <span class="nb">apply</span> fully_faithful_monoid_to_algebra.
+  - <span class="nb">intro</span> A.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">free_monoid_theory_algebra_to_monoid</span> <span class="nv">A</span>).
+    use make_algebra_z_iso.
+    + <span class="nb">apply</span> identity_z_iso.
+    + <span class="nb">apply</span> mor_action_ax_identity.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/Examples/FreeMonoidTheory.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. The equivalence of categories between algebras and monoids [monoid_algebra_equivalence]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Export UniMath.Algebra.BinaryOperations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

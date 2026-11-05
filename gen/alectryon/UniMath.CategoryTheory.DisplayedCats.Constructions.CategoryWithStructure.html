@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryWithStructure.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The construction of a  displayed category with structure on objects and a proposition on morphisms</span>
+
+<span class="sd">  The full machinery of displayed categories allows for arbitrary complexity on both objects and</span>
+<span class="sd">  morphisms (any category can be considered a displayed category over the unit category). However,</span>
+<span class="sd">  in most practical cases, a displayed category is given by some additional structure on the</span>
+<span class="sd">  objects, and for the morphisms a proposition, stating that they preserve the structure. This class</span>
+<span class="sd">  of displayed categories is slightly easier to construct, because there are less axioms to verify.</span>
+<span class="sd">  Note that often, one can prove univalence for such a category using `SIP.v`.</span>
+<span class="sd">  This construction is inspired by the Structure Identity Principle of the HoTT book (Section 9.8).</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. A displayed category from structure on objects and compatibility on morphisms [disp_struct]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Displayed category from structure on objects and compatibility on morphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">struct_hom</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : category.
+<span class="kn">Variable</span> <span class="nv">P</span> : ob C -&gt; UU.
+<span class="kn">Variable</span> <span class="nv">H</span> : ∏ (x y : C), P x → P y → C⟦x,y⟧ → UU.
+<span class="kn">Arguments</span> H {_ _} _ _ _ .
+<span class="kn">Variable</span> <span class="nv">Hisprop</span> : ∏ x y a b (f : C⟦x,y⟧), isaprop (H a b f).
+<span class="kn">Variable</span> <span class="nv">Hid</span> : ∏ (x : C) (a : P x), H a a (identity _ ).
+<span class="kn">Variable</span> <span class="nv">Hcomp</span> : ∏ (x y z : C) a b c (f : C⟦x,y⟧) (g : C⟦y,z⟧),
+                 H a b f → H b c g → H a c (f · g).
+
+<span class="kn">Definition</span> <span class="nf">disp_struct_ob_mor</span> : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">P</span>.
+  <span class="nb">intros</span> ? ? f a b; <span class="bp">exact</span> (H f a b ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_struct_id_comp</span> : disp_cat_id_comp _ disp_struct_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> Hid.
+  - <span class="nb">eapply</span> Hcomp. <span class="nb">apply</span> X. <span class="nb">apply</span> X0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_struct_data</span> : disp_cat_data C := _ ,, disp_struct_id_comp.
+
+<span class="kn">Definition</span> <span class="nf">disp_struct</span> : disp_cat C.
+<span class="kn">Proof</span>.
+  use make_disp_cat_locally_prop.
+  - <span class="bp">exact</span> disp_struct_data.
+  - <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> Hisprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">struct_hom</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Constructions/CategoryWithStructure.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   1. A displayed category from structure on objects and compatibility on morphisms [disp_struct]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

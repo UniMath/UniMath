@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ContinuationModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> The continuation model of the enriched effect calculus</span>
+
+<span class="sd"> In this file, we formalize Example 6.10 from the following paper:</span>
+
+<span class="sd">   http://www.itu.dk/people/mogel/papers/eec.pdf</span>
+
+<span class="sd"> The example considers a specific model of the enriched effect calculus</span>
+<span class="sd"> such that the monad associated to the adjunction is the continuation</span>
+<span class="sd"> monad. Most of the building blocks of the model are already present in</span>
+<span class="sd"> other files, namely limits and colimits in the self-enriched category</span>
+<span class="sd"> and limits and colimits in the opposite enriched category. The only</span>
+<span class="sd"> missing part is the construction of the required adjunction.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Continuation adjunction</span>
+<span class="sd"> 1.1. The functors</span>
+<span class="sd"> 1.2. The unit and counit</span>
+<span class="sd"> 1.3. The adjunction</span>
+<span class="sd"> 2. The continuation model</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentAdjunction.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.OppositeEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.Examples.SelfEnrichedLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.Examples.OppositeEnrichedLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.Examples.SelfEnrichedColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.Examples.OppositeEnrichedColimits.
+<span class="kn">Require Import</span> UniMath.Semantics.EnrichedEffectCalculus.EECModel.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Continuation adjunction</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ContinuationAdjunction</span>.
+  <span class="kn">Context</span> (<span class="nv">VC</span> : category)
+          (<span class="nv">TV</span> : Terminal VC)
+          (<span class="nv">VP</span> : BinProducts VC)
+          (<span class="nv">IV</span> : Initial VC)
+          (<span class="nv">VCP</span> : BinCoproducts VC)
+          (<span class="nv">expV</span> : Exponentials VP)
+          (<span class="nv">V</span> : sym_mon_closed_cat := sym_mon_closed_cartesian_cat VC VP TV expV)
+          (<span class="nv">r</span> : V).
+
+  <span class="kn">Opaque</span> V.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.1. The functors</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">continuation_functor_data</span>
+    : functor_data V (V^opp).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, y ⊸ r).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, internal_precomp f r).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_functor_laws</span>
+    : is_functor continuation_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y.
+      <span class="nb">apply</span> internal_precomp_id.
+    - <span class="nb">intros</span> y₁ y₂ y₃ f g.
+      <span class="nb">apply</span> internal_precomp_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_functor</span>
+    : V ⟶ V^opp.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> continuation_functor_data.
+    - <span class="bp">exact</span> continuation_functor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_functor_enrichment_laws</span>
+    : @is_functor_enrichment
+        V V (V ^opp)
+        continuation_functor
+        (self_enrichment V)
+        (op_enrichment V (self_enrichment V))
+        (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, internal_lam (sym_mon_braiding V _ _ · internal_comp x y r)).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span> x.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> internal_id.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_lunitor.
+        <span class="nb">apply</span> idpath.
+      }
+      use internal_funext.
+      <span class="nb">intros</span> a' h'.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">unfold</span> internal_id.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- mon_triangle.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> internal_beta.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> tensor_comp_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> a h.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> internal_comp.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">unfold</span> internal_comp.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">unfold</span> internal_comp.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split'.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !tensor_comp_l_id_r.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">clear</span> a h.
+      <span class="nb">rewrite</span> mon_lassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> sym_mon_hexagon_lassociator.
+      }
+      <span class="nb">apply</span> lassociator_hexagon_two.
+    - <span class="nb">intros</span> x y f.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_from_arr.
+      <span class="nb">rewrite</span> !internal_beta.
+      use internal_funext.
+      <span class="nb">intros</span> a' h'.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">unfold</span> internal_precomp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> tensor_comp_l_id_r.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> &lt;- mon_triangle.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+      <span class="nb">rewrite</span> tensor_lunitor.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_functor_enrichment</span>
+    : functor_enrichment
+        continuation_functor
+        (self_enrichment V)
+        (op_enrichment V (self_enrichment V)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, internal_lam (sym_mon_braiding _ _ _ · internal_comp _ _ _)).
+    - <span class="bp">exact</span> continuation_functor_enrichment_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_functor_op_data</span>
+    : functor_data (V^opp) V.
+  <span class="kn">Proof</span>.
+    use make_functor_data ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, y ⊸ r).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, internal_precomp f r).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_functor_op_laws</span>
+    : is_functor continuation_functor_op_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> internal_precomp_id.
+    - <span class="nb">intros</span> y₁ y₂ y₃ f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> internal_precomp_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_functor_op</span>
+    : V^opp ⟶ V.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> continuation_functor_op_data.
+    - <span class="bp">exact</span> continuation_functor_op_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_functor_op_enrichment_laws</span>
+    : @is_functor_enrichment
+        V (V ^opp) V
+        continuation_functor_op
+        (op_enrichment V (self_enrichment V))
+        (self_enrichment V)
+        (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, internal_lam (sym_mon_braiding V _ _ · internal_comp _ _ _)).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (pr1 continuation_functor_enrichment_laws x).
+    - <span class="nb">intros</span> x y z.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr12 continuation_functor_enrichment_laws z y x).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> sym_mon_braiding_inv.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> x y f.
+      <span class="bp">exact</span> (pr22 continuation_functor_enrichment_laws y x f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_functor_op_enrichment</span>
+    : functor_enrichment
+        continuation_functor_op
+        (op_enrichment V (self_enrichment V))
+        (self_enrichment V).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, internal_lam (sym_mon_braiding _ _ _ · internal_comp _ _ _)).
+    - <span class="bp">exact</span> continuation_functor_op_enrichment_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.2. The unit and counit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction_unit_data</span>
+    : nat_trans_data
+        (functor_identity V)
+        (continuation_functor ∙ continuation_functor_op)
+    := <span class="k">λ</span> <span class="nv">x</span>, internal_lam (sym_mon_braiding _ _ _ · internal_eval _ _).
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_unit_laws</span>
+    : is_nat_trans _ _ continuation_adjunction_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> continuation_adjunction_unit_data.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">unfold</span> internal_precomp.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- tensor_split'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction_unit</span>
+    : functor_identity V
+      ⟹
+      continuation_functor ∙ continuation_functor_op.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> continuation_adjunction_unit_data.
+    - <span class="bp">exact</span> continuation_adjunction_unit_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_unit_enrichment</span>
+    : nat_trans_enrichment
+        continuation_adjunction_unit
+        (functor_id_enrichment (self_enrichment V))
+        (functor_comp_enrichment
+           continuation_functor_enrichment
+           continuation_functor_op_enrichment).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> continuation_adjunction_unit_data.
+    <span class="nb">rewrite</span> self_enrichment_precomp.
+    <span class="nb">rewrite</span> self_enrichment_postcomp.
+    <span class="nb">rewrite</span> id_left.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">apply</span> idpath.
+    }
+    use internal_funext.
+    <span class="nb">intros</span> a' h'.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !internal_beta.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> !tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> tensor_comp_l_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">clear</span> a h a' h'.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- sym_mon_hexagon_lassociator.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> lassociator_hexagon_two.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_counit_laws</span>
+    : is_nat_trans
+        (continuation_functor_op ∙ continuation_functor)
+        (functor_identity (V^opp))
+        continuation_adjunction_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> continuation_adjunction_unit_data.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> continuation_adjunction_unit_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction_counit</span>
+    : continuation_functor_op ∙ continuation_functor
+      ⟹
+      functor_identity (V^opp).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> continuation_adjunction_unit_data.
+    - <span class="bp">exact</span> continuation_adjunction_counit_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_counit_enrichment</span>
+    : nat_trans_enrichment
+        continuation_adjunction_counit
+        (functor_comp_enrichment
+           continuation_functor_op_enrichment
+           continuation_functor_enrichment)
+        (functor_id_enrichment (op_enrichment V (self_enrichment V))).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y.
+    <span class="nb">pose</span> (nat_trans_enrichment_to_comp
+            continuation_adjunction_unit_enrichment
+            y x)
+      <span class="k">as</span> p.
+    <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> op_enrichment_postcomp.
+    <span class="nb">rewrite</span> op_enrichment_precomp.
+    <span class="bp">exact</span> (!p).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.3. The adjunction</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction_data</span>
+    : adjunction_data V (V^opp).
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> continuation_functor.
+    - <span class="bp">exact</span> continuation_functor_op.
+    - <span class="bp">exact</span> continuation_adjunction_unit.
+    - <span class="bp">exact</span> continuation_adjunction_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_triangle</span>
+              (<span class="nv">x</span> : V)
+    : continuation_adjunction_unit_data (x ⊸ r)
+      · internal_precomp (continuation_adjunction_unit_data x) r
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> continuation_adjunction_unit_data.
+    use internal_funext.
+    <span class="nb">intros</span> a h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">unfold</span> internal_precomp.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuation_adjunction_laws</span>
+    : form_adjunction' continuation_adjunction_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (continuation_adjunction_triangle x).
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (continuation_adjunction_triangle x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction</span>
+    : adjunction V (V^opp).
+  <span class="kn">Proof</span>.
+    use make_adjunction.
+    - <span class="bp">exact</span> continuation_adjunction_data.
+    - <span class="bp">exact</span> continuation_adjunction_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_adjunction_enrichment</span>
+    : adjunction_enrichment
+        continuation_adjunction
+        (self_enrichment V)
+        (op_enrichment V (self_enrichment V)).
+  <span class="kn">Proof</span>.
+    use make_adjunction_enrichment.
+    - <span class="bp">exact</span> continuation_functor_enrichment.
+    - <span class="bp">exact</span> continuation_functor_op_enrichment.
+    - <span class="bp">exact</span> continuation_adjunction_unit_enrichment.
+    - <span class="bp">exact</span> continuation_adjunction_counit_enrichment.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">continuation_enriched_adjunction</span>
+    : enriched_adjunction
+        (self_enrichment V)
+        (op_enrichment V (self_enrichment V))
+    := continuation_adjunction ,, continuation_adjunction_enrichment.
+<span class="kn">End</span> <span class="nf">ContinuationAdjunction</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The continuation model</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ContinuationModel</span>.
+  <span class="kn">Context</span> (<span class="nv">VC</span> : category)
+          (<span class="nv">TV</span> : Terminal VC)
+          (<span class="nv">VP</span> : BinProducts VC)
+          (<span class="nv">IV</span> : Initial VC)
+          (<span class="nv">VCP</span> : BinCoproducts VC)
+          (<span class="nv">expV</span> : Exponentials VP)
+          (<span class="nv">V</span> : sym_mon_closed_cat := sym_mon_closed_cartesian_cat VC VP TV expV)
+          (<span class="nv">r</span> : V).
+
+  <span class="kn">Definition</span> <span class="nf">continuation_eec_model</span>
+    : eec_model
+    := VC
+       ,,
+       TV
+       ,,
+       VP
+       ,,
+       expV
+       ,,
+       (VC^opp)
+       ,,
+       op_enrichment _ (self_enrichment V)
+       ,,
+       continuation_enriched_adjunction V TV VP expV r
+       ,,
+       opposite_terminal_enriched _ (self_enrichment_initial V IV)
+       ,,
+       opposite_initial_enriched _ (self_enrichment_terminal V TV)
+       ,,
+       opposite_enrichment_power _ (self_enrichment_copowers V)
+       ,,
+       opposite_enrichment_copower _ (self_enrichment_powers V)
+       ,,
+       (opposite_enrichment_binary_prod
+          (self_enrichment V)
+          (self_enrichment_binary_coproducts V VCP))
+       ,,
+       (opposite_enrichment_binary_coprod
+          (self_enrichment V)
+          (self_enrichment_binary_products V VP)).
+
+  <span class="kn">Definition</span> <span class="nf">continuation_eec_plus_model</span>
+    : eec_plus_model
+    := continuation_eec_model ,, IV ,, VCP.
+<span class="kn">End</span> <span class="nf">ContinuationModel</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/EnrichedEffectCalculus/ContinuationModel.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The continuation model
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

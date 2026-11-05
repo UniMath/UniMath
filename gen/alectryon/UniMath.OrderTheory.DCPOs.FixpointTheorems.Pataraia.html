@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pataraia.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************</span>
+
+<span class="sd"> Pataraia's fixpoint theorem</span>
+
+<span class="sd"> In this file, we formalize Pataraia's fixpoint theorem for DCPOs.</span>
+<span class="sd"> This theorem says that monotone function on a DCPO has a fixpoint.</span>
+
+<span class="sd"> There are two fundamental notions required for this proof. The</span>
+<span class="sd"> first one is the notion of progressive maps. A map `f` is called</span>
+<span class="sd"> progressive if for all `x` we have `x ⊑ f x`. The second one is</span>
+<span class="sd"> the notion of post fixpoints. A post fixpoint for a map `f` is a</span>
+<span class="sd"> point `x` such that `x ⊑ f x`.</span>
+
+<span class="sd"> The key observation of the proof is that every DCPO has a largest</span>
+<span class="sd"> progressive map [largest_progressive_map]. This is so because the</span>
+<span class="sd"> progressive maps form a directed set and thus one can take the</span>
+<span class="sd"> least upperbound.</span>
+
+<span class="sd"> One can then look at the largest progressive map on  the DCPO of</span>
+<span class="sd"> post fixpoints for a function `f` ([post_fixpoint_dcpo]). By</span>
+<span class="sd"> applying this map to the bottom element, one acquires the desired</span>
+<span class="sd"> fixpoint.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Theorem 3.2 in On the Bourbaki–Witt principle in toposes https://arxiv.org/abs/1201.0340</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Progressive maps</span>
+<span class="sd"> 2. Examples of progressive maps</span>
+<span class="sd"> 3. Every DCPO has a largest progressive map</span>
+<span class="sd"> 4. The DCPO of post fixpoints</span>
+<span class="sd"> 5. Pataraia's fixpoint theorem</span>
+
+<span class="sd"> ******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Products.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.SubDCPO.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Progressive maps</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_progressive</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function X X)
+  : hProp
+  := <span class="k">∀</span> (<span class="nv">x</span> : X), x ⊑ f x.
+
+<span class="kn">Definition</span> <span class="nf">progressive_map</span>
+           (<span class="nv">X</span> : dcpo)
+  : UU
+  := ∑ (f : monotone_function X X), is_progressive f.
+
+<span class="kn">Coercion</span> <span class="nf">monotone_function_of_progressive_map</span>
+         {X : dcpo}
+         (f : progressive_map X)
+  : monotone_function X X
+  := pr1 f.
+
+<span class="kn">Proposition</span> <span class="nf">progressive_map_is_progressive</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">f</span> : progressive_map X)
+  : is_progressive f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_progressive_map</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function X X)
+           (<span class="nv">Hf</span> : is_progressive f)
+  : progressive_map X
+  := f ,, Hf.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Examples of progressive maps</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_progressive_id</span>
+            (<span class="nv">X</span> : dcpo)
+  : is_progressive (id_monotone_function X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_progressive_map</span>
+           (<span class="nv">X</span> : dcpo)
+  : progressive_map X.
+<span class="kn">Proof</span>.
+  use make_progressive_map.
+  - <span class="bp">exact</span> (id_monotone_function X).
+  - <span class="nb">apply</span> is_progressive_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_progressive_comp</span>
+            {<span class="nv">X</span> : dcpo}
+            {<span class="nv">f</span> <span class="nv">g</span> : monotone_function X X}
+            (<span class="nv">Hf</span> : is_progressive f)
+            (<span class="nv">Hg</span> : is_progressive g)
+  : is_progressive (comp_monotone_function f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (trans_dcpo (Hf x) (Hg (f x))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_progressive_map</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">f</span> <span class="nv">g</span> : progressive_map X)
+  : progressive_map X.
+<span class="kn">Proof</span>.
+  use make_progressive_map.
+  - <span class="bp">exact</span> (comp_monotone_function f g).
+  - <span class="bp">exact</span> (is_progressive_comp (pr2 f) (pr2 g)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_progressive_lub</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">D</span> : directed_set (monotone_map_dcpo X X))
+            (<span class="nv">HD</span> : ∏ (d : D), is_progressive (D d))
+  : is_progressive (⨆ D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">assert</span> (H := directed_set_el D).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> d.
+  use less_than_dcpo_lub.
+  - <span class="bp">exact</span> d.
+  - <span class="bp">exact</span> (HD d x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_directed_progressive_maps</span>
+            (<span class="nv">X</span> : dcpo)
+  : is_directed
+      (monotone_map_dcpo X X)
+      (<span class="k">λ</span> (<span class="nv">f</span> : progressive_map X), pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span> id_progressive_map.
+  - <span class="nb">intros</span> f g.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">refine</span> (comp_progressive_map f g ,, _ ,, _).
+    + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (progressive_map_is_progressive g (f x)).
+    + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (pr1 g).
+      <span class="nb">apply</span> (progressive_map_is_progressive f x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Every DCPO has a largest progressive map</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">directed_set_progressive_maps</span>
+           (<span class="nv">X</span> : dcpo)
+  : directed_set (monotone_map_dcpo X X).
+<span class="kn">Proof</span>.
+  use make_directed_set.
+  - <span class="bp">exact</span> (progressive_map X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, pr1 f).
+  - <span class="bp">exact</span> (is_directed_progressive_maps X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">largest_progressive_map_monotone</span>
+           (<span class="nv">X</span> : dcpo)
+  : monotone_map_dcpo X X
+  := ⨆ directed_set_progressive_maps X.
+
+<span class="kn">Definition</span> <span class="nf">largest_progressive_map</span>
+           (<span class="nv">X</span> : dcpo)
+  : progressive_map X.
+<span class="kn">Proof</span>.
+  use make_progressive_map.
+  - <span class="bp">exact</span> (largest_progressive_map_monotone X).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> is_progressive_lub ;
+       <span class="nb">intro</span> d ;
+       <span class="nb">apply</span> progressive_map_is_progressive).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">le_largest_progressive_map</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">f</span> : progressive_map X)
+            (<span class="nv">x</span> : X)
+  : f x ⊑ largest_progressive_map X x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (less_than_dcpo_lub
+           (directed_set_progressive_maps X)
+           (pr1 f)
+           f
+           (refl_dcpo _)
+           x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The DCPO of post fixpoints</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lub_post_fixpoint</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">f</span> : monotone_function X X)
+            (<span class="nv">D</span> : directed_set X)
+            (<span class="nv">HD</span> : ∏ (d : D), D d ⊑ f (D d))
+  : ⨆ D ⊑ f (⨆ D).
+<span class="kn">Proof</span>.
+  use dcpo_lub_is_least.
+  <span class="nb">intro</span> d.
+  <span class="nb">refine</span> (trans_dcpo (HD d) _).
+  <span class="nb">apply</span> f.
+  use less_than_dcpo_lub.
+  - <span class="bp">exact</span> d.
+  - <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_fixpoint_dcpo</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function X X)
+  : dcpo
+  := sub_dcpo X (<span class="k">λ</span> <span class="nv">x</span>, x ⊑ f x) (lub_post_fixpoint f).
+
+<span class="kn">Definition</span> <span class="nf">restriction_to_post_fixpoint</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">f</span> : monotone_function X X)
+  : progressive_map (post_fixpoint_dcpo f).
+<span class="kn">Proof</span>.
+  use make_progressive_map.
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, f (pr1 x) ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> f ;
+         <span class="nb">apply</span> (pr2 x)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ p ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> f ;
+         <span class="bp">exact</span> p).
+  - <span class="kp">abstract</span> (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr2 x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bot_post_fixpoint</span>
+           {<span class="nv">X</span> : dcppo}
+           (<span class="nv">f</span> : monotone_function X X)
+  : post_fixpoint_dcpo f
+  := ⊥_{X} ,, is_min_bottom_dcppo _.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Pataraia's fixpoint theorem</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PataraiaFixpoint</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcppo}
+          (<span class="nv">f</span> : monotone_function X X).
+
+  <span class="kn">Let</span> <span class="nf">m</span> : progressive_map (post_fixpoint_dcpo f)
+    := largest_progressive_map (post_fixpoint_dcpo f).
+
+  <span class="kn">Proposition</span> <span class="nf">pataraia_fixpoint_compose_lemma</span>
+              (<span class="nv">g</span> : progressive_map (post_fixpoint_dcpo f))
+              (<span class="nv">x</span> : post_fixpoint_dcpo f)
+    : g(m x) = m x.
+  <span class="kn">Proof</span>.
+    use antisymm_dcpo.
+    - <span class="nb">pose</span> (le_largest_progressive_map
+               (comp_progressive_map m g)
+               x)
+        <span class="k">as</span> p.
+      <span class="nb">refine</span> (trans_dcpo _ p).
+      <span class="nb">cbn</span> -[largest_progressive_map].
+      <span class="nb">apply</span> refl_dcpo.
+    - <span class="bp">exact</span> (progressive_map_is_progressive g (m x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pataraia_fixpoint</span>
+    : X
+    := pr1 (m (bot_post_fixpoint f)).
+
+  <span class="kn">Proposition</span> <span class="nf">is_fixpoint_pataraia_fixpoint</span>
+    : f pataraia_fixpoint = pataraia_fixpoint.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> pataraia_fixpoint.
+    <span class="nb">pose</span> (p := maponpaths
+                 pr1
+                 (pataraia_fixpoint_compose_lemma
+                    (restriction_to_post_fixpoint f)
+                    (bot_post_fixpoint f))).
+    <span class="nb">refine</span> (p @ _).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PataraiaFixpoint</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/FixpointTheorems/Pataraia.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Pataraia's fixpoint theorem
+  &gt;
+  &gt;  ******************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

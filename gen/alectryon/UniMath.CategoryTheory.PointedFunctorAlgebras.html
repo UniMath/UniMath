@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedFunctorAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  PointedFunctorAlgebras</span>
+
+<span class="sd">  An algebra for a pointed endofunctor (F, σ : 1 ⟹ F) is an object X with a structure map F(X) ⟶ X</span>
+<span class="sd">  which restricts to id on σ_X : X ⟶ F(X).</span>
+
+<span class="sd">  This file contains the transfinite construction (due to Kelly) of the free-algebra for a</span>
+<span class="sd">  *well-pointed*, ω-cocontinuous endofunctor, and the free-forgetful adjunction. There are also</span>
+<span class="sd">  connections to reflective subcategories (idempotent monads).</span>
+
+<span class="sd">  References:</span>
+<span class="sd">  * `nLab: transfinite construction of free algebras https://ncatlab.org/nlab/show/transfinite+construction+of+free+algebras</span>
+<span class="sd">  * `Max Kelly, A unified treatment of transfinite constructions for free algebras, free monoids, colimits, associated sheaves, and so on https://www.cambridge.org/core/journals/bulletin-of-the-australian-mathematical-society/article/unified-treatment-of-transfinite-constructions-for-free-algebras-free-monoids-colimits-associated-sheaves-and-so-on/FE2E25E4959E4D8B4DE721718E7F55EE</span>
+<span class="sd">  </span>
+<span class="sd">  Contents</span>
+<span class="sd">  1. Definitions</span>
+<span class="sd">  1.1. Pointed endofunctors</span>
+<span class="sd">  1.2. Well-pointedness</span>
+<span class="sd">  1.3. Pointed endofunctor algebras (algebras for a pointed endofunctor)</span>
+<span class="sd">  1.4. The category of pointed endofunctor algebras [ptd_alg_category] [forget_ptd_alg]</span>
+<span class="sd">  2. Properties of algebras for well-pointed endofunctors</span>
+<span class="sd">  2.1. Structure maps are iso-inverses [well_pointed_point_is_z_iso_at_algebra] </span>
+<span class="sd">  2.2. Any morphism is a morphism of algebras [well_pointed_mor_is_algebra_mor] </span>
+<span class="sd">  2.3. The forgetful functor is fully-faithful [well_pointed_forgetul_fully_faithful] </span>
+<span class="sd">  3. The transfinite construction</span>
+<span class="sd">  3.1. The directed colimit A --&gt; F(A) --&gt; F^2(A) --&gt; ... F^ω(A)</span>
+<span class="sd">  3.2. The shift map F(F^ω A) --&gt; F^ω A [shift_iter_map]</span>
+<span class="sd">  3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]</span>
+<span class="sd">  3.4. The free functor C ⟶ ptd_alg_category F [free_ptd_alg]</span>
+<span class="sd">  3.5. The free-forgetful adjunction [free_ptd_alg_forgetful_form_adjunction]</span>
+<span class="sd">  4. Reflective subcategories give well-pointed endofunctors</span>
+<span class="sd">    [well_pointed_of_fully_faithful_right_adjoint]</span>
+
+<span class="sd">  started September 2024</span>
+<span class="sd">  Billy Snikkers</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(*</span>
+<span class="c">To rewrite x to x' in x · y = z, use</span>
+<span class="c">rw_left_comp h.</span>
+<span class="c">where h has conclusion x = x'.</span>
+<span class="c">*)</span>
+<span class="kn">Tactic Notation</span> <span class="s2">"rw_left_comp"</span> <span class="kp">constr</span>(e) :=
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, x · _ = _) <span class="kp">ltac</span>:(<span class="nb">apply</span> e)).
+<span class="c">(* Similarly `rw_right_comp h` uses h to rewrite x to x' in y · x = z *)</span>
+<span class="kn">Tactic Notation</span> <span class="s2">"rw_right_comp"</span> <span class="kp">constr</span>(e) :=
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, _ · x = _) <span class="kp">ltac</span>:(<span class="nb">apply</span> e)).
+
+<span class="sd">(** 1. Definitions *)</span>
+
+<span class="sd">(** 1.1. Pointed endofunctors *)</span>
+
+<span class="sd">(** A pointed endofunctor F comes with a natural transformation 1 ⟹ F *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_endofunctor</span> (<span class="nv">C</span> : category) : UU := ∑ F : C ⟶ C, functor_identity C ⟹ F.
+
+#[reversible=no] <span class="kn">Coercion</span> <span class="nf">pointed_endofunctor_endofunctor</span>
+  {C : category} (X : pointed_endofunctor C) : C ⟶ C := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">make_pointed_endofunctor</span> {<span class="nv">C</span> : category}
+    (<span class="nv">F</span> : C ⟶ C) (<span class="nv">σ</span> : functor_identity C ⟹ F)
+  : pointed_endofunctor C := (F,,σ).
+
+<span class="sd">(** The *point* of a pointed endofunctor *)</span>
+<span class="kn">Definition</span> <span class="nf">point</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : pointed_endofunctor C) : functor_identity C ⟹ F := pr2 F.
+
+<span class="sd">(** Easier to use than nat_trans_ax since no identity functor is mentioned *)</span>
+<span class="kn">Definition</span> <span class="nf">point_naturality</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : pointed_endofunctor C) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y)
+  : (f · point F y = point F x · # F f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_ax (point F)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 1.2. Well-pointedness</span>
+<span class="sd">  A well-pointed functor (F,,σ) satisfies Fσ = σF, i.e. for every A : C, the two</span>
+<span class="sd">  ways of constructing a morphism F A --&gt; F (F A) coincide.</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">well_pointed</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : pointed_endofunctor C)
+  : UU
+  := pre_whisker F (point F) = post_whisker (point F) F.
+
+<span class="sd">(** In practice we use this pointwise version, which is also easier to read *)</span>
+<span class="kn">Definition</span> <span class="nf">well_pointed_pointwise</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : pointed_endofunctor C}
+  : well_pointed F → ∏ A : C, point F (F A) = #F (point F A)
+  := <span class="k">λ</span> <span class="nv">H</span> <span class="nv">A</span>, nat_trans_eq_pointwise H A.
+
+<span class="sd">(** 1.3. Pointed endofunctor algebras (algebras for a pointed endofunctor)</span>
+<span class="sd">  Endofunctors, pointed-endofunctors, monads all have associated categories</span>
+<span class="sd">  of algebras, consisting of a structure map obeying some subset of the</span>
+<span class="sd">  laws for the algebras of a monad. These algebra-categories must be disambiguated,</span>
+<span class="sd">  since a monad is a pointed endofunctor is an endofunctor. The terminology</span>
+<span class="sd">  "algebras for the pointed endofunctor F" achieves this, but is a bit long.</span>
+<span class="sd">  We call them "pointed algebras" here (or ptd_alg) for brevity, but we note</span>
+<span class="sd">  the potentional for confusion: the algebras themselves don't have a "point",</span>
+<span class="sd">  i.e. they aren't equipped with a morphisms 1 --&gt; X.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">PointedAlgebras</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : pointed_endofunctor C).
+
+<span class="kn">Let</span> <span class="nf">σ</span> := point F.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_data</span> : UU := ∑ X : C, F X --&gt; X.
+
+<span class="kn">Definition</span> <span class="nf">make_ptd_alg_data</span>
+  : ∏ X : C, (F X --&gt; X) → ptd_alg_data
+  := tpair (<span class="k">λ</span> <span class="nv">X</span>, F X --&gt; X).
+
+<span class="sd">(** This coercion is convenient for this file. Be aware of it. *)</span>
+#[reversible=no] <span class="kn">Coercion</span> <span class="nf">ptd_alg_carrier</span> (X : ptd_alg_data) : C := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_map</span> (<span class="nv">X</span> : ptd_alg_data) : F X --&gt; X := pr2 X.
+
+<span class="kn">Definition</span> <span class="nf">is_ptd_alg</span> (<span class="nv">X</span> : ptd_alg_data) : UU := (σ X) · (ptd_alg_map X) = identity X.
+
+<span class="sd">(** A pointed algebra for (F,σ) is a pair (a : F X --&gt; X)</span>
+<span class="sd">  which is a retraction of the point map, i.e., σ_X · a = id_X</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">ptd_alg</span> : UU := ∑ X : ptd_alg_data, is_ptd_alg X.
+
+#[reversible=no] <span class="kn">Coercion</span> <span class="nf">ptd_alg_data_from_ptd_alg</span> (X : ptd_alg) : ptd_alg_data := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">make_ptd_alg</span> (<span class="nv">X</span> : C) (<span class="nv">s</span> : F X --&gt; X) (<span class="nv">r</span> : σ X · s = identity X)
+  : ptd_alg
+  := (make_ptd_alg_data X s,, r).
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_law</span> (<span class="nv">X</span> : ptd_alg) : σ X · (ptd_alg_map X) = identity X := pr2 X.
+
+<span class="sd">(** 1.4. The category of pointed endofunctor algebras [ptd_alg_category] [forget_ptd_alg] *)</span>
+
+<span class="kn">Section</span> <span class="nf">ptd_alg_precategory_data</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_ptd_alg_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg) (<span class="nv">f</span> : X --&gt; Y) : UU
+  := ptd_alg_map X · f = #F f · ptd_alg_map Y.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg) : UU
+  := ∑ f : X --&gt; Y, is_ptd_alg_mor X Y f.
+
+<span class="kn">Definition</span> <span class="nf">make_ptd_alg_mor</span> {<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg} (<span class="nv">f</span> : X --&gt; Y) (<span class="nv">p</span> : is_ptd_alg_mor X Y f)
+  : ptd_alg_mor X Y := (f,,p).
+
+#[reversible=no] <span class="kn">Coercion</span> <span class="nf">mor_from_ptd_alg_mor</span> {X Y : ptd_alg} (f : ptd_alg_mor X Y)
+  : X --&gt; Y := pr1 f.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_mor_commutes</span> {<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg} (<span class="nv">f</span> : ptd_alg_mor X Y)
+  : ptd_alg_map X · f = #F f · ptd_alg_map Y := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_mor_id</span> (<span class="nv">X</span> : ptd_alg) : ptd_alg_mor X X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_ptd_alg_mor <span class="k">with</span> (identity X).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_ptd_alg_mor; <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_right, id_left).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_mor_comp</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ptd_alg) (<span class="nv">f</span> : ptd_alg_mor X Y) (<span class="nv">g</span> : ptd_alg_mor Y Z)
+  : ptd_alg_mor X Z.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_ptd_alg_mor <span class="k">with</span> (f · g).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_ptd_alg_mor;
+            <span class="nb">rewrite</span> assoc;
+            <span class="nb">rewrite</span> ptd_alg_mor_commutes;
+            <span class="nb">rewrite</span> &lt;- assoc;
+            <span class="nb">rewrite</span> ptd_alg_mor_commutes;
+            <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp, assoc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_ptd_alg_ob_mor</span> : precategory_ob_mor
+  := make_precategory_ob_mor ptd_alg ptd_alg_mor.
+
+<span class="kn">Definition</span> <span class="nf">precategory_ptd_alg_data</span> : precategory_data
+  := make_precategory_data precategory_ptd_alg_ob_mor ptd_alg_mor_id ptd_alg_mor_comp.
+
+<span class="kn">End</span> <span class="nf">ptd_alg_precategory_data</span>.
+
+<span class="kn">End</span> <span class="nf">PointedAlgebras</span>.
+
+<span class="kn">Section</span> <span class="nf">PointedAlgebraCategory</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : pointed_endofunctor C).
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_mor_eq</span> {<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg F} (<span class="nv">f</span> <span class="nv">g</span> : ptd_alg_mor F X Y)
+  : (f : X --&gt; Y) = g ≃ f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invweq.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span> h.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precategory_ptd_alg_data</span> : is_precategory (precategory_ptd_alg_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_precategory_one_assoc; <span class="nb">intros</span>; <span class="nb">apply</span> ptd_alg_mor_eq.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_precat</span> : precategory
+  := make_precategory (precategory_ptd_alg_data F) is_precategory_precategory_ptd_alg_data.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_pointed_alegbra</span> : has_homsets ptd_alg_precat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> f.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ptd_alg_category</span> : category
+  := make_category ptd_alg_precat has_homsets_pointed_alegbra.
+
+<span class="sd">(** The functor which forgets the pointed algebra stucture on the underlying object *)</span>
+<span class="kn">Definition</span> <span class="nf">forget_ptd_alg</span> : ptd_alg_category ⟶ C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (ptd_alg_carrier F).
+    + <span class="nb">simpl</span>. <span class="nb">intros</span> X Y. <span class="bp">exact</span> (mor_from_ptd_alg_mor F).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">red</span>; <span class="bp">now</span> <span class="nb">intros</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PointedAlgebraCategory</span>.
+
+<span class="sd">(** 2. Properties of algebras for well-pointed endofunctors</span>
+
+<span class="sd">The notion of algebra for a pointed endofunctor F involves adding *structure* to a carrier object</span>
+<span class="sd">X : C, i.e. a map F X --&gt; X which is a retraction of the point at X, σ_X : X --&gt; F X.</span>
+<span class="sd">Here we discover that when F is well-pointed, such a map is also a section of σ_X, and so this</span>
+<span class="sd">structure degenerates to a *property* of X, i.e. is σ_X iso?</span>
+
+<span class="sd">In fact, this makes the category of pointed algebras for F into a reflective subcategory of C.</span>
+<span class="sd">We will see later, that any reflective subcategory induces an idempotent monad, which is in</span>
+<span class="sd">particular, a well-pointed endofunctor, and the algebras for this well-pointed endofunctor recover</span>
+<span class="sd">the reflective subcategory.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Section</span> <span class="nf">AlgebrasWellPointed</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">F</span> : pointed_endofunctor C).
+<span class="kn">Context</span> (<span class="nv">H</span> : well_pointed F).
+
+<span class="kn">Let</span> <span class="nf">σ</span> := point F.
+<span class="kn">Let</span> <span class="nf">H'</span> := well_pointed_pointwise H.
+
+<span class="sd">(** 2.1. Structure maps are iso-inverses [well_pointed_point_is_z_iso_at_algebra]</span>
+<span class="sd">If X is a pointed algebra for (F, σ) (well-pointed), then σ_X : X --&gt; F X is iso.</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">well_pointed_point_is_z_iso_at_algebra</span> (<span class="nv">X</span> : ptd_alg F) : is_z_isomorphism (σ X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_z_isomorphism <span class="k">with</span> (ptd_alg_map F X).
+  <span class="nb">split</span>.
+  <span class="c">(* σ_X ⋅ s = id_X is the axiom for pointed algebras *)</span>
+  - <span class="nb">apply</span> ptd_alg_law.
+  <span class="c">(* s · σ_X = id_{FX} follows from naturality + well-pointedness + law for pointed algebras *)</span>
+  - <span class="nb">rewrite</span> point_naturality.
+    <span class="nb">rewrite</span> H'.
+    <span class="nb">refine</span> (! functor_comp F _ _ @ _).
+    <span class="nb">rewrite</span> &lt;- functor_id.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ptd_alg_law.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** There is at most one pointed algebra structure on a given X : C. *)</span>
+<span class="kn">Corollary</span> <span class="nf">well_pointed_has_ptd_alg_isaprop</span> (<span class="nv">A</span> : C)
+  : isaprop (∑ a : F A --&gt; A, (σ A) · a = identity A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance; <span class="nb">red</span>. <span class="nb">intros</span> [a ar] [b br].
+  <span class="nb">apply</span> subtypeInjectivity; <span class="nb">simpl</span>. { <span class="nb">intros</span> f. <span class="nb">apply</span> homset_property. }
+  <span class="nb">set</span> (isc := (well_pointed_point_is_z_iso_at_algebra (make_ptd_alg F A a ar))).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj isc); <span class="nb">simpl</span>.
+  <span class="bp">exact</span> (ar @ ! br).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 2.2. Any morphism is a morphism of algebras [well_pointed_mor_is_algebra_mor]  *)</span>
+<span class="kn">Corollary</span> <span class="nf">well_pointed_mor_is_algebra_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : ptd_alg F) (<span class="nv">f</span> : C ⟦ X, Y ⟧)
+  : is_ptd_alg_mor F X Y f.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">set</span> (point_X_iso := make_z_iso' _ (well_pointed_point_is_z_iso_at_algebra X)).
+  <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj point_X_iso); <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> assoc, assoc.
+  rw_left_comp (ptd_alg_law F X). <span class="nb">apply</span> pathsinv0.
+  rw_left_comp (! point_naturality F f).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  rw_right_comp (ptd_alg_law F Y).
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 2.3. The forgetful functor is fully-faithful [well_pointed_forgetul_fully_faithful] *)</span>
+
+<span class="sd">(** For a well-pointed algebra F, its category of pointed algebras can be viewed as a subcategory</span>
+<span class="sd">of C via the forgetful functor, because it is fully-faithful. The transfinite construction</span>
+<span class="sd">will exhibit a left adjoint, making this a reflective subcategory. *)</span>
+<span class="kn">Lemma</span> <span class="nf">well_pointed_forgetul_fully_faithful</span> : fully_faithful (forget_ptd_alg F).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> isweq_iso <span class="k">with</span> (<span class="k">λ</span> <span class="nv">f</span>, make_ptd_alg_mor F f (well_pointed_mor_is_algebra_mor X Y f)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span>; <span class="bp">now</span> <span class="nb">apply</span> ptd_alg_mor_eq).
+  - <span class="kp">abstract</span> <span class="bp">easy</span>. 
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Being in the (strict) image of the forgetful functor is a proposition. *)</span>
+<span class="kn">Lemma</span> <span class="nf">well_pointed_image_forgetful_isaprop</span>
+  : ∏ A : C, isaprop (∑ X : ptd_alg F, forget_ptd_alg F X = A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="c">(* We reduce to showing this proposition is equivalent to the previous one *)</span>
+  <span class="nb">refine</span> (isofhlevelweqf <span class="mi">1</span> _ (well_pointed_has_ptd_alg_isaprop A)).
+  use weq_iso.
+  <span class="c">(* These constructions are almost definitionally inverse *)</span>
+  - <span class="nb">intros</span> [a ar].
+    <span class="k">exists</span> (<span class="nv">make_ptd_alg</span> <span class="nv">F</span> <span class="nv">A</span> <span class="nv">a</span> <span class="nv">ar</span>).
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> [X h].
+    <span class="nb">induction</span> h.
+    <span class="k">exists</span> (<span class="nv">ptd_alg_map</span> <span class="nv">F</span> <span class="nv">X</span>).
+    <span class="nb">apply</span> ptd_alg_law.
+  - <span class="bp">easy</span>.
+  - <span class="bp">now</span> <span class="nb">intros</span> [X h]; <span class="nb">induction</span> h.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlgebrasWellPointed</span>.
+
+<span class="sd">(** The transfinite construction</span>
+<span class="sd">For F : C ⟶ C well-pointed, we have a fully-faithful inclusion of ptd_alg_category F into C.</span>
+<span class="sd">We will show that F-Alg is actually reflective in C by constructing its left-adjoint, the free</span>
+<span class="sd">pointed-algebra functor.</span>
+
+<span class="sd">We handle only the Κ=ℕ case of the transfinite-construction, where C is assumed to have Κ-filtered</span>
+<span class="sd">colimits, and F preserves them. This means C has colimits of ℕ-indexed diagrams of the form</span>
+<span class="sd">X_0 --&gt; X_1 --&gt; X_2 --&gt; ..., and F preserves them.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">TransfiniteConstruction</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">chain_colimits</span> : Chains C).
+<span class="kn">Context</span> (<span class="nv">F</span> : pointed_endofunctor C).
+<span class="kn">Context</span> (<span class="nv">F_omega_cocont</span> : is_omega_cocont F).
+<span class="sd">(** We will also assume F is well-pointed, but that is not needed just yet *)</span>
+
+<span class="kn">Let</span> <span class="nf">σ</span> := point F.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F '^' i"</span> := (iter_functor F i).
+
+<span class="kn">Definition</span> <span class="nf">iter_chain_mor</span> (<span class="nv">i</span> : nat)
+  : F^i ⟹ F^(S i).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> i <span class="k">as</span> [|i IHi].
+  - <span class="bp">exact</span> σ.
+  - <span class="bp">exact</span> (post_whisker IHi F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This property of the chain morphisms is definitional, but important conceptually. *)</span>
+<span class="kn">Definition</span> <span class="nf">iter_chain_mor_shift</span> (<span class="nv">i</span> : nat) (<span class="nv">A</span> : C)
+  : iter_chain_mor (S i) A = # F (iter_chain_mor i A)
+  := idpath _.
+
+<span class="sd">(** The diagram Id --&gt; F --&gt; FF --&gt; ..., in [C,C] where the ith morphism is F^i (σ(-)) *)</span>
+<span class="kn">Definition</span> <span class="nf">iter_chain</span> : chain [C, C].
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_diagram <span class="k">with</span> (<span class="k">λ</span> <span class="nv">i</span>, F ^ i).
+  <span class="nb">intros</span> i _ []. <span class="bp">exact</span> (iter_chain_mor i).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The diagram A --&gt; F(A) --&gt; FF(A) --&gt; ..., in C where the ith morphism is F^i (σ A) *)</span>
+<span class="kn">Definition</span> <span class="nf">iter_chain_at</span> (<span class="nv">A</span> : C) : chain C.
+<span class="kn">Proof</span>. 
+  <span class="nb">apply</span> make_diagram <span class="k">with</span> (<span class="k">λ</span> <span class="nv">i</span>, (F ^ i) A).
+  <span class="nb">intros</span> i _ []. <span class="bp">exact</span> (iter_chain_mor i A).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** 3.1. The directed colimit A --&gt; F(A) --&gt; F^2(A) --&gt; ... F^ω(A) *)</span>
+<span class="kn">Let</span> <span class="nf">CC</span> : ∏ A : C, ColimCocone (iter_chain_at A)
+  := <span class="k">λ</span> <span class="nv">A</span>, chain_colimits _.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'F^ω'"</span> := (<span class="k">λ</span> <span class="nv">A</span>, colim (CC A)) (<span class="kn">at level</span> <span class="mi">0</span>).
+
+<span class="sd">(**</span>
+<span class="sd">  F is ω-cocontinuous, so applying F gives us a new colimiting cocone of the mapped diagram</span>
+<span class="sd">  F(A) -&gt; F(FA) -&gt; F(FFA) -&gt; ...</span>
+<span class="sd">  with vertex F(F^ω A).</span>
+<span class="sd">*)</span>
+<span class="kn">Let</span> <span class="nf">F_CC</span> : ∏ A : C, ColimCocone (mapchain F (iter_chain_at A))
+  := <span class="k">λ</span> <span class="nv">A</span>, make_ColimCocone _ _ _
+            (F_omega_cocont _ _ _ (isColimCocone_from_ColimCocone (CC A))).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'FF^ω'"</span> := (<span class="k">λ</span> <span class="nv">A</span>, colim (F_CC A)) (<span class="kn">at level</span> <span class="mi">0</span>).
+
+<span class="sd">(** 3.2. The shift map F(F^ω A) --&gt; F^ω A [shift_iter_map]</span>
+
+<span class="sd">  We want a structure map of the form F(F^ω A) --&gt; F^ω A.</span>
+<span class="sd">  Since F(F^ω A) is a colimit, it suffices to construct a cocone</span>
+<span class="sd">    F(A) --&gt; F^ω A</span>
+<span class="sd">    F(FA) --&gt; F^ω A</span>
+<span class="sd">    F(FFA) --&gt; F^ω A</span>
+<span class="sd">    ...</span>
+<span class="sd">  and the (1+i)th map of the colimiting cone for F^ω A has the correct form,</span>
+<span class="sd">  since F(F^i(A)) = F^(1+i) A definitionally.</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">shift_iter_cocone</span> (<span class="nv">A</span> : C)
+  : cocone (mapchain F (iter_chain_at A)) (F^ω A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_cocone <span class="k">with</span> (<span class="k">λ</span> <span class="nv">i</span>, colimIn (CC A) (S i)).
+  <span class="kp">abstract</span> (<span class="nb">intros</span> i _ []; <span class="bp">exact</span> (colimInCommutes (CC A) (S i) _ (idpath (S (S i))))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">shift_iter_map</span> (<span class="nv">A</span> : C) : F (F^ω A) --&gt; (F^ω A)
+  := colimArrow (F_CC A) (F^ω A) (shift_iter_cocone A).
+
+<span class="sd">(** The structure map restricted to F(F^i A) is the inclusion F^(1+i) A --&gt; F^ω A *)</span>
+<span class="kn">Definition</span> <span class="nf">shift_iter_map_restricts</span> (<span class="nv">A</span> : C) (<span class="nv">i</span> : nat)
+  : colimIn (F_CC A) i · shift_iter_map A = (colimIn (CC A)) (S i)
+  := colimArrowCommutes _ _ _ _.
+
+<span class="sd">(** Alternative to previous *)</span>
+<span class="kn">Definition</span> <span class="nf">shift_iter_map_restricts'</span> (<span class="nv">A</span> : C) (<span class="nv">i</span> : nat)
+  : # F (colimIn (CC A) i) · shift_iter_map A = (colimIn (CC A)) (S i)
+  := shift_iter_map_restricts A i.
+
+<span class="sd">(**</span>
+<span class="sd">  We need F to be well-pointed to prove (F^ω A, shift_iter_map A) forms a pointed</span>
+<span class="sd">  algebra (this is the only place well-pointedness is used, but many things follow)</span>
+<span class="sd">  Dependency chain is:</span>
+<span class="sd">  F_well_pointed</span>
+<span class="sd">    =&gt; iter_chain_mor_is_point</span>
+<span class="sd">    =&gt; shift_iter_map_forms_ptd_alg</span>
+<span class="sd">    =&gt; free_ptd_alg_ob =&gt; free_ptd_alg</span>
+<span class="sd">  </span>
+<span class="sd">  The pointed algebra law is then used to construct the cocone for the counit</span>
+<span class="sd">  (see free_ptd_alg_counit_forms_cocone).</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">TransfiniteConstructionWellPointed</span>.
+
+<span class="kn">Context</span> (<span class="nv">F_well_pointed</span> : well_pointed F).
+
+<span class="sd">(** Since F is well-pointed, the chain morphisms are all points, i.e. F^i σ = σ F^i *)</span>
+<span class="kn">Lemma</span> <span class="nf">iter_chain_mor_is_point</span> (<span class="nv">i</span> : nat) (<span class="nv">A</span> : C) : iter_chain_mor i A = σ ((F ^ i) A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">induction</span> i.
+  - <span class="bp">exact</span> (idpath _).
+  - <span class="bp">exact</span> (well_pointed_pointwise F_well_pointed ((F ^ i) A) @ maponpaths (#F) IHi).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 3.3. The shift map forms a pointed algebra [shift_iter_map_forms_ptd_alg]</span>
+<span class="sd">  The structure map restricts to the identity via σ (F^ω A),</span>
+<span class="sd">  thus making (F^ω A, shift_iter_map A) a pointed algebra.</span>
+<span class="sd">  Not surprising, since the structure map is a colimit of components of σ</span>
+<span class="sd">*)</span>
+<span class="kn">Lemma</span> <span class="nf">shift_iter_map_forms_ptd_alg</span> (<span class="nv">A</span> : C)
+  : is_ptd_alg F (make_ptd_alg_data F (F^ω A) (shift_iter_map A)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_ptd_alg; <span class="nb">simpl</span>.
+  <span class="nb">set</span> (s := shift_iter_map A).
+
+  <span class="nb">apply</span> pathsinv0, colim_endo_is_identity.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> assoc.
+  <span class="c">(* α_A^i · σ_{F^ω A} · s = σ_{F^i A} · F (α_A^i) · s *)</span>
+  <span class="nb">rewrite</span> point_naturality.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="c">(* ... = σ_{F^i A} · α_A^(1+i) *)</span>
+  <span class="nb">rewrite</span> shift_iter_map_restricts'.
+  <span class="nb">simpl</span>. <span class="nb">rewrite</span> &lt;- iter_chain_mor_is_point. <span class="c">(* well-pointedness used here! *)</span>
+  <span class="c">(* ... = α_A^i *)</span>
+  <span class="nb">apply</span> (colimInCommutes (CC A) i (<span class="mi">1</span>+i) (idpath _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 3.4. The free functor C ⟶ ptd_alg_category F [free_ptd_alg] *)</span>
+
+<span class="sd">(** The free pointed algebra on A, (F^ω A, shift_iter_map A) *)</span>
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_ob</span> (<span class="nv">A</span> : C) : ptd_alg F
+  := make_ptd_alg F (F^ω A) (shift_iter_map A) (shift_iter_map_forms_ptd_alg A).
+
+<span class="sd">(**</span>
+<span class="sd">  The free functor action on morphisms, given by the canonical map between the colimits</span>
+<span class="sd">  NOTE: this is the underlying morphism in C, not in the category of algebras</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_mor</span> {<span class="nv">A</span> <span class="nv">B</span> : C} (<span class="nv">f</span> : A --&gt; B)
+  : C ⟦ free_ptd_alg_ob A, free_ptd_alg_ob B ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> colimOfArrows <span class="k">with</span> (<span class="k">λ</span> <span class="nv">i</span>, # (F ^ i) f).
+  <span class="nb">intros</span> i _ []; <span class="nb">simpl</span>.
+  <span class="nb">induction</span> i.
+  + <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, point_naturality).
+  + <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp; <span class="nb">apply</span> maponpaths; <span class="bp">exact</span> IHi).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_mor_restricts</span> {<span class="nv">A</span> <span class="nv">B</span> : C} (<span class="nv">f</span> : A --&gt; B) (<span class="nv">i</span> : nat)
+  : colimIn (CC A) i · free_ptd_alg_mor f = # (F ^ i) f · colimIn (CC B) i
+  := colimArrowCommutes _ _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_mor_is_mor</span> {<span class="nv">A</span> <span class="nv">B</span> : C} (<span class="nv">f</span> : A --&gt; B)
+  : is_ptd_alg_mor F _ _ (free_ptd_alg_mor f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (colim_mor_eq (F_CC A)); <span class="nb">simpl</span>.
+  <span class="nb">intros</span> i.
+  <span class="nb">rewrite</span> assoc, assoc.
+  rw_left_comp shift_iter_map_restricts.
+  <span class="nb">refine</span> (free_ptd_alg_mor_restricts f (S i) @ _).
+  <span class="nb">change</span> (colimIn (F_CC A) i) <span class="k">with</span> (# F (colimIn (CC A) i)).
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, _ = # F x · _) (free_ptd_alg_mor_restricts f i)).
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_comp, &lt;- assoc.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> pathsinv0, shift_iter_map_restricts.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_functor_data</span> : functor_data C (ptd_alg_category F).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> free_ptd_alg_ob.
+  - <span class="nb">intros</span> A B f.
+    <span class="bp">exact</span> (make_ptd_alg_mor F (free_ptd_alg_mor f) (free_ptd_alg_mor_is_mor f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_ptd_alg_is_functor</span> : is_functor free_ptd_alg_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> A. <span class="nb">apply</span> ptd_alg_mor_eq.
+    <span class="nb">apply</span> pathsinv0, colim_endo_is_identity. <span class="nb">intros</span> i.
+    <span class="nb">refine</span> (free_ptd_alg_mor_restricts _ _ @ _).
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">red</span>. <span class="nb">intros</span> X Y Z f g. <span class="nb">apply</span> pathsinv0, ptd_alg_mor_eq; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> colimArrowUnique; <span class="nb">simpl</span>. <span class="nb">intros</span> i.
+    <span class="nb">rewrite</span> assoc.
+    rw_left_comp (free_ptd_alg_mor_restricts f i).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    rw_right_comp (free_ptd_alg_mor_restricts g i).
+    <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0, functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg</span> : C ⟶ ptd_alg_category F
+  := make_functor free_ptd_alg_functor_data free_ptd_alg_is_functor.
+
+<span class="sd">(** 3.5. The free-forgetful adjunction [free_ptd_alg_forgetful_form_adjunction]</span>
+<span class="sd">  We now prove that this is indeed the free functor, by constructing an adjunction *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_unit</span> : functor_identity C ⟹ free_ptd_alg ∙ forget_ptd_alg F.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_nat_trans <span class="k">with</span> (<span class="k">λ</span> <span class="nv">A</span>, colimIn (CC A) <span class="mi">0</span>).
+  <span class="kp">abstract</span> (<span class="nb">intros</span> A B f; <span class="nb">apply</span> pathsinv0, (free_ptd_alg_mor_restricts f <span class="mi">0</span>)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_cocone_arrows</span> (<span class="nv">X</span> : ptd_alg F) : ∏ i : nat, C ⟦ (F ^ i) X, X ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> i <span class="k">as</span> [|i IH].
+  - <span class="bp">exact</span> (identity X). <span class="c">(* Forced by triangle identities *)</span>
+  - <span class="bp">exact</span> (# F IH · ptd_alg_map F X). <span class="c">(* Necessary to make ɛ an morphism of algebras *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_ptd_alg_counit_forms_cocone</span> (<span class="nv">X</span> : ptd_alg F)
+  : forms_cocone (iter_chain_at X) (free_ptd_alg_counit_cocone_arrows X).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>; <span class="nb">intros</span> i _ []; <span class="nb">simpl</span>.
+  <span class="nb">set</span> (ɛ := free_ptd_alg_counit_cocone_arrows).
+  <span class="nb">rewrite</span> assoc.
+  <span class="c">(* This could be done using iter_chain_mor_is_point, but it's not necessary! *)</span>
+  <span class="nb">induction</span> i.
+  - <span class="nb">simpl</span>. <span class="nb">rewrite</span> functor_id, id_right. <span class="nb">apply</span> ptd_alg_law.
+  - <span class="nb">simpl</span>. <span class="nb">rewrite</span> &lt;- functor_comp, assoc.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, # F x · _) IHi).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The counit has a component at the pointed algebra X which is a morphism of algebras F^ω X --&gt; X.</span>
+<span class="sd">  This is the underlying morphism in C.</span>
+<span class="sd">  (Be aware of the implicit coercion of X to it's underlying object in C)</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_map</span> (<span class="nv">X</span> : ptd_alg F) : C ⟦ free_ptd_alg_ob X, X ⟧
+  := colimArrow _ _ (make_cocone _ (free_ptd_alg_counit_forms_cocone X)).
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_map_restricts</span> (<span class="nv">X</span> : ptd_alg F) (<span class="nv">i</span> : nat)
+  : colimIn (CC X) i · free_ptd_alg_counit_map X = free_ptd_alg_counit_cocone_arrows X i
+  := colimArrowCommutes _ _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_map_is_mor</span> (<span class="nv">X</span> : ptd_alg F) :
+  is_ptd_alg_mor F (free_ptd_alg X) X (free_ptd_alg_counit_map X).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_ptd_alg_mor; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (colim_mor_eq (F_CC X)).
+  <span class="nb">intros</span> i.
+  <span class="nb">rewrite</span> assoc, assoc.
+  <span class="nb">rewrite</span> shift_iter_map_restricts.
+  <span class="nb">refine</span> (free_ptd_alg_counit_map_restricts X (S i) @ _); <span class="nb">simpl</span>.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">change</span> (colimIn (F_CC X) i) <span class="k">with</span> (# F (colimIn (CC X) i)).
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths, pathsinv0.
+  <span class="nb">apply</span> free_ptd_alg_counit_map_restricts.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_mor</span> (<span class="nv">X</span> : ptd_alg F) : free_ptd_alg X --&gt; X
+  := make_ptd_alg_mor F (free_ptd_alg_counit_map X) (free_ptd_alg_counit_map_is_mor X).
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit_is_nat_trans</span>
+  : is_nat_trans
+      (forget_ptd_alg F ∙ free_ptd_alg)
+      (functor_identity (ptd_alg_category F))
+      free_ptd_alg_counit_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f. <span class="nb">apply</span> ptd_alg_mor_eq; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> colim_mor_eq; <span class="nb">intros</span> i. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+  rw_left_comp (free_ptd_alg_mor_restricts f i).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  rw_right_comp (free_ptd_alg_counit_map_restricts Y i).
+  <span class="nb">rewrite</span> (free_ptd_alg_counit_map_restricts X i).
+  <span class="nb">set</span> (ɛ := free_ptd_alg_counit_cocone_arrows).
+
+  <span class="nb">induction</span> i; <span class="nb">simpl</span>. { <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right. }
+  <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, # F x · _ = _) IHi).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">rewrite</span> &lt;- (assoc _ _ (ptd_alg_map F Y)).
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> pathsinv0, ptd_alg_mor_commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_counit</span>
+  : (forget_ptd_alg F ∙ free_ptd_alg) ⟹ (functor_identity (ptd_alg_category F))
+  := make_nat_trans _ _ _ free_ptd_alg_counit_is_nat_trans.
+
+<span class="sd">(** This proves free construction is correctly named, it is left adjoint</span>
+<span class="sd">  to the forgetful functor. *)</span>
+<span class="kn">Theorem</span> <span class="nf">free_ptd_alg_forgetful_form_adjunction</span>
+  : form_adjunction free_ptd_alg
+      (forget_ptd_alg F)
+      free_ptd_alg_unit
+      free_ptd_alg_counit.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">red</span>.
+  + <span class="nb">intro</span> A. <span class="nb">apply</span> ptd_alg_mor_eq, pathsinv0; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> colim_endo_is_identity. <span class="nb">intros</span> i.
+    <span class="nb">rewrite</span> assoc.
+    rw_left_comp (free_ptd_alg_mor_restricts (colimIn (CC A) <span class="mi">0</span>) i).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    rw_right_comp (free_ptd_alg_counit_map_restricts (free_ptd_alg_ob A) i).
+    <span class="nb">set</span> (ɛ := free_ptd_alg_counit_cocone_arrows).
+    <span class="nb">induction</span> i; <span class="nb">simpl</span>. { <span class="nb">apply</span> id_right. }
+    <span class="nb">rewrite</span> assoc, &lt;- functor_comp.
+    <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, # F x · _ = _) IHi).
+    <span class="nb">apply</span> shift_iter_map_restricts.
+  + <span class="nb">intro</span> X. <span class="nb">simpl</span>. <span class="nb">apply</span> (free_ptd_alg_counit_map_restricts X <span class="mi">0</span>).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_ptd_alg_forgetful_are_adjoints</span> : are_adjoints free_ptd_alg (forget_ptd_alg F)
+  := make_are_adjoints _ _ _ _ free_ptd_alg_forgetful_form_adjunction.
+
+<span class="c">(* TODO: Involve fully-faithfulness of forget_ptd_alg F to say something</span>
+<span class="c">about reflective subcategories *)</span>
+
+<span class="kn">End</span> <span class="nf">TransfiniteConstructionWellPointed</span>.
+
+<span class="kn">End</span> <span class="nf">TransfiniteConstruction</span>.
+
+<span class="sd">(** 4. Reflective subcategories give well-pointed endofunctors</span>
+<span class="sd">  [well_pointed_of_fully_faithful_right_adjoint]</span>
+
+<span class="sd">We've constructed the reflective subcategory given by the pointed algebras</span>
+<span class="sd">of a well-pointed endofunctor.</span>
+<span class="sd">Conversely, we can take *any* reflective subcategory of C and extract a</span>
+<span class="sd">well-pointed endfunctor on C (in fact, an idempotent monad), whose</span>
+<span class="sd">pointed algebras form the "same" reflective subcategory.</span>
+<span class="sd">*)</span>
+<span class="kn">Theorem</span> <span class="nf">well_pointed_of_fully_faithful_right_adjoint</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} 
+  (<span class="nv">L</span> : functor C D) (<span class="nv">R</span> : functor D C)
+  (<span class="nv">H</span> : are_adjoints L R)
+  (<span class="nv">η</span> := unit_from_are_adjoints H)
+  : fully_faithful R → well_pointed (L∙R,,η).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> R_ff.
+  <span class="nb">apply</span> (nat_trans_eq (homset_property _)).
+  <span class="nb">intros</span> A. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (ɛ := counit_from_are_adjoints H).
+  <span class="c">(* The triangle identities imply that RLη and ηRL are sections of RɛLA, which is iso *)</span>
+  <span class="nb">assert</span> (t1 : # R (# L (η A)) · # R (ɛ (L A)) = identity (R (L A))). {
+    <span class="nb">rewrite</span> &lt;- functor_id, &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> triangle_id_left_ad.
+  }
+  <span class="nb">assert</span> (t2 : η (R (L A)) · # R (ɛ (L A)) = identity (R (L A))). {
+    <span class="nb">apply</span> triangle_id_right_ad.
+  }
+  <span class="nb">assert</span> (ɛ_z_iso := counit_is_z_iso_if_right_adjoint_is_fully_faithful H R_ff).
+  <span class="nb">assert</span> (p : is_z_isomorphism (# R (ɛ (L A)))). {
+    <span class="nb">apply</span> functor_on_is_z_isomorphism.
+    <span class="nb">apply</span> counit_is_z_iso_if_right_adjoint_is_fully_faithful.
+    <span class="bp">exact</span> R_ff.
+  }
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj p).
+  <span class="bp">exact</span> (t2 @ ! t1).
+<span class="kn">Qed</span>.
+
+<span class="c">(* TODO: prove the category of pointed algebras for (L∙R,,η) "is" D *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/PointedFunctorAlgebras.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  **************************************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

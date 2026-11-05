@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Preservation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Functors between locally Cartesian closed categories</span>
+
+<span class="sd"> We define structure preserving functors between locally Cartesian closed categories. We</span>
+<span class="sd"> phrase this in terms of functors between displayed categories that preserve dependent</span>
+<span class="sd"> products. Concretely, this means that preservation of exponentials is expressed via the</span>
+<span class="sd"> Beck-Chevalley condition, so we say that the canonical map is an isomorphism. This canonical</span>
+<span class="sd"> map expresses what one would intuitively expect, namely that we have an isomorphism between</span>
+<span class="sd"> the exponentials ([preserves_locally_cartesian_closed_z_iso]). Since there already are some</span>
+<span class="sd"> example of functors that satisfy the Beck-Chevalley condition, we can directly conclude that</span>
+<span class="sd"> the identity preserves exponentials and that preservation of exponentials is closed under</span>
+<span class="sd"> composition. In both cases, we calculate the mediating isomorphism.</span>
+
+<span class="sd"> Finally, we look at a naturality condition ([preserves_locally_cartesian_closed_natural]).</span>
+<span class="sd"> Exponentials are functorial in both arguments (contravariant in the first and covariant in</span>
+<span class="sd"> the second). This naturality condition says that the preservation isomorphism is natural</span>
+<span class="sd"> with respect to both arguments of the exponential. Unfortunately, the proof requires quite</span>
+<span class="sd"> some calculations. The preservation isomorphism is defined as a composition of various</span>
+<span class="sd"> natural transformations, but from this we only get naturality with respect to the covariant</span>
+<span class="sd"> argument. The main work lies in verifying the other naturality condition.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Structure preserving functors between LCCCs</span>
+<span class="sd"> 2. The identity is structure preserving</span>
+<span class="sd"> 3. The composition is structure preserving</span>
+<span class="sd"> 4. Naturality of preservation</span>
+
+<span class="sd">                                                                                          *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Structure preserving functors between LCCCs *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           {<span class="nv">PB₂</span> : Pullbacks C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_pullback F)
+           (<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁)
+           (<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂)
+  : UU
+  := preserves_dependent_products
+       (cartesian_disp_codomain_functor F HF)
+       (cod_dependent_products H₁)
+       (cod_dependent_products H₂).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_locally_cartesian_closed</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">HF</span> : preserves_pullback F)
+            (<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁)
+            (<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂)
+  : isaprop (preserves_locally_cartesian_closed HF H₁ H₂).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_preserves_dependent_products.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_z_iso_fib</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           {<span class="nv">PB₂</span> : Pullbacks C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">HF</span> : preserves_pullback F}
+           {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+           {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+           (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+           {<span class="nv">Γ</span> : C₁}
+           (<span class="nv">πA</span> : C₁/Γ)
+           (<span class="nv">πB</span> : C₁/cod_dom πA)
+  : z_iso
+      (fiber_functor
+         (cartesian_disp_codomain_functor F HF)
+         Γ
+         (lccc_exp_fib H₁ πA πB))
+      (lccc_exp_fib H₂ (functor_on_cod_fib F πA) (functor_on_cod_fib F πB))
+  := right_beck_chevalley_nat_trans _ _ _ _ ,, HFF _ _ (cod_mor πA) πB.
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           {<span class="nv">PB₂</span> : Pullbacks C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">HF</span> : preserves_pullback F}
+           {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+           {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+           (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+           {<span class="nv">Γ</span> : C₁}
+           (<span class="nv">πA</span> : C₁/Γ)
+           (<span class="nv">πB</span> : C₁/cod_dom πA)
+  : z_iso
+      (F (lccc_exp H₁ πA πB))
+      (lccc_exp H₂ (functor_on_cod_fib F πA) (functor_on_cod_fib F πB))
+  := z_iso_to_cod_dom
+       _ _ _
+       (preserves_locally_cartesian_closed_z_iso_fib HFF πA πB).
+
+<span class="sd">(** * 2. The identity is structure preserving *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_preserves_locally_cartesian_closed</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            (<span class="nv">H</span> : is_locally_cartesian_closed PB)
+  : preserves_locally_cartesian_closed (identity_preserves_pullback C) H H.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> preserves_locally_cartesian_closed.
+  <span class="nb">refine</span> (transportf
+            (<span class="k">λ</span> <span class="nv">z</span>, preserves_dependent_products z _ _)
+            _
+            (id_preserves_dependent_products (cod_dependent_products H))).
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_cartesian_disp_functor.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_disp_functor_axioms.
+  }
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    use eq_cod_mor ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_functor_codomain_id</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">Γ</span> : C)
+  : nat_z_iso
+      (fiber_functor
+         (cartesian_disp_codomain_functor
+            (functor_identity C)
+            (identity_preserves_pullback C))
+         Γ)
+      (fiber_functor (id_cartesian_disp_functor (disp_codomain C)) Γ).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use eq_mor_cod_fib ;
+         <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _ @ !(comp_in_cod_fib _ _)) ;
+         <span class="bp">exact</span> (id_right _ @ !(id_left _))).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fiber_functor_codomain_id_natural_eq_left</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">πA</span> <span class="nv">πB</span> : C/Γ)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB)
+         (disp_codomain_cleaving PB)
+         (id_cartesian_disp_functor (disp_codomain C))
+         (cod_mor πA)
+         πB)
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+  - <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+    <span class="nb">rewrite</span> transportf_cod_disp.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fiber_functor_codomain_id_natural_eq_right</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">πA</span> <span class="nv">πB</span> : C/Γ)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB)
+         (disp_codomain_cleaving PB)
+         (cartesian_disp_codomain_functor
+            (functor_identity C)
+            (identity_preserves_pullback C))
+         (cod_mor πA)
+         πB)
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (identity_preserves_pullback
+          _ _ _ _ _ _ _ _ _ _
+          (PullbackSqrCommutes _)
+          (cartesian_isPullback_in_cod_disp
+             (disp_codomain_cleaving PB Γ (cod_dom πA) (cod_mor πA) πB)
+             (disp_codomain_cleaving PB Γ (cod_dom πA) (cod_mor πA) πB)))
+    <span class="k">as</span> H.
+  use (MorphismsIntoPullbackEqual H).
+  - etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (make_Pullback _ H)).
+    }
+    <span class="nb">rewrite</span> transportf_cod_disp.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> id_left.
+  - etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (make_Pullback _ H)).
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_locally_cartesian_closed_z_iso_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">PB</span> : Pullbacks C}
+            {<span class="nv">H</span> : is_locally_cartesian_closed PB}
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">πA</span> : C/Γ)
+            (<span class="nv">πB</span> : C/cod_dom πA)
+  : identity _
+    =
+    preserves_locally_cartesian_closed_z_iso
+      (id_preserves_locally_cartesian_closed H)
+      πA πB.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">pose</span> (right_beck_chevalley_nat_trans_id _ (H (cod_dom πA) Γ (cod_mor πA)) πB) <span class="k">as</span> p.
+  <span class="nb">refine</span> (_ @ maponpaths dom_mor p).
+  <span class="nb">refine</span> (maponpaths dom_mor _).
+  <span class="nb">cbn</span> -[right_beck_chevalley_nat_trans].
+  <span class="nb">pose</span> (right_beck_chevalley_nat_trans_eq_nat_trans
+          (H (cod_dom πA) Γ (cod_mor πA))
+          (H (cod_dom πA) Γ (cod_mor πA))
+          (fiber_functor_natural_nat_z_iso
+             _ _
+             (cartesian_disp_codomain_functor
+                (functor_identity C)
+                (identity_preserves_pullback C))
+             (cod_mor πA))
+          (fiber_functor_natural_nat_z_iso
+             _ _
+             (id_cartesian_disp_functor (disp_codomain C))
+             (cod_mor πA))
+          (fiber_functor_codomain_id Γ)
+          (nat_z_iso_inv (fiber_functor_codomain_id _)))
+    <span class="k">as</span> q.
+  <span class="nb">refine</span> (q _ πB @ _).
+  {
+    <span class="nb">intro</span> πB'.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (id_right _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> functor_id.
+    }
+    use eq_mor_cod_fib.
+    <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+    <span class="nb">refine</span> (id_left _ @ _).
+    etrans.
+    {
+      <span class="bp">exact</span> (fiber_functor_codomain_id_natural_eq_left πA πB').
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="bp">exact</span> (fiber_functor_codomain_id_natural_eq_right πA πB').
+    }
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  <span class="nb">refine</span> (id_left _ @ _).
+  <span class="nb">refine</span> (_ @ id_right _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (functor_id (right_adjoint (H (cod_dom πA) Γ (cod_mor πA)))).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The composition is structure preserving *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_preserves_locally_cartesian_closed</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">PB₃</span> : Pullbacks C₃}
+            {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+            {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+            {<span class="nv">H₃</span> : is_locally_cartesian_closed PB₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">HF</span> : preserves_pullback F}
+            (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">HG</span> : preserves_pullback G}
+            (<span class="nv">HGG</span> : preserves_locally_cartesian_closed HG H₂ H₃)
+  : preserves_locally_cartesian_closed
+      (composition_preserves_pullback HF HG)
+      H₁
+      H₃.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> preserves_locally_cartesian_closed.
+  <span class="nb">refine</span> (transportf
+            (<span class="k">λ</span> <span class="nv">z</span>, preserves_dependent_products z _ _)
+            _
+            (comp_preserves_dependent_products HFF HGG)).
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_cartesian_disp_functor.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_disp_functor_axioms.
+  }
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_functor_codomain_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_pullback F)
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">HG</span> : preserves_pullback G)
+           (<span class="nv">Γ</span> : C₁)
+  : nat_z_iso
+      (fiber_functor
+         (cartesian_disp_codomain_functor
+            (F ∙ G)
+            (composition_preserves_pullback HF HG))
+         Γ)
+      (fiber_functor
+         (comp_cartesian_disp_functor
+            (cartesian_disp_codomain_functor F HF)
+            (cartesian_disp_codomain_functor G HG))
+         Γ).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         <span class="nb">refine</span> (id_right _ @ _ @ !(id_left _)) ;
+         use eq_mor_cod_fib ;
+         <span class="nb">refine</span> (disp_codomain_fiber_functor_mor _ _ _ @ !_) ;
+         <span class="nb">apply</span> transportf_cod_disp).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fiber_functor_codomain_comp_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₃</span> : Pullbacks C₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">HF</span> : preserves_pullback F)
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            (<span class="nv">HG</span> : preserves_pullback G)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">πA</span> <span class="nv">πB</span> : C₁/Γ)
+  : dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₃)
+         (comp_cartesian_disp_functor
+            (cartesian_disp_codomain_functor F HF)
+            (cartesian_disp_codomain_functor G HG))
+         (cod_mor πA)
+         πB)
+    =
+    dom_mor
+      (fiber_functor_natural_nat_z_iso
+         (disp_codomain_cleaving PB₁)
+         (disp_codomain_cleaving PB₃)
+         (cartesian_disp_codomain_functor
+            (F ∙ G)
+            (composition_preserves_pullback HF HG))
+         (cod_mor πA)
+         πB).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths.
+  use (cartesian_factorisation_unique
+         (disp_functor_composite_is_cartesian_disp_functor
+            (is_cartesian_disp_codomain_functor F HF)
+            (is_cartesian_disp_codomain_functor G HG)
+            Γ (cod_dom πA) (cod_mor πA) πB
+            _
+            (disp_codomain_cleaving PB₁ Γ (cod_dom πA) (cod_mor πA) πB)
+            (disp_codomain_cleaving PB₁ Γ (cod_dom πA) (cod_mor πA) πB))).
+  etrans.
+  {
+    <span class="nb">apply</span> cartesian_factorisation_commutes.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">pose</span> (is_cartesian_disp_codomain_functor
+            (F ∙ G)
+            (composition_preserves_pullback HF HG)
+            Γ
+            (cod_dom πA) (cod_mor πA) πB
+            _
+            (disp_codomain_cleaving PB₁ Γ (cod_dom πA) (cod_mor πA) πB)
+            (disp_codomain_cleaving PB₁ Γ (cod_dom πA) (cod_mor πA) πB))
+      <span class="k">as</span> H.
+    <span class="nb">refine</span> (_ @ cartesian_factorisation_commutes H _ _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">rewrite</span> !transportf_cod_disp.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_preserves_locally_cartesian_closed_z_iso</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">PB₃</span> : Pullbacks C₃}
+            {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+            {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+            {<span class="nv">H₃</span> : is_locally_cartesian_closed PB₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">HF</span> : preserves_pullback F}
+            (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">HG</span> : preserves_pullback G}
+            (<span class="nv">HGG</span> : preserves_locally_cartesian_closed HG H₂ H₃)
+            {<span class="nv">Γ</span> : C₁}
+            (<span class="nv">πA</span> : C₁/Γ)
+            (<span class="nv">πB</span> : C₁/cod_dom πA)
+  : #G(preserves_locally_cartesian_closed_z_iso HFF πA πB)
+    · preserves_locally_cartesian_closed_z_iso HGG _ _
+    =
+    preserves_locally_cartesian_closed_z_iso
+      (comp_preserves_locally_cartesian_closed HFF HGG)
+      πA
+      πB.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">cbn</span> -[right_beck_chevalley_nat_trans].
+  <span class="nb">pose</span> (right_beck_chevalley_nat_trans_comp
+          (cartesian_disp_codomain_functor F HF)
+          (cartesian_disp_codomain_functor G HG)
+          _
+          πB
+          (H₁ (cod_dom πA) Γ (cod_mor πA))
+          (H₂ (F(cod_dom πA)) (F Γ) (#F(cod_mor πA)))
+          (H₃ (G(F(cod_dom πA))) (G(F Γ)) (#G(#F (cod_mor πA)))))
+    <span class="k">as</span> p.
+  <span class="nb">refine</span> (_ @ maponpaths dom_mor p @ _).
+  - <span class="nb">apply</span> (maponpaths dom_mor).
+    <span class="nb">pose</span> (right_beck_chevalley_nat_trans_eq_nat_trans
+            (H₁ (cod_dom πA) Γ (cod_mor πA))
+            (H₃ (G(F(cod_dom πA))) (G(F Γ)) (#G(#F (cod_mor πA))))
+            (fiber_functor_natural_nat_z_iso
+               (disp_codomain_cleaving PB₁)
+               (disp_codomain_cleaving PB₃)
+               (cartesian_disp_codomain_functor
+                  (F ∙ G)
+                  (composition_preserves_pullback HF HG))
+               (cod_mor πA))
+            (fiber_functor_natural_nat_z_iso
+               (disp_codomain_cleaving PB₁)
+               (disp_codomain_cleaving PB₃)
+               (comp_cartesian_disp_functor
+                  (cartesian_disp_codomain_functor F HF)
+                  (cartesian_disp_codomain_functor G HG))
+               (cod_mor πA))
+            (fiber_functor_codomain_comp HF HG Γ)
+            (nat_z_iso_inv (fiber_functor_codomain_comp HF HG _)))
+      <span class="k">as</span> q.
+    <span class="nb">refine</span> (q _ πB @ _).
+    {
+      <span class="nb">intro</span> πB'.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (id_right _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_id.
+      }
+      use eq_mor_cod_fib.
+      <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+      <span class="nb">refine</span> (id_left _ @ _).
+      <span class="bp">exact</span> (fiber_functor_codomain_comp_eq HF HG πA πB').
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_id (right_adjoint _)).
+  - <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+    use maponpaths_compose.
+    + <span class="bp">exact</span> (disp_codomain_fiber_functor_mor _ _ _).
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** 4. Naturality of preservation *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_natural_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           (<span class="nv">PB₂</span> : Pullbacks C₂)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_pullback F)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+           {<span class="nv">πB₁</span> : C₁/cod_dom πA₁}
+           {<span class="nv">πB₂</span> : C₁/cod_dom πA₂}
+           (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">hg</span> : cod_pb PB₁ (dom_mor hf) πB₁ --&gt; πB₂)
+  : cod_pb PB₂ (dom_mor (functor_on_cod_fib_mor F hf)) (functor_on_cod_fib F πB₁)
+    --&gt;
+    functor_on_cod_fib F πB₂.
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - <span class="bp">exact</span> (preserve_pullback_to_z_iso_inv _ _ HF _ _ · #F (dom_mor hg)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">simpl</span> ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       etrans ; [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ; <span class="bp">exact</span> (mor_eq hg) | ] ;
+       <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (functor_preserves_pullback_on_pullback _ _ _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_natural_id_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           (<span class="nv">PB₂</span> : Pullbacks C₂)
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+           {<span class="nv">πB₁</span> : C₁/cod_dom πA₁}
+           {<span class="nv">πB₂</span> : C₁/cod_dom πA₂}
+           (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">hg</span> : cod_pb PB₁ (dom_mor hf) πB₁ --&gt; πB₂)
+  : cod_pb
+      PB₂
+      (identity _)
+      (functor_on_cod_fib F (cod_pb PB₁ (dom_mor hf) πB₁))
+    --&gt;
+    functor_on_cod_fib F πB₂.
+<span class="kn">Proof</span>.
+  use make_cod_fib_mor.
+  - <span class="bp">exact</span> (PullbackPr1 _ · #F (dom_mor hg)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">simpl</span> ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       etrans ;
+       [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (mor_eq hg)
+       | ] ;
+       <span class="nb">refine</span> (PullbackSqrCommutes _ @ _) ;
+       <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_locally_cartesian_closed_natural_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+            (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+  : cod_mor (functor_on_cod_fib F πA₂)
+    =
+    dom_mor (functor_on_cod_fib_mor F hf) · cod_mor (functor_on_cod_fib F πA₁).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> (!(mor_eq hf)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_locally_cartesian_closed_nat_trans_ax</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">HF</span> : preserves_pullback F}
+            {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+            {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+            (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+            {<span class="nv">πB₁</span> : C₁/cod_dom πA₁}
+            {<span class="nv">πB₂</span> : C₁/cod_dom πA₂}
+            (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+            (<span class="nv">hg</span> : cod_pb PB₁ (dom_mor hf) πB₁ --&gt; πB₂)
+  : #F (dom_mor (#(right_adjoint (H₁ (cod_dom πA₂) Γ (cod_mor πA₂))) hg))
+    · preserves_locally_cartesian_closed_z_iso HFF πA₂ πB₂
+    =
+    preserves_locally_cartesian_closed_z_iso HFF πA₂ (cod_pb PB₁ (dom_mor hf) πB₁)
+    · lccc_exp_functor
+        H₂
+        (!(id_left (cod_mor (functor_on_cod_fib F πA₂))))
+        (preserves_locally_cartesian_closed_natural_id_mor PB₂ F hf hg).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (right_beck_chevalley_nat_trans
+          (H₁ (cod_dom πA₂) Γ (cod_mor πA₂))
+          (H₂ (F (cod_dom πA₂)) (F Γ) (# F (cod_mor πA₂)))
+          (fiber_functor_natural_nat_z_iso
+             (disp_codomain_cleaving PB₁)
+             (disp_codomain_cleaving PB₂)
+             (cartesian_disp_codomain_functor F HF)
+             (cod_mor πA₂)))
+    <span class="k">as</span> τ.
+  etrans.
+  {
+    <span class="nb">refine</span> (_ @ maponpaths dom_mor (nat_trans_ax τ _ _ hg) @ comp_in_cod_fib _ _).
+    <span class="nb">refine</span> (_ @ !(comp_in_cod_fib _ _)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+  }
+  <span class="nb">apply</span> maponpaths.
+
+  <span class="nb">refine</span> (!_).
+  <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> comp_in_cod_fib.
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">refine</span> (!(id_left _) @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (maponpaths
+             dom_mor
+             (triangle_id_right_ad (pr2 (H₂ _ _ _)) _)).
+  }
+  <span class="nb">rewrite</span> comp_in_cod_fib.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (_ @ comp_in_cod_fib _ _).
+  <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">refine</span> (_ @ functor_comp (right_adjoint _) _ _).
+  <span class="nb">refine</span> (!(functor_comp (right_adjoint _) _ _) @ _).
+  <span class="nb">apply</span> maponpaths.
+  use eq_mor_cod_fib.
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (_ @ id_left _).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">refine</span> (_ @ cod_pb_left_functorial_id _ _).
+  <span class="nb">apply</span> maponpaths.
+  use eq_mor_cod_fib.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_natural_base_mor_pb</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           {<span class="nv">PB₂</span> : Pullbacks C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_pullback F)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+           (<span class="nv">πB</span> : C₁/cod_dom πA₁)
+           (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">p</span> : cod_mor πA₂ = dom_mor hf · cod_mor πA₁)
+  : cod_dom (cod_pb PB₂ (# F (dom_mor hf)) (functor_on_cod_fib F πB))
+    --&gt;
+    cod_dom (functor_on_cod_fib F (cod_pb PB₁ (dom_mor (make_cod_fib_mor _ (!p))) πB)).
+<span class="kn">Proof</span>.
+  use (PullbackArrow (functor_preserves_pullback_on_pullback _ HF _ _)).
+  - <span class="bp">exact</span> (PullbackPr1 _).
+  - <span class="bp">exact</span> (PullbackPr2 _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> PullbackSqrCommutes).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_locally_cartesian_closed_natural_base_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">PB₁</span> : Pullbacks C₁}
+           {<span class="nv">PB₂</span> : Pullbacks C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">HF</span> : preserves_pullback F}
+           {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+           {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+           (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+           {<span class="nv">Γ</span> : C₁}
+           {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+           {<span class="nv">πB</span> : C₁/cod_dom πA₁}
+           (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+           (<span class="nv">p</span> : cod_mor πA₂ = dom_mor hf · cod_mor πA₁)
+  : lccc_exp H₂ (functor_on_cod_fib F πA₁) (functor_on_cod_fib F πB)
+    --&gt;
+    lccc_exp
+      H₂
+      (functor_on_cod_fib F πA₂)
+      (functor_on_cod_fib
+         F
+         (cod_pb PB₁ (dom_mor (make_cod_fib_mor (dom_mor hf) (!p))) πB)).
+<span class="kn">Proof</span>.
+  use lccc_exp_functor.
+  - <span class="bp">exact</span> (#F (dom_mor hf)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">simpl</span> ;
+       <span class="nb">rewrite</span> &lt;- !functor_comp ;
+       <span class="nb">rewrite</span> p ;
+       <span class="nb">apply</span> idpath).
+  - use make_cod_fib_mor.
+    + <span class="bp">exact</span> (preserves_locally_cartesian_closed_natural_base_mor_pb HF πB hf p).
+    + <span class="kp">abstract</span>
+        (<span class="nb">apply</span> (PullbackArrow_PullbackPr2
+                  (functor_preserves_pullback_on_pullback _ HF _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_locally_cartesian_closed_natural_base</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">HF</span> : preserves_pullback F}
+            {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+            {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+            (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+            {<span class="nv">πB</span> : C₁/cod_dom πA₁}
+            (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+            (<span class="nv">p</span> : cod_mor πA₂ = dom_mor hf · cod_mor πA₁)
+  : #F (dom_mor (lccc_exp_functor_base_fib H₁ (make_cod_fib_mor (dom_mor hf) (!p))))
+    · preserves_locally_cartesian_closed_z_iso
+        HFF πA₂
+        (cod_pb PB₁ (dom_mor (make_cod_fib_mor (dom_mor hf) (!p))) πB)
+    =
+    preserves_locally_cartesian_closed_z_iso HFF πA₁ πB
+    · preserves_locally_cartesian_closed_natural_base_mor HFF hf p.
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">pose</span> (right_beck_chevalley_nat_trans_ob
+            (H₁ (cod_dom πA₂) Γ (cod_mor πA₂))
+            (H₂ (F (cod_dom πA₂)) (F Γ) (# F (cod_mor πA₂)))
+            (fiber_functor_natural_nat_z_iso
+               (disp_codomain_cleaving PB₁)
+               (disp_codomain_cleaving PB₂)
+               (cartesian_disp_codomain_functor F HF)
+               (cod_mor πA₂))
+            (cod_pb PB₁ (dom_mor (make_cod_fib_mor (dom_mor hf) (!p))) πB))
+      <span class="k">as</span> q.
+    <span class="bp">exact</span> (maponpaths dom_mor q).
+  }
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  <span class="nb">rewrite</span> !assoc.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">pose</span> (φ := functor_on_cod_fib_mor
+                 F
+                 (lccc_exp_functor_base_fib
+                    H₁
+                    (πB := πB)
+                    (make_cod_fib_mor (dom_mor hf) (!p)))).
+    <span class="nb">pose</span> (nat_trans_ax
+            (unit_from_left_adjoint (H₂ (F (cod_dom πA₂)) (F Γ) (# F (cod_mor πA₂))))
+            _ _
+            φ)
+      <span class="k">as</span> q.
+    <span class="nb">refine</span> (_ @ maponpaths dom_mor q).
+    <span class="nb">rewrite</span> comp_in_cod_fib.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> comp_in_cod_fib.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- !comp_in_cod_fib.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(functor_comp (right_adjoint (H₂ _ _ _))) _ _).
+    }
+    <span class="bp">exact</span> (!(functor_comp (right_adjoint (H₂ _ _ _))) _ _).
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">cbn</span> -[right_beck_chevalley_nat_trans].
+    <span class="nb">pose</span> (right_beck_chevalley_nat_trans_ob
+            (H₁ (cod_dom πA₁) Γ (cod_mor πA₁))
+            (H₂ (F (cod_dom πA₁)) (F Γ) (# F (cod_mor πA₁)))
+            (fiber_functor_natural_nat_z_iso
+               (disp_codomain_cleaving PB₁)
+               (disp_codomain_cleaving PB₂)
+               (cartesian_disp_codomain_functor F HF)
+               (cod_mor πA₁))
+            πB)
+      <span class="k">as</span> q.
+    <span class="bp">exact</span> (maponpaths dom_mor q).
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_in_cod_fib.
+  }
+  <span class="nb">refine</span> (assoc _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_in_cod_fib.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">pose</span> (nat_trans_ax
+            (unit_from_left_adjoint
+               (H₂ (cod_dom (functor_on_cod_fib F πA₂))
+                  (F Γ)
+                  (cod_mor (functor_on_cod_fib F πA₂))))
+            _ _
+            (unit_from_left_adjoint
+               (H₂ (F (cod_dom πA₁)) (F Γ) (# F (cod_mor πA₁)))
+               (fiber_functor
+                  (cartesian_disp_codomain_functor F HF)
+                  Γ
+                  (right_adjoint (H₁ (cod_dom πA₁) Γ (cod_mor πA₁)) πB))
+             · #(right_adjoint (H₂ (F (cod_dom πA₁)) (F Γ) (# F (cod_mor πA₁))))
+                (fiber_functor_natural_nat_z_iso
+                   (disp_codomain_cleaving PB₁)
+                   (disp_codomain_cleaving PB₂)
+                   (cartesian_disp_codomain_functor F HF)
+                   (cod_mor πA₁)
+                   (right_adjoint (H₁ (cod_dom πA₁) Γ (cod_mor πA₁)) πB))
+             · # (right_adjoint (H₂ (F (cod_dom πA₁)) (F Γ) (# F (cod_mor πA₁))))
+                 (#(fiber_functor (cartesian_disp_codomain_functor F HF) (cod_dom πA₁))
+                    (counit_from_left_adjoint (H₁ (cod_dom πA₁) Γ (cod_mor πA₁)) πB))))
+      <span class="k">as</span> q.
+    <span class="nb">refine</span> (_ @ maponpaths dom_mor q).
+    <span class="bp">exact</span> (!(comp_in_cod_fib _ _)).
+  }
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (!(comp_in_cod_fib _ _)).
+  }
+  <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(functor_comp (right_adjoint (H₂ _ _ _))) _ _).
+    }
+    <span class="bp">exact</span> (!(functor_comp (right_adjoint (H₂ _ _ _))) _ _).
+  }
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  use eq_mor_cod_fib.
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+  }
+  <span class="nb">refine</span> (!_).
+  use (MorphismsIntoPullbackEqual
+         (isPullback_Pullback
+            (functor_preserves_pullback_on_pullback _ HF _ _))).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (nat_trans_ax
+              (fiber_functor_natural_nat_z_iso
+                 (disp_codomain_cleaving PB₁)
+                 (disp_codomain_cleaving PB₂)
+                 (cartesian_disp_codomain_functor F HF)
+                 (cod_mor πA₂))
+              _ _
+              (lccc_exp_functor_base_fib H₁ (πB := πB) (make_cod_fib_mor (dom_mor hf) (! p))))
+        <span class="k">as</span> q.
+      <span class="nb">refine</span> (_ @ q).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (maponpaths (#(cod_pb _ _)) _).
+      <span class="nb">refine</span> (!_).
+      use eq_mor_cod_fib.
+      <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_in_cod_fib.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (functor_comp F).
+      }
+      <span class="nb">refine</span> (!(functor_comp F _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_comp.
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax (counit_from_left_adjoint (H₁ (cod_dom πA₂) Γ (cod_mor πA₂)))).
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (triangle_id_left_ad (pr2 (H₁ (cod_dom πA₂) Γ (cod_mor πA₂)))).
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cod_pb_left_functorial_natural.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_comp.
+      }
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(functor_comp (right_adjoint (H₂ _ _ _))) _ _).
+        }
+        <span class="nb">pose</span> (lccc_exp_eval_fib H₂ (functor_on_cod_fib F πA₁) (functor_on_cod_fib F πB))
+          <span class="k">as</span> ψ.
+        <span class="nb">refine</span> (!(comp_in_cod_fib _ ψ) @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax
+                (counit_from_left_adjoint
+                   (H₂ _ _ (cod_mor (functor_on_cod_fib F πA₁))))).
+      }
+      <span class="nb">rewrite</span> comp_in_cod_fib.
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- comp_in_cod_fib.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (triangle_id_left_ad (pr2 (H₂ (F (cod_dom πA₁)) (F Γ) (# F (cod_mor πA₁))))).
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comp_in_cod_fib
+               _
+               (#(fiber_functor (cartesian_disp_codomain_functor F HF) (cod_dom πA₁))
+                 (counit_from_left_adjoint (H₁ (cod_dom πA₁) Γ (cod_mor πA₁)) πB))).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    use (MorphismsIntoPullbackEqual
+           (isPullback_Pullback
+              (functor_preserves_pullback_on_pullback _ HF _ _))).
+    + <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (codomain_fiber_functor_natural_nat_z_iso_pr1 _ _ _ _ _ _).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(functor_comp F _ _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="bp">exact</span> (codomain_fiber_functor_natural_nat_z_iso_pr1 _ _ _ _ _ _).
+    + <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (codomain_fiber_functor_natural_nat_z_iso_pr2 _ _ _ _ _ _).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(functor_comp F _ _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (codomain_fiber_functor_natural_nat_z_iso_pr2 _ _ _ _ _ _).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (nat_trans_ax
+              (fiber_functor_natural_nat_z_iso
+                 (disp_codomain_cleaving PB₁)
+                 (disp_codomain_cleaving PB₂)
+                 (cartesian_disp_codomain_functor F HF)
+                 (cod_mor πA₂))
+              _ _
+              (lccc_exp_functor_base_fib H₁ (πB := πB) (make_cod_fib_mor (dom_mor hf) (! p))))
+        <span class="k">as</span> q.
+      <span class="nb">refine</span> (_ @ q).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (maponpaths (#(cod_pb _ _)) _).
+      <span class="nb">refine</span> (!_).
+      use eq_mor_cod_fib.
+      <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comp_in_cod_fib.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_codomain_fiber_functor_mor.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (functor_comp F).
+      }
+      <span class="nb">refine</span> (!(functor_comp F _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(comp_in_cod_fib _ _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_comp.
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax (counit_from_left_adjoint (H₁ (cod_dom πA₂) Γ (cod_mor πA₂)))).
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (triangle_id_left_ad (pr2 (H₁ (cod_dom πA₂) Γ (cod_mor πA₂)))).
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (codomain_fiber_functor_natural_nat_z_iso_pr2 _ _ _ _ _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_locally_cartesian_closed_natural</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">PB₁</span> : Pullbacks C₁}
+            {<span class="nv">PB₂</span> : Pullbacks C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">HF</span> : preserves_pullback F}
+            {<span class="nv">H₁</span> : is_locally_cartesian_closed PB₁}
+            {<span class="nv">H₂</span> : is_locally_cartesian_closed PB₂}
+            (<span class="nv">HFF</span> : preserves_locally_cartesian_closed HF H₁ H₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">πA₁</span> <span class="nv">πA₂</span> : C₁/Γ}
+            {<span class="nv">πB₁</span> : C₁/cod_dom πA₁}
+            {<span class="nv">πB₂</span> : C₁/cod_dom πA₂}
+            (<span class="nv">hf</span> : πA₂ --&gt; πA₁)
+            (<span class="nv">hg</span> : cod_pb PB₁ (dom_mor hf) πB₁ --&gt; πB₂)
+            (<span class="nv">p</span> : cod_mor πA₂ = dom_mor hf · cod_mor πA₁)
+  : #F(lccc_exp_functor H₁ p hg)
+    · preserves_locally_cartesian_closed_z_iso HFF πA₂ πB₂
+    =
+    preserves_locally_cartesian_closed_z_iso HFF πA₁ πB₁
+    · lccc_exp_functor
+        H₂
+        (preserves_locally_cartesian_closed_natural_eq hf)
+        (preserves_locally_cartesian_closed_natural_mor _ HF hf hg).
+<span class="kn">Proof</span>.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> comp_in_cod_fib.
+    }
+    <span class="nb">apply</span> functor_comp.
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> preserves_locally_cartesian_closed_nat_trans_ax.
+  }
+  <span class="nb">rewrite</span> assoc.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (preserves_locally_cartesian_closed_natural_base HFF).
+  }
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> preserves_locally_cartesian_closed_natural_base_mor.
+  etrans.
+  {
+    <span class="nb">apply</span> lccc_exp_functor_on_comp.
+  }
+  use lccc_exp_functor_eq.
+  {
+    <span class="kp">abstract</span>
+      (<span class="nb">apply</span> id_left).
+  }
+  <span class="nb">rewrite</span> !comp_in_cod_fib.
+  <span class="nb">rewrite</span>  cod_fiber_functor_on_mor.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  }
+  <span class="nb">unfold</span> preserve_pullback_to_z_iso_inv.
+  use (MorphismsIntoPullbackEqual
+         (isPullback_Pullback
+            (functor_preserves_pullback_on_pullback _ HF _ _))).
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  - <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2
+               (functor_preserves_pullback_on_pullback _ HF _ _)).
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/LocallyCartesianClosed/Preservation.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Naturality of preservation
+  &gt;
+  &gt;                                                                                           *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

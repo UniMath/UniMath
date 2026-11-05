@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PNNO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   Preservation And Reflection Of Parameterized Natural Numbers Objects, by Weak Equivalences.</span>
+
+<span class="sd">   In this file, we show that any weak equivalence F : C -&gt; D preserves parameterized natural numbers objects.</span>
+
+<span class="sd">   Contents</span>
+<span class="sd">   1. Image of a PNNO, under F, is a PNNO [weak_equiv_preserves_parameterized_NNO]</span>
+<span class="sd">   2. Weak equivalences preserve PNNNO's, up to isomorphism [weak_equiv_preserves_parameterized_NNO']</span>
+<span class="sd">   3. Weak Equivalences reflect PNNNO's [weak_equiv_reflects_parameterized_NNO]</span>
+<span class="sd">   4. Preservation of PNNO lift along weak equivalences [weak_equiv_lifts_preserves_parameterized_NNO]</span>
+
+<span class="sd">   Remark: Observe that no univalence conditions are needed</span>
+<span class="sd"> *)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Binproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.BinProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Lemma</span> <span class="nf">BinProductOfIsIsos</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> <span class="nv">y'</span> : C} (<span class="nv">i</span> : C⟦x, x'⟧) (<span class="nv">j</span> : C⟦y,y'⟧)
+                       (<span class="nv">p</span> : BinProduct _ x y) (<span class="nv">p'</span> : BinProduct _ x' y')
+  : is_z_isomorphism i → is_z_isomorphism j → is_z_isomorphism (BinProductOfArrows _ p' p i j).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ii jj.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (BinProductOfArrows _ p p' (pr1 ii) (pr1 jj)).
+  - <span class="bp">exact</span> (binproduct_of_z_iso_inv p p' (_,,ii) (_,,jj)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1. Image of a PNNO is a PNNO *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesPreserveNNOs</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+    {<span class="nv">F</span> : C ⟶ D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+    {<span class="nv">T_C</span> : Terminal C} {<span class="nv">P_C</span> : BinProducts C} (<span class="nv">N_C</span> : parameterized_NNO T_C P_C)
+    (<span class="nv">P_D</span> : BinProducts D).
+
+  <span class="kn">Let</span> <span class="nf">T_D</span> : Terminal D
+      := weak_equiv_creates_terminal F_weq T_C.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_Z</span>
+    : D⟦T_D, F N_C⟧
+    := #F (parameterized_NNO_Z N_C).
+  <span class="kn">Let</span> <span class="nf">F_Z</span> := weak_equiv_preserves_parameterized_NNO_Z.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_S</span>
+    : D⟦F N_C, F N_C⟧
+    := #F (parameterized_NNO_S N_C).
+  <span class="kn">Let</span> <span class="nf">F_S</span> := weak_equiv_preserves_parameterized_NNO_S.
+
+  <span class="kn">Context</span> {<span class="nv">b'</span> <span class="nv">y'</span> : D}
+    (<span class="nv">z'</span> : D⟦b', y'⟧) (<span class="nv">s'</span> : D⟦y', y'⟧)
+    {<span class="nv">b</span> <span class="nv">y</span> : C}
+    (<span class="nv">i_b</span> : z_iso (F b) b')
+    (<span class="nv">i_y</span> : z_iso (F y) y').
+
+  <span class="kn">Let</span> <span class="nf">bp</span> (<span class="nv">f</span> : D⟦b', F N_C⟧) : D⟦b', P_D b' (F N_C)⟧
+      := BinProductArrow D (P_D b' (F N_C)) (identity b') f.
+
+  <span class="kn">Let</span> <span class="nf">bp'</span> (<span class="nv">f</span> : D⟦F N_C, F N_C⟧) : D⟦P_D b' (F N_C), P_D b' (F N_C)⟧
+      := BinProductOfArrows D (P_D b' (F N_C)) (P_D b' (F N_C)) (identity b') f.
+
+  <span class="kn">Let</span> <span class="nf">A</span> : UU
+      := ∑ f : D ⟦ P_D b' (F N_C), y'⟧,
+          bp (TerminalArrow T_D b' · F_Z) · f = z' × bp' F_S · f = f · s'.
+
+  <span class="kn">Let</span> <span class="nf">P_D'</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : BinProduct _ (F x) (F y)
+      := make_BinProduct _ _ _ _ _ _ (weak_equiv_preserves_chosen_binproducts F_weq P_C x y).
+
+  <span class="kn">Let</span> <span class="nf">bp''</span>
+    : z_iso (F (P_C b N_C)) (P_D b' (F N_C)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">BinProductOfArrows</span> <span class="nv">D</span> (P_D _ _) (P_D' _ _) i_b (identity _)).
+    <span class="nb">apply</span> (BinProductOfIsIsos _ _ (P_D' _ _) (P_D _ _) (pr2 i_b) (identity_is_z_iso _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">z</span> : C⟦b, y⟧
+      := fully_faithful_inv_hom (pr2 F_weq) _ _ (i_b · z' · inv_from_z_iso i_y).
+  <span class="kn">Local Lemma</span> <span class="nf">z_vs_z'</span>
+    : z' = z_iso_inv i_b · #F z · i_y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> z.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">simpl</span> ; <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">s</span> : C⟦y, y⟧
+      := fully_faithful_inv_hom (pr2 F_weq) _ _ (i_y · s' · inv_from_z_iso i_y).
+  <span class="kn">Lemma</span> <span class="nf">s_vs_s'</span>
+    : s' = inv_from_z_iso i_y · (# F s · i_y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (idpath (s') @ _).
+    <span class="nb">unfold</span> s.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (z_iso_after_z_iso_inv i_y).
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">e</span> : C⟦P_C b N_C, y⟧
+      := parameterized_NNO_mor N_C b y z s.
+
+  <span class="kn">Let</span> <span class="nf">ϕ_mod</span> (<span class="nv">ϕ</span> : A)
+    : D⟦F(P_C b N_C), F y⟧
+      := bp'' · (pr1 ϕ · inv_from_z_iso i_y).
+
+  <span class="kn">Let</span> <span class="nf">inv_F</span> (<span class="nv">ϕ</span> : A) : C⟦P_C b N_C, y⟧
+      := fully_faithful_inv_hom (pr2 F_weq) _ _ (ϕ_mod ϕ).
+
+  <span class="kn">Local Lemma</span> <span class="nf">reflection_parameterized_NNO_helper</span>
+    : inv_from_z_iso i_b
+        · # F (BinProductArrow C (P_C b N_C) (identity b) (TerminalArrow T_C b · parameterized_NNO_Z N_C))
+        · BinProductOfArrows D (P_D b' (F N_C)) (P_D' b N_C) i_b (identity (F N_C))
+      = BinProductArrow D (P_D b' (F N_C)) (identity b') (TerminalArrow T_D b' · F_Z).
+  <span class="kn">Proof</span>.
+    use BinProductArrowUnique.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc'.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (P_D _ _) (P_D' _ _)).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths, BinProductPr1Commutes.
+      }
+      <span class="nb">rewrite</span> functor_id, id_left.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc'.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (P_D _ _) (P_D' _ _)).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths, BinProductPr2Commutes.
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> F_Z, weak_equiv_preserves_parameterized_NNO_Z.
+      <span class="nb">rewrite</span> functor_comp, assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TerminalArrowUnique T_D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_parameterized_NNO_mor_Z</span> (<span class="nv">ϕ</span> : A)
+    : BinProductArrow C (P_C b N_C) (identity b) (TerminalArrow T_C b · parameterized_NNO_Z N_C)
+        · inv_F ϕ = z.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+    <span class="nb">unfold</span> inv_F, ϕ_mod.
+
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> pathsinv0, functor_on_fully_faithful_inv_hom.
+    }
+
+    use (cancel_z_iso' (z_iso_inv i_b)).
+
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ pr12 ϕ).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> reflection_parameterized_NNO_helper.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. { <span class="nb">apply</span> maponpaths_2, z_iso_after_z_iso_inv. }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">reflection_parameterized_NNO_helper'</span>
+    : # F (BinProductOfArrows C (P_C b N_C) (P_C b N_C) (identity b) (parameterized_NNO_S N_C))
+        · BinProductOfArrows D (P_D b' (F N_C)) (P_D' b N_C) i_b (identity (F N_C))
+      = BinProductOfArrows D (P_D b' (F N_C)) (P_D' b N_C) i_b (identity (F N_C))
+          · BinProductOfArrows D (P_D b' (F N_C)) (P_D b' (F N_C)) (identity b') F_S.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> pathsinv0, postcompWithBinProductArrow.
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+
+    <span class="nb">apply</span> BinProductArrowUnique.
+    - etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductOfArrowsPr1 _ (P_D _ _) (P_D' _ _)).
+      }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths, BinProductPr1Commutes.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths, id_right.
+    - etrans. {
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (BinProductOfArrowsPr2 _ (P_D _ _) (P_D' _ _)).
+      }
+      <span class="nb">rewrite</span> id_right.
+      etrans. {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths, BinProductPr2Commutes.
+      }
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reflection_parameterized_NNO_mor_S</span> (<span class="nv">ϕ</span> : A)
+    : BinProductOfArrows C (P_C b N_C) (P_C b N_C) (identity b) (parameterized_NNO_S N_C)
+        · inv_F ϕ = inv_F ϕ · s.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+    <span class="nb">unfold</span> inv_F, ϕ_mod.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> functor_comp.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, functor_on_fully_faithful_inv_hom.
+    }
+
+    use (cancel_z_iso _ _ i_y).
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">simpl</span> ; <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> s_vs_s'.
+    }
+    <span class="nb">rewrite</span> &lt;- (pr22 ϕ).
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> reflection_parameterized_NNO_helper'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inv_of_ϕ_is_parameterized_NNO_mor</span> (<span class="nv">ϕ</span> : A)
+    : inv_F ϕ = parameterized_NNO_mor N_C b y z s.
+  <span class="kn">Proof</span>.
+    use parameterized_NNO_mor_unique.
+    - <span class="bp">exact</span> z.
+    - <span class="bp">exact</span> s.
+    - <span class="nb">apply</span> reflection_parameterized_NNO_mor_Z.
+    - <span class="nb">apply</span> reflection_parameterized_NNO_mor_S.
+    - <span class="nb">apply</span> parameterized_NNO_mor_Z.
+    - <span class="nb">apply</span> parameterized_NNO_mor_S.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">img_of_nno_uvp_uniqueness</span>
+    : isaprop A.
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> ϕ ψ.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property. }
+
+    use (cancel_z_iso _ _ (z_iso_inv i_y)).
+    use (cancel_z_iso' bp'').
+    <span class="nb">refine</span> (! homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ F_weq) _ _) _ @ _).
+    <span class="nb">refine</span> (_ @ homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ F_weq) _ _) _).
+
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (inv_of_ϕ_is_parameterized_NNO_mor ϕ @ ! inv_of_ϕ_is_parameterized_NNO_mor ψ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_mor</span>
+    : D⟦P_D b' (F N_C), y'⟧
+    := inv_from_z_iso bp'' · #F e · i_y.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_mor_Z</span>
+    : bp (TerminalArrow T_D b' · F_Z) · weak_equiv_preserves_parameterized_NNO_mor = z'.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> weak_equiv_preserves_parameterized_NNO_mor.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">rewrite</span> z_vs_z'.
+
+    <span class="nb">set</span> (pf := maponpaths #F (parameterized_NNO_mor_Z N_C b y z s)).
+    <span class="nb">rewrite</span> &lt;- pf.
+    <span class="nb">unfold</span> e.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+
+    etrans. {
+      <span class="nb">apply</span> (postcompWithBinProductArrow _ (P_D' _ _) (P_D _ _)).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> (BinProductArrowUnique _ _ _ (P_D' _ _)).
+    - <span class="nb">rewrite</span> assoc'.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> assoc'.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TerminalArrowUnique T_D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_mor_S</span>
+    : bp' F_S · weak_equiv_preserves_parameterized_NNO_mor
+      = weak_equiv_preserves_parameterized_NNO_mor · s'.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> weak_equiv_preserves_parameterized_NNO_mor.
+    <span class="nb">set</span> (pf := maponpaths #F (parameterized_NNO_mor_S N_C b y z s)).
+    <span class="nb">unfold</span> F_S, weak_equiv_preserves_parameterized_NNO_S.
+
+    <span class="nb">rewrite</span> assoc.
+    use z_iso_inv_to_right.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    use z_iso_inv_on_right.
+    <span class="nb">unfold</span> e.
+    <span class="nb">refine</span> (_ @ ! pf @ _).
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> pathsinv0, functor_on_fully_faithful_inv_hom.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+
+      <span class="nb">unfold</span> bp'', bp'.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (! reflection_parameterized_NNO_helper').
+      }
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans. {
+        <span class="nb">apply</span> (postcompWithBinProductArrow _ (P_D' _ _) (P_D _ _)).
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (z_iso_inv_after_z_iso i_b).
+      }
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      use (BinProductArrowUnique _ _ _ (P_D' _ _)) ; <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_parameterized_NNO_existence</span>
+    : A.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">weak_equiv_preserves_parameterized_NNO_mor</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> weak_equiv_preserves_parameterized_NNO_mor_Z.
+    - <span class="bp">exact</span> weak_equiv_preserves_parameterized_NNO_mor_S.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesPreserveNNOs</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_parameterized_NNO</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  {<span class="nv">F</span> : C ⟶ D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+  {<span class="nv">T_C</span> : Terminal C} {<span class="nv">P_C</span> : BinProducts C} (<span class="nv">N_C</span> : parameterized_NNO T_C P_C)
+  (<span class="nv">P_D</span> : BinProducts D)
+  : is_parameterized_NNO (weak_equiv_creates_terminal F_weq T_C) P_D (F N_C)
+      (weak_equiv_preserves_parameterized_NNO_Z F_weq N_C)
+      (weak_equiv_preserves_parameterized_NNO_S N_C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b' y' z' s'.
+
+  use (factor_through_squash (isapropiscontr _) _ (eso_from_weak_equiv _ F_weq b')).
+  <span class="nb">intros</span> [b i_b].
+  use (factor_through_squash (isapropiscontr _) _ (eso_from_weak_equiv _ F_weq y')).
+  <span class="nb">intros</span> [y i_y].
+
+  use iscontraprop1.
+  - <span class="bp">exact</span> (img_of_nno_uvp_uniqueness F_weq N_C P_D z' s' i_b i_y).
+  - <span class="nb">apply</span> (weak_equiv_preserves_parameterized_NNO_existence F_weq N_C P_D z' s' i_b i_y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weak_equiv_creates_parameterized_NNO</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  {<span class="nv">F</span> : C ⟶ D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+  {<span class="nv">T_C</span> : Terminal C} {<span class="nv">P_C</span> : BinProducts C} (<span class="nv">N_C</span> : parameterized_NNO T_C P_C)
+  (<span class="nv">T_D</span> : Terminal D) (<span class="nv">P_D</span> : BinProducts D)
+  : parameterized_NNO T_D P_D.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (is_M_D := weak_equiv_preserves_parameterized_NNO F_weq N_C P_D).
+  <span class="nb">set</span> (M_D := make_parameterized_NNO _ _ _ is_M_D).
+  <span class="bp">exact</span> (parameterized_NNO_independent_of_terminal M_D T_D).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * 2. Weak equivalences preserve PNNNO's *)</span>
+<span class="kn">Proposition</span> <span class="nf">weak_equiv_preserves_parameterized_NNO'</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : C ⟶ D} (<span class="nv">Fw</span> : is_weak_equiv F)
+  {<span class="nv">T_C</span> : Terminal C} {<span class="nv">P_C</span> : BinProducts C}
+  (<span class="nv">N_C</span> : parameterized_NNO T_C P_C)
+  {<span class="nv">T_D</span> : Terminal D} {<span class="nv">P_D</span> : BinProducts D}
+  (<span class="nv">N_D</span> : parameterized_NNO T_D P_D)
+  : preserves_parameterized_NNO N_C N_D _ (weak_equiv_preserves_terminal _ Fw).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (M_D' := weak_equiv_creates_parameterized_NNO Fw N_C T_D P_D).
+  <span class="nb">set</span> (i := (parameterized_NNO_unique_up_to_iso N_D M_D')).
+  <span class="bp">exact</span> (is_z_isomorphism_path (idpath _) (pr2 i)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Weak Equivalences reflect PNNNO's *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesReflectPNNO</span>.
+
+  <span class="kn">Context</span>  {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : C ⟶ D} (<span class="nv">F_weq</span> : is_weak_equiv F)
+    {<span class="nv">T_C</span> : Terminal C} {<span class="nv">P_C</span> : BinProducts C}
+    {<span class="nv">P_D</span> : BinProducts D}.
+
+  <span class="kn">Context</span> (<span class="nv">N_C</span> : C) (<span class="nv">z_C</span> : C⟦T_C, N_C⟧) (<span class="nv">s_C</span> : C⟦N_C, N_C⟧).
+
+  <span class="kn">Let</span> <span class="nf">T_D</span> : Terminal D
+      := weak_equiv_creates_terminal F_weq T_C.
+
+  <span class="kn">Let</span> <span class="nf">N_D</span> : D := F N_C.
+  <span class="kn">Let</span> <span class="nf">z_D</span> : D⟦T_D, N_D⟧ := #F z_C.
+  <span class="kn">Let</span> <span class="nf">s_D</span> : D⟦N_D, N_D⟧ := #F s_C.
+
+  <span class="kn">Context</span> (<span class="nv">N_D_p</span> : is_parameterized_NNO T_D P_D N_D z_D s_D).
+
+  <span class="kn">Let</span> <span class="nf">P_Fb_FN</span> (<span class="nv">b</span> : C) : BinProduct D (F b) (F N_C)
+      := preserves_binproduct_to_binproduct F (weak_equiv_preserves_binproducts F_weq) (P_C b N_C).
+
+  <span class="kn">Local Lemma</span> <span class="nf">equiv_on_zero_mor</span>
+    {<span class="nv">b</span> <span class="nv">y</span> : C} {<span class="nv">z'</span> : C ⟦ b, y ⟧}
+    (<span class="nv">f</span> : C⟦P_C b N_C, y⟧)
+    : BinProductArrow C (P_C b N_C) (identity b) (TerminalArrow T_C b · z_C) · f = z'
+      &lt;-&gt; BinProductArrow D (P_D (F b) N_D) (identity (F b)) (TerminalArrow T_D (F b) · z_D)
+          · (BinProductArrow D (P_Fb_FN b)
+               (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f)
+        = # F z'.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> pf.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pf. }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> pathsinv0.
+        use (preserves_binproduct_to_preserves_arrow _ _ (P_C _ _) (P_D _ _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths_12.
+      + <span class="nb">apply</span> pathsinv0, functor_id.
+      + <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, (TerminalArrowUnique T_D).
+    - use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+      <span class="nb">refine</span> (_ @ pf).
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> (preserves_binproduct_to_preserves_arrow _ (weak_equiv_preserves_binproducts F_weq) (P_C _ _) (P_D _ _)).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TerminalArrowUnique T_D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">equiv_on_succ_mor</span>
+    {<span class="nv">b</span> <span class="nv">y</span> : C} {<span class="nv">s'</span> : C⟦y, y⟧}
+    (<span class="nv">f</span> : C⟦P_C b N_C, y⟧)
+    : (BinProductOfArrows C (P_C b N_C) (P_C b N_C) (identity b) s_C · f = f · s')
+      &lt;-&gt; BinProductOfArrows D (P_D (F b) N_D) (P_D (F b) N_D) (identity (F b)) s_D
+          · (BinProductArrow D (P_Fb_FN b)
+               (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f)
+        = BinProductArrow D (P_Fb_FN b)
+            (BinProductPr1 D (P_D (F b) N_D)) (BinProductPr2 D (P_D (F b) N_D)) · # F f · # F s'.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> p_l.
+      <span class="nb">set</span> (q_r := maponpaths #F p_l).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp <span class="k">in</span> q_r.
+      use cancel_z_iso'.
+      <span class="mi">2</span>: { <span class="nb">apply</span> (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq)). }
+      <span class="nb">refine</span> (_ @ q_r @ _).
+      + <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> (preserves_binproduct_to_preserves_arrow _ _ (P_C _ _) (P_D _ _)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> postcompWithBinProductArrow.
+        <span class="nb">apply</span> maponpaths_12.
+        * <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp, functor_id.
+        * <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp.
+      + <span class="nb">refine</span> (! id_left _ @ _).
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        <span class="nb">set</span> (p := P_Fb_FN b).
+        <span class="nb">apply</span> (BinProductArrowsEq _ _ _ p) ; <span class="nb">rewrite</span> assoc'.
+        * etrans.
+          <span class="mi">2</span>: {
+            <span class="nb">apply</span> maponpaths, pathsinv0.
+            <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ p).
+          }
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">apply</span> id_left.
+        * etrans.
+          <span class="mi">2</span>: {
+            <span class="nb">apply</span> maponpaths, pathsinv0.
+            <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ p).
+          }
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> id_left.
+    - <span class="nb">intro</span> q_r.
+      use (faithful_reflects_morphism_equality _ (pr2 F_weq)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+      use cancel_z_iso'.
+      <span class="mi">2</span>: { <span class="nb">apply</span> z_iso_inv, (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq) (P_C _ _) (P_D _ _)). }
+
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">refine</span> (_ @ q_r).
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">set</span> (p := P_Fb_FN b).
+      <span class="nb">apply</span> (BinProductArrowsEq _ _ _ p) ; <span class="nb">cbn</span> ; <span class="nb">rewrite</span> assoc', &lt;- functor_comp.
+      + etrans. {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductOfArrowsPr1.
+        }
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> assoc'.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths, pathsinv0.
+          <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ p).
+        }
+        etrans. {
+          <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ p).
+        }
+        <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+        <span class="nb">apply</span> pathsinv0, id_right.
+      + etrans. {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> BinProductOfArrowsPr2.
+        }
+        <span class="nb">rewrite</span> assoc'.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths, pathsinv0.
+          <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ p).
+        }
+        <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+        <span class="nb">rewrite</span> functor_comp, assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weak_equiv_reflects_parameterized_NNO</span>
+    : is_parameterized_NNO T_C P_C N_C z_C s_C.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_parameterized_NNO.
+    <span class="nb">intros</span> b y z' s'.
+
+    <span class="nb">set</span> (q := N_D_p (F b) (F y) (#F z') (#F s')).
+    use (iscontrweqb' q).
+
+    use weq_subtypes'.
+    - <span class="nb">refine</span> (_ ∘ weq_from_fully_faithful (pr2 F_weq) _ _)%weq.
+      use z_iso_comp_right_weq.
+      <span class="nb">apply</span> z_iso_inv.
+      <span class="nb">apply</span> (preserves_binproduct_to_z_iso _ (weak_equiv_preserves_binproducts F_weq)).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> f.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> [p_l p_r].
+        <span class="nb">split</span>.
+        * <span class="bp">exact</span> (pr1 (equiv_on_zero_mor f) p_l).
+        * <span class="bp">exact</span> (pr1 (equiv_on_succ_mor f) p_r).
+      + <span class="nb">intros</span> [p_l p_r].
+        <span class="nb">split</span>.
+        * <span class="bp">exact</span> (pr2 (equiv_on_zero_mor f) p_l).
+        * <span class="bp">exact</span> (pr2 (equiv_on_succ_mor f) p_r).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesReflectPNNO</span>.
+
+<span class="sd">(** * 4. Weak Equivalences Lift Preservation of PNNO. *)</span>
+<span class="kn">Section</span> <span class="nf">WeakEquivalencesLiftPreservesPNNO</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+    {<span class="nv">F</span> : C1 ⟶ C3} {<span class="nv">G</span> : C1 ⟶ C2} {<span class="nv">H</span> : C2 ⟶ C3}
+    (<span class="nv">α</span> : nat_z_iso (G ∙ H) F)
+    (<span class="nv">G_weq</span> : is_weak_equiv G)
+    {<span class="nv">Fpt</span> : preserves_terminal F}
+    {<span class="nv">T1</span> : Terminal C1} {<span class="nv">T2</span> : Terminal C2} {<span class="nv">T3</span> : Terminal C3}
+    {<span class="nv">P1</span> : BinProducts C1} {<span class="nv">P2</span> : BinProducts C2} {<span class="nv">P3</span> : BinProducts C3}
+    (<span class="nv">N1</span> : parameterized_NNO T1 P1) (<span class="nv">N2</span> : parameterized_NNO T2 P2) (<span class="nv">N3</span> : parameterized_NNO T3 P3)
+    (<span class="nv">Fpn</span> : preserves_parameterized_NNO N1 N3 F Fpt).
+
+  <span class="kn">Let</span> <span class="nf">N2'</span> : parameterized_NNO T2 P2.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (weak_equiv_creates_parameterized_NNO G_weq N1 T2 P2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">H_pt</span> : preserves_terminal H
+      := weak_equiv_lifts_preserves_terminal α G_weq Fpt.
+
+  <span class="kn">Let</span> <span class="nf">F_z</span> : C3⟦T3, F N1⟧
+      := TerminalArrow (preserves_terminal_to_terminal F Fpt T1) T3 · # F (parameterized_NNO_Z N1).
+  <span class="kn">Let</span> <span class="nf">F_s</span> : C3⟦F N1, F N1⟧
+      := (# F (parameterized_NNO_S N1)).
+
+  <span class="kn">Let</span> <span class="nf">F_hn</span> : C3⟦F N1, H N2⟧
+      := nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1
+           · # H (parameterized_NNO_unique_up_to_iso N2' N2).
+
+  <span class="kn">Let</span> <span class="nf">H_z</span> : C3⟦T3, H N2⟧
+      := TerminalArrow (preserves_terminal_to_terminal H H_pt T2) T3 · # H (parameterized_NNO_Z N2).
+  <span class="kn">Let</span> <span class="nf">H_s</span> : C3⟦H N2, H N2⟧
+      := # H (parameterized_NNO_S N2).
+
+  <span class="kn">Let</span> <span class="nf">T3'</span> : Terminal C3.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">H</span> (G T1)).
+    <span class="nb">apply</span> H_pt.
+    <span class="nb">apply</span> weak_equiv_preserves_terminal.
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> T1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_lifts_preserves_parameterized_NNO_comm</span>
+    : parameterized_NNO_mor N3 T3 (F N1) F_z F_s · F_hn
+      = parameterized_NNO_mor N3 T3 (H N2) H_z H_s.
+  <span class="kn">Proof</span>.
+    use (parameterized_NNO_mor_unique N3).
+    - <span class="bp">exact</span> H_z.
+    - <span class="bp">exact</span> H_s.
+    - <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> parameterized_NNO_mor_Z.
+      <span class="nb">unfold</span> H_z, F_z, F_hn.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> nat_trans_ax.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">assert</span> (tmp : # G (parameterized_NNO_Z N1)
+                      · is_NNO_parameterized_NNO_mor N2' N2 (pr12 N2) (pr122 N2)
+                    = TerminalArrow T2 (G T1) · parameterized_NNO_Z N2). {
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (is_NNO_parameterized_NNO_mor_Z N2' N2 (pr12 N2) (pr122 N2)).
+        }
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ assoc' _ _ _).
+        <span class="nb">cbn</span> ; <span class="nb">unfold</span> weak_equiv_preserves_parameterized_NNO_Z.
+        <span class="nb">refine</span> (! id_left _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        use proofirrelevance.
+        <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> (weak_equiv_preserves_terminal _ G_weq _ (pr2 T1) _).
+      }
+
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> tmp.
+      }
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TerminalArrowUnique (preserves_terminal_to_terminal _ H_pt T2)).
+    - <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> parameterized_NNO_mor_S.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> F_s, F_hn, H_s.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (nat_trans_ax (nat_z_iso_inv α)).
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- ! functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (is_NNO_parameterized_NNO_mor_S N2').
+    - <span class="nb">apply</span> parameterized_NNO_mor_Z.
+    - <span class="nb">apply</span> parameterized_NNO_mor_S.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weak_equiv_lifts_preserves_parameterized_NNO</span>
+    : preserves_parameterized_NNO N2 N3 H H_pt.
+  <span class="kn">Proof</span>.
+    use is_z_isomorphism_path.
+    - <span class="nb">refine</span> (preserves_parameterized_NNO_mor N1 N3 F Fpt · _).
+      <span class="nb">refine</span> (_ · #H (parameterized_NNO_unique_up_to_iso N2' N2)).
+      <span class="bp">exact</span> (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
+    - <span class="nb">unfold</span> preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> weak_equiv_lifts_preserves_parameterized_NNO_comm.
+    - use is_z_isomorphism_comp.
+      { <span class="nb">apply</span> Fpn. }
+      use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (nat_z_iso_pointwise_z_iso (nat_z_iso_inv α) N1).
+      + <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> parameterized_NNO_unique_up_to_iso.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencesLiftPreservesPNNO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/PNNO.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

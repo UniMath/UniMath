@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Cores of categories</span>
+
+<span class="sd"> In this file we study cores of categories. The core of a category is</span>
+<span class="sd"> the subcategory whose morphisms are the isomorphisms in the original</span>
+<span class="sd"> category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The core</span>
+<span class="sd"> 2. Functor from the core to the category</span>
+<span class="sd"> 3. Factoring via the core</span>
+<span class="sd"> 4. Functors between cores</span>
+<span class="sd"> 5. A diagonal functor on cores</span>
+<span class="sd"> 6. The functor from the core to the opposite</span>
+<span class="sd"> 7. Idtoiso in the core</span>
+<span class="sd"> 8. A displayed category for the core</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Core</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The core</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">core_precategory_ob_mor</span> : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, z_iso x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_precategory_data</span> : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> core_precategory_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_z_iso x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">i₁</span> <span class="nv">i₂</span>, z_iso_comp i₁ i₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_is_precategory</span> : is_precategory core_precategory_data.
+  <span class="kn">Proof</span>.
+    use make_is_precategory_one_assoc ; <span class="nb">intros</span> ; use z_iso_eq ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_precategory</span> : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> core_precategory_data.
+    - <span class="bp">exact</span> core_is_precategory.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core</span> : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> core_precategory.
+    - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+      use isaset_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_core</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : core}
+             (<span class="nv">f</span> : x --&gt; y)
+    : is_z_isomorphism f.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">z_iso_inv_from_z_iso</span> <span class="nv">f</span>).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         use z_iso_eq ;
+         <span class="nb">cbn</span> ;
+         [ <span class="nb">apply</span> z_iso_inv_after_z_iso | <span class="nb">apply</span> z_iso_after_z_iso_inv]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_pregroupoid_core</span>
+    : is_pregroupoid core.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> @is_z_iso_core.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_z_iso_weq</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : @z_iso C x y ≃ @z_iso core x y.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">i</span>, _,,_).
+      + <span class="bp">exact</span> i.
+      + <span class="nb">apply</span> is_z_iso_core.
+    - use isweq_iso.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, pr1 i).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ;
+           use z_iso_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ;
+           use z_iso_eq ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_core</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : is_univalent core.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use weqhomot.
+    - <span class="bp">exact</span> (core_z_iso_weq x y
+             ∘ make_weq idtoiso (HC x y))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Functor from the core to the category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_core_data</span>
+    : functor_data core C.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">i</span>, pr1 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core_is_functor</span>
+    : is_functor functor_core_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core</span>
+    : core ⟶ C.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> functor_core_data.
+    - <span class="bp">exact</span> functor_core_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core_eso</span>
+    : essentially_surjective functor_core.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">refine</span> (x ,, _).
+    <span class="nb">apply</span> identity_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core_faithful</span>
+    : faithful functor_core.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    use z_iso_eq ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core_full_on_iso</span>
+    : full_on_iso functor_core.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">refine</span> (f ,, _).
+      <span class="nb">apply</span> is_z_iso_core.
+    - <span class="kp">abstract</span>
+        (use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_core_pseudomonic</span>
+    : pseudomonic functor_core.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> functor_core_faithful.
+    - <span class="bp">exact</span> functor_core_full_on_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Factoring via the core</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">FactorCore</span>.
+    <span class="kn">Context</span> {<span class="nv">G</span> : groupoid}
+            (<span class="nv">F</span> : G ⟶ C).
+
+    <span class="kn">Definition</span> <span class="nf">factor_through_core_data</span>
+      : functor_data G core.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F x).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>,
+               functor_on_z_iso
+                 F
+                 (_ ,, pr2 G _ _ f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">factor_through_core_is_functor</span>
+      : is_functor factor_through_core_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use z_iso_eq ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> functor_id.
+      - <span class="nb">apply</span> functor_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">factor_through_core</span>
+      : G ⟶ core.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> factor_through_core_data.
+      - <span class="bp">exact</span> factor_through_core_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">factor_through_core_commute</span>
+      : factor_through_core ∙ functor_core ⟹ F.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">factor_through_core_commute_z_iso</span>
+      : nat_z_iso (factor_through_core ∙ functor_core) F.
+    <span class="kn">Proof</span>.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> factor_through_core_commute.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> identity_is_z_iso.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FactorCore</span>.
+
+  <span class="kn">Section</span> <span class="nf">NatIsoToCore</span>.
+    <span class="kn">Context</span> {<span class="nv">G</span> : groupoid}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : G ⟶ core}
+            (<span class="nv">α</span> : nat_z_iso
+                   (F₁ ∙ functor_core)
+                   (F₂ ∙ functor_core)).
+
+    <span class="kn">Definition</span> <span class="nf">nat_trans_to_core</span>
+      : F₁ ⟹ F₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, nat_z_iso_pointwise_z_iso α x).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ f ; <span class="nb">cbn</span> ;
+           use z_iso_eq ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (nat_trans_ax α _ _ f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nat_iso_to_core</span>
+      : nat_z_iso F₁ F₂.
+    <span class="kn">Proof</span>.
+      use make_nat_z_iso.
+      - <span class="bp">exact</span> nat_trans_to_core.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> is_z_iso_core.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">NatIsoToCore</span>.
+<span class="kn">End</span> <span class="nf">Core</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_core</span>
+           (<span class="nv">C</span> : univalent_category)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (core C).
+  - <span class="nb">apply</span> is_univalent_core.
+    <span class="bp">exact</span> (pr2 C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Functors between cores</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CoreFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">core_functor_data</span>
+    : functor_data (core C₁) (core C₂).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, functor_on_z_iso F f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_functor_is_functor</span>
+    : is_functor core_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_id.
+    - <span class="nb">intros</span> x y z f g.
+      use z_iso_eq ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">core_functor</span>
+    : core C₁ ⟶ core C₂.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> core_functor_data.
+    - <span class="bp">exact</span> core_functor_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CoreFunctor</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. A diagonal functor on cores</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">core_diag_data</span>
+           (<span class="nv">C</span> : category)
+  : functor_data (core C) (category_binproduct C^op C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x ,, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, inv_from_z_iso f ,, pr1 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_diag_laws</span>
+           (<span class="nv">C</span> : category)
+  : is_functor (core_diag_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_diag</span>
+           (<span class="nv">C</span> : category)
+  : core C ⟶ category_binproduct C^op C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (core_diag_data C).
+  - <span class="bp">exact</span> (core_diag_laws C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. The functor from the core to the opposite</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_core_op_data</span>
+           (<span class="nv">C</span> : category)
+  : functor_data (core C) C^op.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, inv_from_z_iso f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_core_op_laws</span>
+           (<span class="nv">C</span> : category)
+  : is_functor (functor_core_op_data C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_core_op</span>
+           (<span class="nv">C</span> : category)
+  : core C ⟶ C^op.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (functor_core_op_data C).
+  - <span class="bp">exact</span> (functor_core_op_laws C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Idtoiso in the core</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">idtoiso_core</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">p</span> : x = y)
+  : pr11 (@idtoiso (core C) _ _ p) = pr1 (@idtoiso C _ _ p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. A displayed category for the core *)</span>
+<span class="kn">Definition</span> <span class="nf">core_disp_cat_ob_mor</span>
+           (<span class="nv">C</span> : category)
+  : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, unit).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, is_z_isomorphism f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_disp_cat_id_comp</span>
+           (<span class="nv">C</span> : category)
+  : disp_cat_id_comp C (core_disp_cat_ob_mor C).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intros</span> x t.
+    <span class="nb">apply</span> identity_is_z_iso.
+  - <span class="nb">intros</span> x y z f g xx yy zz Hf Hg.
+    <span class="bp">exact</span> (is_z_isomorphism_comp Hf Hg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_disp_cat_data</span>
+           (<span class="nv">C</span> : category)
+  : disp_cat_data C.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (core_disp_cat_ob_mor C).
+  - <span class="bp">exact</span> (core_disp_cat_id_comp C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">core_disp_cat_axioms</span>
+            (<span class="nv">C</span> : category)
+  : disp_cat_axioms C (core_disp_cat_data C).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_disp_cat</span>
+           (<span class="nv">C</span> : category)
+  : disp_cat C.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (core_disp_cat_data C).
+  - <span class="bp">exact</span> (core_disp_cat_axioms C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_core_disp_cat</span>
+           (<span class="nv">C</span> : category)
+  : is_univalent_disp (core_disp_cat C).
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_fibers.
+  <span class="nb">intros</span> x xx yy.
+  use isweqimplimpl.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isasetunit.
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">core_univalent_disp_cat</span>
+           (<span class="nv">C</span> : category)
+  : disp_univalent_category C.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (core_disp_cat C).
+  - <span class="bp">exact</span> (is_univalent_core_disp_cat C).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. A displayed category for the core
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

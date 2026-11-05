@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SliceFiber.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************</span>
+
+<span class="sd"> Fibers of slice bicategories</span>
+
+<span class="sd"> Each of the variations of slice bicategories has a local isocleaving, and thus we</span>
+<span class="sd"> can talk about fiber categories. The slice of each of them is some variation of</span>
+<span class="sd"> the hom-category:</span>
+<span class="sd"> - for the lax slice, it is the hom-category</span>
+<span class="sd"> - for the oplax slice, it is the opposite of the hom-category</span>
+<span class="sd"> - for the slice, it is the core of the hom-category</span>
+<span class="sd"> In addition, we determine the functor arising from a morphism in the base and the</span>
+<span class="sd"> global cleaving. In all of the different variations of the slice bicategory, this</span>
+<span class="sd"> functor is equivalent to precomposition.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiber of lax slice</span>
+<span class="sd"> 2. Fiber functor of lax slice</span>
+<span class="sd"> 3. Fiber of oplax slice</span>
+<span class="sd"> 4. Fiber functor of oplax slice</span>
+<span class="sd"> 5. Fiber of slice</span>
+<span class="sd"> 6. Fiber functor of oplax slice</span>
+
+<span class="sd"> ************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.LaxSlice.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Slice.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.SliceCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberBicategory.FunctorFromCleaving.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Fiber of lax slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LaxSliceFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">c</span> <span class="nv">a</span> : B).
+
+  <span class="kn">Let</span> <span class="nf">fib</span> : category
+    := discrete_fiber_category
+         (lax_slice_disp_bicat B a)
+         (lax_slice_disp_2cells_isaprop B a)
+         (lax_slice_disp_univalent_2_1 B a)
+         (lax_slice_local_iso_cleaving a)
+         c.
+
+  <span class="kn">Let</span> <span class="nf">homc</span> : category
+    := hom c a.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_lax_slice_fib_data</span>
+    : functor_data homc fib.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, α • linvunitor _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_lax_slice_fib_is_functor</span>
+    : is_functor hom_to_lax_slice_fib_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id2_left.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> linvunitor_natural.
+      }
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (!(id2_right _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> runitor_rwhisker.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_lax_slice_fib</span>
+    : homc ⟶ fib.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> hom_to_lax_slice_fib_data.
+    - <span class="bp">exact</span> hom_to_lax_slice_fib_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_slice_fib_to_hom_data</span>
+    : functor_data fib homc.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, α • lunitor _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_slice_fib_to_hom_is_functor</span>
+    : is_functor lax_slice_fib_to_hom_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitor_triangle.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lax_slice_fib_to_hom</span>
+    : fib ⟶ homc.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> lax_slice_fib_to_hom_data.
+    - <span class="bp">exact</span> lax_slice_fib_to_hom_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_lax_slice_fib_hom_unit</span>
+    : functor_identity fib
+      ⟹
+      lax_slice_fib_to_hom ∙ hom_to_lax_slice_fib.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, linvunitor f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ; <span class="nb">cbn</span> ;
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> lunitor_linvunitor ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> !lwhisker_hcomp ;
+         <span class="nb">rewrite</span> &lt;- linvunitor_natural ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_hcomp ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> linvunitor_assoc ;
+         <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id ;
+         <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp ;
+         <span class="nb">apply</span> triangle_r_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_lax_slice_fib_hom_counit</span>
+    : hom_to_lax_slice_fib ∙ lax_slice_fib_to_hom
+      ⟹
+      functor_identity homc.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, id₂ f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_left, id2_right ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> linvunitor_lunitor ;
+         <span class="nb">apply</span> id2_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_lax_slice_fib_hom</span>
+    : equivalence_of_cats fib homc.
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> lax_slice_fib_to_hom.
+      + <span class="bp">exact</span> hom_to_lax_slice_fib.
+      + <span class="bp">exact</span> equiv_lax_slice_fib_hom_unit.
+      + <span class="bp">exact</span> equiv_lax_slice_fib_hom_counit.
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> is_z_iso_discrete_fiber.
+        <span class="nb">apply</span> lax_slice_invertible_2cell_is_left_disp_adj_equiv.
+        <span class="nb">cbn</span>.
+        is_iso.
+      + <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_lax_slice_fib_to_hom</span>
+    : adj_equivalence_of_cats lax_slice_fib_to_hom
+    := adjointification equiv_lax_slice_fib_hom.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_lax_slice_fib_hom</span>
+    : adj_equiv fib homc
+    := _ ,, adj_equivalence_lax_slice_fib_to_hom.
+<span class="kn">End</span> <span class="nf">LaxSliceFiber</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Fiber functor of lax slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LaxSliceSubFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B)
+          {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          (<span class="nv">f</span> : c₁ --&gt; c₂).
+
+  <span class="kn">Let</span> <span class="nf">fib₁</span> : category
+    := discrete_fiber_category
+         (lax_slice_disp_bicat B a)
+         (lax_slice_disp_2cells_isaprop B a)
+         (lax_slice_disp_univalent_2_1 B a)
+         (lax_slice_local_iso_cleaving a)
+         c₁.
+
+  <span class="kn">Let</span> <span class="nf">fib₂</span> : category
+    := discrete_fiber_category
+         (lax_slice_disp_bicat B a)
+         (lax_slice_disp_2cells_isaprop B a)
+         (lax_slice_disp_univalent_2_1 B a)
+         (lax_slice_local_iso_cleaving a)
+         c₂.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_lax_slice_cleaving_nat_trans</span>
+    : functor_from_cleaving
+        (lax_slice_disp_bicat B a)
+        (lax_slice_disp_2cells_isaprop B a)
+        (lax_slice_disp_univalent_2_1 B a)
+        (lax_slice_global_cleaving a)
+        (lax_slice_local_iso_cleaving a)
+        f
+      ⟹
+      lax_slice_fib_to_hom _ _
+      ∙ pre_comp a f
+      ∙ hom_to_lax_slice_fib _ _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, linvunitor _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> g₁ g₂ α ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_left, id2_right ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+         <span class="nb">rewrite</span> runitor_rwhisker ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lwhisker_vcomp ;
+         <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+         <span class="nb">rewrite</span> linvunitor_assoc ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator ;
+         <span class="nb">rewrite</span> !lwhisker_vcomp ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_lax_slice_cleaving_nat_z_iso</span>
+    : nat_z_iso
+        (functor_from_cleaving
+           (lax_slice_disp_bicat B a)
+           (lax_slice_disp_2cells_isaprop B a)
+           (lax_slice_disp_univalent_2_1 B a)
+           (lax_slice_global_cleaving a)
+           (lax_slice_local_iso_cleaving a)
+           f)
+        (lax_slice_fib_to_hom _ _
+         ∙ pre_comp a f
+         ∙ hom_to_lax_slice_fib _ _).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> functor_from_lax_slice_cleaving_nat_trans.
+    - <span class="nb">intro</span> g.
+      <span class="nb">apply</span> is_z_iso_discrete_fiber.
+      <span class="nb">apply</span> lax_slice_invertible_2cell_is_left_disp_adj_equiv.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LaxSliceSubFiber</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Fiber of oplax slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OplaxSliceFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">c</span> <span class="nv">a</span> : B).
+
+  <span class="kn">Let</span> <span class="nf">fib</span> : category
+    := discrete_fiber_category
+         (oplax_slice_disp_bicat B a)
+         (oplax_slice_disp_2cells_isaprop B a)
+         (oplax_slice_disp_univalent_2_1 B a)
+         (oplax_slice_local_iso_cleaving a)
+         c.
+
+  <span class="kn">Let</span> <span class="nf">homc</span> : category
+    := (hom c a)^op.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_oplax_slice_fib_data</span>
+    : functor_data homc fib.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, lunitor _ • α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_oplax_slice_fib_is_functor</span>
+    : is_functor hom_to_oplax_slice_fib_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id2_right.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_oplax_slice_fib</span>
+    : homc ⟶ fib.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> hom_to_oplax_slice_fib_data.
+    - <span class="bp">exact</span> hom_to_oplax_slice_fib_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_fib_to_hom_data</span>
+    : functor_data fib homc.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, linvunitor _ • α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_fib_to_hom_is_functor</span>
+    : is_functor oplax_slice_fib_to_hom_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">intros</span> f g h α β ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      use maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oplax_slice_fib_to_hom</span>
+    : fib ⟶ homc.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> oplax_slice_fib_to_hom_data.
+    - <span class="bp">exact</span> oplax_slice_fib_to_hom_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_oplax_slice_fib_hom_unit</span>
+    : functor_identity fib
+      ⟹
+      oplax_slice_fib_to_hom ∙ hom_to_oplax_slice_fib.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, lunitor f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> !lwhisker_vcomp ;
+         <span class="nb">rewrite</span> vcomp_lunitor ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lunitor_linvunitor ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_oplax_slice_fib_hom_counit</span>
+    : hom_to_oplax_slice_fib ∙ oplax_slice_fib_to_hom
+      ⟹
+      functor_identity homc.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, id₂ f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_left, id2_right ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> linvunitor_lunitor ;
+         <span class="nb">apply</span> id2_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_oplax_slice_fib_hom</span>
+    : equivalence_of_cats fib homc.
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> oplax_slice_fib_to_hom.
+      + <span class="bp">exact</span> hom_to_oplax_slice_fib.
+      + <span class="bp">exact</span> equiv_oplax_slice_fib_hom_unit.
+      + <span class="bp">exact</span> equiv_oplax_slice_fib_hom_counit.
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> is_z_iso_discrete_fiber.
+        <span class="nb">apply</span> oplax_slice_invertible_2cell_is_left_disp_adj_equiv.
+        <span class="nb">cbn</span>.
+        is_iso.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> opp_is_z_isomorphism.
+        <span class="nb">apply</span> is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_oplax_slice_fib_to_hom</span>
+    : adj_equivalence_of_cats oplax_slice_fib_to_hom
+    := adjointification equiv_oplax_slice_fib_hom.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_oplax_slice_fib_hom</span>
+    : adj_equiv fib homc
+    := _ ,, adj_equivalence_oplax_slice_fib_to_hom.
+<span class="kn">End</span> <span class="nf">OplaxSliceFiber</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Fiber functor of oplax slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OplaxSliceSubFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B)
+          {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          (<span class="nv">f</span> : c₁ --&gt; c₂).
+
+  <span class="kn">Let</span> <span class="nf">fib₁</span> : category
+    := discrete_fiber_category
+         (oplax_slice_disp_bicat B a)
+         (oplax_slice_disp_2cells_isaprop B a)
+         (oplax_slice_disp_univalent_2_1 B a)
+         (oplax_slice_local_iso_cleaving a)
+         c₁.
+
+  <span class="kn">Let</span> <span class="nf">fib₂</span> : category
+    := discrete_fiber_category
+         (oplax_slice_disp_bicat B a)
+         (oplax_slice_disp_2cells_isaprop B a)
+         (oplax_slice_disp_univalent_2_1 B a)
+         (oplax_slice_local_iso_cleaving a)
+         c₂.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_oplax_slice_cleaving_nat_trans</span>
+    : functor_from_cleaving
+        (oplax_slice_disp_bicat B a)
+        (oplax_slice_disp_2cells_isaprop B a)
+        (oplax_slice_disp_univalent_2_1 B a)
+        (oplax_slice_global_cleaving a)
+        (oplax_slice_local_iso_cleaving a)
+        f
+      ⟹
+      oplax_slice_fib_to_hom _ _
+      ∙ functor_opp (pre_comp a f)
+      ∙ hom_to_oplax_slice_fib _ _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, lunitor _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> g₁ g₂ α ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> lwhisker_id2, id2_left, id2_right ;
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> vcomp_lunitor ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> &lt;- lunitor_triangle ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lwhisker_lwhisker ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> &lt;-vcomp_whisker ;
+         <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> rwhisker_hcomp, lwhisker_hcomp ;
+         <span class="nb">rewrite</span> triangle_r_inv ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_oplax_slice_cleaving_nat_z_iso</span>
+    : nat_z_iso
+        (functor_from_cleaving
+           (oplax_slice_disp_bicat B a)
+           (oplax_slice_disp_2cells_isaprop B a)
+           (oplax_slice_disp_univalent_2_1 B a)
+           (oplax_slice_global_cleaving a)
+           (oplax_slice_local_iso_cleaving a)
+           f)
+        (oplax_slice_fib_to_hom _ _
+         ∙ functor_opp (pre_comp a f)
+         ∙ hom_to_oplax_slice_fib _ _).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> functor_from_oplax_slice_cleaving_nat_trans.
+    - <span class="nb">intro</span> g.
+      <span class="nb">apply</span> is_z_iso_discrete_fiber.
+      <span class="nb">apply</span> oplax_slice_invertible_2cell_is_left_disp_adj_equiv.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OplaxSliceSubFiber</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Fiber of slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SliceFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">c</span> <span class="nv">a</span> : B).
+
+  <span class="kn">Let</span> <span class="nf">fib</span> : category
+    := discrete_fiber_category
+         (slice_disp_bicat a)
+         (disp_2cells_isaprop_slice a)
+         (disp_univalent_2_1_slice a)
+         (slice_local_iso_cleaving a)
+         c.
+
+  <span class="kn">Let</span> <span class="nf">homc</span> : category
+    := core (hom c a).
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_slice_fib_data</span>
+    : functor_data homc fib.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>,
+             comp_of_invertible_2cell
+               (z_iso_to_inv2cell α)
+               (linvunitor_invertible_2cell _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_slice_fib_is_functor</span>
+    : is_functor hom_to_slice_fib_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id2_left.
+    - <span class="nb">intros</span> f g h α β.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> linvunitor_natural.
+      }
+      <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (!(id2_right _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> lunitor_runitor_identity.
+      <span class="nb">rewrite</span> runitor_rwhisker.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hom_to_slice_fib</span>
+    : homc ⟶ fib.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> hom_to_slice_fib_data.
+    - <span class="bp">exact</span> hom_to_slice_fib_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_fib_to_hom_data</span>
+    : functor_data fib homc.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="nb">intros</span> f g α.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (pr1 α • lunitor _).
+      + use is_inv2cell_to_is_z_iso.
+        is_iso.
+        <span class="nb">apply</span> property_from_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_fib_to_hom_is_functor</span>
+    : is_functor slice_fib_to_hom_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">intros</span> f g h α β.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitor_triangle.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">slice_fib_to_hom</span>
+    : fib ⟶ homc.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> slice_fib_to_hom_data.
+    - <span class="bp">exact</span> slice_fib_to_hom_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_slice_fib_hom_unit</span>
+    : functor_identity fib
+      ⟹
+      slice_fib_to_hom ∙ hom_to_slice_fib.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, linvunitor_invertible_2cell f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> lunitor_linvunitor ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> !lwhisker_hcomp ;
+         <span class="nb">rewrite</span> &lt;- linvunitor_natural ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_hcomp ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> linvunitor_assoc ;
+         <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id ;
+         <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp ;
+         <span class="nb">apply</span> triangle_r_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_slice_fib_hom_counit</span>
+    : hom_to_slice_fib ∙ slice_fib_to_hom
+      ⟹
+      functor_identity homc.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, identity_z_iso f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g α ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_left, id2_right ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> linvunitor_lunitor ;
+         <span class="nb">apply</span> id2_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_slice_fib_hom</span>
+    : equivalence_of_cats fib homc.
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> slice_fib_to_hom.
+      + <span class="bp">exact</span> hom_to_slice_fib.
+      + <span class="bp">exact</span> equiv_slice_fib_hom_unit.
+      + <span class="bp">exact</span> equiv_slice_fib_hom_counit.
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> is_z_iso_discrete_fiber.
+        <span class="nb">apply</span> slice_is_inv2cell_to_is_disp_adj_equiv.
+      + <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> is_z_iso_core.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_slice_fib_to_hom</span>
+    : adj_equivalence_of_cats slice_fib_to_hom
+    := adjointification equiv_slice_fib_hom.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_slice_fib_hom</span>
+    : adj_equiv fib homc
+    := _ ,, adj_equivalence_slice_fib_to_hom.
+<span class="kn">End</span> <span class="nf">SliceFiber</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Fiber functor of oplax slice</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SliceSubFiber</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">a</span> : B)
+          {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          (<span class="nv">f</span> : c₁ --&gt; c₂).
+
+  <span class="kn">Let</span> <span class="nf">fib₁</span> : category
+    := discrete_fiber_category
+         (slice_disp_bicat a)
+         (disp_2cells_isaprop_slice a)
+         (disp_univalent_2_1_slice a)
+         (slice_local_iso_cleaving a)
+         c₁.
+
+  <span class="kn">Let</span> <span class="nf">fib₂</span> : category
+    := discrete_fiber_category
+         (slice_disp_bicat a)
+         (disp_2cells_isaprop_slice a)
+         (disp_univalent_2_1_slice a)
+         (slice_local_iso_cleaving a)
+         c₂.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_slice_cleaving_nat_trans</span>
+    : functor_from_cleaving
+        (slice_disp_bicat a)
+        (disp_2cells_isaprop_slice a)
+        (disp_univalent_2_1_slice a)
+        (slice_global_cleaving a)
+        (slice_local_iso_cleaving a)
+        f
+      ⟹
+      slice_fib_to_hom _ _
+      ∙ core_functor (pre_comp a f)
+      ∙ hom_to_slice_fib _ _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">g</span>, linvunitor_invertible_2cell _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> g₁ g₂ α ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_left, id2_right ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+         <span class="nb">rewrite</span> runitor_rwhisker ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lwhisker_vcomp ;
+         <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+         <span class="nb">rewrite</span> linvunitor_assoc ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator ;
+         <span class="nb">rewrite</span> !lwhisker_vcomp ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_slice_cleaving_nat_z_iso</span>
+    : nat_z_iso
+        (functor_from_cleaving
+           (slice_disp_bicat a)
+           (disp_2cells_isaprop_slice a)
+           (disp_univalent_2_1_slice a)
+           (slice_global_cleaving a)
+           (slice_local_iso_cleaving a)
+           f)
+        (slice_fib_to_hom _ _
+         ∙ core_functor (pre_comp a f)
+         ∙ hom_to_slice_fib _ _).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> functor_from_slice_cleaving_nat_trans.
+    - <span class="nb">intro</span> g.
+      <span class="nb">apply</span> is_z_iso_discrete_fiber.
+      <span class="nb">apply</span> slice_is_inv2cell_to_is_disp_adj_equiv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SliceSubFiber</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/FiberBicategory/SliceFiber.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Fiber functor of oplax slice
+  &gt;
+  &gt;  ************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

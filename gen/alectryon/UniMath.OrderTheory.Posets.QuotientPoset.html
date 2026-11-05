@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>QuotientPoset.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Quotients of posets</span>
+
+<span class="sd"> If we have a poset and a downward closed set in that poset, then</span>
+<span class="sd"> we can collapse that subset (i.e., identify all its elements) and</span>
+<span class="sd"> acquire a new poset.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Downward closed sets</span>
+<span class="sd"> 2. The quotient of posets</span>
+<span class="sd"> 3. Lower set for smash product</span>
+<span class="sd"> 4. Quotients of posets</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Downward closed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">downward_closed</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : PartialOrder X)
+           (<span class="nv">I</span> : X → hProp)
+  : UU
+  := ∏ (x₁ x₂ : X), RX x₁ x₂ → I x₂ → I x₁.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The quotient of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PosetQuotientLowerSet</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">RX</span> : PartialOrder X)
+          (<span class="nv">I</span> : X → hProp)
+          (<span class="nv">I_down</span> : downward_closed RX I).
+
+  <span class="kn">Definition</span> <span class="nf">downward_closed_to_hrel</span>
+    : hrel X
+    := <span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, eqset x₁ x₂ ∨ I x₁ ∧ I x₂.
+
+  <span class="kn">Proposition</span> <span class="nf">iseqrel_downward_closed_to_hrel</span>
+    : iseqrel downward_closed_to_hrel.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((_ ,, _) ,, _).
+    - <span class="nb">intros</span> x₁ x₂ x₃.
+      use factor_through_squash.
+      {
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₁.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ; <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="bp">exact</span> (inl (p₁ @ p₂)).
+      + <span class="nb">induction</span> p₁.
+        <span class="bp">exact</span> (inr p₂).
+      + <span class="nb">induction</span> p₂.
+        <span class="bp">exact</span> (inr p₁).
+      + <span class="bp">exact</span> (inr (pr1 p₁ ,, pr2 p₂)).
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (hinhpr (inl (idpath x))).
+    - <span class="nb">intros</span> x₁ x₂.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> p <span class="k">as</span> [ p | p ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="bp">exact</span> (inl (!p)).
+      + <span class="bp">exact</span> (inr (pr2 p ,, pr1 p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">downward_closed_to_eqrel</span>
+    : eqrel X.
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span> downward_closed_to_hrel.
+    - <span class="bp">exact</span> iseqrel_downward_closed_to_hrel.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">quotient_lower_set_order_on_el</span>
+    : hrel X
+    := <span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, I x₁ ∨ RX x₁ x₂.
+
+  <span class="kn">Proposition</span> <span class="nf">quotient_lower_set_order_on_el_comprel</span>
+    : iscomprelrel downward_closed_to_eqrel quotient_lower_set_order_on_el.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂.
+    use factor_through_squash.
+    {
+      use impred ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> hProp_set.
+    }
+    <span class="nb">intros</span> p₁.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> hProp_set.
+    }
+    <span class="nb">intros</span> p₂.
+    <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ;
+      <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ] ;
+      use hPropUnivalence ;
+      (use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ]) ;
+      <span class="nb">cbn</span> <span class="k">in</span> * ;
+      <span class="nb">intro</span> q ;
+      <span class="nb">apply</span> hinhpr.
+    - <span class="nb">induction</span> p₁, p₂.
+      <span class="bp">exact</span> q.
+    - <span class="nb">induction</span> p₁, p₂.
+      <span class="bp">exact</span> q.
+    - <span class="nb">induction</span> p₁.
+      <span class="nb">destruct</span> q <span class="k">as</span> [ q | q ].
+      + <span class="bp">exact</span> (inl q).
+      + <span class="nb">refine</span> (inl _).
+        <span class="bp">exact</span> (I_down x₁ y₁ q (pr1 p₂)).
+    - <span class="nb">induction</span> p₁.
+      <span class="nb">induction</span> q <span class="k">as</span> [ q | q ].
+      + <span class="bp">exact</span> (inl q).
+      + <span class="nb">refine</span> (inl _).
+        <span class="bp">exact</span> (I_down x₁ y₂ q (pr2 p₂)).
+    - <span class="bp">exact</span> (inl (pr2 p₁)).
+    - <span class="bp">exact</span> (inl (pr1 p₁)).
+    - <span class="bp">exact</span> (inl (pr2 p₁)).
+    - <span class="bp">exact</span> (inl (pr1 p₁)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_lower_set_order</span>
+    : hrel (setquotinset downward_closed_to_eqrel).
+  <span class="kn">Proof</span>.
+    use quotrel.
+    - <span class="bp">exact</span> quotient_lower_set_order_on_el.
+    - <span class="bp">exact</span> quotient_lower_set_order_on_el_comprel.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">istrans_quotient_lower_set_order</span>
+    : istrans quotient_lower_set_order.
+  <span class="kn">Proof</span>.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₂.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₃.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p₁.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p₂.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ].
+    - <span class="bp">exact</span> (inl p₁).
+    - <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ].
+      + <span class="nb">apply</span> inl.
+        <span class="bp">exact</span> (I_down x₁ x₂ p₁ p₂).
+      + <span class="nb">apply</span> inr.
+        <span class="bp">exact</span> (trans_PartialOrder RX p₁ p₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isrefl_quotient_lower_set_order</span>
+    : isrefl quotient_lower_set_order.
+  <span class="kn">Proof</span>.
+    use setquotunivprop.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">exact</span> (inr (refl_PartialOrder RX x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isantisymm_quotient_lower_set_order</span>
+    : isantisymm quotient_lower_set_order.
+  <span class="kn">Proof</span>.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> x₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> x₂.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intro</span> p₁.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intro</span> p₂.
+    use iscompsetquotpr ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ; <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ].
+    - <span class="bp">exact</span> (inr (p₁ ,, p₂)).
+    - <span class="nb">refine</span> (inr (p₁ ,, _)).
+      <span class="bp">exact</span> (I_down x₂ x₁ p₂ p₁).
+    - <span class="nb">refine</span> (inr (_ ,, _)).
+      + <span class="bp">exact</span> (I_down x₁ x₂ p₁ p₂).
+      + <span class="bp">exact</span> p₂.
+    - <span class="nb">apply</span> inl.
+      <span class="bp">exact</span> (antisymm_PartialOrder RX p₁ p₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_lower_set</span>
+    : PartialOrder (setquotinset downward_closed_to_eqrel).
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> quotient_lower_set_order.
+    - <span class="nb">refine</span> ((_ ,, _) ,, _).
+      + <span class="bp">exact</span> istrans_quotient_lower_set_order.
+      + <span class="bp">exact</span> isrefl_quotient_lower_set_order.
+      + <span class="bp">exact</span> isantisymm_quotient_lower_set_order.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_monotone_lower_set_setquot_pr</span>
+    : is_monotone RX quotient_lower_set (setquotpr _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ p.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (inr p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_lower_set_bottom</span>
+             (<span class="nv">pX</span> : bottom_element RX)
+    : bottom_element quotient_lower_set.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (setquotpr _ (pr1 pX)).
+    - <span class="kp">abstract</span>
+        (use setquotunivprop' ;
+         [ <span class="nb">intro</span> ;
+           <span class="nb">apply</span> propproperty
+         | ] ;
+         <span class="nb">intro</span> y ;
+         <span class="bp">exact</span> (hinhpr (inr (pr2 pX y)))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PosetQuotientLowerSet</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_quotient_lower_set</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">I</span> : X → hProp)
+           (<span class="nv">I_down</span> : downward_closed RX I)
+  : pointed_PartialOrder (setquotinset (downward_closed_to_eqrel I))
+  := quotient_lower_set RX I I_down ,, quotient_lower_set_bottom _ _ _ (pr2 RX).
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Lower set for smash product</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SmashLowerSet</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          (<span class="nv">RX</span> : pointed_PartialOrder X)
+          (<span class="nv">RY</span> : pointed_PartialOrder Y).
+
+  <span class="kn">Definition</span> <span class="nf">smash_set</span>
+    : X × Y → hProp
+    := <span class="k">λ</span> <span class="nv">xy</span>, pr1 xy = ⊥_{RX} ∨ pr2 xy = ⊥_{RY}.
+
+  <span class="kn">Definition</span> <span class="nf">smash_set_downward_closd</span>
+    : downward_closed (prod_pointed_PartialOrder RX RY) smash_set.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂ p.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+    <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ].
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> q.
+    <span class="nb">induction</span> q <span class="k">as</span> [ q | q ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    - <span class="nb">apply</span> hinhpr.
+      use inl.
+      use (antisymm_PartialOrder RX).
+      + <span class="nb">induction</span> q.
+        <span class="bp">exact</span> p₁.
+      + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+    - <span class="nb">apply</span> hinhpr.
+      use inr.
+      use (antisymm_PartialOrder RY).
+      + <span class="nb">induction</span> q.
+        <span class="bp">exact</span> p₂.
+      + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SmashLowerSet</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Quotients of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">QuotientEquivRel</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">RX</span> : PartialOrder X)
+          (<span class="nv">I</span> : X → hProp)
+          (<span class="nv">I_down</span> : downward_closed RX I)
+          (<span class="nv">eqX</span> : eqrel X)
+          (<span class="nv">H</span> : ∏ (x₁ x₂ : X), eqX x₁ x₂ &lt;-&gt; downward_closed_to_eqrel I x₁ x₂).
+
+  <span class="kn">Definition</span> <span class="nf">quotient_poset_hrel_on_el</span>
+    : hrel X
+    := <span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, I x₁ ∨ RX x₁ x₂.
+
+  <span class="kn">Proposition</span> <span class="nf">quotient_poset_hrel_comp</span>
+    : iscomprelrel eqX quotient_poset_hrel_on_el.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ p q.
+    <span class="nb">assert</span> (p' := pr1 (H x₁ x₂) p).
+    <span class="nb">revert</span> p'.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> hPropset.
+    }
+    <span class="nb">intros</span> p'.
+    <span class="nb">assert</span> (q' := pr1 (H y₁ y₂) q).
+    <span class="nb">revert</span> q'.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> hPropset.
+    }
+    <span class="nb">intros</span> q'.
+    <span class="nb">induction</span> p' <span class="k">as</span> [ p' | p' ] ;
+      <span class="nb">induction</span> q' <span class="k">as</span> [ q' | q' ] ;
+      use hPropUnivalence ;
+      (use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ]) ;
+      <span class="nb">cbn</span> <span class="k">in</span> * ;
+      <span class="nb">intro</span> r ;
+      <span class="nb">apply</span> hinhpr.
+    - <span class="nb">induction</span> p', q'.
+      <span class="bp">exact</span> r.
+    - <span class="nb">induction</span> p', q'.
+      <span class="bp">exact</span> r.
+    - <span class="nb">induction</span> p'.
+      <span class="nb">induction</span> r <span class="k">as</span> [ r | r ].
+      + <span class="bp">exact</span> (inl r).
+      + <span class="nb">refine</span> (inl _).
+        <span class="bp">exact</span> (I_down x₁ y₁ r (pr1 q')).
+    - <span class="nb">induction</span> p'.
+      <span class="nb">induction</span> r <span class="k">as</span> [ r | r ].
+      + <span class="bp">exact</span> (inl r).
+      + <span class="nb">refine</span> (inl _).
+        <span class="bp">exact</span> (I_down x₁ y₂ r (pr2 q')).
+    - <span class="bp">exact</span> (inl (pr2 p')).
+    - <span class="bp">exact</span> (inl (pr1 p')).
+    - <span class="bp">exact</span> (inl (pr2 p')).
+    - <span class="bp">exact</span> (inl (pr1 p')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_poset_hrel</span>
+    : hrel (setquotinset eqX).
+  <span class="kn">Proof</span>.
+    use quotrel.
+    - <span class="bp">exact</span> quotient_poset_hrel_on_el.
+    - <span class="bp">exact</span> quotient_poset_hrel_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">istrans_quotient_poset</span>
+    : istrans quotient_poset_hrel.
+  <span class="kn">Proof</span>.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₂.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> x₃.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p₁.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p₂.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ].
+    - <span class="bp">exact</span> (inl p₁).
+    - <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ].
+      + <span class="nb">apply</span> inl.
+        <span class="bp">exact</span> (I_down x₁ x₂ p₁ p₂).
+      + <span class="nb">apply</span> inr.
+        <span class="bp">exact</span> (trans_PartialOrder RX p₁ p₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isrefl_quotient_poset</span>
+    : isrefl quotient_poset_hrel.
+  <span class="kn">Proof</span>.
+    use setquotunivprop.
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">exact</span> (inr (refl_PartialOrder RX x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isantisymm_quotient_poset</span>
+    : isantisymm quotient_poset_hrel.
+  <span class="kn">Proof</span>.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> x₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> x.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> x₂.
+    use factor_through_squash.
+    {
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intro</span> p₁.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intro</span> p₂.
+    use iscompsetquotpr ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (pr2 (H x₁ x₂)).
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ; <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ].
+    - <span class="bp">exact</span> (inr (p₁ ,, p₂)).
+    - <span class="nb">refine</span> (inr (p₁ ,, _)).
+      <span class="bp">exact</span> (I_down x₂ x₁ p₂ p₁).
+    - <span class="nb">refine</span> (inr (_ ,, _)).
+      + <span class="bp">exact</span> (I_down x₁ x₂ p₁ p₂).
+      + <span class="bp">exact</span> p₂.
+    - <span class="nb">apply</span> inl.
+      <span class="bp">exact</span> (antisymm_PartialOrder RX p₁ p₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_poset</span>
+    : PartialOrder (setquotinset eqX).
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> quotient_poset_hrel.
+    - <span class="nb">refine</span> ((_ ,, _) ,, _).
+      + <span class="bp">exact</span> istrans_quotient_poset.
+      + <span class="bp">exact</span> isrefl_quotient_poset.
+      + <span class="bp">exact</span> isantisymm_quotient_poset.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_monotone_quotient_setquot_pr</span>
+    : is_monotone RX quotient_poset (setquotpr _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ p.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (inr p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotient_poset_bottom</span>
+             (<span class="nv">pX</span> : bottom_element RX)
+    : bottom_element quotient_poset.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (setquotpr _ (pr1 pX)).
+    - <span class="kp">abstract</span>
+        (use setquotunivprop' ;
+         [ <span class="nb">intro</span> ;
+           <span class="nb">apply</span> propproperty
+         | ] ;
+         <span class="nb">intro</span> y ;
+         <span class="bp">exact</span> (hinhpr (inr (pr2 pX y)))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">QuotientEquivRel</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_quotient_poset</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">RX</span> : pointed_PartialOrder X)
+           (<span class="nv">I</span> : X → hProp)
+           (<span class="nv">I_down</span> : downward_closed RX I)
+           (<span class="nv">eqX</span> : eqrel X)
+           (<span class="nv">H</span> : ∏ (x₁ x₂ : X), eqX x₁ x₂ &lt;-&gt; downward_closed_to_eqrel I x₁ x₂)
+  : pointed_PartialOrder (setquotinset eqX)
+  := quotient_poset RX I I_down eqX H ,, quotient_poset_bottom _ _ _ _ _ (pr2 RX).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/QuotientPoset.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Quotients of posets
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ToCatFinLimUnivComp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> From comprehension categories with a universe to categories with a universe</span>
+
+<span class="sd"> Our goal is to define a pseudofunctor from the bicategory of (DFL, full, univalent)</span>
+<span class="sd"> comprehension categories with a universe to the bicategory of univalent categories with</span>
+<span class="sd"> finite limits and a universe. This is one of the necessary ingredients to extend the</span>
+<span class="sd"> biequivalence between DFL full comprehension categories and categories with finite limits</span>
+<span class="sd"> to universes. This pseudofunctor is constructed as a displayed pseudofunctor over the</span>
+<span class="sd"> pseudofunctor that assigned to every comprehension category its category of context.</span>
+
+<span class="sd"> This file defines the compositor of the desired pseudofunctor. The construction has been</span>
+<span class="sd"> split up so that the resulting files are smaller and so that they can be compiled</span>
+<span class="sd"> concurrently. The compositor is constructed by verifying two axioms.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Coherence for the universe</span>
+<span class="sd"> 2. Coherence for the associated types map</span>
+<span class="sd">                                                                                            *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">Compositor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : dfl_full_comp_cat}
+          {<span class="nv">u₁</span> : ty ([] : C₁)}
+          {<span class="nv">u₂</span> : ty ([] : C₂)}
+          {<span class="nv">u₃</span> : ty ([] : C₃)}.
+
+  <span class="kn">Let</span> <span class="nf">Cu₁</span> : comp_cat_with_ob := pr11 C₁ ,, u₁.
+  <span class="kn">Let</span> <span class="nf">CCu₁</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim C₁ ,, dfl_full_comp_cat_to_finlim_ob u₁.
+  <span class="kn">Let</span> <span class="nf">Cu₂</span> : comp_cat_with_ob := pr11 C₂ ,, u₂.
+  <span class="kn">Let</span> <span class="nf">CCu₂</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim C₂ ,, dfl_full_comp_cat_to_finlim_ob u₂.
+  <span class="kn">Let</span> <span class="nf">Cu₃</span> : comp_cat_with_ob := pr11 C₃ ,, u₃.
+  <span class="kn">Let</span> <span class="nf">CCu₃</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim C₃ ,, dfl_full_comp_cat_to_finlim_ob u₃.
+
+  <span class="kn">Context</span> {<span class="nv">el₁</span> : comp_cat_univ_type Cu₁}
+          {<span class="nv">el₂</span> : comp_cat_univ_type Cu₂}
+          {<span class="nv">el₃</span> : comp_cat_univ_type Cu₃}
+          {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+          {<span class="nv">G</span> : dfl_full_comp_cat_functor C₂ C₃}
+          (<span class="nv">F_u</span> : z_iso_disp
+                   (comp_cat_functor_empty_context_z_iso F)
+                   (comp_cat_type_functor F [] u₁)
+                   u₂)
+          (<span class="nv">G_u</span> : z_iso_disp
+                   (comp_cat_functor_empty_context_z_iso G)
+                   (comp_cat_type_functor G [] u₂)
+                   u₃).
+
+  <span class="kn">Let</span> <span class="nf">Fob</span> : comp_cat_functor_ob Cu₁ Cu₂ := pr11 F ,, F_u.
+  <span class="kn">Let</span> <span class="nf">Gob</span> : comp_cat_functor_ob Cu₂ Cu₃ := pr11 G ,, G_u.
+
+  <span class="kn">Context</span> (<span class="nv">Fel</span> : comp_cat_functor_preserves_univ_type Fob el₁ el₂)
+          (<span class="nv">Gel</span> : comp_cat_functor_preserves_univ_type Gob el₂ el₃).
+
+  <span class="kn">Let</span> <span class="nf">FGob</span> : functor_finlim_ob CCu₁ CCu₃
+    := dfl_functor_comp_cat_to_finlim_functor F · dfl_functor_comp_cat_to_finlim_functor G
+       ,,
+       z_iso_comp
+         (functor_on_z_iso G (dfl_full_comp_cat_functor_preserves_ob F F_u))
+         (dfl_full_comp_cat_functor_preserves_ob G G_u).
+
+  <span class="kn">Let</span> <span class="nf">FG_u</span>
+    : z_iso_disp
+        (comp_cat_functor_empty_context_z_iso (F · G : dfl_full_comp_cat_functor _ _))
+        (comp_cat_type_functor (F · G : dfl_full_comp_cat_functor _ _) [] u₁)
+        u₃.
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">pose</span> (disp_cat_comp_comp_cat_with_ob F_u G_u) <span class="k">as</span> z.
+    <span class="nb">simpl</span> <span class="k">in</span> z.
+    <span class="bp">exact</span> z.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">FGob'</span> : functor_finlim_ob CCu₁ CCu₃
+    := dfl_functor_comp_cat_to_finlim_functor (F · G)
+       ,,
+       dfl_full_comp_cat_functor_preserves_ob (F · G) FG_u.
+
+  <span class="kn">Proposition</span> <span class="nf">dfl_functor_comp_cat_to_finlim_univ_compositor_ob</span>
+    : pr2 FGob ==&gt;[ dfl_functor_comp_cat_to_finlim_compositor F G ] pr2 FGob'.
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comprehension_nat_trans_comm.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comprehension_functor_mor_comp.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_functor_comp_cat_to_finlim_univ_compositor_nat_trans_ob</span>
+    : nat_trans_finlim_ob FGob FGob'
+    := dfl_functor_comp_cat_to_finlim_compositor F G
+       ,,
+       dfl_functor_comp_cat_to_finlim_univ_compositor_ob.
+
+  <span class="kn">Proposition</span> <span class="nf">comprehension_nat_trans_mor_comp_comp_cat_functor</span>
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">A</span> : ty Γ)
+    : comprehension_nat_trans_mor
+        (comp_cat_functor_comprehension
+           (F · G : dfl_full_comp_cat_functor _ _))
+        A
+      =
+      #G(comprehension_nat_trans_mor (comp_cat_functor_comprehension F) A)
+      · comprehension_nat_trans_mor (comp_cat_functor_comprehension G) _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dfl_functor_comp_cat_to_finlim_univ_compositor_preserves_el</span>
+    : nat_trans_preserves_el
+        dfl_functor_comp_cat_to_finlim_univ_compositor_nat_trans_ob
+        (comp_functor_preserves_el
+           (dfl_full_comp_cat_functor_preserves_el F F_u Fel)
+           (dfl_full_comp_cat_functor_preserves_el G G_u Gel))
+        (dfl_full_comp_cat_functor_preserves_el
+           (F · G)
+           _
+           (comp_comp_cat_functor_preserves_univ_type Fel Gel)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ t.
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cat_el_map_pb_mor_id
+               (dfl_full_comp_cat_to_finlim_stable_el_map_coherent u₃ el₃)).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_el_eq_comp.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (comp_functor_el_map_iso
+               (dfl_full_comp_cat_functor_preserves_el F F_u Fel)
+               (dfl_full_comp_cat_functor_preserves_el G G_u Gel)
+               t).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_el_eq_comp.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> dfl_full_comp_cat_functor_preserves_el_map_on_iso.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dfl_full_comp_cat_functor_preserves_el_map_on_iso.
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (functor_comp G).
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comprehension_nat_trans_comm (comp_cat_functor_comprehension G)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> (dfl_full_comp_cat_functor_preserves_el_map_on_iso (F · G)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comprehension_nat_trans_mor_comp_comp_cat_functor.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, comprehension_nat_trans_mor (comp_cat_functor_comprehension G) _ · z)
+              _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dfl_full_comp_cat_cat_el_map_el_eq.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comprehension_functor_mor_comp (comp_cat_comprehension C₃)).
+    }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (comprehension_functor_mor_comp (comp_cat_comprehension C₃)).
+    }
+    <span class="nb">rewrite</span> !assoc_disp_var.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comp_cat_el_map_on_disp_concat el₃).
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> disp_functor_comp.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> assoc_disp.
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (comp_cat_functor_preserves_univ_type_el_iso_natural Gob).
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (comp_cat_el_map_on_disp_concat el₃).
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> assoc_disp_var.
+      }
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cat_el_map_on_disp_concat
+                 el₃
+                 _
+                 (dfl_full_comp_cat_functor_preserves_el_map_eq
+                    (F · G)
+                    FG_u
+                    t)).
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> comprehension_functor_mor_transportf.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (eq_comp_cat_el_map_on_eq el₃).
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Compositor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/Biequiv/ToCatFinLimUnivComp.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1. Coherence for the universe
+  &gt;  2. Coherence for the associated types map
+  &gt;                                                                                             *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

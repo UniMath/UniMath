@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubobjectClassifier.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Subobject classifiers *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Definition</span>
+<span class="sd">  - Accessors</span>
+<span class="sd">  - Proof that a category with a subobject classifier</span>
+<span class="sd">      is balanced ([subobject_classifier_balanced])</span>
+<span class="sd">  - Derivation of [SubobjectClassifier_nat_z_iso],</span>
+<span class="sd">      the natural (z-)isomorphism between the subobject functor and Hom(-,O)</span>
+<span class="sd">        induced by a subobject classifier</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subobjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definition *)</span>
+<span class="kn">Definition</span> <span class="nf">is_subobject_classifier</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">Ω</span> : C)
+           (<span class="nv">true</span> : T --&gt; Ω)
+  : UU
+  := ∏ (x y : C)
+       (m : Monic _ x y),
+     <span class="k">∃</span>! (χ : y --&gt; Ω),
+     ∑ (H : m · χ = TerminalArrow _ _ · true),
+     isPullback H.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_subobject_classifier_arr</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">Ω</span> : C)
+            (<span class="nv">true</span> : T --&gt; Ω)
+            (<span class="nv">x</span> <span class="nv">y</span> : C)
+            (<span class="nv">m</span> : Monic _ x y)
+            (<span class="nv">χ</span> : y --&gt; Ω)
+  : isaprop
+      (∑ (H : m · χ = TerminalArrow _ _ · true),
+       isPullback H).
+<span class="kn">Proof</span>.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_isPullback.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_subobject_classifier</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">T</span> : Terminal C)
+            (<span class="nv">Ω</span> : C)
+            (<span class="nv">true</span> : T --&gt; Ω)
+  : isaprop (is_subobject_classifier T Ω true).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Terminal C) : UU :=
+  ∑ (O : ob C) (true : C⟦T, O⟧), is_subobject_classifier T O true.
+
+<span class="kn">Definition</span> <span class="nf">make_subobject_classifier_cat</span>
+          {<span class="nv">C</span> : category}
+          (<span class="nv">T</span> : Terminal C)
+          (<span class="nv">Ω</span> : C)
+          (<span class="nv">t</span> : T --&gt; Ω)
+          (<span class="nv">H</span> : is_subobject_classifier T Ω t)
+  : subobject_classifier T
+  := Ω ,, t ,, H.
+
+<span class="kn">Definition</span> <span class="nf">make_subobject_classifier</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">O</span> : ob C) (<span class="nv">true</span> : C⟦T, O⟧) :
+  (∏ (X Y : ob C) (m : Monic _ X Y),
+    iscontr (∑ (chi : C⟦Y, O⟧)
+               (H : m · chi = TerminalArrow _ _ · true),
+               isPullback H)) -&gt; subobject_classifier T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  use tpair; [<span class="bp">exact</span> O|].
+  use tpair; [<span class="bp">exact</span> true|].
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Accessors *)</span>
+
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} (<span class="nv">O</span> : subobject_classifier T).
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_object</span> : ob C :=  pr1 O.
+
+  <span class="sd">(** [true] is monic. We only export the accessor for it them as a [Monic]</span>
+<span class="sd">      (rather than the a morphism), as it's strictly more useful. *)</span>
+  <span class="kn">Definition</span> <span class="nf">true'</span> : C⟦T, subobject_classifier_object⟧ := pr1 (pr2 O).
+
+  <span class="kn">Local Lemma</span> <span class="nf">true_is_monic</span> : isMonic true'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> global_element_isMonic.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">true</span> : Monic _ T subobject_classifier_object :=
+    make_Monic _ true' true_is_monic.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_universal_property</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">m</span> : Monic _ X Y) :
+    iscontr (∑ (chi : C⟦Y, subobject_classifier_object⟧)
+               (H : m · chi = TerminalArrow _ _ · true'),
+               isPullback H) := pr2 (pr2 O) X Y m.
+
+  <span class="kn">Definition</span> <span class="nf">characteristic_morphism</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">m</span> : Monic _ X Y) :
+    C⟦Y, subobject_classifier_object⟧ :=
+    pr1 (iscontrpr1 (subobject_classifier_universal_property m)).
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_square_commutes</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">m</span> : Monic _ X Y) :
+    m · characteristic_morphism m = TerminalArrow _ _ · true :=
+    pr1 (pr2 (iscontrpr1 (subobject_classifier_universal_property m))).
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_pullback</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">m</span> : Monic _ X Y) :
+    Pullback (characteristic_morphism m) true.
+  <span class="kn">Proof</span>.
+    use make_Pullback.
+    - <span class="bp">exact</span> X.
+    - <span class="bp">exact</span> m.
+    - <span class="nb">apply</span> TerminalArrow.
+    - <span class="nb">apply</span> subobject_classifier_square_commutes.
+    - <span class="nb">apply</span> (pr2 (pr2 (iscontrpr1 (subobject_classifier_universal_property m)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subobject_classifier_pullback_sym</span>  {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">m</span> : Monic _ X Y) :
+    Pullback true (characteristic_morphism m).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (@switchPullback C _ _ _ _ _ (subobject_classifier_pullback m)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="kn">Coercion</span> <span class="nf">subobject_classifier_object</span> : subobject_classifier &gt;-&gt; ob.
+<span class="kn">Coercion</span> <span class="nf">true</span> : subobject_classifier &gt;-&gt; Monic.
+
+<span class="kn">Proposition</span> <span class="nf">characteristic_morphism_true</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">T</span> : Terminal C}
+            (<span class="nv">Ω</span> : subobject_classifier T)
+  : characteristic_morphism Ω (true Ω) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  use (maponpaths
+         pr1
+         (pr2 (subobject_classifier_universal_property Ω (true Ω)) (_ ,, _ ,, _))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (id_right _ @ !(id_left _) @ _) ;
+       <span class="nb">unfold</span> true' ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> TerminalArrowEq).
+  - use identity_isPullback.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> TerminalArrowEq.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The arrow Goldblatt calls [true! := (! : X -&gt; T) · true] *)</span>
+<span class="kn">Definition</span> <span class="nf">const_true</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} (<span class="nv">X</span> : ob C)
+           (<span class="nv">O</span> : subobject_classifier T) : X --&gt; subobject_classifier_object O :=
+  TerminalArrow T X · true O.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_map_eq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> : subobject_classifier T)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">m</span> : Monic C x y)
+           {<span class="nv">χ₁</span> <span class="nv">χ₂</span> : y --&gt; Ω}
+           (<span class="nv">p₁</span> : m · χ₁ = const_true x Ω)
+           (<span class="nv">p₂</span> : m · χ₂ = const_true x Ω)
+           (<span class="nv">H₁</span> : isPullback p₁)
+           (<span class="nv">H₂</span> : isPullback p₂)
+  : χ₁ = χ₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths
+           (<span class="k">λ</span> <span class="nv">z</span>, pr1 z)
+           (proofirrelevance
+              _
+              (isapropifcontr (subobject_classifier_universal_property Ω m))
+              (χ₁ ,, p₁ ,, H₁)
+              (χ₂ ,, p₂ ,, H₂))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_map_eq'</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> : subobject_classifier T)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">m</span> : Monic C x y)
+           {<span class="nv">χ</span> : y --&gt; Ω}
+           (<span class="nv">p</span> : m · χ
+                =
+                const_true (subobject_classifier_pullback Ω m) Ω)
+           (<span class="nv">H</span> : isPullback p)
+  : χ = characteristic_morphism _ m.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (subobject_classifier_map_eq
+                   _ _ _ _ _
+                   (isPullback_Pullback (subobject_classifier_pullback Ω m))).
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_subobject_classifier_eq_ar</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">T</span> : Terminal C}
+            {<span class="nv">O</span> : C}
+            {<span class="nv">t</span> <span class="nv">t'</span> : T --&gt; O}
+            (<span class="nv">p</span> : t = t')
+            (<span class="nv">H</span> : is_subobject_classifier T O t)
+  : is_subobject_classifier T O t'.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (Ω := (O ,, t ,, H) : subobject_classifier T).
+  <span class="nb">intros</span> x y m.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> χ₁ χ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_subobject_classifier_arr | ] ;
+       <span class="nb">induction</span> p ;
+       <span class="bp">exact</span> (subobject_classifier_map_eq Ω m (pr12 χ₁) (pr12 χ₂) (pr22 χ₁) (pr22 χ₂))).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (characteristic_morphism Ω m).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> &lt;- p ;
+         <span class="bp">exact</span> (subobject_classifier_square_commutes Ω m)).
+    + <span class="nb">cbn</span>.
+      use (isPullback_mor_paths
+             _ _ _ _ _ _
+             (isPullback_Pullback (subobject_classifier_pullback Ω m))).
+      * <span class="nb">apply</span> idpath.
+      * <span class="bp">exact</span> p.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(*A category with subobjectclassifier is balanced: if a morphism is mono and epi then it is iso*)</span>
+<span class="kn">Section</span> <span class="nf">balanced</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} (<span class="nv">O</span> : subobject_classifier T)
+  {<span class="nv">c'</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦ c' , c ⟧) (<span class="nv">f_isM</span> : isMonic f) (<span class="nv">f_isE</span> : isEpi f).
+
+  <span class="kn">Local Definition</span> <span class="nf">f_asMonic</span> := make_Monic _ f f_isM.
+
+  <span class="kn">Local Definition</span> <span class="nf">f_asEqualizer</span> : Equalizer (characteristic_morphism O f_asMonic) (TerminalArrow T c · (true O)).
+  <span class="kn">Proof</span>.
+    use (make_Equalizer _ _ f_asMonic).
+    + <span class="nb">rewrite</span>
+        subobject_classifier_square_commutes,
+        assoc.
+      use cancel_postcomposition.
+      use TerminalArrowEq.
+    + use make_isEqualizer.
+      <span class="nb">intros</span> x h q.
+      use unique_exists.
+      - <span class="nb">assert</span> (p : c' = PullbackObject  (subobject_classifier_pullback O f_asMonic)).
+        { <span class="nb">apply</span> idpath. }
+        <span class="nb">rewrite</span> p.
+        use (PullbackArrow _ _ h (TerminalArrow T x)).
+        <span class="nb">rewrite</span> q, assoc.
+        use cancel_postcomposition.
+        use TerminalArrowUnique.
+      - <span class="nb">simpl</span>.
+        <span class="nb">assert</span> (p : f =
+          PullbackPr1 (subobject_classifier_pullback O f_asMonic)).
+        { <span class="nb">apply</span> idpath. }
+        <span class="nb">rewrite</span> p.
+        use (PullbackArrow_PullbackPr1
+          ((subobject_classifier_pullback O
+          f_asMonic))).
+      - <span class="nb">intro</span> t.
+        use homset_property.
+      - <span class="nb">intros</span> t t_tri.
+        <span class="nb">simpl</span>.
+        use (PullbackArrowUnique' _ _ _ (subobject_classifier_pullback O
+        f_asMonic)).
+        * <span class="bp">exact</span> t_tri.
+        * use TerminalArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">path_from_fepi</span> : (characteristic_morphism O f_asMonic) = (TerminalArrow T c · (true O)).
+  <span class="kn">Proof</span>.
+    use f_isE.
+    <span class="nb">assert</span> (p : f = f_asMonic). {<span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> (subobject_classifier_square_commutes O f_asMonic).
+    <span class="nb">rewrite</span> assoc.
+    use cancel_postcomposition.
+    use TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">subobject_classifier_balanced</span> : (is_z_isomorphism f).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (p : f = EqualizerArrow (f_asEqualizer)).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> p.
+    use (z_iso_Equalizer_of_same_map f_asEqualizer).
+    <span class="bp">exact</span> path_from_fepi.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">balanced</span>.
+
+
+<span class="c">(*Given a subobject_classifier O there is a nat_z_iso between the subobject functor and Hom(-,O)*)</span>
+<span class="kn">Section</span> <span class="nf">subobject_classifier_natziso</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span>:category} {<span class="nv">T</span>:Terminal C} (<span class="nv">PB</span> : Pullbacks C) (<span class="nv">O</span> : subobject_classifier T).
+
+<span class="kn">Definition</span> <span class="nf">SubobjectClassifier_nt_data</span> : nat_trans_data (SubObj_Functor C PB) (contra_homSet_functor O).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c S.
+  <span class="nb">cbn</span> <span class="k">in</span> c.
+  <span class="nb">change</span> (pr1hSet (SubObj c)) <span class="k">in</span> S.
+  <span class="nb">cbn</span>.
+  use (squash_to_set (X:=(pr1setquot (z_iso_eqrel (C:=Subobjectscategory c)) S))).
+  + use homset_property.
+  + <span class="nb">intro</span> m.
+    <span class="bp">exact</span> (characteristic_morphism O
+      (Subobject_Monic (pr1carrier _ m))).
+  + <span class="nb">intros</span> m m'.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (ej : (z_iso_eqrel (C:=Subobjectscategory c)) (pr1carrier _ m') (pr1carrier _ m)). {
+      use (invweq (weqpathsinsetquot _ _ _)).
+      use (pathscomp0 (b:=S)).
+        * use (setquotl0 (z_iso_eqrel (C:=Subobjectscategory c))).
+        * use pathsinv0.
+          use (setquotl0 (z_iso_eqrel (C:=Subobjectscategory c))).
+    }
+    use (squash_to_prop ej).
+    - use homset_property.
+    - <span class="nb">intro</span> j.
+      use path_to_ctr.
+      <span class="nb">cbn</span>.
+      transparent <span class="nb">assert</span> (pb_aux : (Pullback ((identity c)·(characteristic_morphism O (Subobject_Monic (pr1carrier _ m)))) (true' O))). {
+        use (Pullback_z_iso_of_morphisms).
+          * <span class="bp">exact</span> (subobject_classifier_pullback O (Subobject_Monic (pr1carrier _ m))).
+          * <span class="bp">exact</span> (Subobject_dom (pr1carrier _ m')).
+          * <span class="bp">exact</span> (z_iso_from_z_iso_in_Subobjectcategory j).
+          * <span class="bp">exact</span> (Subobject_mor (pr1carrier _ m')).
+          * <span class="bp">exact</span> (identity_is_z_iso c).
+          * use z_iso_is_z_isomorphism.
+          * <span class="nb">rewrite</span> id_right.
+            use (Subobjectmor_tri j).
+      }
+      use (isPullback_mor_paths' _ _ _ _ _ (isPullback_Pullback pb_aux)).
+      * <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * use TerminalArrowUnique.
+  + <span class="bp">exact</span> (eqax0 (SubObj_iseqc S)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">SubobjectClassifier_nt_is</span> : is_nat_trans (SubObj_Functor C PB) (contra_homSet_functor O) SubobjectClassifier_nt_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">cbn</span> <span class="k">in</span> c, c', f.
+  use funextfun.
+  <span class="nb">intro</span> S.
+  use (squash_to_prop (X := pr1setquot _ S)).
+  + <span class="bp">exact</span> (eqax0 (SubObj_iseqc S)).
+  + use homset_property.
+  + <span class="nb">intro</span> m.
+    <span class="nb">induction</span> (setquotl0 _ _ m).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    use pathsinv0.
+    use path_to_ctr.
+    <span class="nb">set</span> (pbr := subobject_classifier_pullback O (Subobject_Monic (pr1carrier _ m))).
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (pbl := PB c c' (Subobject_dom (pr1carrier _ m)) f (Subobject_mor (pr1carrier _ m))).
+    transparent <span class="nb">assert</span> (pb_glued :
+      (Pullback
+        (f·(characteristic_morphism O (Subobject_Monic (pr1carrier _ m))))
+        O)).
+    { use make_Pullback.
+    - <span class="bp">exact</span> pbl.
+    - <span class="bp">exact</span> (PullbackPr1 pbl).
+    - <span class="bp">exact</span> ((PullbackPr2 pbl)·(PullbackPr2 pbr)).
+    - use glueSquares.
+      * <span class="bp">exact</span> (PullbackPr1 pbr).
+      * <span class="bp">exact</span> (PullbackSqrCommutes pbr).
+      * <span class="bp">exact</span> (PullbackSqrCommutes pbl).
+    - use (isPullbackGluedSquare
+      (isPullback_Pullback pbr)
+      (isPullback_Pullback pbl)). }
+    use (isPullback_mor_paths' _ _ _ _ _ (isPullback_Pullback pb_glued)).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+    - use TerminalArrowUnique.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">SubobjectClassifier_nat_trans</span> : nat_trans (SubObj_Functor C PB) (contra_homSet_functor O).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  + <span class="bp">exact</span> SubobjectClassifier_nt_data.
+  + <span class="bp">exact</span> SubobjectClassifier_nt_is.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">SubobjectClassifier_nt_is_nat_z_iso</span> : is_nat_z_iso SubobjectClassifier_nat_trans.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c.
+  use make_is_z_isomorphism.
+  + <span class="nb">intro</span> phi.
+    <span class="nb">cbn</span> <span class="k">in</span> c, phi.
+    use setquotpr.
+    use (PullbackSubobject PB _ phi).
+    use (Subobjectscategory_ob (true O)).
+    <span class="nb">apply</span> global_element_isMonic.
+  + use make_is_inverse_in_precat.
+    - use funextfun.
+      <span class="nb">intro</span> S.
+      use (squash_to_prop (X:= pr1setquot _ S) ((eqax0 (SubObj_iseqc S)))).
+      { use isasetsetquot. }
+      <span class="nb">intro</span> m.
+      <span class="nb">induction</span> (setquotl0 _ _ m).
+      use weqpathsinsetquot.
+      use hinhpr.
+      <span class="nb">cbn</span>.
+      <span class="nb">set</span> (pbc := subobject_classifier_pullback O ((Subobject_Monic (pr1carrier _ m)))).
+      <span class="nb">set</span> (PBc := PB _ _ _ (characteristic_morphism O (Subobject_Monic (pr1carrier _ m))) O).
+
+      <span class="nb">induction</span> (pullbackiso _ PBc pbc) <span class="k">as</span> (PBpb_z_iso,(PBpb_z_iso1,PBpb_z_iso2)).
+      use make_z_iso_in_Subobjectscategory.
+      * <span class="nb">cbn</span>.
+        <span class="bp">exact</span> PBpb_z_iso.
+      * use z_iso_is_z_isomorphism.
+      * <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> PBpb_z_iso1.
+    - use funextfun.
+      <span class="nb">intro</span> phi.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+      use path_to_ctr.
+      <span class="nb">cbn</span>.
+      <span class="nb">set</span> (pb := PB O c T phi (true' O)).
+      use (isPullback_mor_paths' _ _ _ _ _ (isPullback_Pullback pb)).
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> idpath.
+      * use TerminalArrowUnique.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">SubobjectClassifier_nat_z_iso</span> :
+  nat_z_iso (SubObj_Functor C PB) (contra_homSet_functor O).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  + <span class="bp">exact</span> SubobjectClassifier_nat_trans.
+  + <span class="bp">exact</span> SubobjectClassifier_nt_is_nat_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">subobject_classifier_natziso</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SubobjectClassifier/SubobjectClassifier.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;         induced by a subobject classifier
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

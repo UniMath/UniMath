@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Core.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Karoubi Envelope</span>
+
+<span class="sd">  Defines the universal property of a Karoubi envelope, an idempotent completion, a category of</span>
+<span class="sd">  retracts or a Cauchy completion of a category C. This is a completion of C in which every</span>
+<span class="sd">  idempotent splits.</span>
+<span class="sd">  Presheaves (and functors) from C to a category with colimits (or coequalizers) can be lifted to</span>
+<span class="sd">  functors on its Karoubi envelope, and this constitutes an adjoint equivalence.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of a karoubi envelope</span>
+<span class="sd">    [univalent_karoubi_envelope] [set_karoubi_envelope]</span>
+<span class="sd">  2. Functors on C are equivalent to functors on the setcategory Karoubi envelope</span>
+<span class="sd">    [karoubi_pullback_equivalence]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LeftKanExtension.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.FundamentalTheorem.SurjectivePrecomposition.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Lemma</span> <span class="nf">retract_functor_is_equalizer</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : C ⟶ D)
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">H</span> : retraction b a)
+  : Equalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (retract_is_equalizer (functor_preserves_retraction F H)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">retract_functor_is_coequalizer</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : C ⟶ D)
+  {<span class="nv">a</span> <span class="nv">b</span> : C}
+  (<span class="nv">H</span> : retraction b a)
+  : Coequalizer (#F (retraction_retraction H) · #F (retraction_section H)) (identity (F a)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (retract_is_coequalizer (functor_preserves_retraction F H)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1. The definition of a karoubi envelope *)</span>
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope_data</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (D : category), C ⟶ D.
+
+<span class="kn">Definition</span> <span class="nf">make_karoubi_envelope_data</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : category)
+  (<span class="nv">F</span> : C ⟶ D)
+  : karoubi_envelope_data C
+  := D ,, F.
+
+<span class="kn">Coercion</span> <span class="nf">karoubi_envelope_data_category</span>
+  {C : category}
+  (D : karoubi_envelope_data C)
+  : category
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope_functor</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope_data C)
+  : C ⟶ D
+  := pr2 D.
+
+
+<span class="kn">Definition</span> <span class="nf">idempotents_split</span>
+  (<span class="nv">D</span> : category)
+  : UU
+  := ∏ (X : D) (f : idempotent X), ∥ is_split_idempotent f ∥.
+
+<span class="kn">Definition</span> <span class="nf">objects_are_retracts</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category}
+  (<span class="nv">F</span> : C ⟶ D)
+  : UU
+  := ∏ (X : D), <span class="k">∃</span> (<span class="nv">Y</span> : C), retraction X (F Y).
+
+<span class="kn">Definition</span> <span class="nf">is_karoubi_envelope</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope_data C)
+  : UU
+  := idempotents_split D ×
+    fully_faithful (karoubi_envelope_functor D) ×
+    objects_are_retracts (karoubi_envelope_functor D).
+
+<span class="kn">Definition</span> <span class="nf">make_is_karoubi_envelope</span>
+  {<span class="nv">C</span> : category}
+  {<span class="nv">D</span> : karoubi_envelope_data C}
+  (<span class="nv">H1</span> : idempotents_split D)
+  (<span class="nv">H2</span> : fully_faithful (karoubi_envelope_functor D))
+  (<span class="nv">H3</span> : objects_are_retracts (karoubi_envelope_functor D))
+  : is_karoubi_envelope D
+  := H1 ,, H2 ,, H3.
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (D : karoubi_envelope_data C), is_karoubi_envelope D.
+
+<span class="kn">Definition</span> <span class="nf">make_karoubi_envelope</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope_data C)
+  (<span class="nv">H</span> : is_karoubi_envelope D)
+  : karoubi_envelope C
+  := D ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">karoubi_envelope_to_data</span>
+  {C : category}
+  (D : karoubi_envelope C)
+  : karoubi_envelope_data C
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope_idempotents_split</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope C)
+  : idempotents_split D
+  := pr12 D.
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope_fully_faithful</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope C)
+  : fully_faithful (karoubi_envelope_functor D)
+  := pr122 D.
+
+<span class="kn">Definition</span> <span class="nf">karoubi_envelope_objects_are_retracts</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope C)
+  : objects_are_retracts (karoubi_envelope_functor D)
+  := pr222 D.
+
+
+<span class="kn">Definition</span> <span class="nf">univalent_karoubi_envelope</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (D : karoubi_envelope C), is_univalent D.
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_karoubi_envelope</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope C)
+  (<span class="nv">H</span> : is_univalent D)
+  : univalent_karoubi_envelope C
+  := D ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">univalent_karoubi_envelope_to_karoubi_envelope</span>
+  {C : category}
+  (D : univalent_karoubi_envelope C)
+  : karoubi_envelope C
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">univalent_karoubi_envelope_is_univalent</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : univalent_karoubi_envelope C)
+  : is_univalent D
+  := pr2 D.
+
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_envelope</span>
+  (<span class="nv">C</span> : category)
+  : UU
+  := ∑ (D : karoubi_envelope C), isaset D.
+
+<span class="kn">Definition</span> <span class="nf">make_set_karoubi_envelope</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : karoubi_envelope C)
+  (<span class="nv">H</span> : isaset D)
+  : set_karoubi_envelope C
+  := D ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">set_karoubi_envelope_to_karoubi_envelope</span>
+  {C : category}
+  (D : set_karoubi_envelope C)
+  : karoubi_envelope C
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">set_karoubi_envelope_isaset</span>
+  {<span class="nv">C</span> : category}
+  (<span class="nv">D</span> : set_karoubi_envelope C)
+  : isaset D
+  := pr2 D.
+
+<span class="sd">(** * 2. Functors on C are equivalent to functors on the setcategory Karoubi envelope *)</span>
+
+<span class="kn">Section</span> <span class="nf">Functors</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">D</span> : karoubi_envelope C).
+  <span class="kn">Context</span> (<span class="nv">E</span> : category).
+  <span class="kn">Context</span> (<span class="nv">HE</span> : Colims E).
+
+  <span class="kn">Section</span> <span class="nf">Iso</span>.
+
+    <span class="kn">Context</span> (<span class="nv">P</span> : D ⟶ E).
+    <span class="kn">Context</span> (<span class="nv">d</span> : D).
+    <span class="kn">Context</span> (<span class="nv">c</span> : C).
+    <span class="kn">Context</span> (<span class="nv">f</span> : retraction d (karoubi_envelope_functor D c)).
+
+    <span class="kn">Definition</span> <span class="nf">karoubi_functor_iso_inv</span>
+      : E ⟦ P d, lan_point HE (karoubi_envelope_functor D) (functor_compose (karoubi_envelope_functor D) P) d⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ · colimIn _ ((
+        (c ,, tt) ,, (f : _ --&gt; _)
+      ) : vertex (lan_comma _ _))).
+      <span class="nb">apply</span> (#P).
+      <span class="bp">exact</span> (retraction_section f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">karoubi_functor_iso_is_inverse</span>
+      : is_inverse_in_precat
+        ((counit_from_right_adjoint (is_right_adjoint_precomposition HE (karoubi_envelope_functor D)) P : _ ⟹ _) d)
+        karoubi_functor_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> colim_mor_eq.
+        <span class="nb">intro</span> v.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (assoc _ _ _) @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) (lan_precomposition_counit_point_colimIn HE _ P d _ _ _) @ _).
+        <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (functor_comp P _ _) @ _).
+        <span class="nb">refine</span> (_ @ !id_right _).
+        <span class="nb">simple refine</span> (_ @ colimInCommutes (lan_colim HE _ (pre_comp_functor _ P) _) v ((c ,, tt) ,, (f : _ --&gt; _)) ((fully_faithful_inv_hom (karoubi_envelope_fully_faithful D) _ _ (pr2 v · retraction_section f) ,, pr2 iscontrunit _) ,, _)).
+        + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, #P x · _)).
+          <span class="bp">exact</span> (!functor_on_fully_faithful_inv_hom _ _ _).
+        + <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (functor_on_fully_faithful_inv_hom _ _ _)).
+          <span class="nb">refine</span> (_ @ assoc _ _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!retraction_is_retraction _).
+      - <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (lan_precomposition_counit_point_colimIn HE _ P d _ _ _) @ _).
+        <span class="nb">refine</span> (!functor_comp _ _ _ @ _).
+        <span class="nb">refine</span> (_ @ functor_id P _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> retraction_is_retraction.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Iso</span>.
+
+  <span class="kn">Definition</span> <span class="nf">karoubi_functor_iso</span>
+    (<span class="nv">P</span> : D ⟶ E)
+    : is_z_isomorphism (counit_from_right_adjoint (is_right_adjoint_precomposition HE (karoubi_envelope_functor D)) P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+    <span class="nb">intro</span> d.
+    <span class="nb">refine</span> (factor_through_squash (isaprop_is_z_isomorphism _) _ (karoubi_envelope_objects_are_retracts D d)).
+    <span class="nb">intro</span> c.
+    <span class="nb">refine</span> (make_is_z_isomorphism _ _ (karoubi_functor_iso_is_inverse _ _ (pr1 c) (pr2 c))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">karoubi_pullback_equivalence</span>
+    : adj_equivalence_of_cats
+      (pre_comp_functor (C := E) (karoubi_envelope_functor D)).
+  <span class="kn">Proof</span>.
+    use adj_equivalence_from_right_adjoint.
+    - <span class="nb">apply</span> (is_right_adjoint_precomposition HE).
+    - <span class="nb">intro</span> P.
+      <span class="bp">exact</span> (z_iso_is_z_isomorphism (pre_comp_after_lan_iso _ (karoubi_envelope_fully_faithful D) _ HE P)).
+    - <span class="bp">exact</span> karoubi_functor_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Functors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/KaroubiEnvelope/Core.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [karoubi_pullback_equivalence]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

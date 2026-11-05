@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>HomotopicalCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * HomotopicalCategory *)</span>
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Definitions:</span>
+<span class="sd">    - two_of_six</span>
+<span class="sd">    - two_of_three</span>
+<span class="sd">    - homotopical_category</span>
+<span class="sd">    - homotopical_functor</span>
+<span class="sd">    - is_minimal (minimal homotopical category)</span>
+
+<span class="sd">  - Properties:</span>
+<span class="sd">    - two_of_six_is_prop</span>
+<span class="sd">    - two_of_three_is_prop</span>
+<span class="sd">    - is_homotopical_is_prop</span>
+<span class="sd">    - is_homotopical_functor_is_prop</span>
+<span class="sd">    - is_minimal_is_prop</span>
+
+<span class="sd">  - Results:</span>
+<span class="sd">    - [two_of_six_implies_two_of_three]</span>
+<span class="sd">    - [cats_minimal_homotopical] (any category is a minimal homotopical category)</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">morph_class</span> (<span class="nv">C</span> : category) := ∏ (x y : C), hsubtype (x --&gt; y).
+
+<span class="kn">Definition</span> <span class="nf">category_with_weq</span> := ∑ C : category, morph_class C.
+
+<span class="kn">Definition</span> <span class="nf">category_with_weq_pr1</span> (<span class="nv">C</span> : category_with_weq) : category := pr1 C.
+
+<span class="kn">Coercion</span> <span class="nf">category_with_weq_pr1</span> : category_with_weq &gt;-&gt; category.
+
+<span class="kn">Definition</span> <span class="nf">two_of_six</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morph_class C) :=
+  ∏ (x y z t : C)
+    (f  : x --&gt; y)
+    (g  : y --&gt; z)
+    (h  : z --&gt; t)
+    (gf : W x z (f · g))
+    (hg  : W y t (g · h)),
+    (W x y f)
+      × (W y z g)
+      × (W z t h)
+      × (W x t (f · g · h)).
+
+<span class="kn">Proposition</span> <span class="nf">two_of_six_is_prop</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morph_class C) : isaprop (two_of_six W).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> two_of_six.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isofhleveltotal2. <span class="nb">apply</span> (W _ _ _).
+  <span class="nb">intro</span>. <span class="nb">apply</span> isofhleveltotal2. <span class="nb">apply</span> (W _ _ _).
+  <span class="nb">intro</span>. <span class="nb">apply</span> isofhleveltotal2. <span class="nb">apply</span> (W _ _ _).
+  <span class="nb">intro</span>. <span class="nb">apply</span> (W _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_homotopical</span> (<span class="nv">C</span> : category_with_weq) : UU := two_of_six (pr2 C).
+
+<span class="kn">Proposition</span> <span class="nf">is_homotopical_is_prop</span> (<span class="nv">C</span> : category_with_weq) : isaprop (is_homotopical C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> two_of_six_is_prop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homotopical_category</span> : UU := ∑ (C : category_with_weq), is_homotopical C.
+
+<span class="kn">Definition</span> <span class="nf">homotopical_category_pr1</span> (<span class="nv">C</span> : homotopical_category) : category_with_weq := pr1 C.
+
+<span class="kn">Coercion</span> <span class="nf">homotopical_category_pr1</span> : homotopical_category &gt;-&gt; category_with_weq.
+
+<span class="kn">Definition</span> <span class="nf">category_with_weq_pr2</span> (<span class="nv">C</span> : category_with_weq) : morph_class (pr1 C) := pr2 C.
+
+<span class="kn">Definition</span> <span class="nf">is_homotopical_functor</span> {<span class="nv">C</span> <span class="nv">C'</span> : homotopical_category} (<span class="nv">F</span> : functor C C') : UU :=
+  ∏ (x y : C) (f : category_with_weq_pr2 C x y), category_with_weq_pr2 C' _ _ (# F (pr1 f)).
+
+<span class="kn">Proposition</span> <span class="nf">is_homotopical_functor_is_prop</span> {<span class="nv">C</span> <span class="nv">C'</span> : homotopical_category} (<span class="nv">F</span> : functor C C') : isaprop (is_homotopical_functor F).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> (pr21 C').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homotopical_functor</span> (<span class="nv">C</span> <span class="nv">C'</span> : homotopical_category) : UU := ∑ f : functor C C', is_homotopical_functor f.
+
+<span class="kn">Definition</span> <span class="nf">two_of_three</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morph_class C) :=
+  ∏ (x y z : C)
+    (f  : x --&gt; y)
+    (g  : y --&gt; z),
+  (W _ _ f × W _ _ g -&gt;  W _ _ (f · g)) ×
+  (W _ _ f × W _ _ (f · g) -&gt;  W _ _ g) ×
+  (W _ _ g × W _ _ (f · g) -&gt;  W _ _ f).
+
+<span class="kn">Proposition</span> <span class="nf">two_of_three_is_prop</span> {<span class="nv">C</span> : category} (<span class="nv">W</span> : morph_class C) : isaprop (two_of_three W).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> two_of_three.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isofhleveltotal2.
+  - <span class="nb">apply</span> impred. <span class="nb">intros</span>. <span class="nb">apply</span> (W _ _ _).
+  - <span class="nb">intros</span>. <span class="nb">apply</span> isofhleveltotal2. <span class="nb">apply</span> impred. <span class="nb">intros</span>. <span class="nb">apply</span> (W _ _ _).
+    <span class="nb">intros</span>. <span class="nb">apply</span> impred. <span class="nb">intros</span>. <span class="nb">apply</span> (W _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">two_of_six_implies_two_of_three</span> {<span class="nv">C</span> : category} {<span class="nv">W</span> : morph_class C} (<span class="nv">p</span> : two_of_six W) : two_of_three W.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> two_of_three.
+  <span class="nb">intros</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> &lt;- (id_right f) <span class="k">in</span> X.
+    <span class="nb">rewrite</span> &lt;- (id_left g) <span class="k">in</span> X.
+    <span class="nb">pose</span> (p _ _ _ _ _ _ _ (pr1 X) (pr2 X)).
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> d.
+    <span class="nb">apply</span> (pr222 d).
+  - <span class="nb">split</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">destruct</span> X <span class="k">as</span> [ X1 X2 ].
+    <span class="nb">rewrite</span> &lt;- (id_left f) <span class="k">in</span> X1.
+    <span class="nb">pose</span> (p _ _ _ _ _ _ _ X1 X2).
+    <span class="nb">apply</span> (pr122 d).
+    <span class="nb">intros</span>.
+    <span class="nb">destruct</span> X <span class="k">as</span> [ X1 X2 ].
+    <span class="nb">rewrite</span> &lt;- (id_right g) <span class="k">in</span> X1.
+    <span class="nb">pose</span> (p _ _  _ _ _ _ _ X2 X1).
+    <span class="nb">apply</span> (pr1 d).
+<span class="kn">Defined</span>.
+
+<span class="c">(* In the following we show categories are minimal homotopical categories. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">left_inv_monic_is_right_inv</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt;y) (<span class="nv">f_is_monic</span> : isMonic f) (<span class="nv">g</span> : y --&gt; x) (<span class="nv">is_left_inv</span> : g · f = identity _) : f · g = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">k</span> =&gt; f · k)) <span class="k">in</span> is_left_inv.
+  <span class="nb">rewrite</span> assoc <span class="k">in</span> is_left_inv.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> is_left_inv.
+  <span class="nb">rewrite</span> &lt;- id_left <span class="k">in</span> is_left_inv.
+  <span class="nb">apply</span> f_is_monic <span class="k">in</span> is_left_inv.
+  <span class="nb">apply</span> is_left_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">right_inv_epi_is_left_inv</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">f_is_epic</span> : isEpi f) (<span class="nv">g</span> : y --&gt; x) (<span class="nv">is_right_inv</span> : f · g = identity _) : g · f = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">k</span> =&gt; k · f)) <span class="k">in</span> is_right_inv.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> is_right_inv.
+  <span class="nb">rewrite</span> &lt;- id_right <span class="k">in</span> is_right_inv.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> is_right_inv.
+  <span class="nb">apply</span> f_is_epic <span class="k">in</span> is_right_inv.
+  <span class="nb">apply</span> is_right_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_two_of_three_right</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">gf_is_iso</span> : is_iso (f · g)) (<span class="nv">f_is_iso</span> : is_iso f) : is_iso g.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (g_right_inv : g · ((inv_from_iso (make_iso _ gf_is_iso)) · f)  = identity _).
+  <span class="nb">pose</span> (iso_inv_after_iso (make_iso _ gf_is_iso)).
+  <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">k</span> =&gt; (inv_from_iso (make_iso _ f_is_iso)) · k · f)) <span class="k">in</span> p.
+  <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">rewrite</span> assoc <span class="k">in</span> p.
+  <span class="nb">rewrite</span> assoc <span class="k">in</span> p.
+  <span class="nb">rewrite</span> iso_after_iso_inv <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> p.
+  <span class="nb">rewrite</span> iso_after_iso_inv <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> p.
+  <span class="nb">apply</span> p.
+  <span class="nb">assert</span> (g_left_inv : ((inv_from_iso (make_iso _ gf_is_iso)) · f) · g = identity _).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> (iso_after_iso_inv (make_iso _ gf_is_iso)).
+  <span class="nb">eapply</span> (is_iso_qinv _ _).
+  <span class="k">exists</span> <span class="nv">g_right_inv</span>. <span class="nb">apply</span> g_left_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_two_of_three_right</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">gf_is_iso</span> : is_z_isomorphism (f · g)) (<span class="nv">f_is_iso</span> : is_z_isomorphism f) : is_z_isomorphism g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_z_iso_from_is_iso.
+  <span class="nb">eapply</span> iso_two_of_three_right.
+  <span class="bp">exact</span> (is_iso_from_is_z_iso _ gf_is_iso).
+  <span class="bp">exact</span> (is_iso_from_is_z_iso _ f_is_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_two_of_three_left</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">gf_is_iso</span> : is_iso (f · g)) (<span class="nv">g_is_iso</span> : is_iso g) : is_iso f.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (f_right_inv : f · (g · (inv_from_iso (make_iso _ gf_is_iso)))  = identity _).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> (iso_inv_after_iso (make_iso _ gf_is_iso)).
+  <span class="nb">assert</span> (f_left_inv : (g · (inv_from_iso (make_iso _ gf_is_iso))) · f = identity _).
+  <span class="nb">pose</span> (iso_after_iso_inv (make_iso _ gf_is_iso)).
+  <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">k</span> =&gt; g · k · (inv_from_iso (make_iso _ g_is_iso)))) <span class="k">in</span> p.
+  <span class="nb">simpl</span> <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> p.
+  <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> p.
+  <span class="nb">pose</span> (iso_inv_after_iso (make_iso _ g_is_iso)).
+  <span class="nb">simpl</span> <span class="k">in</span> p0.
+  <span class="nb">rewrite</span> p0 <span class="k">in</span> p.
+  <span class="nb">clear</span> p0.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> p.
+  <span class="nb">rewrite</span>  assoc <span class="k">in</span> p.
+  <span class="nb">apply</span> p.
+  <span class="nb">eapply</span> (is_iso_qinv _ _).
+  <span class="k">exists</span> <span class="nv">f_right_inv</span>. <span class="nb">apply</span> f_left_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">z_iso_two_of_three_left</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">gf_is_iso</span> : is_z_isomorphism (f · g)) (<span class="nv">g_is_iso</span> : is_z_isomorphism g) : is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_z_iso_from_is_iso.
+  <span class="nb">eapply</span> iso_two_of_three_left.
+  <span class="bp">exact</span> (is_iso_from_is_z_iso _ gf_is_iso).
+  <span class="bp">exact</span> (is_iso_from_is_z_iso _ g_is_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_minimal</span> (<span class="nv">C</span> : homotopical_category) : UU := ∏ (x y : C) (f : pr21 C x y), is_iso (pr1 f).
+
+<span class="kn">Proposition</span> <span class="nf">is_minimal_is_prop</span> (<span class="nv">C</span> : homotopical_category) : isaprop (is_minimal C).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_minimal.
+  <span class="nb">apply</span> impred ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> impred ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> impred ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_is_iso.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Any category is a minimal homotopical category taking the weak equivalences to be the isos *)</span>
+<span class="kn">Lemma</span> <span class="nf">cats_minimal_homotopical</span> (<span class="nv">C</span> : category) : homotopical_category.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> homotopical_category.
+  <span class="nb">pose</span> (C_Weq := (C ,, (<span class="k">fun</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> =&gt; (is_z_isomorphism f ,, isaprop_is_z_isomorphism f))) : category_with_weq ).
+  <span class="k">exists</span> <span class="nv">C_Weq</span>.
+  <span class="nb">unfold</span> is_homotopical.
+  <span class="nb">unfold</span> two_of_six.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (g_is_iso : is_z_isomorphism g).
+  {
+    <span class="nb">assert</span> (g_is_monic : isMonic g).
+    <span class="nb">apply</span> (isMonic_postcomp _ g h).
+    <span class="nb">simpl</span> <span class="k">in</span> hg.
+    <span class="nb">apply</span> (is_iso_isMonic _ _ hg).
+    <span class="nb">assert</span> (g_left_inv : ((is_z_isomorphism_mor gf) · f · g) = identity _).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (f · g ,, gf)).
+    <span class="nb">pose</span> (g_right_inv := left_inv_monic_is_right_inv _ g_is_monic _ g_left_inv).
+    <span class="nb">eapply</span> make_is_z_isomorphism.
+    <span class="nb">split</span>.
+    <span class="nb">apply</span> g_right_inv.
+    <span class="nb">apply</span> g_left_inv.
+  }
+  <span class="nb">pose</span> (f_is_iso := z_iso_two_of_three_left gf g_is_iso).
+  <span class="nb">split</span>. <span class="nb">apply</span> f_is_iso.
+  <span class="nb">split</span>. <span class="nb">apply</span> g_is_iso.
+  <span class="nb">split</span>. <span class="nb">apply</span> (z_iso_two_of_three_right hg g_is_iso).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> is_z_isomorphism_comp.
+  <span class="nb">apply</span> f_is_iso.
+  <span class="nb">apply</span> hg.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/HomotopicalCategory.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Monics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+links the homogeneous instance of lax lineators with the linears based on the self action
+
+<div class="paragraph"> </div>
+
+    this is w.r.t. the elementary notion of the monoidal category of endofunctors, not
+    the instance to the bicategory of categories of the general bicategorical constructions
+
+<div class="paragraph"> </div>
+
+Author: Ralph Matthes 2023
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.Actegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.MorphismsOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.ConstructionOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#"><span class="id" title="library">UniMath.CategoryTheory.coslicecat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FixACategory" class="idref" href="#FixACategory"><span class="id" title="section">FixACategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="FixACategory.C" class="idref" href="#FixACategory.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="endoCAT" class="idref" href="#endoCAT"><span class="id" title="definition">endoCAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="Mon_endo_CAT" class="idref" href="#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#endoCAT"><span class="id" title="definition">endoCAT</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.html#monendocat_monoidal"><span class="id" title="definition">monendocat_monoidal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="ptdendo_CAT" class="idref" href="#ptdendo_CAT"><span class="id" title="definition">ptdendo_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a> := <a class="idref" href="UniMath.CategoryTheory.coslicecat.html#coslice_cat_total"><span class="id" title="definition">coslice_cat_total</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#endoCAT"><span class="id" title="definition">endoCAT</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="Mon_ptdendo_CAT" class="idref" href="#Mon_ptdendo_CAT"><span class="id" title="definition">Mon_ptdendo_CAT</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#ptdendo_CAT"><span class="id" title="definition">ptdendo_CAT</span></a> := <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.html#monoidal_pointed_objects"><span class="id" title="definition">monoidal_pointed_objects</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="actegoryPtdEndosOnFunctors_CAT" class="idref" href="#actegoryPtdEndosOnFunctors_CAT"><span class="id" title="definition">actegoryPtdEndosOnFunctors_CAT</span></a> (<a id="E:2" class="idref" href="#E:2"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory"><span class="id" title="definition">actegory</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_ptdendo_CAT"><span class="id" title="definition">Mon_ptdendo_CAT</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#E:2"><span class="id" title="variable">E</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a><br/>
+&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#reindexed_actegory"><span class="id" title="definition">reindexed_actegory</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.html#actegory_from_precomp_CAT"><span class="id" title="definition">actegory_from_precomp_CAT</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#E:2"><span class="id" title="variable">E</span></a>) <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_ptdendo_CAT"><span class="id" title="definition">Mon_ptdendo_CAT</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.html#forget_monoidal_pointed_objects_monoidal"><span class="id" title="definition">forget_monoidal_pointed_objects_monoidal</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a>).<br/>
+
+<br/>
+
+<br/>
+&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="action_in_actegoryPtdEndosOnFunctors_CAT_as_actegory_with_canonical_pointed_action" class="idref" href="#action_in_actegoryPtdEndosOnFunctors_CAT_as_actegory_with_canonical_pointed_action"><span class="id" title="lemma">action_in_actegoryPtdEndosOnFunctors_CAT_as_actegory_with_canonical_pointed_action</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_action"><span class="id" title="definition">actegory_action</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_ptdendo_CAT"><span class="id" title="definition">Mon_ptdendo_CAT</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#actegoryPtdEndosOnFunctors_CAT"><span class="id" title="definition">actegoryPtdEndosOnFunctors_CAT</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory.C"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_action"><span class="id" title="definition">actegory_action</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_ptdendo_CAT"><span class="id" title="definition">Mon_ptdendo_CAT</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#actegory_with_canonical_pointed_action"><span class="id" title="definition">actegory_with_canonical_pointed_action</span></a> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#Mon_endo_CAT"><span class="id" title="definition">Mon_endo_CAT</span></a>).<br/>
+&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#total2_paths_f"><span class="id" title="lemma">total2_paths_f</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;2: { <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#isaprop_is_bifunctor"><span class="id" title="lemma">WhiskeredBifunctors.isaprop_is_bifunctor</span></a>. }<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;<span class="id" title="keyword">Qed</span>. 
+<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.html#FixACategory"><span class="id" title="section">FixACategory</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

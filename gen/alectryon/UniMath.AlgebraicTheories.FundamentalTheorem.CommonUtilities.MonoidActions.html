@@ -1,0 +1,1439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidActions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Right actions of a monoid</span>
+
+<span class="sd">  For any monoid M, there is a category of sets with a right M-action. This file defines the objects</span>
+<span class="sd">  and morphisms in this category, defines the category itself, and shows that it has a terminal</span>
+<span class="sd">  object, binary products and exponentials. Also, a morphism between two monoids induces</span>
+<span class="sd">  "restriction" and "extension" of scalar functors between their categories of monoid actions. The</span>
+<span class="sd">  extension functor preserves the terminal object and binary product.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1.  The category of monoid action data and its objects</span>
+<span class="sd">    [monoid_action_data_cat] [monoid_action_data]</span>
+<span class="sd">  2.  The category of monoid actions [monoid_action_cat]</span>
+<span class="sd">  3.  The definition of a right M-action [monoid_action]</span>
+<span class="sd">  4.  The definition of a morphism of M-actions [monoid_action_morphism]</span>
+<span class="sd">  5.  The terminal M-action [terminal_monoid_action]</span>
+<span class="sd">  6.  The binary product of M-actions [binproducts_monoid_action_cat]</span>
+<span class="sd">  7.  The exponential M-action [is_exponentiable_monoid_action]</span>
+<span class="sd">  8.  A characterization of isomorphisms [make_monoid_action_z_iso]</span>
+<span class="sd">  9.  An isomorphism between the set of global elements and the set of fixpoints of a monoid action [monoid_action_global_element_fixpoint_iso]</span>
+<span class="sd">  10.  Restriction of scalars [scalar_restriction_functor]</span>
+<span class="sd">  11. Extension of scalars [scalar_extension_functor]</span>
+<span class="sd">  11.1. Extension of scalars preserves monoid monoid action</span>
+<span class="sd">    [scalar_extension_preserves_monoid_monoid_action]</span>
+<span class="sd">  11.2. Extension of scalars preserves the terminal [scalar_extension_preserves_terminal]</span>
+<span class="sd">  11.3. Extension of scalars preserves binary products [scalar_extension_preserves_binproducts]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type_scope.
+
+<span class="kn">Section</span> <span class="nf">DataCat</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoid).
+
+<span class="sd">(** * 1. The category of monoid action data and its objects *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">action_ax</span>
+    (<span class="nv">X</span> : hSet)
+    (<span class="nv">x</span> : X)
+    (<span class="nv">m</span> : M)
+    : UU
+    := X.
+
+  <span class="kn">Let</span> <span class="nf">mor_action_ax'</span>
+    {<span class="nv">X</span> <span class="nv">X'</span> : hSet}
+    (<span class="nv">action</span> : ∏ x m, action_ax X x m)
+    (<span class="nv">action'</span> : ∏ x m, action_ax X' x m)
+    (<span class="nv">f</span> : X → X')
+    (<span class="nv">x</span> : X)
+    (<span class="nv">m</span> : M)
+    : UU
+    := f (action x m) = action' (f x) m.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_action_data_disp_cat</span>
+    : disp_cat HSET.
+  <span class="kn">Proof</span>.
+    use disp_struct.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, ∏ x m, action_ax X x m).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">X'</span> <span class="nv">action</span> <span class="nv">action'</span> <span class="nv">f</span>, (∏ x m, mor_action_ax' action action' f x m)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> X X' action action' f;
+        <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+        <span class="nb">apply</span> setproperty
+      ).
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> X X' X'' action action' action'' f g f_action g_action x m;
+        <span class="bp">exact</span> (maponpaths _ (f_action _ _) @ g_action _ _)
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_action_data_cat</span>
+    : category
+    := total_category monoid_action_data_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_action_data</span> : UU
+    := monoid_action_data_cat.
+
+  <span class="kn">Definition</span> <span class="nf">make_monoid_action_data</span>
+    (<span class="nv">X</span> : hSet)
+    (<span class="nv">action</span> : X → M → X)
+    : monoid_action_data
+    := X ,, action.
+
+<span class="kn">End</span> <span class="nf">DataCat</span>.
+
+<span class="kn">Arguments</span> action_ax /.
+
+<span class="kn">Coercion</span> <span class="nf">monoid_action_data_to_hset</span> {M : monoid} (x : monoid_action_data M) : hSet := pr1 x.
+
+<span class="kn">Definition</span> <span class="nf">action</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> : monoid_action_data M}
+  (<span class="nv">x</span> : X)
+  (<span class="nv">m</span> : M)
+  : action_ax M X x m
+  := pr2 X x m.
+
+<span class="sd">(** * 2. The category of monoid actions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">action_unel_ax</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_data M)
+  (<span class="nv">x</span> : X)
+  : UU
+  := action x <span class="mi">1</span> = x.
+
+<span class="kn">Arguments</span> action_unel_ax /.
+
+<span class="kn">Definition</span> <span class="nf">action_op_ax</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_data M)
+  (<span class="nv">x</span> : X)
+  (<span class="nv">m</span> <span class="nv">m'</span> : M)
+  : UU
+  := action x (m * m') = action (action x m) m'.
+
+<span class="kn">Arguments</span> action_op_ax /.
+
+<span class="kn">Definition</span> <span class="nf">is_monoid_action</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_data M)
+  : UU
+  := (∏ x, action_unel_ax X x)
+    × (∏ x m m', action_op_ax X x m m').
+
+<span class="kn">Definition</span> <span class="nf">monoid_action_cat</span>
+  (<span class="nv">M</span> : monoid)
+  : category
+  := full_subcat (monoid_action_data_cat M) is_monoid_action.
+
+<span class="sd">(** * 3. The definition of a right M-action *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_action</span>
+  (<span class="nv">M</span> : monoid)
+  : UU
+  := monoid_action_cat M.
+
+<span class="kn">Definition</span> <span class="nf">make_is_monoid_action</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> : monoid_action_data M}
+  (<span class="nv">action_unel</span> : ∏ x, action_unel_ax X x)
+  (<span class="nv">action_op</span> : ∏ x m m', action_op_ax X x m m')
+  : is_monoid_action X
+  := action_unel ,, action_op.
+
+<span class="kn">Definition</span> <span class="nf">make_monoid_action</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_data M)
+  (<span class="nv">H</span> : is_monoid_action X)
+  : monoid_action M
+  := X ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">monoid_action_to_monoid_action_data</span>
+  (M : monoid)
+  (f : monoid_action M)
+  : monoid_action_data M
+  := pr1 f.
+
+<span class="kn">Definition</span> <span class="nf">action_unel</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action M)
+  (<span class="nv">x</span> : X)
+  : action_unel_ax X x
+  := pr12 X x.
+
+<span class="kn">Definition</span> <span class="nf">action_op</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action M)
+  (<span class="nv">x</span> : X)
+  (<span class="nv">m</span> <span class="nv">m'</span> : M)
+  : action_op_ax X x m m'
+  := pr22 X x m m'.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_monoid_action</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_data M)
+  : isaprop (is_monoid_action X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_monoid_action</span>
+  (<span class="nv">M</span> : monoid)
+  : monoid_action M.
+<span class="kn">Proof</span>.
+  use make_monoid_action.
+  - use make_monoid_action_data.
+    + <span class="bp">exact</span> M.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x * y).
+  - <span class="kp">abstract</span> (
+      use make_is_monoid_action;
+      [ <span class="nb">intro</span>;
+        <span class="nb">apply</span> runax
+      | <span class="nb">intros</span>;
+        <span class="bp">exact</span> (!assocax _ _ _ _) ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The definition of a morphism of M-actions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">mor_action_ax</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> : X → X')
+  (<span class="nv">x</span> : X)
+  (<span class="nv">m</span> : M)
+  : UU
+  := f (action x m) = action (f x) m.
+
+<span class="kn">Arguments</span> mor_action_ax /.
+
+<span class="kn">Definition</span> <span class="nf">monoid_action_morphism</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M)
+  : UU
+  := monoid_action_cat M⟦X, X'⟧.
+
+<span class="kn">Definition</span> <span class="nf">make_monoid_action_morphism</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> : X → X')
+  (<span class="nv">H</span> : ∏ x m, mor_action_ax f x m)
+  : monoid_action_morphism X X'
+  := (f ,, H) ,, tt.
+
+<span class="kn">Definition</span> <span class="nf">monoid_action_morphism_to_function</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> : monoid_action_morphism X X')
+  : X → X'
+  := pr11 f.
+
+<span class="kn">Coercion</span> <span class="nf">monoid_action_morphism_to_function</span>: monoid_action_morphism &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_action</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> : monoid_action_morphism X X')
+  (<span class="nv">x</span> : X)
+  (<span class="nv">m</span> : M)
+  : mor_action_ax f x m
+  := pr21 f x m.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_monoid_action_morphism</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> : X → X')
+  : isaprop (∏ x m, mor_action_ax f x m).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoid_action_morphism_eq</span>
+  {<span class="nv">M</span> : monoid}
+  {<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M}
+  (<span class="nv">f</span> <span class="nv">f'</span> : monoid_action_morphism X X')
+  (<span class="nv">H</span> : ∏ x, f x = f' x)
+  : f = f'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  <span class="nb">apply</span> subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_monoid_action_morphism.
+  }
+  <span class="nb">apply</span> funextfun.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. The terminal M-action *)</span>
+
+<span class="kn">Section</span> <span class="nf">Terminal</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoid).
+
+  <span class="kn">Definition</span> <span class="nf">action_terminal_object</span>
+    : monoid_action M.
+  <span class="kn">Proof</span>.
+    use make_monoid_action.
+    - use make_monoid_action_data.
+      + <span class="bp">exact</span> unitset.
+      + <span class="nb">intros</span> x m.
+        <span class="bp">exact</span> x.
+    - <span class="kp">abstract</span> (use make_is_monoid_action; <span class="bp">easy</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Arrow</span>.
+
+    <span class="kn">Context</span> (<span class="nv">X</span> : monoid_action M).
+
+    <span class="kn">Definition</span> <span class="nf">action_terminal_arrow</span>
+      : monoid_action_morphism X action_terminal_object.
+    <span class="kn">Proof</span>.
+      use make_monoid_action_morphism.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+      - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">action_terminal_arrow_unique</span>
+      (<span class="nv">t</span> : monoid_action_morphism X action_terminal_object)
+      : t = action_terminal_arrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> iscontrunit.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Arrow</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_monoid_action</span>
+    : Terminal (monoid_action_cat M).
+  <span class="kn">Proof</span>.
+    use make_Terminal.
+    - <span class="bp">exact</span> action_terminal_object.
+    - use make_isTerminal.
+      <span class="nb">intro</span> X.
+      use make_iscontr.
+      + <span class="bp">exact</span> (action_terminal_arrow X).
+      + <span class="bp">exact</span> (action_terminal_arrow_unique X).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Terminal</span>.
+
+<span class="sd">(** * 6. The binary product of M-actions *)</span>
+
+<span class="kn">Section</span> <span class="nf">BinProducts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : monoid}.
+  <span class="kn">Context</span> (<span class="nv">X1</span> <span class="nv">X2</span> : monoid_action M).
+
+  <span class="kn">Definition</span> <span class="nf">action_binproduct_object_data</span>
+    : monoid_action_data M.
+  <span class="kn">Proof</span>.
+    use make_monoid_action_data.
+    - <span class="bp">exact</span> (setdirprod X1 X2).
+    - <span class="nb">intros</span> x m.
+      <span class="bp">exact</span> (action (pr1 x) m ,, action (pr2 x) m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">action_binproduct_is_object</span>
+    : is_monoid_action action_binproduct_object_data.
+  <span class="kn">Proof</span>.
+    use make_is_monoid_action.
+    - <span class="nb">intro</span>.
+      use pathsdirprod;
+        <span class="nb">apply</span> action_unel.
+    - <span class="nb">intros</span>.
+      use pathsdirprod;
+        <span class="nb">apply</span> action_op.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">action_binproduct_object</span>
+    : monoid_action M
+    := make_monoid_action _ action_binproduct_is_object.
+
+  <span class="kn">Definition</span> <span class="nf">action_binproduct_pr1</span>
+    : monoid_action_morphism action_binproduct_object X1.
+  <span class="kn">Proof</span>.
+    use make_monoid_action_morphism.
+    - <span class="bp">exact</span> pr1.
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">action_binproduct_pr2</span>
+    : monoid_action_morphism action_binproduct_object X2.
+  <span class="kn">Proof</span>.
+    use make_monoid_action_morphism.
+    - <span class="bp">exact</span> pr2.
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Arrow</span>.
+
+    <span class="kn">Context</span> {<span class="nv">Y</span> : monoid_action M}.
+    <span class="kn">Context</span> (<span class="nv">f1</span> : monoid_action_morphism Y X1).
+    <span class="kn">Context</span> (<span class="nv">f2</span> : monoid_action_morphism Y X2).
+
+    <span class="kn">Definition</span> <span class="nf">action_binproduct_arrow_data</span>
+      (<span class="nv">y</span> : Y)
+      : action_binproduct_object
+      := f1 y ,, f2 y.
+
+    <span class="kn">Lemma</span> <span class="nf">action_binproduct_arrow_is_morphism</span>
+      : ∏ y m, mor_action_ax action_binproduct_arrow_data y m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      use pathsdirprod;
+        <span class="nb">apply</span> mor_action.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">action_binproduct_arrow</span>
+      : monoid_action_morphism Y action_binproduct_object
+      := make_monoid_action_morphism _ action_binproduct_arrow_is_morphism.
+
+    <span class="kn">Lemma</span> <span class="nf">action_binproduct_arrow_commutes1</span>
+      : action_binproduct_arrow · action_binproduct_pr1 = f1.
+    <span class="kn">Proof</span>.
+      <span class="bp">now</span> use monoid_action_morphism_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">action_binproduct_arrow_commutes2</span>
+      : action_binproduct_arrow · action_binproduct_pr2 = f2.
+    <span class="kn">Proof</span>.
+      <span class="bp">now</span> use monoid_action_morphism_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">action_binproduct_arrow_unique</span>
+      (<span class="nv">t</span> : ∑ f, f · action_binproduct_pr1 = f1 × f · action_binproduct_pr2 = f2)
+      : t = (_ ,, (action_binproduct_arrow_commutes1 ,, action_binproduct_arrow_commutes2)).
+    <span class="kn">Proof</span>.
+      use subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        use isapropdirprod;
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> pathsdirprod.
+      - <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, (f : monoid_action_morphism _ _) x) (pr12 t)).
+      - <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, (f : monoid_action_morphism _ _) x) (pr22 t)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Arrow</span>.
+
+  <span class="kn">Definition</span> <span class="nf">action_binproduct_is_binproduct</span>
+    : isBinProduct
+      (monoid_action_cat M) _ _
+      action_binproduct_object
+      action_binproduct_pr1
+      action_binproduct_pr2.
+  <span class="kn">Proof</span>.
+    use make_isBinProduct.
+    <span class="nb">intros</span> Y f1 f2.
+    use make_iscontr.
+    - <span class="k">exists</span> (<span class="nv">action_binproduct_arrow</span> <span class="nv">f1</span> <span class="nv">f2</span>).
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> (action_binproduct_arrow_commutes1 f1 f2).
+      + <span class="bp">exact</span> (action_binproduct_arrow_commutes2 f1 f2).
+    - <span class="bp">exact</span> (action_binproduct_arrow_unique f1 f2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_monoid_action_cat</span>
+    : BinProduct (monoid_action_cat M) X1 X2.
+  <span class="kn">Proof</span>.
+    use make_BinProduct.
+    - <span class="bp">exact</span> action_binproduct_object.
+    - <span class="bp">exact</span> action_binproduct_pr1.
+    - <span class="bp">exact</span> action_binproduct_pr2.
+    - <span class="bp">exact</span> action_binproduct_is_binproduct.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProducts</span>.
+
+<span class="kn">Definition</span> <span class="nf">binproducts_monoid_action_cat</span>
+  (<span class="nv">M</span> : monoid)
+  : BinProducts (monoid_action_cat M)
+  := binproduct_monoid_action_cat.
+
+<span class="sd">(** * 7. The exponential M-action *)</span>
+
+<span class="kn">Section</span> <span class="nf">ExponentialObject</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : monoid}.
+  <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M).
+
+  <span class="kn">Let</span> <span class="nf">binproduct_monoid_action</span>
+    (<span class="nv">Y</span> <span class="nv">Y'</span> : monoid_action M)
+    : monoid_action M
+    := BinProductObject _ (binproducts_monoid_action_cat M Y Y').
+
+  <span class="kn">Section</span> <span class="nf">ActionOnMorphism</span>.
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : monoid_action_morphism (binproduct_monoid_action (monoid_monoid_action M) X) X').
+    <span class="kn">Context</span> (<span class="nv">m</span> : M).
+
+    <span class="kn">Definition</span> <span class="nf">action_on_morphism_data</span>
+      : binproduct_monoid_action (monoid_monoid_action M) X → X'
+      := <span class="k">λ</span> <span class="nv">x</span>, f (m * pr1 x ,, pr2 x).
+
+    <span class="kn">Lemma</span> <span class="nf">action_on_morphism_is_morphism</span>
+      : ∏ x m, mor_action_ax action_on_morphism_data x m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x m'.
+      <span class="nb">refine</span> (_ @ mor_action _ _ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, _)) (!assocax M _ _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">action_on_morphism</span>
+      : monoid_action_morphism (binproduct_monoid_action (monoid_monoid_action M) X) X'
+      := make_monoid_action_morphism _ action_on_morphism_is_morphism.
+
+  <span class="kn">End</span> <span class="nf">ActionOnMorphism</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_object_data</span>
+    : monoid_action_data M.
+  <span class="kn">Proof</span>.
+    use make_monoid_action_data.
+    - <span class="bp">exact</span> (make_hSet (monoid_action_morphism (binproduct_monoid_action (monoid_monoid_action M) X) X') (homset_property _ _ _)).
+    - <span class="bp">exact</span> action_on_morphism.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">exponential_is_object</span>
+    : is_monoid_action exponential_object_data.
+  <span class="kn">Proof</span>.
+    use make_is_monoid_action;
+      <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">f</span> : monoid_action_morphism _ _), _);
+      <span class="nb">intros</span>;
+      <span class="nb">apply</span> monoid_action_morphism_eq;
+      <span class="nb">intro</span>;
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, _)) _).
+    - <span class="nb">apply</span> unax.
+    - <span class="nb">apply</span> assocax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_object</span>
+    : monoid_action M
+    := make_monoid_action _ exponential_is_object.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_object_morphism_data</span>
+    : binproduct_monoid_action X exponential_object → X'
+    := <span class="k">λ</span> <span class="nv">x</span>, (pr2 x : monoid_action_morphism _ _) (<span class="mi">1</span> ,, pr1 x).
+
+  <span class="kn">Lemma</span> <span class="nf">exponential_object_is_morphism</span>
+    : ∏ x m, mor_action_ax exponential_object_morphism_data x m.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x m.
+    <span class="nb">refine</span> (_ @ mor_action _ _ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">y</span>, (pr2 x : monoid_action_morphism _ _) (y ,, _))).
+    <span class="bp">exact</span> (runax _ _ @ !lunax _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exponential_object_morphism</span>
+    : monoid_action_morphism (binproduct_monoid_action X exponential_object) X'
+    := make_monoid_action_morphism _ exponential_object_is_morphism.
+
+  <span class="kn">Section</span> <span class="nf">ArrowIsUniversal</span>.
+
+    <span class="kn">Context</span> {<span class="nv">X''</span> : monoid_action M}.
+    <span class="kn">Context</span> (<span class="nv">F</span> : monoid_action_morphism (binproduct_monoid_action X X'') X').
+
+    <span class="kn">Section</span> <span class="nf">InducedMorphismData</span>.
+
+      <span class="kn">Context</span> (<span class="nv">x''</span> : X'').
+
+      <span class="kn">Definition</span> <span class="nf">monoid_action_cat_induced_morphism_data_morphism_data</span>
+        : binproduct_monoid_action (monoid_monoid_action M) X → X'
+        := <span class="k">λ</span> <span class="nv">x</span>, F (pr2 x ,, action x'' (pr1 x)).
+
+      <span class="kn">Definition</span> <span class="nf">monoid_action_cat_induced_morphism_data_is_morphism</span>
+        : ∏ x m, mor_action_ax monoid_action_cat_induced_morphism_data_morphism_data x m.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x m.
+        <span class="nb">refine</span> (_ @ mor_action _ _ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, F (_ ,, x))).
+        <span class="nb">apply</span> action_op.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">monoid_action_cat_induced_morphism_data_morphism</span>
+        : monoid_action_morphism (binproduct_monoid_action (monoid_monoid_action M) X) X'
+        := make_monoid_action_morphism _ monoid_action_cat_induced_morphism_data_is_morphism.
+
+    <span class="kn">End</span> <span class="nf">InducedMorphismData</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_action_cat_induced_morphism_data</span>
+      : X'' → exponential_object
+      := monoid_action_cat_induced_morphism_data_morphism.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_action_cat_induced_is_morphism</span>
+      : ∏ x m, mor_action_ax monoid_action_cat_induced_morphism_data x m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x m.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span> x0.
+      <span class="bp">exact</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, F (_ ,, x)) (action_op _ _ m (pr1 x0))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_action_cat_induced_morphism</span>
+      : monoid_action_morphism X'' exponential_object
+      := make_monoid_action_morphism _ monoid_action_cat_induced_is_morphism.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_action_cat_induced_morphism_commutes</span>
+      : F
+      = #(constprod_functor1 (binproducts_monoid_action_cat M) X) monoid_action_cat_induced_morphism
+        · exponential_object_morphism.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">y</span>, F (_ ,, y))).
+      <span class="bp">exact</span> (!action_unel _ (pr2 x)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_action_cat_induced_morphism_unique</span>
+      (<span class="nv">g</span> : monoid_action_morphism X'' exponential_object)
+      (<span class="nv">Hg</span> : F = # (constprod_functor1 (binproducts_monoid_action_cat M) X) g
+          · exponential_object_morphism)
+      : g = monoid_action_cat_induced_morphism.
+    <span class="kn">Proof</span>.
+      use monoid_action_morphism_eq.
+      <span class="nb">intro</span> x''.
+      use monoid_action_morphism_eq.
+      <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x : monoid_action_morphism _ _) _) (!Hg)).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (_ x) _) (mor_action _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (g x'' : monoid_action_morphism _ _) (x ,, _)) _).
+      <span class="nb">apply</span> runax.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">ArrowIsUniversal</span>.
+
+<span class="kn">End</span> <span class="nf">ExponentialObject</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_exponentiable_monoid_action</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">X</span> : monoid_action_cat M)
+  : is_exponentiable (binproducts_monoid_action_cat M) X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+  <span class="nb">intro</span> X'.
+  use make_coreflection'.
+  - <span class="bp">exact</span> (exponential_object X X').
+  - <span class="nb">apply</span> exponential_object_morphism.
+  - <span class="nb">intro</span> f.
+    use make_coreflection_arrow.
+    + <span class="nb">apply</span> monoid_action_cat_induced_morphism.
+      <span class="bp">exact</span> (f : _ --&gt; _).
+    + <span class="nb">apply</span> monoid_action_cat_induced_morphism_commutes.
+    + <span class="nb">apply</span> monoid_action_cat_induced_morphism_unique.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. A characterization of isomorphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_monoid_action_z_iso</span>
+  {<span class="nv">M</span> : monoid}
+  (<span class="nv">A</span> <span class="nv">A'</span> : monoid_action M)
+  (<span class="nv">f</span> : z_iso (C := HSET) (A : hSet) (A' : hSet))
+  (<span class="nv">Hf</span> : ∏ x m, mor_action_ax (morphism_from_z_iso _ _ f : A → A') x m)
+  : z_iso A A'.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - use make_monoid_action_morphism.
+    + <span class="bp">exact</span> (morphism_from_z_iso _ _ f).
+    + <span class="bp">exact</span> Hf.
+  - use make_monoid_action_morphism.
+    + <span class="bp">exact</span> (inv_from_z_iso f).
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> x m;
+        <span class="nb">refine</span> (!_ @ eqtohomot (z_iso_inv_after_z_iso f) _);
+        <span class="nb">apply</span> (maponpaths (inv_from_z_iso f));
+        <span class="nb">refine</span> (Hf _ _ @ _);
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">y</span>, action (y x) m) (z_iso_after_z_iso_inv f))
+      ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>;
+      <span class="nb">apply</span> monoid_action_morphism_eq;
+      <span class="nb">intro</span>;
+      [ <span class="nb">apply</span> (eqtohomot (z_iso_inv_after_z_iso f))
+      | <span class="nb">apply</span> (eqtohomot (z_iso_after_z_iso_inv f)) ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 9. An isomorphism between the set of global elements and the set of fixpoints of a monoid action *)</span>
+
+<span class="kn">Section</span> <span class="nf">GlobalElements</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : monoid}.
+  <span class="kn">Context</span> (<span class="nv">X</span> : monoid_action M).
+
+  <span class="kn">Local Definition</span> <span class="nf">global_element</span>
+    : hSet
+    := global_element (terminal_monoid_action M) X.
+
+  <span class="kn">Definition</span> <span class="nf">fixpoint</span> : UU
+    := ∑ x : X, ∏ m, action x m = x.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_fixpoint</span>
+    : isaset fixpoint.
+  <span class="kn">Proof</span>.
+    use (isaset_carrier_subset _ (<span class="k">λ</span> <span class="nv">_</span>, make_hProp _ _)).
+    <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fixpoint_set</span>
+    : hSet
+    := make_hSet _ isaset_fixpoint.
+
+  <span class="kn">Definition</span> <span class="nf">global_element_to_fixpoint</span>
+    (<span class="nv">f</span> : global_element)
+    : fixpoint.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> ((f : monoid_action_morphism _ _) tt).
+    <span class="kp">abstract</span> (
+      <span class="nb">intro</span> m;
+      <span class="bp">exact</span> (!mor_action f tt m)
+    ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fixpoint_to_global_element</span>
+    (<span class="nv">a</span> : fixpoint)
+    : global_element.
+  <span class="kn">Proof</span>.
+    use make_monoid_action_morphism.
+    - <span class="nb">intro</span> t.
+      <span class="bp">exact</span> (pr1 a).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> t m;
+        <span class="bp">exact</span> (!pr2 a m)
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">global_element_fixpoint_inverse</span>
+    : is_inverse_in_precat (C := HSET) (a := global_element) (b := fixpoint_set)
+    global_element_to_fixpoint fixpoint_to_global_element.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> f.
+      use monoid_action_morphism_eq.
+      <span class="nb">intro</span> t.
+      <span class="bp">now</span> <span class="nb">induction</span> t.
+    - <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> a.
+      <span class="nb">refine</span> (subtypePath _ _).
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> impred_isaprop.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_action_global_element_fixpoint_iso</span>
+    : z_iso (C := HSET) global_element fixpoint_set
+    := make_z_iso (C := HSET) (a := global_element) (b := fixpoint_set)
+      global_element_to_fixpoint
+      fixpoint_to_global_element
+      global_element_fixpoint_inverse.
+
+<span class="kn">End</span> <span class="nf">GlobalElements</span>.
+
+<span class="sd">(** * 10. Restriction of scalars *)</span>
+
+<span class="kn">Section</span> <span class="nf">ScalarRestriction</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">M'</span> : monoid).
+  <span class="kn">Context</span> (<span class="nv">f</span> : monoidfun M M').
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">X</span> : monoid_action M').
+
+    <span class="kn">Definition</span> <span class="nf">restriction_functor_ob_monoid_action_data</span>
+      : monoid_action_data M.
+    <span class="kn">Proof</span>.
+      use make_monoid_action_data.
+      - <span class="bp">exact</span> X.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">m</span>, action x (f m)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">restriction_functor_ob_is_monoid_action</span>
+      : is_monoid_action restriction_functor_ob_monoid_action_data.
+    <span class="kn">Proof</span>.
+      use make_is_monoid_action.
+      - <span class="nb">intro</span>.
+        <span class="nb">refine</span> (maponpaths _ (monoidfununel f) @ _).
+        <span class="nb">apply</span> (action_unel X).
+      - <span class="nb">intros</span>.
+        <span class="nb">refine</span> (maponpaths _ (monoidfunmul f _ _) @ _).
+        <span class="nb">apply</span> (action_op X).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">restriction_functor_ob_monoid_action</span>
+      : monoid_action M
+      := make_monoid_action _ restriction_functor_ob_is_monoid_action.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M').
+    <span class="kn">Context</span> (<span class="nv">F</span> : monoid_action_morphism X X').
+
+    <span class="kn">Definition</span> <span class="nf">restriction_functor_mor_monoid_action_morphism_data</span>
+      : restriction_functor_ob_monoid_action X → restriction_functor_ob_monoid_action X'
+      := F.
+
+    <span class="kn">Lemma</span> <span class="nf">restriction_functor_mor_is_monoid_action_morphism</span>
+      : ∏ x m, mor_action_ax restriction_functor_mor_monoid_action_morphism_data x m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x m.
+      <span class="nb">apply</span> (mor_action F).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">restriction_functor_mor_monoid_action_morphism</span>
+      : monoid_action_morphism
+        (restriction_functor_ob_monoid_action X)
+        (restriction_functor_ob_monoid_action X')
+      := make_monoid_action_morphism _ restriction_functor_mor_is_monoid_action_morphism.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_restriction_functor_data</span>
+    : functor_data (monoid_action_cat M') (monoid_action_cat M)
+    := make_functor_data (C := monoid_action_cat M') (C' := monoid_action_cat M)
+      restriction_functor_ob_monoid_action
+      restriction_functor_mor_monoid_action_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_restriction_is_functor</span>
+    : is_functor scalar_restriction_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> X.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="bp">easy</span>.
+    - <span class="nb">intros</span> X X' X'' F F''.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_restriction_functor</span>
+    : monoid_action_cat M' ⟶ monoid_action_cat M
+    := make_functor _ scalar_restriction_is_functor.
+
+<span class="kn">End</span> <span class="nf">ScalarRestriction</span>.
+
+<span class="sd">(** * 11. Extension of scalars *)</span>
+
+<span class="kn">Section</span> <span class="nf">ScalarExtension</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">M'</span> : monoid).
+  <span class="kn">Context</span> (<span class="nv">f</span> : monoidfun M M').
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">X</span> : monoid_action M).
+
+    <span class="kn">Definition</span> <span class="nf">hrelation</span>
+      : hrel (X × monoid_monoid_action M').
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x x'.
+      <span class="bp">exact</span> (
+        <span class="k">∃</span> (<span class="nv">a</span> : M),
+          (pr1 x' = action (pr1 x) a) ×
+          (pr2 x = (f a) * pr2 x')).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">isrefl_hrelation</span>
+      : isrefl hrelation.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> <span class="mi">1</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> (!action_unel _ _).
+      - <span class="bp">exact</span> (!lunax _ _ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (monoidfununel f)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">eqrelation</span>
+      : eqrel (X × monoid_monoid_action M')
+      := _ ,, iseqrel_eqrel_from_hrel hrelation.
+
+    <span class="kn">Definition</span> <span class="nf">extension_functor_ob_monoid_action_data</span>
+      : monoid_action_data M'.
+    <span class="kn">Proof</span>.
+      use make_monoid_action_data.
+      - <span class="nb">refine</span> (setquotinset (X := X × monoid_monoid_action M') _).
+        <span class="bp">exact</span> eqrelation.
+      - <span class="nb">intros</span> x m.
+        <span class="nb">revert</span> x.
+        <span class="nb">refine</span> (setquotfun _ _ (<span class="k">λ</span> <span class="nv">x</span>, pr1 x ,, pr2 x * m) _).
+        <span class="kp">abstract</span> (
+          <span class="nb">apply</span> iscomprelrelfun_eqrel_from_hrel;
+          <span class="nb">intros</span> x x' H;
+          <span class="nb">refine</span> (hinhfun _ H);
+          <span class="nb">intro</span> H1;
+          <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">H1</span>);
+          <span class="nb">split</span>;
+          [ <span class="bp">exact</span> (pr12 H1)
+          | <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * m) (pr22 H1) @ assocax _ _ _ _) ]
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">extension_functor_ob_is_monoid_action</span>
+      : is_monoid_action extension_functor_ob_monoid_action_data.
+    <span class="kn">Proof</span>.
+      use make_is_monoid_action.
+      - <span class="nb">intro</span> x.
+        use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+        <span class="nb">intro</span> y.
+        <span class="nb">rewrite</span> &lt;- (pr2 y).
+        <span class="nb">refine</span> (setquotfuncomm _ _ _ _ _ @ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (_ ,, x))).
+        <span class="nb">apply</span> runax.
+      - <span class="nb">intros</span> x m m'.
+        use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+        <span class="nb">intro</span> y.
+        <span class="nb">rewrite</span> &lt;- (pr2 y).
+        <span class="nb">refine</span> (setquotfuncomm _ _ _ _ _ @ !_).
+        <span class="nb">refine</span> (maponpaths _ (setquotfuncomm _ _ _ _ _) @ _).
+        <span class="nb">refine</span> (setquotfuncomm _ _ _ _ _ @ !_).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (_ ,, x))).
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> assocax.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extension_functor_ob_monoid_action</span>
+      : monoid_action M'
+      := make_monoid_action _ extension_functor_ob_is_monoid_action.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M).
+    <span class="kn">Context</span> (<span class="nv">F</span> : monoid_action_morphism X X').
+
+    <span class="kn">Definition</span> <span class="nf">extension_functor_mor_monoid_action_morphism_data</span>
+      : extension_functor_ob_monoid_action X → extension_functor_ob_monoid_action X'.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (setquotfun _ (eqrelation X') (<span class="k">λ</span> <span class="nv">x</span>, F (pr1 x) ,, (pr2 x : M')) _).
+      <span class="kp">abstract</span> (
+        <span class="nb">apply</span> iscomprelrelfun_eqrel_from_hrel;
+        <span class="nb">intros</span> x x' Hx;
+        <span class="nb">refine</span> (hinhfun _ Hx);
+        <span class="nb">intro</span> H1;
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">H1</span>);
+        <span class="nb">split</span>;
+        [ <span class="bp">exact</span> (maponpaths _ (pr12 H1) @ mor_action _ _ _)
+        | <span class="nb">apply</span> (pr22 H1) ]
+      ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">extension_functor_mor_is_monoid_action_morphism</span>
+      : ∏ x m, mor_action_ax extension_functor_mor_monoid_action_morphism_data x m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x m.
+      use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+      <span class="nb">intro</span> y.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (pr2 y).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extension_functor_mor_monoid_action_morphism</span>
+      : monoid_action_morphism
+        (extension_functor_ob_monoid_action X)
+        (extension_functor_ob_monoid_action X')
+      := make_monoid_action_morphism _ extension_functor_mor_is_monoid_action_morphism.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_extension_functor_data</span>
+    : functor_data (monoid_action_cat M) (monoid_action_cat M')
+    := make_functor_data (C := monoid_action_cat M) (C' := monoid_action_cat M')
+      extension_functor_ob_monoid_action
+      extension_functor_mor_monoid_action_morphism.
+
+  <span class="kn">Lemma</span> <span class="nf">scalar_extension_is_functor</span>
+    : is_functor scalar_extension_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> X.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span> x.
+      use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+      <span class="nb">intro</span> y.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (pr2 y).
+    - <span class="nb">intros</span> X X' X'' F F''.
+      <span class="nb">apply</span> monoid_action_morphism_eq.
+      <span class="nb">intro</span> x.
+      use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+      <span class="nb">intro</span> y.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (pr2 y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scalar_extension_functor</span>
+    : monoid_action_cat M ⟶ monoid_action_cat M'
+    := make_functor _ scalar_extension_is_functor.
+
+<span class="sd">(** ** 11.1. Extension of scalars preserves monoid monoid action *)</span>
+
+  <span class="kn">Section</span> <span class="nf">PreservesMonoidMonoidAction</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_mor_fun</span>
+      : monoid_monoid_action M × monoid_monoid_action M' → monoid_monoid_action M'
+      := <span class="k">λ</span> <span class="nv">x</span>, f (pr1 x) * pr2 x.
+
+    <span class="kn">Lemma</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_mor_iscomprelfun</span>
+      : iscomprelfun (eqrelation _) scalar_extension_preserves_monoid_monoid_action_mor_fun.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x x' Hx.
+      use (Hx (make_eqrel (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, make_hProp _ _) _) _).
+      - <span class="nb">apply</span> setproperty.
+      - <span class="kp">repeat</span> <span class="nb">split</span>.
+        + <span class="nb">intros</span> y y' y'' Hy Hy'.
+          <span class="bp">now</span> <span class="nb">rewrite</span> Hy, Hy'.
+        + <span class="bp">now</span> <span class="nb">intros</span> y y' Hy.
+      - <span class="nb">intros</span> y y' Hy.
+        use Hy.
+        <span class="nb">intro</span> H.
+        <span class="nb">refine</span> (maponpaths _ (pr22 H) @ !_).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x * _) (pr12 H) @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (monoidfunmul f _ _) @ _).
+        <span class="nb">apply</span> assocax.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_mor</span>
+      : (scalar_extension_functor (monoid_monoid_action M) : monoid_action M')
+        → monoid_monoid_action M'
+      := setquotuniv _ _ _ scalar_extension_preserves_monoid_monoid_action_mor_iscomprelfun.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_inv</span>
+      : monoid_monoid_action M'
+        → (scalar_extension_functor (monoid_monoid_action M) : monoid_action M')
+      := <span class="k">λ</span> <span class="nv">m</span>, setquotpr _ (<span class="mi">1</span> ,, m).
+
+    <span class="kn">Lemma</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_is_inverse</span>
+      : is_inverse_in_precat (C := HSET)
+        scalar_extension_preserves_monoid_monoid_action_mor
+        scalar_extension_preserves_monoid_monoid_action_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> x.
+        use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+        <span class="nb">intro</span> y.
+        <span class="nb">refine</span> (!maponpaths _ (pr2 y) @ _ @ pr2 y).
+        <span class="nb">apply</span> iscompsetquotpr.
+        <span class="nb">apply</span> eqrel_impl.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">y</span>).
+        <span class="nb">split</span>.
+        + <span class="bp">exact</span> (!lunax _ _).
+        + <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> m.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (monoidfununel f) @ _).
+        <span class="bp">exact</span> (lunax _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action_is_monoid_action_morphism</span>
+      : ∏ x m, mor_action_ax scalar_extension_preserves_monoid_monoid_action_mor x m.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x m.
+      use (issurjsetquotpr _ x (_ ,, setproperty _ _ _) _).
+      <span class="nb">intro</span> y.
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x * _) (pr2 y)).
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (_ x)) (pr2 y)).
+      <span class="nb">apply</span> (!assocax _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_monoid_monoid_action</span>
+      : z_iso (scalar_extension_functor (monoid_monoid_action M)) (monoid_monoid_action M')
+      := make_monoid_action_z_iso _ _
+        (make_z_iso (C := HSET)
+          scalar_extension_preserves_monoid_monoid_action_mor
+          scalar_extension_preserves_monoid_monoid_action_inv
+          scalar_extension_preserves_monoid_monoid_action_is_inverse)
+        scalar_extension_preserves_monoid_monoid_action_is_monoid_action_morphism.
+
+  <span class="kn">End</span> <span class="nf">PreservesMonoidMonoidAction</span>.
+
+<span class="sd">(** ** 11.2. Extension of scalars preserves the terminal *)</span>
+
+  <span class="kn">Section</span> <span class="nf">PreservesTerminal</span>.
+
+    <span class="kn">Context</span> (<span class="nv">terminal_element</span> : M').
+    <span class="kn">Context</span> (<span class="nv">element_is_terminal</span> : ∏ (m' : M'), ∑ (m : M), f(m) * m' = terminal_element).
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_terminal_iso_mor</span>
+      : (scalar_extension_functor (terminal_monoid_action M) : monoid_action _)
+        → (TerminalObject (terminal_monoid_action M') : monoid_action _)
+      := <span class="k">λ</span> <span class="nv">x</span>, tt.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_terminal_iso_inv</span>
+      : (TerminalObject (terminal_monoid_action M') : monoid_action _)
+        → (scalar_extension_functor (terminal_monoid_action M) : monoid_action _)
+      := <span class="k">λ</span> <span class="nv">x</span>, setquotpr _ (tt ,, terminal_element).
+
+    <span class="kn">Lemma</span> <span class="nf">scalar_extension_terminal_iso_is_iso</span>
+      : is_inverse_in_precat (C := HSET)
+        scalar_extension_terminal_iso_mor
+        scalar_extension_terminal_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use funextfun.
+        <span class="nb">intro</span> x.
+        use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+        <span class="nb">intro</span> y.
+        <span class="nb">refine</span> (!maponpaths _ (pr2 y) @ _ @ pr2 y).
+        <span class="nb">apply</span> iscompsetquotpr.
+        <span class="nb">apply</span> eqrel_impl.
+        <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> (element_is_terminal (pr21 y))).
+        <span class="nb">split</span>.
+        + <span class="nb">apply</span> iscontrunit.
+        + <span class="bp">exact</span> (!pr2 (element_is_terminal _)).
+      - use funextfun.
+        <span class="nb">intro</span> t.
+        <span class="bp">exact</span> (!pr2 iscontrunit _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">scalar_extension_terminal_iso_is_morphism</span>
+      : ∏ x m, mor_action_ax scalar_extension_terminal_iso_mor x m.
+    <span class="kn">Proof</span>.
+      <span class="bp">easy</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_terminal_iso</span>
+      : z_iso (scalar_extension_functor (terminal_monoid_action M)) (terminal_monoid_action M')
+      := make_monoid_action_z_iso _ _
+        (make_z_iso (C := HSET)
+          scalar_extension_terminal_iso_mor
+          scalar_extension_terminal_iso_inv
+          scalar_extension_terminal_iso_is_iso)
+        scalar_extension_terminal_iso_is_morphism.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_terminal</span>
+      : preserves_terminal scalar_extension_functor.
+    <span class="kn">Proof</span>.
+      use preserves_terminal_if_preserves_chosen.
+      - <span class="nb">apply</span> terminal_monoid_action.
+      - <span class="nb">apply</span> (iso_to_Terminal (terminal_monoid_action _)).
+        <span class="bp">exact</span> (z_iso_inv scalar_extension_terminal_iso).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">PreservesTerminal</span>.
+
+<span class="sd">(** ** 11.3. Extension of scalars preserves binary products *)</span>
+
+  <span class="kn">Section</span> <span class="nf">PreservesProduct</span>.
+
+    <span class="kn">Context</span> (<span class="nv">terminal_element</span> :
+      ∏ (b1 b2 : M'),
+      ∑ (c : M') (a1 a2 : M), (b1 = f(a1) * c) × (b2 = f(a2) * c)).
+
+    <span class="kn">Context</span> (<span class="nv">element_is_terminal</span> :
+      ∏ (b1 b2 : M')
+        (t := (terminal_element b1 b2))
+        (t' : ∑ (c : M') (a1 a2 : M), (b1 = f(a1) * c) × (b2 = f(a2) * c)),
+        ∑ (a : M),
+          (pr1 t) = f(a) * (pr1 t')
+          × (pr12 t) * a = (pr12 t')
+          × (pr122 t) * a = (pr122 t')).
+
+    <span class="kn">Section</span> <span class="nf">Isomorphism</span>.
+
+      <span class="kn">Context</span> (<span class="nv">X</span> <span class="nv">X'</span> : monoid_action M).
+
+      <span class="kn">Definition</span> <span class="nf">scalar_extension_binproduct_iso_mor_data</span>
+        (<span class="nv">x</span> : (X × X') × M')
+        : (X × M') × X' × M'
+        := (pr11 x ,, pr2 x) ,, (pr21 x ,, pr2 x).
+
+      <span class="kn">Lemma</span> <span class="nf">scalar_extension_binproduct_iso_mor_iscomprelrelfun</span>
+        : iscomprelrelfun
+          (eqrelation (BinProductObject _ (binproducts_monoid_action_cat M X X')))
+          (eqreldirprod (eqrelation X) (eqrelation X')) scalar_extension_binproduct_iso_mor_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+          (<span class="k">λ</span> <span class="nv">x</span>, iscomprelrelfun _ x _)
+          (eqrel_from_hreldirprod _ _ (isrefl_hrelation _) (isrefl_hrelation _))
+          _).
+        <span class="nb">apply</span> iscomprelrelfun_eqrel_from_hrel.
+        <span class="nb">intros</span> x x' Hx.
+        <span class="nb">split</span>.
+        - <span class="nb">revert</span> Hx.
+          <span class="nb">apply</span> hinhfun.
+          <span class="nb">intro</span> Hx.
+          <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Hx</span>).
+          <span class="nb">split</span>.
+          ++ <span class="bp">exact</span> (base_paths _ _ (pr12 Hx)).
+          ++ <span class="bp">exact</span> (pr22 Hx).
+        - <span class="nb">revert</span> Hx.
+          <span class="nb">apply</span> hinhfun.
+          <span class="nb">intro</span> Hx.
+          <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Hx</span>).
+          <span class="nb">split</span>.
+          ++ <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (transportf_const _ _) @ fiber_paths (pr12 Hx)).
+          ++ <span class="bp">exact</span> (pr22 Hx).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">scalar_extension_binproduct_iso_mor</span>
+        : setquot (eqrel_from_hrel (hrelation (action_binproduct_object X X'))) →
+          setquot (eqrel_from_hrel (hrelation X)) × setquot (eqrel_from_hrel (hrelation X'))
+        := funcomp
+          (setquotfun _ _ _ scalar_extension_binproduct_iso_mor_iscomprelrelfun)
+          (setquottodirprod (eqrelation X) (eqrelation X')).
+
+      <span class="kn">Definition</span> <span class="nf">scalar_extension_binproduct_iso_inv_data</span>
+        (<span class="nv">x</span> : (X × M') × X' × M')
+        (<span class="nv">t</span> := terminal_element (pr21 x) (pr22 x))
+        : (X × X') × M'
+        := ((
+          action (pr11 x) (pr12 t) ,,
+          action (pr12 x) (pr122 t)) ,,
+          pr1 t).
+
+      <span class="kn">Lemma</span> <span class="nf">scalar_extension_binproduct_iso_inv_iscomprelrelfun</span>
+        : iscomprelrelfun
+          (eqreldirprod (eqrelation X) (eqrelation X'))
+          (eqrelation (BinProductObject _ (binproducts_monoid_action_cat M X X')))
+          scalar_extension_binproduct_iso_inv_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportf
+          (<span class="k">λ</span> <span class="nv">x</span>, iscomprelrelfun x _ _)
+          (eqrel_from_hreldirprod _ _ (isrefl_hrelation _) (isrefl_hrelation _))
+          _).
+        <span class="nb">apply</span> iscomprelrelfun_eqrel_from_hrel.
+        <span class="nb">intros</span> x x' Hx.
+        <span class="nb">set</span> (t := terminal_element (pr21 x) (pr22 x)).
+        <span class="nb">set</span> (t' := terminal_element (pr21 x') (pr22 x')).
+        <span class="nb">induction</span> Hx <span class="k">as</span> [Hx1 Hx2].
+        <span class="nb">revert</span> Hx1 Hx2.
+        <span class="nb">apply</span> hinhfun2.
+        <span class="nb">intros</span> Hx1 Hx2.
+        <span class="nb">epose</span> (t'' := element_is_terminal _ _ (_ ,, _ ,, _ ,,
+          (pr22 Hx1
+            @ maponpaths _ (pr1 (pr222 t'))
+            @ !assocax _ _ _ _
+            @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (monoidfunmul f _ _)) ,,
+          (pr22 Hx2
+            @ maponpaths _ (pr2 (pr222 t'))
+            @ !assocax _ _ _ _
+            @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (monoidfunmul f _ _))
+        )).
+        <span class="nb">refine</span> (pr1 t'' ,, _ ,, pr12 t'').
+        <span class="nb">apply</span> pathsdirprod.
+        - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (pr12 Hx1) @ _).
+          <span class="nb">refine</span> (!_ @ action_op _ (pr11 x) _ _).
+          <span class="nb">refine</span> (!_ @ action_op _ (pr11 x) (pr1 Hx1) _).
+          <span class="bp">exact</span> (!maponpaths _ (pr122 t'')).
+        - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) (pr12 Hx2) @ _).
+          <span class="nb">refine</span> (!_ @ action_op _ (pr12 x) _ _).
+          <span class="nb">refine</span> (!_ @ action_op _ (pr12 x) (pr1 Hx2) _).
+          <span class="bp">exact</span> (!maponpaths _ (pr222 t'')).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">scalar_extension_binproduct_iso_inv</span>
+        : setquot (eqrel_from_hrel (hrelation X)) × setquot (eqrel_from_hrel (hrelation X')) →
+          setquot (eqrel_from_hrel (hrelation (action_binproduct_object X X')))
+        := funcomp
+          (dirprodtosetquot (eqrelation X) (eqrelation X'))
+          (setquotfun _ _ _ scalar_extension_binproduct_iso_inv_iscomprelrelfun).
+
+      <span class="kn">Lemma</span> <span class="nf">scalar_extension_binproduct_iso_is_iso</span>
+        : is_inverse_in_precat
+        (C := HSET)
+        (a := setquotinset (eqrelation _))
+        (b := setdirprod (setquotinset (eqrelation _)) (setquotinset (eqrelation _)))
+        scalar_extension_binproduct_iso_mor
+        scalar_extension_binproduct_iso_inv.
+      <span class="kn">Proof</span>.
+        <span class="nb">pose</span> (prodiso := hset_equiv_weq_z_iso
+            (setquotinset _)
+            (setdirprod (setquotinset _) (setquotinset _))
+            (weqsetquottodirprod (eqrelation X) (eqrelation X'))).
+        <span class="nb">split</span>.
+        - <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span>.
+          <span class="nb">refine</span> (maponpaths _ (eqtohomot (z_iso_inv_after_z_iso prodiso) _) @ _).
+          use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _).
+          <span class="nb">intro</span> y.
+          <span class="nb">rewrite</span> &lt;- (pr2 y).
+          <span class="nb">apply</span> iscompsetquotpr.
+          <span class="nb">pose</span> (t := terminal_element (pr21 y) (pr21 y)).
+          <span class="nb">pose</span> (t' := element_is_terminal
+            (pr21 y)
+            (pr21 y)
+            (pr1 t ,, pr12 t ,, pr12 t ,, pr1 (pr222 t) ,, pr1 (pr222 t))).
+          <span class="nb">apply</span> (eqreltrans _ _
+            ((action (pr111 y) (pr12 t * pr1 t') ,, action (pr211 y) (pr122 t * pr1 t')) ,, pr1 t)).
+          + <span class="nb">apply</span> eqrel_impl.
+            <span class="nb">apply</span> hinhpr.
+            use (pr1 t' ,, _ ,, pr12 t').
+            use pathsdirprod;
+            <span class="bp">exact</span> (action_op _ _ _ _).
+          + <span class="nb">apply</span> eqrelsymm.
+            <span class="nb">apply</span> eqrel_impl.
+            <span class="nb">apply</span> hinhpr.
+            use (pr12 t * pr1 t' ,, _ ,, _).
+            * <span class="nb">apply</span> (pathsdirprod (idpath _)).
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (pr222 t' @ !pr122 t').
+            * <span class="nb">refine</span> (pr1 (pr222 t) @ _).
+              <span class="nb">refine</span> (maponpaths _ (pr12 t') @ _).
+              <span class="nb">refine</span> (!assocax _ _ _ _ @ _).
+              <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) (!monoidfunmul f _ _)).
+        - <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span>.
+          <span class="nb">refine</span> (_ @ eqtohomot (z_iso_after_z_iso_inv prodiso) _).
+          <span class="nb">apply</span> (maponpaths (morphism_from_z_iso _ _ prodiso)).
+          <span class="nb">refine</span> ((idpath _ : _ =
+              (<span class="k">λ</span> <span class="nv">y</span>, setquotfun _ _ _ _ (setquotfun _ _ _ _ y))
+              (inv_from_z_iso prodiso x)
+            ) @ _).
+          use (issurjsetquotpr _ (inv_from_z_iso prodiso x) (_ ,, isasetsetquot _ _ _) _).
+          <span class="nb">intro</span> y.
+          <span class="nb">rewrite</span> &lt;- (pr2 y).
+          <span class="nb">apply</span> iscompsetquotpr.
+          <span class="nb">split</span>.
+          + <span class="nb">apply</span> eqrelsymm.
+            <span class="nb">apply</span> eqrel_impl.
+            <span class="nb">apply</span> hinhpr.
+            use (pr12 (terminal_element (pr211 y) (pr221 y)) ,, idpath _ ,, _).
+            <span class="bp">exact</span> (pr1 (pr222 (terminal_element (pr211 y) (pr221 y)))).
+          + <span class="nb">apply</span> eqrelsymm.
+            <span class="nb">apply</span> eqrel_impl.
+            <span class="nb">apply</span> hinhpr.
+            use (pr122 (terminal_element (pr211 y) (pr221 y)) ,, idpath _ ,, _).
+            <span class="bp">exact</span> (pr2 (pr222 (terminal_element (pr211 y) (pr221 y)))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">scalar_extension_binproduct_iso_is_morphism</span>
+        : ∏ x m, mor_action_ax
+          (X := (scalar_extension_functor (binproducts_monoid_action_cat M X X')))
+          (X' := BinProductObject _ (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X')))
+          scalar_extension_binproduct_iso_mor
+          x m.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x m.
+        use (issurjsetquotpr _ x (_ ,, isasetdirprod _ _ (isasetsetquot _) (isasetsetquot _) _ _)).
+        <span class="nb">intro</span> y.
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (pr2 y).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">scalar_extension_binproduct_iso</span>
+        : z_iso
+          (scalar_extension_functor (binproducts_monoid_action_cat M X X'))
+          (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X'))
+        := make_monoid_action_z_iso
+          (scalar_extension_functor (binproducts_monoid_action_cat M X X'))
+          (BinProductObject _ (binproducts_monoid_action_cat
+            M'
+            (scalar_extension_functor X)
+            (scalar_extension_functor X')))
+          (make_z_iso
+            (C := HSET)
+            (a := setquotinset _)
+            (b := setdirprod (setquotinset _) (setquotinset _))
+            scalar_extension_binproduct_iso_mor
+            scalar_extension_binproduct_iso_inv
+            scalar_extension_binproduct_iso_is_iso)
+          scalar_extension_binproduct_iso_is_morphism.
+
+    <span class="kn">End</span> <span class="nf">Isomorphism</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scalar_extension_preserves_binproducts</span>
+      : preserves_binproduct scalar_extension_functor.
+    <span class="kn">Proof</span>.
+      use preserves_binproduct_if_preserves_chosen.
+      - <span class="nb">apply</span> binproducts_monoid_action_cat.
+      - <span class="nb">intros</span> Y Y'.
+        use (isBinProduct_eq_arrow _ _
+          (iso_to_isBinProduct _ _ (z_iso_to_iso (scalar_extension_binproduct_iso Y Y'))));
+        <span class="kp">abstract</span> <span class="bp">now</span> (
+          <span class="nb">apply</span> monoid_action_morphism_eq;
+          <span class="nb">intro</span>;
+          use (issurjsetquotpr _ x (_ ,, isasetsetquot _ _ _) _);
+          <span class="nb">intro</span> y;
+          <span class="nb">rewrite</span> &lt;- (pr2 y)
+        ).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">PreservesProduct</span>.
+
+<span class="kn">End</span> <span class="nf">ScalarExtension</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/FundamentalTheorem/CommonUtilities/MonoidActions.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   11.3. Extension of scalars preserves binary products [scalar_extension_preserves_binproducts]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

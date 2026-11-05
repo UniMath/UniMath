@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BraidedMonoidalCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Braided monoidal precategories.</span>
+
+<span class="sd">   Authors: Mario Román, based on a previous implementation by Anthony Bordg.</span>
+
+<span class="sd">   References: https://ncatlab.org/nlab/show/braided+monoidal+category#the_coherence_laws</span>
+
+<span class="sd">**)</span>
+
+<span class="sd">(** ** Contents:</span>
+
+<span class="sd">   - braidings</span>
+<span class="sd">   - hexagon equations</span>
+<span class="sd">   - braided monoidal categories</span>
+<span class="sd">     - accessors</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Braidings *)</span>
+<span class="kn">Section</span> <span class="nf">Braiding</span>.
+
+<span class="sd">(** In this section, fix a monoidal category. *)</span>
+<span class="kn">Context</span> (<span class="nv">MonM</span> : monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">tensor</span>   := monoidal_cat_tensor MonM.
+<span class="kn">Local Definition</span> <span class="nf">α</span>        := monoidal_cat_associator MonM.
+
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X, Y)).
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (#tensor (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="c">(* A braiding is a natural isomorphism from (- ⊗ =) to (= ⊗ -). *)</span>
+<span class="kn">Definition</span> <span class="nf">braiding</span> : UU := nat_z_iso tensor (binswap_pair_functor ∙ tensor).
+
+<span class="sd">(** * Hexagon equations. *)</span>
+<span class="kn">Section</span> <span class="nf">HexagonEquations</span>.
+
+<span class="kn">Context</span> (<span class="nv">braid</span> : braiding).
+<span class="kn">Local Definition</span> <span class="nf">γ</span> := pr1 braid.
+<span class="kn">Local Definition</span> <span class="nf">α₁</span> := pr1 α.
+<span class="kn">Local Definition</span> <span class="nf">α₂</span> := pr1 (nat_z_iso_inv α).
+
+<span class="kn">Definition</span> <span class="nf">first_hexagon_eq</span> : UU :=
+  ∏ (a b c : MonM) ,
+  (α₁ ((a , b) , c)) · (γ (a , (b ⊗ c))) · (α₁ ((b , c) , a))  =
+  (γ (a , b) #⊗ (id c)) · (α₁ ((b , a) , c)) · ((id b) #⊗ γ (a , c)).
+
+<span class="kn">Definition</span> <span class="nf">second_hexagon_eq</span> : UU :=
+  ∏ (a b c : MonM) ,
+  α₂ ((a , b) , c) · (γ (a ⊗ b , c)) · α₂ ((c , a) , b)  =
+  ((id a) #⊗ γ (b , c)) · α₂ ((a , c) , b) · (γ (a , c) #⊗ (id b)).
+
+<span class="kn">End</span> <span class="nf">HexagonEquations</span>.
+
+<span class="kn">End</span> <span class="nf">Braiding</span>.
+
+<span class="sd">(** * Braided monoidal categories *)</span>
+<span class="kn">Definition</span> <span class="nf">braided_monoidal_cat</span> : UU :=
+  ∑ M : monoidal_cat ,
+  ∑ γ : braiding M ,
+  (first_hexagon_eq M γ) × (second_hexagon_eq M γ).
+
+<span class="sd">(** ** Accessors *)</span>
+<span class="kn">Section</span> <span class="nf">Braided_Monoidal_Cat_Acessors</span>.
+
+<span class="kn">Context</span> (<span class="nv">M</span> : braided_monoidal_cat).
+
+<span class="kn">Definition</span> <span class="nf">braided_monoidal_cat_monoidal_cat</span> := pr1 M.
+<span class="kn">Definition</span> <span class="nf">braided_monoidal_cat_braiding</span> := pr1 (pr2 M).
+<span class="kn">Definition</span> <span class="nf">braided_monoidal_cat_first_hexagon_eq</span> := pr1 (pr2 (pr2 M)).
+<span class="kn">Definition</span> <span class="nf">braided_monoidal_cat_second_hexagon_eq</span> := pr2 (pr2 (pr2 M)).
+
+<span class="kn">End</span> <span class="nf">Braided_Monoidal_Cat_Acessors</span>.
+
+<span class="kn">Coercion</span> <span class="nf">braided_monoidal_cat_monoidal_cat</span> : braided_monoidal_cat &gt;-&gt; monoidal_cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/BraidedMonoidalCategories.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;      - accessors
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

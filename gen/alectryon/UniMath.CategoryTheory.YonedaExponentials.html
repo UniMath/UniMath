@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>YonedaExponentials.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Yoneda embedding preserves exponentials</span>
+
+<span class="sd">  This file shows that the Yoneda embedding Y preserves exponentials. It does this by first</span>
+<span class="sd">  establishing isomorphisms between Y(X^Y)(Z) and (Y(X)^Y(Y))(Z) for all Z, and then showing that</span>
+<span class="sd">  these are equal to the morphisms given by `preserves_exponentials_map`. From this, we conclude</span>
+<span class="sd">  that `preserves_exponentials_map` is an isomorphism.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The Yoneda embedding preserves exponentials [yoneda_preserves_exponentials]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.YonedaBinproducts.
+
+<span class="sd">(** The scopes must be in this order, because we use ∘ from weq_scope and not from cat *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> weq_scope.
+
+<span class="kn">Section</span> <span class="nf">YonedaPreservesExponentials</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">BP</span> : BinProducts C).
+  <span class="kn">Context</span> (<span class="nv">Exp</span> : Exponentials BP).
+
+
+  <span class="kn">Definition</span> <span class="nf">yoneda_exponentials_iso</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+    : z_iso
+      ((yoneda C (exp (Exp X) Y) : _ ⟶ _) Z)
+      ((exp (Exponentials_PreShv (yoneda C X)) (yoneda C Y) : _ ⟶ _) Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hset_equiv_weq_z_iso _ _ _).
+    <span class="nb">refine</span> (yoneda_weq _ _ (exp (Exponentials_PreShv _) _) ∘ _).
+    <span class="nb">refine</span> (adjunction_hom_weq (pr2 (Exponentials_PreShv _)) _ _ ∘ _).
+    <span class="nb">refine</span> (invweq (z_iso_comp_right_weq (preserves_binproduct_to_z_iso _
+      (yoneda_preserves_binproduct _ BP) _ (BinProducts_PreShv _ _)) _) ∘ _).
+    <span class="nb">refine</span> (weq_from_fully_faithful (yoneda_fully_faithful _) _ _ ∘ _).
+    <span class="nb">refine</span> (invweq (adjunction_hom_weq (pr2 (Exp X)) _ _) ∘ _).
+    <span class="nb">refine</span> (invweq (weq_from_fully_faithful (yoneda_fully_faithful _) _ _) ∘ _).
+    <span class="bp">exact</span> (invweq (yoneda_weq _ _ (yoneda _ _))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The pr1 is definitionally equal to nat_trans_data_from_nat_trans_funclass,</span>
+<span class="sd">    but the latter gives an increase of about 5 seconds in yoneda_preserves_exponentials *)</span>
+  <span class="kn">Lemma</span> <span class="nf">yoneda_exponentials_iso_is_preserves_exponentials</span>
+    (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+    : z_iso_mor (yoneda_exponentials_iso X Y Z)
+    = pr1 (preserves_exponentials_map _ _ (yoneda_preserves_binproduct _ BP) _ _) Z.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> f.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> d.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · BinProductArrow _ _ x _ · _) (id_right (BinProductPr1 _ _)) @ _);
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · BinProductArrow _ _ _ x · _) (id_right (BinProductPr2 _ _)) @ _);
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (postcompWithBinProductArrow _ _ _ _ _ _ _) @ !_)
+    ).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (postcompWithBinProductArrow _ _ _ _ _ _ _) @ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+    <span class="nb">refine</span> (
+      maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinProductArrow _ (BP X (pr1 (Exp X) Y)) x _) _ @
+      maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinProductArrow _ (BP X (pr1 (Exp X) Y)) _ x) _
+    ).
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (id_right _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (id_right _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x) (id_left _) @ _).
+      <span class="bp">exact</span> (!id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">yoneda_preserves_exponentials</span>
+    : preserves_exponentials Exp (Exponentials_PreShv) (yoneda_preserves_binproduct _ BP).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+    <span class="nb">intro</span> Z.
+    use is_z_isomorphism_path.
+    - <span class="bp">exact</span> (z_iso_mor (yoneda_exponentials_iso X Y Z)).
+    - <span class="bp">exact</span> (yoneda_exponentials_iso_is_preserves_exponentials X Y Z).
+    - <span class="nb">apply</span> z_iso_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">YonedaPreservesExponentials</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/YonedaExponentials.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   1. The Yoneda embedding preserves exponentials [yoneda_preserves_exponentials]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

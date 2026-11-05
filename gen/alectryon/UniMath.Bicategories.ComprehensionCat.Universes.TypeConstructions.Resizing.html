@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Resizing.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Constructions of codes for propositional resizing in universes</span>
+
+<span class="sd"> We have defined what it means for a universe in a category with finite limits and for a</span>
+<span class="sd"> universe in a comprehension category to support propositional resizing. Our goal is to connect</span>
+<span class="sd"> these two notions. To do so, we use the biequivalence between categories with finite limits</span>
+<span class="sd"> and a universe and DFL full comprehension categories with a universe. Specifically, we showed</span>
+<span class="sd"> that if `C` is a comprehension category with a universe `u`, then its category of contexts also</span>
+<span class="sd"> has a universe. We construct an equivalence between the type that expresses that the universe</span>
+<span class="sd"> in `C` supports resizing and the type that expresses that the universe in the category of</span>
+<span class="sd"> contexts supports resizing.</span>
+
+<span class="sd"> Our goal is to show that for every comprehension category `C` with a universe the type of</span>
+<span class="sd"> resizing codes for `C` is equivalent to the type of resizing codes for the universe in the</span>
+<span class="sd"> category of contexts. We take a slight detour to prove this: instead, we prove an analogous</span>
+<span class="sd"> result for every category with finite limits and a universe. From this we can directly</span>
+<span class="sd"> conclude the desired result.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Resizing in the codomain</span>
+<span class="sd"> 2. Resizing codes in the codomain</span>
+<span class="sd"> 3. The equivalence</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.FinLimToCompCatLemmas.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatTypes.Resizing.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatTypes.Resizing.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">ResizingInCatUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+          (<span class="nv">resize</span> : cat_univ_stable_codes_resizing C).
+
+  <span class="sd">(** * 1. Resizing in the codomain *)</span>
+  <span class="kn">Definition</span> <span class="nf">resizing_in_cat_with_univ_to_comp_cat</span>
+    : resizing_in_comp_cat_univ
+        (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C).
+  <span class="kn">Proof</span>.
+    use make_resizing_in_comp_cat_univ.
+    - <span class="nb">intros</span> Γ A HA.
+      use finlim_mor_to_univ_tm.
+      <span class="bp">exact</span> (cat_univ_resize_monic resize (hprop_ty_to_monic HA)).
+    - <span class="nb">intros</span> Γ A HA.
+      <span class="nb">refine</span> (z_iso_comp
+                _
+                (cat_univ_resize_z_iso resize (hprop_ty_to_monic HA))).
+      use cat_el_map_el_eq.
+      <span class="nb">apply</span> finlim_mor_to_univ_tm_to_mor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ A HA ; <span class="nb">simpl</span> ;
+         <span class="nb">refine</span> (assoc' _ _ _ @ _) ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (cat_univ_resize_z_iso_comm resize _)
+         | ] ;
+         <span class="nb">apply</span> (cat_el_map_mor_eq (univ_cat_cat_stable_el_map C))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_stable_resizing_in_cat_with_univ_to_comp_cat</span>
+    : resizing_in_comp_cat_univ_is_stable
+        (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C)
+        resizing_in_cat_with_univ_to_comp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ s A HA.
+    use eq_comp_cat_tm ; <span class="nb">simpl</span>.
+    use (MorphismsIntoPullbackEqual
+           (isPullback_Pullback
+              (comp_cat_pullback
+                 (finlim_to_comp_cat_universe_ob C)
+                 (TerminalArrow [] Γ)))).
+    - <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cat_comp_mor_sub_dfl_comp_cat_univ
+                 (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C)
+                 _).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback (dfl_full_comp_cat_univ Δ) s)).
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+                 (comp_cat_pullback
+                    (finlim_to_comp_cat_universe_ob C)
+                    (TerminalArrow [] Δ))).
+      }
+      <span class="nb">refine</span> (cat_univ_resize_monic_stable resize s (hprop_ty_to_monic HA) @ _).
+      use cat_univ_resize_monic_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (comp_cat_comp_mor_comm (sub_dfl_comp_cat_univ s)).
+      }
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (comp_cat_pullback (dfl_full_comp_cat_univ Δ) s)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stable_resizing_in_cat_with_univ_to_comp_cat</span>
+    : stable_resizing_in_comp_cat_univ
+        (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C).
+  <span class="kn">Proof</span>.
+    use make_stable_resizing_in_comp_cat_univ.
+    - <span class="bp">exact</span> resizing_in_cat_with_univ_to_comp_cat.
+    - <span class="bp">exact</span> is_stable_resizing_in_cat_with_univ_to_comp_cat.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ResizingInCatUniv</span>.
+
+<span class="kn">Section</span> <span class="nf">ResizingToCatUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+          (<span class="nv">resize</span> : stable_resizing_in_comp_cat_univ
+                      (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C)).
+
+  <span class="sd">(** * 2. Resizing codes in the codomain *)</span>
+  <span class="kn">Definition</span> <span class="nf">resizing_in_cat_with_univ_from_comp_cat</span>
+    : cat_univ_codes_resizing C.
+  <span class="kn">Proof</span>.
+    use make_cat_univ_codes_resizing.
+    - <span class="nb">intros</span> Γ A m.
+      use finlim_univ_tm_to_mor.
+      <span class="bp">exact</span> (resizing_in_comp_cat_univ_code resize
+               _
+               (finlim_comp_cat_monic_to_is_hprop_ty m)).
+    - <span class="nb">intros</span> Γ A m.
+      <span class="bp">exact</span> (resizing_in_comp_cat_univ_z_iso resize
+               _
+               (finlim_comp_cat_monic_to_is_hprop_ty m)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ A m ; <span class="nb">simpl</span> ;
+         <span class="nb">apply</span> (resizing_in_comp_cat_univ_comm resize)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_stable_resizing_in_cat_with_univ_from_comp_cat</span>
+    : is_stable_cat_univ_codes_resizing
+        resizing_in_cat_with_univ_from_comp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ A s HA.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!(finlim_to_comp_cat_stable_el_map_equality _ _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (stable_resizing_in_comp_cat_univ_code_stable resize s _ _ @ _).
+    use eq_comp_cat_tm.
+    <span class="nb">refine</span> (resizing_in_comp_cat_univ_code_on_eq resize _ _ _).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stable_resizing_in_cat_with_univ_from_comp_cat</span>
+    : cat_univ_stable_codes_resizing C.
+  <span class="kn">Proof</span>.
+    use make_cat_univ_stable_codes_resizing.
+    - <span class="bp">exact</span> resizing_in_cat_with_univ_from_comp_cat.
+    - <span class="bp">exact</span> is_stable_resizing_in_cat_with_univ_from_comp_cat.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ResizingToCatUniv</span>.
+
+<span class="sd">(** * 3. The equivalence *)</span>
+<span class="kn">Definition</span> <span class="nf">stable_resizing_in_cat_with_univ_weq_comp_cat</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim_universe)
+  : stable_resizing_in_comp_cat_univ
+      (univ_cat_with_finlim_universe_to_dfl_full_comp_cat C)
+    ≃
+    cat_univ_stable_codes_resizing C.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> stable_resizing_in_cat_with_univ_from_comp_cat.
+  - <span class="bp">exact</span> stable_resizing_in_cat_with_univ_to_comp_cat.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> resize ;
+       use stable_resizing_in_comp_cat_univ_eq ;
+       <span class="nb">intros</span> Γ A HA ;
+       <span class="nb">refine</span> (finlim_univ_tm_to_mor_to_tm _ @ _) ;
+       use eq_comp_cat_tm ;
+       use resizing_in_comp_cat_univ_code_on_eq ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> resize ;
+       use cat_univ_stable_codes_resizing_eq ;
+       <span class="nb">intros</span> Γ A m ;
+       <span class="nb">refine</span> (finlim_mor_to_univ_tm_to_mor _ @ _) ;
+       use cat_univ_resize_monic_eq ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">stable_resizing_in_comp_cat_univ_eq_weq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat_with_univ}
+           (<span class="nv">p</span> : C₁ = C₂)
+  : stable_resizing_in_comp_cat_univ C₁
+    ≃
+    stable_resizing_in_comp_cat_univ C₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> (idweq _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">resizing_in_dfl_full_comp_cat_with_univ_weq_cat_finlim</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat_with_univ)
+  : stable_resizing_in_comp_cat_univ C
+    ≃
+    cat_univ_stable_codes_resizing
+      (dfl_full_comp_cat_with_univ_to_univ_cat_finlim C).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (stable_resizing_in_cat_with_univ_weq_comp_cat _ ∘ _)%weq.
+  use stable_resizing_in_comp_cat_univ_eq_weq.
+  <span class="bp">exact</span> (univ_cat_with_finlim_universe_to_dfl_full_comp_cat_counit_eq C).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/TypeConstructions/Resizing.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The equivalence
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Monics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

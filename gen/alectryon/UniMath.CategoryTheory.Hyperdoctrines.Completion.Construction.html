@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Construction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The Rezk completion of first-order hyperdoctrines</span>
+
+<span class="sd"> We show that every first-order hyperdoctrine admits a Rezk completion that is again</span>
+<span class="sd"> a first-order hyperdoctrine. To do so, we take two steps.</span>
+<span class="sd"> 1. Starting with a displayed category `D` whose displayed morphisms are propositions,</span>
+<span class="sd">    we construct a new displayed category where we quotient the objects. Two objects</span>
+<span class="sd">    are identified if we have an isomorphism between them. We also show that we have a</span>
+<span class="sd">    weak equivalence to the displayed category that we constructed.</span>
+<span class="sd"> 2. We show that the resulting category has the structure of a first-order hyperdoctrine.</span>
+<span class="sd">    These statements have been proven in the file `Completion.WeakEquivs`.</span>
+
+<span class="sd"> The following observation is important: the Rezk completion of a tripos in general only</span>
+<span class="sd"> gives a weak tripos. The difference between triposes and weak triposes lies in how we specify</span>
+<span class="sd"> the comprehension operation. For a tripos, comprehension is given as an actual term,</span>
+<span class="sd"> but for a weak tripos, comprehension is expressed as an axiom (see Axiom CA in 'Tripos</span>
+<span class="sd"> Theory in Retrospect'). We can thus only acquire comprehension in a weak tripos in a</span>
+<span class="sd"> proof after doing existential elimination. If we take the Rezk completion of a tripos,</span>
+<span class="sd"> then to define the comprehension operation we need to pick a representative and that</span>
+<span class="sd"> requires the axiom of choice. This usage of choice is present in Example 4.5 of 'Tripos</span>
+<span class="sd"> Theory in Retrospect'.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'Tripos Theory in Retrospect' by Pitts</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The construction of the displayed category</span>
+<span class="sd"> 2. It is univalent</span>
+<span class="sd"> 3. The weak equivalence</span>
+<span class="sd"> 4. The completion of preorder hyperdoctrines</span>
+<span class="sd"> 5. The completion of first-order hyperdoctrines</span>
+<span class="sd"> 6. Preservation</span>
+<span class="sd"> 7. The completion of triposes</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Completion.WeakEquivs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">HyperdoctrineCompletion</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">D</span> : disp_cat C)
+          (<span class="nv">HD</span> : locally_propositional D).
+
+  <span class="sd">(** * 1. The construction of the displayed category *)</span>
+  <span class="kn">Definition</span> <span class="nf">locally_propositional_z_iso_hrel</span>
+             (<span class="nv">x</span> : C)
+    : hrel (D x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xx yy.
+    use make_hProp.
+    - <span class="bp">exact</span> (z_iso_disp (identity_z_iso _) xx yy).
+    - <span class="kp">abstract</span>
+        (use isaproptotal2 ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp | ] ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">locally_propositional_z_iso_eqrel</span>
+             (<span class="nv">x</span> : C)
+    : eqrel (D x).
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span> (locally_propositional_z_iso_hrel x).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">intros</span> xx yy zz ff gg ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, z_iso_disp z _ _)
+                  _
+                  (z_iso_disp_comp ff gg)).
+        <span class="kp">abstract</span>
+          (use z_iso_eq ;
+           <span class="nb">apply</span> id_left).
+      + <span class="nb">intros</span> xx ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> identity_z_iso_disp.
+      + <span class="nb">intros</span> xx yy ff ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (z_iso_inv_from_z_iso_disp ff).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_disp_ob</span>
+             (<span class="nv">x</span> : C)
+    : UU
+    := setquot (locally_propositional_z_iso_eqrel x).
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_disp_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">xx</span> : hyperdoctrine_completion_disp_cat_disp_ob x)
+             (<span class="nv">yy</span> : hyperdoctrine_completion_disp_cat_disp_ob y)
+    : hProp_set.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> xx.
+    use setquotuniv.
+    - <span class="nb">intros</span> xx.
+      <span class="nb">revert</span> yy.
+      use setquotuniv.
+      + <span class="nb">intros</span> yy.
+        use make_hProp.
+        * <span class="bp">exact</span> (xx --&gt;[ f ] yy).
+        * <span class="nb">apply</span> HD.
+      + <span class="nb">intros</span> yy₁ yy₂ gg ; <span class="nb">cbn</span> <span class="k">in</span> gg.
+        use hPropUnivalence ; <span class="nb">cbn</span>.
+        * <span class="nb">intros</span> ff.
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    _
+                    (ff ;; gg)%mor_disp).
+          <span class="nb">apply</span> id_right.
+        * <span class="nb">intros</span> ff.
+          <span class="nb">refine</span> (transportf
+                    (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                    _
+                    (ff ;; inv_mor_disp_from_z_iso gg)%mor_disp).
+          <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> xx₁ xx₂ ff ; <span class="nb">cbn</span> <span class="k">in</span> ff.
+      <span class="nb">revert</span> yy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> yy.
+      use hPropUnivalence ; <span class="nb">cbn</span>.
+      + <span class="nb">intros</span> gg.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                  _
+                  (inv_mor_disp_from_z_iso ff ;; gg)%mor_disp).
+        <span class="nb">apply</span> id_left.
+      + <span class="nb">intros</span> gg.
+        <span class="nb">refine</span> (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                  _
+                  (ff ;; gg)%mor_disp).
+        <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_disp_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span>, hyperdoctrine_completion_disp_cat_disp_mor f xx yy : hProp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_id_comp</span>
+    : disp_cat_id_comp C hyperdoctrine_completion_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> xx ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_disp.
+    - <span class="nb">intros</span> x y z f g xx yy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> zz ; <span class="nb">cbn</span>.
+      <span class="nb">revert</span> yy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> yy ; <span class="nb">cbn</span>.
+      <span class="nb">revert</span> xx.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> xx ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> ff gg.
+      <span class="bp">exact</span> (ff ;; gg)%mor_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_data</span>
+    : disp_cat_data C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_ob_mor.
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">locally_propositional_hyperdoctrine_completion_disp_cat</span>
+    : locally_propositional hyperdoctrine_completion_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hyperdoctrine_completion_disp_cat_laws</span>
+    : disp_cat_axioms C hyperdoctrine_completion_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat</span>
+    : disp_cat C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_data.
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. It is univalent *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_disp_hyperdoctrine_completion_disp_cat</span>
+    : is_univalent_disp hyperdoctrine_completion_disp_cat.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> x.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      use impred ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropisweq.
+    }
+    <span class="nb">intros</span> xx.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropisweq.
+    }
+    <span class="nb">intros</span> yy.
+    use isweqimplimpl.
+    - <span class="nb">intros</span> ff.
+      use iscompsetquotpr.
+      <span class="nb">induction</span> ff <span class="k">as</span> [ ff [ gg _ ]].
+      <span class="nb">cbn</span> <span class="k">in</span> ff, gg.
+      <span class="nb">refine</span> (ff ,, gg ,, _).
+      <span class="nb">split</span> ; <span class="nb">apply</span> HD.
+    - <span class="nb">apply</span> isasetsetquot.
+    - use isaproptotal2.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      }
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The weak equivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_functor_data</span>
+    : disp_functor_data
+        (functor_identity _)
+        D
+        hyperdoctrine_completion_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, setquotpr _ xx).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span> <span class="nv">ff</span>, ff).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hyperdoctrine_completion_disp_cat_functor</span>
+    : disp_functor
+        (functor_identity _)
+        D
+        hyperdoctrine_completion_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> hyperdoctrine_completion_disp_cat_functor_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_ff_hyperdoctrine_completion_disp_cat_functor</span>
+    : disp_functor_ff hyperdoctrine_completion_disp_cat_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y xx yy f.
+    <span class="nb">apply</span> idisweq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_functor_disp_ess_surj_hyperdoctrine_completion_disp_cat_functor</span>
+    : disp_functor_disp_ess_surj hyperdoctrine_completion_disp_cat_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use setquotunivprop.
+    <span class="nb">intros</span> xx.
+    use hinhpr.
+    <span class="nb">refine</span> (xx ,, _).
+    <span class="nb">apply</span> identity_z_iso_disp.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HyperdoctrineCompletion</span>.
+
+<span class="sd">(** * 4. The completion of preorder hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">preorder_hyperdoctrine_completion</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+  : hyperdoctrine.
+<span class="kn">Proof</span>.
+  use make_hyperdoctrine.
+  - <span class="bp">exact</span> (hyperdoctrine_type_category H).
+  - <span class="nb">refine</span> (hyperdoctrine_completion_disp_cat
+              (hyperdoctrine_formula_disp_cat H)
+              _).
+    <span class="bp">exact</span> (locally_propositional_preorder_hyperdoctrine H).
+  - <span class="bp">exact</span> (hyperdoctrine_terminal_type H).
+  - <span class="bp">exact</span> (hyperdoctrine_binproducts H).
+  - <span class="nb">refine</span> (disp_functor_weak_equivalence_cleaving
+              (hyperdoctrine_completion_disp_cat_functor _ _)
+              (disp_functor_ff_hyperdoctrine_completion_disp_cat_functor _ _)
+              (disp_functor_disp_ess_surj_hyperdoctrine_completion_disp_cat_functor _ _)
+              _
+              _
+              (hyperdoctrine_cleaving H)).
+    + <span class="bp">exact</span> (pr22 (pr222 H)).
+    + <span class="nb">apply</span> is_univalent_disp_hyperdoctrine_completion_disp_cat.
+  - <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+  - <span class="nb">apply</span> is_univalent_disp_hyperdoctrine_completion_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preorder_hyperdoctrine_z_iso_eqrel</span>
+           (<span class="nv">H</span> : preorder_hyperdoctrine)
+           (<span class="nv">A</span> : (ty H)%hd)
+  : eqrel (hyperdoctrine_formula_disp_cat H A)
+  := locally_propositional_z_iso_eqrel
+       (hyperdoctrine_formula_disp_cat H)
+       (pr22 (pr222 H))
+       A.
+
+<span class="sd">(** * 5. The completion of first-order hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_completion</span>
+           (<span class="nv">H</span> : first_order_preorder_hyperdoctrine)
+  : first_order_hyperdoctrine.
+<span class="kn">Proof</span>.
+  use make_first_order_hyperdoctrine.
+  - <span class="bp">exact</span> (preorder_hyperdoctrine_completion H).
+  - use disp_functor_weak_equivalence_fiberwise_terminal.
+    <span class="nb">apply</span> H.
+  - use disp_functor_weak_equivalence_fiberwise_initial.
+    <span class="nb">apply</span> H.
+  - use disp_functor_weak_equivalence_fiberwise_binproducts.
+    <span class="nb">apply</span> H.
+  - use disp_functor_weak_equivalence_fiberwise_bincoproducts.
+    <span class="nb">apply</span> H.
+  - use disp_functor_weak_equivalence_fiberwise_exponentials.
+    <span class="bp">exact</span> (pr122 (pr222 H)).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">intros</span> Γ A.
+      use disp_functor_weak_equivalence_dependent_product.
+      <span class="bp">exact</span> (pr11 (pr222 (pr222 H)) Γ A).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ ;
+         use make_is_z_isomorphism ;
+         [ | <span class="nb">split</span> ; <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat] ;
+         use (disp_functor_weak_equivalence_dependent_product_stable
+                (hyperdoctrine_completion_disp_cat_functor _ _)
+                _
+                _
+                _
+                _
+                _
+                (pr11 (pr222 (pr222 H)) Γ₂ A₂)
+                (pr11 (pr222 (pr222 H)) Γ₁ A₁)
+                φ) ;
+         <span class="nb">intros</span> ψ ;
+         <span class="bp">exact</span> (pr1 (pr21 (pr222 (pr222 H)) _ _ _ _ _ _ p Hp ψ))).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">intros</span> Γ A.
+      use disp_functor_weak_equivalence_dependent_sum.
+      <span class="bp">exact</span> (pr112 (pr222 (pr222 H)) Γ A).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ ;
+         use make_is_z_isomorphism ;
+         [ | <span class="nb">split</span> ; <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat] ;
+         use (disp_functor_weak_equivalence_dependent_sum_stable
+                (hyperdoctrine_completion_disp_cat_functor _ _)
+                _
+                _
+                _
+                _
+                _
+                (pr112 (pr222 (pr222 H)) Γ₂ A₂)
+                (pr112 (pr222 (pr222 H)) Γ₁ A₁)
+                φ) ;
+         <span class="nb">intros</span> ψ ;
+         <span class="bp">exact</span> (pr1 (pr212 (pr222 (pr222 H)) _ _ _ _ _ _ p Hp ψ))).
+  - <span class="nb">intro</span> A.
+    use disp_functor_weak_equivalence_dependent_sum.
+    <span class="bp">exact</span> (pr22 (pr222 (pr222 H)) A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hyperdoctrine.
+
+<span class="kn">Proposition</span> <span class="nf">first_order_preorder_hyperdoctrine_completion_form_subst</span>
+            {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+            (<span class="nv">Hc</span> := first_order_preorder_hyperdoctrine_completion H)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            (<span class="nv">φ</span> : form Γ₂)
+  : setquotpr
+      (preorder_hyperdoctrine_z_iso_eqrel H _)
+      (φ [ s ])
+    =
+    (setquotpr (preorder_hyperdoctrine_z_iso_eqrel H _) φ : form (Γ₂ : ty Hc)) [ s ].
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (disp_functor_weak_equivalence_preserves_lift
+           (hyperdoctrine_completion_disp_cat_functor _ _)
+           (disp_functor_ff_hyperdoctrine_completion_disp_cat_functor _ _)
+           (disp_functor_disp_ess_surj_hyperdoctrine_completion_disp_cat_functor _ _)
+           (pr222 (pr221 H))
+           (is_univalent_disp_hyperdoctrine_completion_disp_cat _ _)
+           (pr122 (pr221 H))
+           s
+           φ).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Preservation *)</span>
+<span class="kn">Section</span> <span class="nf">Preservation</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : first_order_preorder_hyperdoctrine).
+
+  <span class="kn">Let</span> <span class="nf">Hc</span> : first_order_hyperdoctrine
+    := first_order_preorder_hyperdoctrine_completion H.
+  <span class="kn">Let</span> <span class="nf">FF</span> : disp_functor
+             (functor_identity _)
+             (hyperdoctrine_formula_disp_cat H)
+             (hyperdoctrine_formula_disp_cat Hc)
+    := hyperdoctrine_completion_disp_cat_functor
+         (hyperdoctrine_formula_disp_cat H)
+         (locally_propositional_preorder_hyperdoctrine H).
+
+  <span class="kn">Let</span> <span class="nf">H₁</span> : disp_functor_ff FF
+    := disp_functor_ff_hyperdoctrine_completion_disp_cat_functor
+         (hyperdoctrine_formula_disp_cat H)
+         (locally_propositional_preorder_hyperdoctrine H).
+  <span class="kn">Let</span> <span class="nf">H₂</span> : disp_functor_disp_ess_surj FF
+    := disp_functor_disp_ess_surj_hyperdoctrine_completion_disp_cat_functor
+         (hyperdoctrine_formula_disp_cat H)
+         (locally_propositional_preorder_hyperdoctrine H).
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_proof</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ}
+              (<span class="nv">p</span> : Δ ⊢ φ)
+    : FF Γ Δ ⊢ FF Γ φ.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (♯FF p)%mor_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+              (<span class="nv">φ</span> : form Γ₂)
+              (<span class="nv">s</span> : tm Γ₁ Γ₂)
+    : FF Γ₁ (φ [ s ]) = (FF Γ₂ φ) [ s ].
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    <span class="nb">pose</span> (weak_equivalence_cartesian_disp_functor
+            FF
+            H₁ H₂
+            (locally_propositional_preorder_hyperdoctrine H)
+            (hyperdoctrine_cleaving H))
+      <span class="k">as</span> Hp.
+    <span class="bp">exact</span> (cartesian_disp_functor_disp_z_iso Hp _ _ s φ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_truth</span>
+              (<span class="nv">Γ</span> : ty H)
+    : FF Γ first_order_preorder_hyperdoctrine_truth
+      =
+      (⊤ : form (Γ : ty Hc)).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">apply</span> (preserves_terminal_to_z_iso
+             _
+             (preserves_terminal_fiber_functor_weak_equiv FF H₁ H₂ Γ)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_false</span>
+              (<span class="nv">Γ</span> : ty H)
+    : FF Γ first_order_preorder_hyperdoctrine_false
+      =
+      (⊥ : form (Γ : ty Hc)).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">apply</span> (preserves_initial_to_z_iso
+             _
+             (preserves_initial_fiber_functor_weak_equiv FF H₁ H₂ Γ)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_conj</span>
+              {<span class="nv">Γ</span> : ty H}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+    : FF Γ (first_order_preorder_hyperdoctrine_conj φ ψ)
+      =
+      (FF Γ φ ∧ FF Γ ψ).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="bp">exact</span> (preserves_binproduct_to_z_iso
+             _
+             (preserves_binproduct_fiber_functor_weak_equiv FF H₁ H₂ Γ)
+             _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_disj</span>
+              {<span class="nv">Γ</span> : ty H}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+    : FF Γ (first_order_preorder_hyperdoctrine_disj φ ψ)
+      =
+      (FF Γ φ ∨ FF Γ ψ).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="bp">exact</span> (preserves_bincoproduct_to_z_iso
+             _
+             (preserves_bincoproduct_fiber_functor_weak_equiv FF H₁ H₂ Γ)
+             _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_impl</span>
+              {<span class="nv">Γ</span> : ty H}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : form Γ)
+    : FF Γ (first_order_preorder_hyperdoctrine_impl φ ψ)
+      =
+      (FF Γ φ ⇒ FF Γ ψ).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">refine</span> (_ ,, preserves_exponential_fiber_functor_weak_equiv FF H₁ H₂ _ _ _ _ _ _ _).
+    <span class="nb">apply</span> is_univalent_disp_hyperdoctrine_completion_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_forall</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+              (<span class="nv">φ</span> : form (Γ ×h A))
+    : FF Γ (first_order_preorder_hyperdoctrine_forall φ)
+      =
+      (<span class="k">∀</span><span class="nv">h</span> (<span class="nv">FF</span> (Γ ×h A) φ)).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    use z_iso_inv.
+    <span class="nb">refine</span> (disp_functor_weak_equivalence_preserves_dependent_product
+              FF
+              H₁ H₂
+              _ _ _ _ _
+              φ).
+    - <span class="bp">exact</span> (locally_propositional_preorder_hyperdoctrine H).
+    - <span class="bp">exact</span> (is_univalent_disp_hyperdoctrine Hc).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_exists</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+              (<span class="nv">φ</span> : form (Γ ×h A))
+    : FF Γ (first_order_preorder_hyperdoctrine_exists φ)
+      =
+      (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">FF</span> (Γ ×h A) φ)).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    use z_iso_inv.
+    <span class="nb">refine</span> (disp_functor_weak_equivalence_preserves_dependent_sum
+              FF
+              H₁ H₂
+              _ _ _ _ _
+              φ).
+    - <span class="bp">exact</span> (locally_propositional_preorder_hyperdoctrine H).
+    - <span class="bp">exact</span> (is_univalent_disp_hyperdoctrine Hc).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_completion_equal</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : FF Γ (first_order_preorder_hyperdoctrine_equal t₁ t₂)
+      =
+      (first_order_hyperdoctrine_equal (H := Hc) t₁ t₂).
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (is_univalent_disp_hyperdoctrine Hc) (idpath _)).
+    use z_iso_disp_from_z_iso_fiber.
+    <span class="nb">unfold</span> first_order_hyperdoctrine_equal.
+    <span class="nb">unfold</span> first_order_preorder_hyperdoctrine_equal.
+    <span class="nb">refine</span> (z_iso_comp _ _).
+    {
+      use idtoiso.
+      <span class="nb">apply</span> to_completion_subst.
+    }
+    use (functor_on_z_iso
+           (fiber_functor_from_cleaving
+              _
+              (hyperdoctrine_cleaving Hc)
+              ⟨ t₁ , t₂ ⟩)).
+    use z_iso_inv.
+    <span class="nb">refine</span> (disp_functor_weak_equivalence_preserves_dependent_sum
+              FF
+              H₁ H₂
+              _ _ _ _ _
+              _).
+    - <span class="bp">exact</span> (locally_propositional_preorder_hyperdoctrine H).
+    - <span class="bp">exact</span> (is_univalent_disp_hyperdoctrine Hc).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Preservation</span>.
+
+<span class="sd">(** * 7. The completion of triposes *)</span>
+<span class="kn">Section</span> <span class="nf">TriposCompletion</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : preorder_tripos).
+
+  <span class="kn">Let</span> <span class="nf">Hc</span> : first_order_hyperdoctrine
+    := first_order_preorder_hyperdoctrine_completion H.
+
+  <span class="kn">Section</span> <span class="nf">Power</span>.
+    <span class="kn">Context</span> (<span class="nv">X</span> : ty H).
+
+    <span class="kn">Let</span> <span class="nf">Pow</span> : ty H := pr1 (pr2 H X).
+    <span class="kn">Let</span> <span class="nf">InH</span> : form (X ×h Pow) := pr12 (pr2 H X).
+    <span class="kn">Let</span> <span class="nf">In</span> : form ((X ×h Pow) : ty Hc)
+      := hyperdoctrine_completion_disp_cat_functor _ _ _ InH.
+
+    <span class="kn">Proposition</span> <span class="nf">tripos_completion_law</span>
+      : is_weak_tripos_law In.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Γ.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> locally_propositional_hyperdoctrine_completion_disp_cat.
+      }
+      <span class="nb">intro</span> R.
+      <span class="nb">pose</span> (pr1 (pr22 (pr2 H X) Γ R)) <span class="k">as</span> R'.
+      <span class="nb">assert</span> (R = InH [ ⟨ π₁ (tm_var _) , R' [ π₂ (tm_var _) ]tm ⟩ ])
+        <span class="k">as</span> p.
+      {
+        <span class="bp">exact</span> (pr2 (pr22 (pr2 H X) Γ R)).
+      }
+      <span class="nb">simpl</span>.
+      use (forall_intro (H := Hc)).
+      use exists_intro.
+      {
+        <span class="bp">exact</span> (R' [ π₂ (tm_var _) ]tm).
+      }
+      simplify_form.
+      use (forall_intro (H := Hc)).
+      <span class="nb">rewrite</span> p.
+      use (iff_from_eq (H := Hc)).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> first_order_preorder_hyperdoctrine_completion_form_subst.
+      }
+      hypersimplify.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (hyperdoctrine_pair_subst _ _ _ @ _).
+      hypersimplify.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Power</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_weak_tripos_completion</span>
+    : is_weak_tripos Hc.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> X.
+    <span class="nb">pose</span> (Pow := pr1 (pr2 H X)).
+    <span class="nb">pose</span> (In := pr12 (pr2 H X)).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> Pow.
+    - <span class="bp">exact</span> (hyperdoctrine_completion_disp_cat_functor _ _ _ In).
+    - <span class="nb">apply</span> tripos_completion_law.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tripos_completion</span>
+    : weak_tripos.
+  <span class="kn">Proof</span>.
+    use make_weak_tripos.
+    - <span class="bp">exact</span> Hc.
+    - <span class="bp">exact</span> is_weak_tripos_completion.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TriposCompletion</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Completion/Construction.v</tt>, line 37)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. The completion of triposes
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

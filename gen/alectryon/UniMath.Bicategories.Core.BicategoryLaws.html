@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicategoryLaws.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">laws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_r</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧)
+             (<span class="nv">f</span> : C⟦X,Y⟧)
+    : lunitor g ⋆⋆ id₂ f = (id₂ g ⋆⋆ runitor f) o lassociator f (id₁ Y) g.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> hcomp.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> lwhisker_id2. }
+              <span class="nb">apply</span> id2_right. }
+    etrans. { <span class="nb">apply</span> runitor_rwhisker. }
+    <span class="nb">apply</span> pathsinv0.
+    etrans. { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> id2_rwhisker. }
+            <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">interchange</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f₁</span> <span class="nv">g₁</span> <span class="nv">h₁</span> : C⟦Y,Z⟧}
+             {<span class="nv">f₂</span> <span class="nv">g₂</span> <span class="nv">h₂</span> : C⟦X,Y⟧}
+             (<span class="nv">η₁</span> : f₁ ==&gt; g₁) (<span class="nv">η₂</span> : f₂ ==&gt; g₂)
+             (<span class="nv">ε₁</span> : g₁ ==&gt; h₁) (<span class="nv">ε₂</span> : g₂ ==&gt; h₂)
+    : (ε₁ o η₁) ⋆⋆ (ε₂ o η₂) = (ε₁ ⋆⋆ ε₂) o (η₁ ⋆⋆ η₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> hcomp_vcomp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rinvunitor_natural</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : C⟦X, Y⟧}
+             (<span class="nv">η</span> : f ==&gt; g)
+    : rinvunitor g o η = (id₂ (id₁ Y) ⋆⋆ η) o rinvunitor f.
+  <span class="kn">Proof</span>.
+    use (vcomp_rcancel (runitor _ )).
+    { <span class="nb">apply</span> is_invertible_2cell_runitor. }
+    <span class="nb">rewrite</span> vassocl.
+    <span class="nb">rewrite</span> rinvunitor_runitor.
+    use (vcomp_lcancel (runitor _ )).
+    { <span class="nb">apply</span> is_invertible_2cell_runitor. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> runitor_rinvunitor.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> (! runitor_natural _ _ _ _ _ ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">linvunitor_natural</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : C⟦X, Y⟧}
+             (<span class="nv">η</span> : f ==&gt; g)
+    : linvunitor g o η = (η ⋆⋆ id₂ (id₁ X)) o linvunitor f.
+  <span class="kn">Proof</span>.
+    use (vcomp_rcancel (lunitor _ )).
+    { <span class="nb">apply</span> is_invertible_2cell_lunitor. }
+    <span class="nb">rewrite</span> vassocl.
+    <span class="nb">rewrite</span> linvunitor_lunitor.
+    use (vcomp_lcancel (lunitor _ )).
+    { <span class="nb">apply</span> is_invertible_2cell_lunitor. }
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> lunitor_linvunitor.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> (! lunitor_natural _ _ _ _ _ ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lwhisker_hcomp</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : C⟦Y,Z⟧}
+             (<span class="nv">h</span> : C⟦X, Y⟧)
+             (<span class="nv">α</span> : f ==&gt; g)
+    : h ◃ α = id₂ h ⋆ α.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> hcomp_identity_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rwhisker_hcomp</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> <span class="nv">g</span> : C⟦X,Y⟧}
+             (<span class="nv">h</span> : C⟦Y,Z⟧)
+             (<span class="nv">α</span> : f ==&gt; g)
+    : α ▹ h = α ⋆ id₂ h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> hcomp_identity_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : rassociator f g (k ∘ h) o rassociator (g ∘ f) h k
+      =
+      (id₂ f ⋆ rassociator g h k) o (rassociator f (h ∘ g) k)
+                                  o (rassociator f g h ⋆ id₂ k).
+  <span class="kn">Proof</span>.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- !vassocr. <span class="nb">apply</span> pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon_2</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : rassociator (g ∘ f) h k o (lassociator f g h ⋆ id2 k)
+      =
+      lassociator f g (k ∘ h) o (f ◃ rassociator g h k)
+                  o rassociator f (h ∘ g) k.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !inverse_of_assoc.
+    use vcomp_move_R_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- vassocr.
+    use vcomp_move_L_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- vassocr.
+    use vcomp_move_L_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">symmetry</span>.
+    <span class="nb">pose</span> (pentagon k h g f) <span class="k">as</span> p.
+    <span class="nb">unfold</span> hcomp <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id2_rwhisker <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id2_left <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon_3</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : rassociator f g (k ∘ h) o rassociator (g ∘ f) h k o (id₂ k ⋆⋆ lassociator f g h)
+      =
+      rassociator g h k ⋆⋆ id₂ f o rassociator f (h ∘ g) k.
+  <span class="kn">Proof</span>.
+    use vcomp_move_R_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> inverse_pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon_4</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : (lassociator g h k ⋆⋆ id₂ f) o rassociator f g (k ∘ h)
+      =
+      rassociator f (h ∘ g) k o id₂ k ⋆⋆ rassociator f g h o lassociator (g ∘ f) h k.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !inverse_of_assoc.
+    use vcomp_move_R_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">symmetry</span> ; <span class="nb">apply</span> pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon_5</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : lassociator f g (k ∘ h) o (rassociator g h k ⋆⋆ id₂ f)
+      =
+      rassociator (g ∘ f) h k o (id₂ k ⋆⋆ lassociator f g h) o lassociator f (h ∘ g) k.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !inverse_of_assoc.
+    use vcomp_move_R_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">apply</span> pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inverse_pentagon_6</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : rassociator f (h ∘ g) k o id₂ k ⋆⋆ rassociator f g h
+      =
+      lassociator g h k ⋆⋆ id₂ f o rassociator f g (k ∘ h) o rassociator (g ∘ f) h k.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">apply</span> inverse_pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pentagon_2</span>
+             {<span class="nv">V</span> <span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">k</span> : C⟦Y,Z⟧) (<span class="nv">h</span> : C⟦X,Y⟧)
+             (<span class="nv">g</span> : C⟦W,X⟧) (<span class="nv">f</span> : C⟦V,W⟧)
+    : lassociator f (h ∘ g) k o lassociator g h k ⋆⋆ id₂ f
+      =
+      id₂ k ⋆⋆ rassociator f g h o lassociator (g ∘ f) h k o lassociator f g (k ∘ h).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !inverse_of_assoc.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">symmetry</span> ; <span class="nb">apply</span> pentagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_r_inv</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C ⟦ Y, Z ⟧) (<span class="nv">f</span> : C ⟦ X, Y ⟧)
+    : linvunitor g ⋆⋆ id₂ f
+      =
+      rassociator _ _ _ o id₂ g ⋆⋆ rinvunitor f.
+  <span class="kn">Proof</span>.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> triangle_r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_l</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : lunitor g ⋆⋆ id₂ f o rassociator _ _ _ = id₂ g ⋆⋆ runitor f.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> triangle_r.
+    <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> &lt;- inverse_of_assoc.
+    <span class="nb">rewrite</span> vcomp_linv.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_l_hcomp</span>
+             {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,Z⟧}
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦W,X⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+    : lassociator _ _ _ o (g ∘ f ◅ α) = g ◅ (f ◅ α) o lassociator _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">apply</span> rwhisker_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_r_hcomp</span>
+             {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,Z⟧}
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Z,W⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+    : rassociator _ _ _ o (α ▻ g ∘ f) = (α ▻ g) ▻ f o rassociator _ _ _.
+  <span class="kn">Proof</span>.
+    use vcomp_move_R_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- vassocr.
+    use vcomp_move_L_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">apply</span> @lwhisker_lwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_l_natural</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> : C⟦X,X⟧}
+             (<span class="nv">η</span> : id₁ X ==&gt; f)
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦X,Y⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+    : k₂ ◅ η o linvunitor k₂ o α = α ▻ f o (k₁ ◅ η) o linvunitor k₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> linvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- !interchange.
+    <span class="nb">rewrite</span> !id2_right, !id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_r_natural</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> : C⟦X,X⟧}
+             (<span class="nv">η</span> : id₁ X ==&gt; f)
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Y,X⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+    : η ▻ k₂ o rinvunitor k₂ o α = (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> lwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- !interchange.
+    <span class="nb">rewrite</span> !id2_right, !id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_l_iso_id₁</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> : C⟦X,X⟧}
+             (<span class="nv">η</span> : id₁ X ==&gt; f)
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Y,X⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+             (<span class="nv">inv_η</span> : is_invertible_2cell η)
+    : α = runitor k₂ o (inv_η^-<span class="mi">1</span> ▻ k₂) o (f ◅ α) o (η ▻ k₁) o rinvunitor k₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="bp">exact</span> (whisker_r_natural η k₁ k₂ α).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_r_iso_id₁</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : C}
+             {<span class="nv">f</span> : C⟦X,X⟧}
+             (<span class="nv">η</span> : id₁ X ==&gt; f)
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦X,Y⟧)
+             (<span class="nv">α</span> : k₁ ==&gt; k₂)
+             (<span class="nv">inv_η</span> : is_invertible_2cell η)
+    : α = lunitor k₂ o (k₂ ◅ inv_η^-<span class="mi">1</span>) o (α ▻ f) o (k₁ ◅ η) o linvunitor k₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    use vcomp_move_L_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="bp">exact</span> (whisker_l_natural η k₁ k₂ α).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_l_eq</span>
+             {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,Z⟧}
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦W,X⟧)
+             (<span class="nv">α</span> <span class="nv">β</span> : k₁ ==&gt; k₂)
+    : f ◅ α = f ◅ β -&gt; (g ∘ f) ◅ α = (g ∘ f) ◅ β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hαβ.
+    <span class="nb">rewrite</span> !rwhisker_hcomp.
+    <span class="nb">rewrite</span> !rwhisker_hcomp <span class="k">in</span> Hαβ.
+    <span class="nb">rewrite</span> &lt;- !hcomp_identity.
+    <span class="nb">apply</span> (vcomp_rcancel (lassociator _ _ _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !hcomp_lassoc.
+    <span class="nb">rewrite</span> Hαβ.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">whisker_r_eq</span>
+             {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             {<span class="nv">f</span> : C⟦Y,Z⟧} {<span class="nv">g</span> : C⟦X,Y⟧}
+             (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Z,W⟧)
+             (<span class="nv">α</span> <span class="nv">β</span> : k₁ ==&gt; k₂)
+    : α ▻ f = β ▻ f -&gt; α ▻ (f ∘ g) = β ▻ (f ∘ g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hαβ.
+    <span class="nb">rewrite</span> !lwhisker_hcomp.
+    <span class="nb">rewrite</span> !lwhisker_hcomp <span class="k">in</span> Hαβ.
+    <span class="nb">rewrite</span> &lt;- !hcomp_identity.
+    <span class="nb">apply</span> (vcomp_lcancel (lassociator _ _ _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !hcomp_lassoc.
+    <span class="nb">rewrite</span> Hαβ.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_unit_assoc</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : (runitor g) ▻ f = runitor (g ∘ f) o lassociator f g (id₁ Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- runitor_triangle.
+    <span class="nb">unfold</span> assoc.
+    <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> lassociator_rassociator.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_unit_inv_assoc</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : (rinvunitor g) ▻ f = rassociator _ _ _ o rinvunitor (g ∘ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+    <span class="nb">rewrite</span> &lt;- vassocr.
+    <span class="nb">rewrite</span> lassociator_rassociator.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lunitor_assoc</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : lunitor (g ∘ f) = g ◅ (lunitor f) o lassociator (id₁ X) f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">apply</span> lunitor_triangle.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">linvunitor_assoc</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : linvunitor (g ∘ f) = rassociator (id₁ X) f g o (g ◅ (linvunitor f)).
+  <span class="kn">Proof</span>.
+    use vcomp_move_L_pM.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    use vcomp_move_R_Mp.
+    {
+      is_iso.
+    }
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+    <span class="nb">rewrite</span> vassocr.
+    <span class="nb">rewrite</span> rassociator_lassociator.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lunitor_id_is_left_unit_id</span>
+             (<span class="nv">X</span> : C)
+    : lunitor (id₁ X) = runitor (id₁ X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> lunitor_runitor_identity.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">lunitor_V_id_is_left_unit_V_id</span>
+             (<span class="nv">X</span> : C)
+    : linvunitor (id₁ X) = rinvunitor (id₁ X).
+  <span class="kn">Proof</span>.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> lunitor_runitor_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">left_unit_inv_assoc₂</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : rinvunitor (g ∘ f) = lassociator f g (id₁ Z) o (rinvunitor g ▻ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> left_unit_inv_assoc.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> rassociator_lassociator.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_l_inv</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+             (<span class="nv">g</span> : C⟦Y,Z⟧) (<span class="nv">f</span> : C⟦X,Y⟧)
+    : lassociator f (id₁ Y) g o linvunitor g ⋆⋆ id₂ f = id₂ g ⋆⋆ rinvunitor f.
+  <span class="kn">Proof</span>.
+    use inv_cell_eq.
+    - is_iso.
+    - is_iso.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> triangle_l.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">laws</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inverse_pentagon_7</span>
+      {<span class="nv">B</span> : bicat}
+      {<span class="nv">v</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+      (<span class="nv">k</span> : y --&gt; z) (<span class="nv">h</span> : x --&gt; y)
+      (<span class="nv">g</span> : w --&gt; x) (<span class="nv">f</span> : v --&gt; w)
+  : lassociator (f · g) h k • (rassociator f g h ▹ k)
+    =
+    rassociator f g (h · k) • (f ◃ lassociator g h k) • lassociator f (g · h) k.
+<span class="kn">Proof</span>.
+  use vcomp_move_R_Mp ; [ is_iso | ].
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+  <span class="nb">rewrite</span> !vassocl.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_6</span>
+      {<span class="nv">B</span> : bicat}
+      {<span class="nv">v</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+      (<span class="nv">k</span> : y --&gt; z) (<span class="nv">h</span> : x --&gt; y)
+      (<span class="nv">g</span> : w --&gt; x) (<span class="nv">f</span> : v --&gt; w)
+  : lassociator f (g · h) k • (lassociator f g h ▹ k)
+    =
+    (f ◃ rassociator g h k) • lassociator f g (h · k) • lassociator (f · g) h k.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> !vassocl.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !vassocr.
+  <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/BicategoryLaws.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

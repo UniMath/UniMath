@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PiTypesBiequiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> The biequivalence for pi-types</span>
+
+<span class="sd"> In this file, we extend the biequivalence between categories with finite limits and full</span>
+<span class="sd"> DFL comprehension to locally Cartesian closed categories and full DFL comprehension</span>
+<span class="sd"> categories that support pi-types. This was one of the results by Clairambault and Dybjer.</span>
+
+<span class="sd"> Other files in this directory contain extensions of this biequivalence to local properties</span>
+<span class="sd"> (e.g., exactness, extensiveness, and being a pretopos) and to subobject classifiers. All of</span>
+<span class="sd"> these constructions are very similar and they follow the same steps and ideas: one extends</span>
+<span class="sd"> the pseudofunctors, unit, and counit using displayed machinery.</span>
+
+<span class="sd"> For each of these constructions, univalence plays a very important role. The reason for that</span>
+<span class="sd"> is because in various steps in the construction one needs to transport structure/property</span>
+<span class="sd"> along an equivalence. Let us see why this is so crucial in the proof. Whenever we have a</span>
+<span class="sd"> full DFL comprehension category `C`, then, using democracy, we can show this comprehension</span>
+<span class="sd"> category is actually equivalent to the arrow category of the category of contexts of `C`.</span>
+<span class="sd"> If we assume that `C` has some additional structure or satisfies some properties, then we</span>
+<span class="sd"> transport this along the equivalence to acquire the same structure/properties for the</span>
+<span class="sd"> arrow category on `C`, and this is what gives us the desired structure/properties on `C`.</span>
+<span class="sd"> For this reason, each of these constructions frequently uses induction on equivalence to</span>
+<span class="sd"> transport structures and properties.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "The biequivalence of locally cartesian closed categories and Martin-Löf type theories" by</span>
+<span class="sd">   Clairambault and Dybjer</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Lemmas on equivalences and locally cartesian closed categories</span>
+<span class="sd"> 2. The extended pseudofunctor from categories to comprehension categories</span>
+<span class="sd"> 3. The extended pseudofunctor from comprehension categories to categories</span>
+<span class="sd"> 4. The unit</span>
+<span class="sd"> 5. The counit</span>
+<span class="sd"> 6. The displayed biequivalence</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DualBeckChevalley.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispModification.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudoNaturalAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionEso.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.TypeFormers.PiTypes.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Biequiv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Lemmas on equivalences and locally cartesian closed categories *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_preserves_locally_cartesian_closed'</span>
+            {<span class="nv">C</span> : univalent_category}
+            {<span class="nv">PB₁</span> : Pullbacks C}
+            {<span class="nv">PB₂</span> : Pullbacks C}
+            (<span class="nv">FPB</span> : preserves_pullback (functor_identity C))
+            (<span class="nv">P₁</span> : is_locally_cartesian_closed PB₁)
+            (<span class="nv">P₂</span> : is_locally_cartesian_closed PB₂)
+  : preserves_locally_cartesian_closed FPB P₁ P₂.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (PB₁ = PB₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_Pullbacks.
+    <span class="nb">apply</span> univalent_category_is_univalent.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">assert</span> (identity_preserves_pullback _ = FPB) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_preserves_pullback.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">assert</span> (P₁ = P₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_is_locally_cartesian_closed.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">apply</span> id_preserves_locally_cartesian_closed.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_dependent_products_adj_equiv_f_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           (<span class="nv">P</span> : comp_cat_dependent_prod C₁)
+  : comp_cat_dependent_prod C₂.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F P.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  }
+  <span class="nb">intros</span> C P.
+  <span class="bp">exact</span> P.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_dependent_products_adj_equiv_f</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           (<span class="nv">P</span> : comp_cat_dependent_prod C₁)
+  : comp_cat_dependent_prod C₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (has_dependent_products_adj_equiv_f_help (F ,, HF) P).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_products_adj_equiv_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           (<span class="nv">F'</span> := pr1 F : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+  : preserves_comp_cat_dependent_prod F' P₁ P₂.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> F' ; <span class="nb">clear</span> F'.
+  <span class="nb">revert</span> C₁ C₂ F P₁ P₂.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  }
+  <span class="nb">intros</span> C P₁ P₂.
+  <span class="nb">assert</span> (P₁ = P₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_comp_cat_dependent_prod.
+  }
+  <span class="nb">induction</span> q.
+  <span class="bp">exact</span> (id_preserves_comp_cat_dependent_prod _ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_products_adj_equiv</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+  : preserves_comp_cat_dependent_prod F P₁ P₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_dependent_products_adj_equiv_help (F ,, HF) P₁ P₂).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_products_inv2cell</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : dfl_full_comp_cat}
+           {<span class="nv">PC</span> : comp_cat_dependent_prod C}
+           {<span class="nv">PD</span> : comp_cat_dependent_prod D}
+           (<span class="nv">F</span> <span class="nv">G</span> : dfl_full_comp_cat_functor C D)
+           (<span class="nv">τ</span> : invertible_2cell G F)
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F PC PD)
+  : preserves_comp_cat_dependent_prod G PC PD.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C D G F τ PC PD HF.
+  use J_2_1.
+  {
+    <span class="bp">exact</span> is_univalent_2_1_bicat_of_dfl_full_comp_cat.
+  }
+  <span class="nb">intros</span> C D F PC PD HF.
+  <span class="bp">exact</span> HF.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_products_adj_equiv_inv2cell_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : dfl_full_comp_cat}
+           {<span class="nv">PC₁</span> : comp_cat_dependent_prod C₁}
+           {<span class="nv">PC₂</span> : comp_cat_dependent_prod C₂}
+           {<span class="nv">PD₁</span> : comp_cat_dependent_prod D₁}
+           {<span class="nv">PD₂</span> : comp_cat_dependent_prod D₂}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ D₁)
+           (<span class="nv">G</span> : dfl_full_comp_cat_functor C₂ D₂)
+           (<span class="nv">EC</span> : adjoint_equivalence C₁ C₂)
+           (<span class="nv">ED</span> : adjoint_equivalence D₁ D₂)
+           (<span class="nv">τ</span> : invertible_2cell (pr1 EC · G) (F · pr1 ED))
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F PC₁ PD₁)
+  : preserves_comp_cat_dependent_prod G PC₂ PD₂.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ EC D₁ D₂ ED F G τ PC₁ PC₂ PD₁ PD₂ HF.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  }
+  <span class="nb">intros</span> C.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_dfl_full_comp_cat.
+  }
+  <span class="nb">intros</span> D F G τ PC₁ PC₂ PD₁ PD₂ HF.
+  <span class="nb">assert</span> (PC₁ = PC₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_comp_cat_dependent_prod.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">assert</span> (PD₁ = PD₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_comp_cat_dependent_prod.
+  }
+  <span class="nb">induction</span> q.
+  use preserves_dependent_products_inv2cell.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> (comp_of_invertible_2cell
+             (linvunitor_invertible_2cell _)
+             (comp_of_invertible_2cell
+                τ
+                (runitor_invertible_2cell _))).
+  - <span class="bp">exact</span> HF.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_dependent_products_adj_equiv_inv2cell</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : dfl_full_comp_cat}
+           {<span class="nv">PC₁</span> : comp_cat_dependent_prod C₁}
+           {<span class="nv">PC₂</span> : comp_cat_dependent_prod C₂}
+           {<span class="nv">PD₁</span> : comp_cat_dependent_prod D₁}
+           {<span class="nv">PD₂</span> : comp_cat_dependent_prod D₂}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ D₁)
+           (<span class="nv">G</span> : dfl_full_comp_cat_functor C₂ D₂)
+           {<span class="nv">EC</span> : C₁ --&gt; C₂}
+           (<span class="nv">HEC</span> : left_adjoint_equivalence EC)
+           {<span class="nv">ED</span> : D₁ --&gt; D₂}
+           (<span class="nv">HED</span> : left_adjoint_equivalence ED)
+           (<span class="nv">τ</span> : invertible_2cell (EC · G) (F · ED))
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F PC₁ PD₁)
+  : preserves_comp_cat_dependent_prod G PC₂ PD₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_dependent_products_adj_equiv_inv2cell_help
+           F G
+           (EC ,, HEC) (ED ,, HED)
+           τ
+           HF).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The extended pseudofunctor from categories to comprehension categories *)</span>
+<span class="kn">Definition</span> <span class="nf">finlim_comp_cat_dependent_prod</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+           (<span class="nv">H</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C))
+  : comp_cat_dependent_prod (finlim_to_comp_cat C).
+<span class="kn">Proof</span>.
+  use make_comp_cat_dependent_prod_all.
+  <span class="nb">apply</span> cod_dependent_products.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types</span>
+  : disp_psfunctor
+      disp_bicat_univ_lccc
+      disp_bicat_of_pi_type_dfl_full_comp_cat
+      finlim_biequiv_dfl_comp_cat_psfunctor.
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor_contr.
+  - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">H</span>, _ ,, tt).
+    <span class="bp">exact</span> (finlim_comp_cat_dependent_prod C (pr1 H)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">P₁</span> <span class="nv">P₂</span> <span class="nv">HF</span>, tt ,, _) ; <span class="nb">simpl</span> ;
+       use preserves_comp_cat_dependent_prod_all ;
+       <span class="bp">exact</span> (pr2 HF)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The extended pseudofunctor from comprehension categories to categories *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+           (<span class="nv">P</span> : comp_cat_dependent_prod C)
+  : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+<span class="kn">Proof</span>.
+  use dfl_full_comp_cat_mor_ind.
+  <span class="nb">intros</span> Γ A ; <span class="nb">simpl</span>.
+  <span class="nb">refine</span> (is_left_adjoint_equivalence
+            _ _ _ _
+            (fiber_functor_natural_nat_z_iso _ _ (comp_cat_comprehension C) (π A))
+            (fiber_functor_comprehension_adj_equiv _ _)
+            (fiber_functor_comprehension_adj_equiv _ _)
+            (pr1 P Γ A)).
+  - <span class="nb">apply</span> is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="nb">apply</span> is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">P₁</span> : comp_cat_dependent_prod C₁)
+           (<span class="nv">P₂</span> : comp_cat_dependent_prod C₂)
+           (<span class="nv">HF</span> : preserves_comp_cat_dependent_prod F P₁ P₂)
+  : preserves_locally_cartesian_closed
+      (functor_finlim_preserves_pullback (dfl_functor_comp_cat_to_finlim_functor F))
+      (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C₁ P₁)
+      (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C₂ P₂).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (comp_cat_dependent_prod
+            (finlim_to_dfl_comp_cat (dfl_full_comp_cat_to_finlim C₁)))
+    <span class="k">as</span> P₁'.
+  {
+    use finlim_comp_cat_dependent_prod.
+    <span class="nb">apply</span> dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob.
+    <span class="bp">exact</span> P₁.
+  }
+  <span class="nb">assert</span> (comp_cat_dependent_prod
+            (finlim_to_dfl_comp_cat (dfl_full_comp_cat_to_finlim C₂)))
+    <span class="k">as</span> P₂'.
+  {
+    use finlim_comp_cat_dependent_prod.
+    <span class="nb">apply</span> dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob.
+    <span class="bp">exact</span> P₂.
+  }
+  <span class="nb">pose proof</span> (preserves_dependent_products_adj_equiv_inv2cell
+                F
+                (finlim_to_dfl_comp_cat_functor (dfl_functor_comp_cat_to_finlim_functor F))
+                (finlim_dfl_comp_cat_counit_pointwise_equiv C₁)
+                (finlim_dfl_comp_cat_counit_pointwise_equiv C₂)
+                (psnaturality_of finlim_dfl_comp_cat_counit F)
+                HF
+                (PC₂ := P₁')
+                (PD₂ := P₂'))
+    <span class="k">as</span> HF'.
+  use dfl_full_comp_cat_mor_ind.
+  <span class="nb">intros</span> Γ A B.
+  use (preserves_comp_cat_dependent_prod_all_lemma _ _ _ _ (HF' Γ _ B)).
+  - <span class="nb">apply</span> is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="nb">apply</span> is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_to_finlim_disp_psfunctor_pi_types</span>
+  : disp_psfunctor
+      disp_bicat_of_pi_type_dfl_full_comp_cat
+      disp_bicat_univ_lccc
+      dfl_comp_cat_to_finlim_psfunctor.
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor_contr.
+  - <span class="bp">exact</span> disp_2cells_iscontr_univ_lccc.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">P</span>, _ ,, tt).
+    <span class="bp">exact</span> (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_ob C (pr1 P)).
+  - <span class="nb">intros</span> C₁ C₂ F P₁ P₂ HF.
+    <span class="nb">refine</span> (tt ,, _).
+    <span class="bp">exact</span> (dfl_comp_cat_to_finlim_disp_psfunctor_pi_types_mor _ _ (pr2 HF)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. The unit *)</span>
+<span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_pi_types</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
+         dfl_comp_cat_to_finlim_disp_psfunctor_pi_types)
+      (disp_pseudo_id _)
+      finlim_dfl_comp_cat_unit.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_contr.
+  - <span class="bp">exact</span> disp_2cells_iscontr_univ_lccc.
+  - <span class="nb">intros</span> C H.
+    <span class="nb">refine</span> (tt ,, _).
+    <span class="nb">apply</span> id_preserves_locally_cartesian_closed'.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. The counit *)</span>
+<span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_counit_pi_types</span>
+  : disp_pstrans
+      (disp_pseudo_id _)
+      (disp_pseudo_comp
+         _ _ _ _ _
+         dfl_comp_cat_to_finlim_disp_psfunctor_pi_types
+         finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types)
+      finlim_dfl_comp_cat_counit.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_contr.
+  - <span class="nb">apply</span> disp_2cells_iscontr_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">H</span>, tt ,, _).
+    <span class="nb">apply</span> (preserves_dependent_products_adj_equiv
+             (finlim_dfl_comp_cat_counit_pointwise_equiv C)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. The displayed biequivalence *)</span>
+<span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types</span>
+  : is_disp_biequivalence_unit_counit
+      _ _
+      finlim_dfl_comp_cat_biequivalence_unit_counit
+      finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types
+      dfl_comp_cat_to_finlim_disp_psfunctor_pi_types.
+<span class="kn">Proof</span>.
+  use make_disp_biequiv_unit_counit_pointwise_adjequiv_alt.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_dfl_full_comp_cat.
+  - <span class="bp">exact</span> finlim_dfl_comp_cat_biequivalence_adjoints.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_of_pi_type_dfl_full_comp_cat.
+  - <span class="bp">exact</span> finlim_dfl_comp_cat_unit_pi_types.
+  - <span class="bp">exact</span> finlim_dfl_comp_cat_counit_pi_types.
+  - <span class="nb">intros</span> x xx.
+    use disp_adjoint_equiv_disp_bicat_of_pi_type_dfl_full_comp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_psfunctor_pi_types</span>
+  : disp_is_biequivalence_data
+      _
+      _
+      finlim_dfl_comp_cat_biequivalence_adjoints
+      finlim_dfl_comp_cat_biequivalence_unit_counit_pi_types.
+<span class="kn">Proof</span>.
+  use (make_disp_biequiv_pointwise_adjequiv_alt _ _).
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_2cells_isaprop_univ_lccc.
+  - <span class="bp">exact</span> disp_locally_groupoid_univ_lccc.
+  - <span class="nb">intros</span> x xx.
+    use disp_adjoint_equiv_disp_bicat_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lang_lccc</span>
+  : psfunctor bicat_of_univ_lccc bicat_of_pi_type_dfl_full_comp_cat
+  := total_psfunctor
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_disp_psfunctor_pi_types.
+
+<span class="kn">Definition</span> <span class="nf">internal_language_lccc</span>
+  : is_biequivalence lang_lccc
+  := total_is_biequivalence
+       _ _ _
+       finlim_biequiv_dfl_comp_cat_psfunctor_pi_types.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Biequivalence/PiTypesBiequiv.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The displayed biequivalence
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

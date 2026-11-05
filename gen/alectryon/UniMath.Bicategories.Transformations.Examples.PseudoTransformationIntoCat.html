@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PseudoTransformationIntoCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Pseudotransformations and indexed functors</span>
+
+<span class="sd"> In this file, we relate indexed functors and pseudotransformations. We first</span>
+<span class="sd"> give constructors for pseudotransformations between pseudofunctors whose source</span>
+<span class="sd"> is a discrete bicategory, and in the case that the target is the bicategory of</span>
+<span class="sd"> univalent categories. After that, we show that every indexed functor gives rise</span>
+<span class="sd"> to a pseudotransformation and vice versa.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Pseudotransformations between pseudofunctors from discrete bicategories</span>
+<span class="sd"> 2. Pseudotransformations between pseudofunctors to categories</span>
+<span class="sd"> 3. Indexed functors to pseudotransformations</span>
+<span class="sd"> 4. Pseudotransformations to indexed functors</span>
+
+<span class="sd"> ********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.DiscreteBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Pseudotransformations between pseudofunctors from discrete bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PseudoTransFromCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">B</span> : bicat}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) B}
+          (<span class="nv">τ₀</span> : ∏ (x : C), F x --&gt; G x)
+          (<span class="nv">τ₁</span> : ∏ (x y : C)
+                  (f : x --&gt; y),
+                invertible_2cell (τ₀ x · # G f) (# F f · τ₀ y))
+          (<span class="nv">τid</span> : ∏ (x : C),
+                 (τ₀ x ◃ psfunctor_id G x)
+                 • τ₁ x x (identity x)
+                 =
+                 runitor (τ₀ x)
+                 • linvunitor (τ₀ x)
+                 • (psfunctor_id F x ▹ τ₀ x))
+          (<span class="nv">τc</span> : ∏ (x y z : C)
+                  (f : x --&gt; y)
+                  (g : y --&gt; z),
+                (τ₀ x ◃ psfunctor_comp G f g)
+                • τ₁ x z (f · g)
+                =
+                lassociator (τ₀ x) (# G f) (# G g)
+                • (τ₁ x y f ▹ # G g)
+                • rassociator (# F f) (τ₀ y) (# G g)
+                • (# F f ◃ τ₁ y z g)
+                • lassociator (# F f) (# F g) (τ₀ z)
+                • (psfunctor_comp F f g ▹ τ₀ z)).
+
+  <span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat_data</span>
+    : pstrans_data F G.
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> τ₀.
+    - <span class="bp">exact</span> τ₁.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">make_pstrans_from_cat_laws</span>
+    : is_pstrans make_pstrans_from_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> x y f g p.
+      <span class="nb">induction</span> p.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ psfunctor_id2 G f).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ psfunctor_id2 F f).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> τid.
+    - <span class="bp">exact</span> τc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat</span>
+    : pstrans F G.
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> make_pstrans_from_cat_data.
+    - <span class="bp">exact</span> make_pstrans_from_cat_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PseudoTransFromCat</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Pseudotransformations between pseudofunctors to categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats)
+  : UU
+  := ∑ (τ₀ : ∏ (x : C), F x --&gt; G x),
+     ∏ (x y : C)
+       (f : x --&gt; y),
+     nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y).
+
+<span class="kn">Definition</span> <span class="nf">make_pstrans_from_cat_into_cat_data</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ₀</span> : ∏ (x : C), F x --&gt; G x)
+           (<span class="nv">τ₁</span> : ∏ (x y : C)
+                   (f : x --&gt; y),
+                 nat_z_iso (τ₀ x · # G f) (# F f · τ₀ y))
+  : pstrans_from_cat_into_cat_data F G
+  := τ₀ ,, τ₁.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data_to_ob</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+           (<span class="nv">x</span> : C)
+  : F x --&gt; G x
+  := pr1 τ x.
+
+<span class="kn">Coercion</span> <span class="nf">pstrans_from_cat_into_cat_data_to_ob</span> : pstrans_from_cat_into_cat_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_data_nat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : nat_z_iso (τ x · # G f) (# F f · τ y)
+  := pr2 τ x y f.
+
+<span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat_laws</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+           (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+  : UU
+  := (∏ (x : C)
+        (xx : pr1 (F x)),
+      pr11 (psfunctor_id G x) (pr1 (τ x) xx)
+      · pr1 (pstrans_from_cat_into_cat_data_nat τ (id₁ x)) xx
+      =
+      # (pr1 (τ x)) (pr11 (psfunctor_id F x) xx))
+     ×
+     (∏ (x y z : C)
+        (f : x --&gt; y)
+        (g : y --&gt; z)
+        (xx : pr1 (F x)),
+       pr11 (psfunctor_comp G f g) (pr1 (τ x) xx)
+       · pr1 (pstrans_from_cat_into_cat_data_nat τ (f · g)) xx
+       =
+       # (pr1 (# G g)) ((pr11 (pstrans_from_cat_into_cat_data_nat τ f)) xx)
+       · (pr11 (pstrans_from_cat_into_cat_data_nat τ g)) (pr1 (# F f) xx)
+       · # (pr1 (τ z)) (pr11 (psfunctor_comp F f g) xx)).
+
+<span class="kn">Section</span> <span class="nf">PseudoTransIntoCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+          (<span class="nv">τ</span> : pstrans_from_cat_into_cat_data F G)
+          (<span class="nv">Hτ</span> : pstrans_from_cat_into_cat_laws τ).
+
+  <span class="kn">Definition</span> <span class="nf">pstrans_from_cat_into_cat</span>
+    : pstrans F G.
+  <span class="kn">Proof</span>.
+    use make_pstrans_from_cat.
+    - <span class="bp">exact</span> τ.
+    - <span class="nb">intros</span> x y f.
+      use nat_z_iso_to_invertible_2cell.
+      <span class="bp">exact</span> (pstrans_from_cat_into_cat_data_nat τ f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">cbn</span> -[psfunctor_id] ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="bp">exact</span> (pr1 Hτ x xx)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z f g ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> xx ;
+         <span class="nb">cbn</span> -[psfunctor_comp] ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">rewrite</span> !id_right ;
+         <span class="bp">exact</span> (pr2 Hτ x y z f g xx)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PseudoTransIntoCat</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Indexed functors to pseudotransformations</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">indexed_functor_to_pstrans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">Φ</span> <span class="nv">Ψ</span> : indexed_cat C}
+           (<span class="nv">τ</span> : indexed_functor Φ Ψ)
+  : pstrans
+      (indexed_cat_to_psfunctor Φ)
+      (indexed_cat_to_psfunctor Ψ).
+<span class="kn">Proof</span>.
+  use pstrans_from_cat_into_cat.
+  - use make_pstrans_from_cat_into_cat_data.
+    + <span class="bp">exact</span> τ.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, indexed_functor_natural τ f).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, indexed_functor_id τ xx).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span>, indexed_functor_comp τ f g xx).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Pseudotransformations to indexed functors</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PseudoTransformationToIndexedFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : psfunctor (cat_to_bicat C) bicat_of_univ_cats}
+          (<span class="nv">τ</span> : pstrans F G).
+
+  <span class="kn">Definition</span> <span class="nf">pstrans_to_indexed_functor_data</span>
+    : indexed_functor_data
+        (psfunctor_to_indexed_cat F)
+        (psfunctor_to_indexed_cat G).
+  <span class="kn">Proof</span>.
+    use make_indexed_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, τ x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, invertible_2cell_to_nat_z_iso _ _ (psnaturality_of τ f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pstrans_to_indexed_functor_laws</span>
+    : indexed_functor_laws pstrans_to_indexed_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xx.
+      <span class="nb">refine</span> (nat_trans_eq_pointwise (pstrans_id τ x) xx @ _) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g xx.
+      <span class="nb">refine</span> (nat_trans_eq_pointwise (pstrans_comp τ f g) xx @ _) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id_left, !id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pstrans_to_indexed_functor</span>
+    : indexed_functor
+        (psfunctor_to_indexed_cat F)
+        (psfunctor_to_indexed_cat G).
+  <span class="kn">Proof</span>.
+    use make_indexed_functor.
+    - <span class="bp">exact</span> pstrans_to_indexed_functor_data.
+    - <span class="bp">exact</span> pstrans_to_indexed_functor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PseudoTransformationToIndexedFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Transformations/Examples/PseudoTransformationIntoCat.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Pseudotransformations to indexed functors
+  &gt;
+  &gt;  ********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

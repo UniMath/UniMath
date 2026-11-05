@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsInOp2Bicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************</span>
+
+<span class="sd"> Monads in `op2 B`</span>
+
+<span class="sd"> Comnads can be defined as monads internal to a bicategory. More</span>
+<span class="sd"> specifically, comonads in `B` are the same as moands in `op2 B`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Comonads</span>
+<span class="sd"> 2. Comonad morphisms</span>
+<span class="sd"> 3. Comonad cells</span>
+<span class="sd"> 4. Monads in `op2 B`</span>
+<span class="sd"> 5. Monad morphisms in `op2 B`</span>
+<span class="sd"> 6. Monad cells in `op2 B`</span>
+
+<span class="sd"> *************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Comonads</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Comonads</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_data</span>
+    : UU
+    := ∑ (x : B)
+         (f : x --&gt; x),
+       f ==&gt; id₁ _ × f ==&gt; f · f.
+
+  <span class="kn">Definition</span> <span class="nf">make_comnd_data</span>
+             (<span class="nv">x</span> : B)
+             (<span class="nv">f</span> : x --&gt; x)
+             (<span class="nv">ex</span> : f ==&gt; id₁ _)
+             (<span class="nv">dup</span> : f ==&gt; f · f)
+    : comnd_data
+    := x ,, f ,, ex ,, dup.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> (<span class="nv">C</span> : comnd_data).
+
+    <span class="kn">Definition</span> <span class="nf">ob_of_comnd</span>
+      : B
+      := pr1 C.
+
+    <span class="kn">Definition</span> <span class="nf">endo_of_comnd</span>
+      : ob_of_comnd --&gt; ob_of_comnd
+      := pr12 C.
+
+    <span class="kn">Definition</span> <span class="nf">counit_of_comnd</span>
+      : endo_of_comnd ==&gt; id₁ _
+      := pr122 C.
+
+    <span class="kn">Definition</span> <span class="nf">comult_of_comnd</span>
+      : endo_of_comnd ==&gt; endo_of_comnd · endo_of_comnd
+      := pr222 C.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="kn">Section</span> <span class="nf">ComonadLaws</span>.
+    <span class="kn">Context</span> (<span class="nv">C</span> : comnd_data).
+
+    <span class="kn">Definition</span> <span class="nf">comnd_counit_left_law</span>
+      : UU
+      := comult_of_comnd C • (counit_of_comnd C ▹ _) • lunitor _
+         =
+         id₂ _.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_counit_right_law</span>
+      : UU
+      := comult_of_comnd C • (_ ◃ counit_of_comnd C) • runitor _
+         =
+         id₂ _.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_comult_assoc_law</span>
+      : UU
+      := comult_of_comnd C
+         • (_ ◃ comult_of_comnd C)
+         • lassociator _ _ _
+         =
+         comult_of_comnd C • (comult_of_comnd C ▹ _).
+  <span class="kn">End</span> <span class="nf">ComonadLaws</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_laws</span>
+             (<span class="nv">C</span> : comnd_data)
+    : UU
+    := comnd_counit_left_law C
+       ×
+       comnd_counit_right_law C
+       ×
+       comnd_comult_assoc_law C.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_comnd_laws</span>
+             (<span class="nv">C</span> : comnd_data)
+    : isaprop (comnd_laws C).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use isapropdirprod) ; <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd</span>
+    : UU
+    := ∑ (C : comnd_data), comnd_laws C.
+
+  <span class="kn">Coercion</span> <span class="nf">comnd_to_comnd_data</span> (C : comnd) : comnd_data := pr1 C.
+
+  <span class="kn">Section</span> <span class="nf">LawsProjections</span>.
+    <span class="kn">Context</span> (<span class="nv">C</span> : comnd).
+
+    <span class="kn">Definition</span> <span class="nf">comnd_counit_left</span>
+      : comult_of_comnd C • (counit_of_comnd C ▹ _) • lunitor _
+        =
+        id₂ _
+      := pr12 C.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_counit_right</span>
+      : comult_of_comnd C • (_ ◃ counit_of_comnd C) • runitor _
+        =
+        id₂ _
+      := pr122 C.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_comult_assoc</span>
+      : comult_of_comnd C
+        • (_ ◃ comult_of_comnd C)
+        • lassociator _ _ _
+        =
+        comult_of_comnd C • (comult_of_comnd C ▹ _)
+      := pr222 C.
+  <span class="kn">End</span> <span class="nf">LawsProjections</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_comnd</span>
+             (<span class="nv">C</span> : comnd_data)
+             (<span class="nv">HC</span> : comnd_laws C)
+    : comnd
+    := C ,, HC.
+<span class="kn">End</span> <span class="nf">Comonads</span>.
+
+<span class="kn">Arguments</span> comnd_data : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> comnd : <span class="kn">clear implicits</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Comonad morphisms</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ComonadMorphism</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_mor_data</span>
+    : UU
+    := ∑ (f : ob_of_comnd C₁ --&gt; ob_of_comnd C₂),
+       endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂.
+
+  <span class="kn">Definition</span> <span class="nf">make_comnd_mor_data</span>
+             (<span class="nv">f</span> : ob_of_comnd C₁ --&gt; ob_of_comnd C₂)
+             (<span class="nv">fe</span> : endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂)
+    : comnd_mor_data
+    := f ,,  fe.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_comnd_mor</span>
+           (f : comnd_mor_data)
+    : ob_of_comnd C₁ --&gt; ob_of_comnd C₂
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_mor_endo</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+    : endo_of_comnd C₁ · f ==&gt; f · endo_of_comnd C₂
+    := pr2 f.
+
+  <span class="kn">Section</span> <span class="nf">ComonadMorphismLaws</span>.
+    <span class="kn">Context</span> (<span class="nv">f</span> : comnd_mor_data).
+
+    <span class="kn">Definition</span> <span class="nf">comnd_mor_counit_law</span>
+      : UU
+      := (counit_of_comnd C₁ ▹ _) • lunitor _
+         =
+         comnd_mor_endo f • (_ ◃ counit_of_comnd C₂) • runitor _.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_mor_comult_law</span>
+      : UU
+      := (comult_of_comnd C₁ ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ comnd_mor_endo f)
+         • lassociator _ _ _
+         • (comnd_mor_endo f ▹ _)
+         • rassociator _ _ _
+         =
+         comnd_mor_endo f
+         • (_ ◃ comult_of_comnd C₂).
+  <span class="kn">End</span> <span class="nf">ComonadMorphismLaws</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_mor_laws</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+    : UU
+    := comnd_mor_counit_law f × comnd_mor_comult_law f.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_mor</span>
+    : UU
+    := ∑ (f : comnd_mor_data), comnd_mor_laws f.
+
+  <span class="kn">Coercion</span> <span class="nf">comnd_mor_to_comnd_mor_data</span>
+           (f : comnd_mor)
+    : comnd_mor_data
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">make_comnd_mor</span>
+             (<span class="nv">f</span> : comnd_mor_data)
+             (<span class="nv">Hf</span> : comnd_mor_laws f)
+    : comnd_mor
+    := f ,, Hf.
+
+  <span class="kn">Section</span> <span class="nf">LawProjections</span>.
+    <span class="kn">Context</span> (<span class="nv">f</span> : comnd_mor).
+
+    <span class="kn">Definition</span> <span class="nf">comnd_mor_counit</span>
+      : (counit_of_comnd C₁ ▹ _) • lunitor _
+         =
+         comnd_mor_endo f • (_ ◃ counit_of_comnd C₂) • runitor _
+      := pr12 f.
+
+    <span class="kn">Definition</span> <span class="nf">comnd_mor_comult</span>
+      : (comult_of_comnd C₁ ▹ _)
+        • rassociator _ _ _
+        • (_ ◃ comnd_mor_endo f)
+        • lassociator _ _ _
+        • (comnd_mor_endo f ▹ _)
+        • rassociator _ _ _
+        =
+        comnd_mor_endo f
+        • (_ ◃ comult_of_comnd C₂)
+      := pr22 f.
+  <span class="kn">End</span> <span class="nf">LawProjections</span>.
+<span class="kn">End</span> <span class="nf">ComonadMorphism</span>.
+
+<span class="kn">Arguments</span> comnd_mor_data {_} _ _.
+<span class="kn">Arguments</span> comnd_mor {_} _ _.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Comonad cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂}
+           (<span class="nv">α</span> : f₂ ==&gt; f₁)
+  : UU
+  := (_ ◃ α) • comnd_mor_endo f₁
+     =
+     comnd_mor_endo f₂ • (α ▹ _).
+
+<span class="kn">Definition</span> <span class="nf">comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂)
+  : UU
+  := ∑ (α : f₂ ==&gt; f₁), is_comnd_cell α.
+
+<span class="kn">Coercion</span> <span class="nf">comnd_cell_to_cell</span>
+         {B : bicat}
+         {C₁ C₂ : comnd B}
+         {f₁ f₂ : comnd_mor C₁ C₂}
+         (α : comnd_cell f₁ f₂)
+  : f₂ ==&gt; f₁
+  := pr1 α.
+
+<span class="kn">Definition</span> <span class="nf">make_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : comnd B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : comnd_mor C₁ C₂}
+           (<span class="nv">α</span> : f₂ ==&gt; f₁)
+           (<span class="nv">Hα</span> : is_comnd_cell α)
+  : comnd_cell f₁ f₂
+  := α ,, Hα.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Monads in `op2 B`</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadsInOp2Bicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_to_comnd</span>
+             (<span class="nv">m</span> : mnd (op2_bicat B))
+    : comnd B.
+  <span class="kn">Proof</span>.
+    use make_comnd.
+    - use make_comnd_data.
+      + <span class="bp">exact</span> (ob_of_mnd m).
+      + <span class="bp">exact</span> (endo_of_mnd m).
+      + <span class="bp">exact</span> (unit_of_mnd m).
+      + <span class="bp">exact</span> (mult_of_mnd m).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_counit_left_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_unit_left m)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_counit_right_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_unit_right m)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_comult_assoc_law ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mult_assoc m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_to_op2_mnd</span>
+             (<span class="nv">C</span> : comnd B)
+    : mnd (op2_bicat B).
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - use make_mnd_data.
+      + <span class="bp">exact</span> (ob_of_comnd C).
+      + <span class="bp">exact</span> (endo_of_comnd C).
+      + <span class="bp">exact</span> (counit_of_comnd C).
+      + <span class="bp">exact</span> (comult_of_comnd C).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_counit_left C)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_counit_right C)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_comult_assoc C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd_inv₁</span>
+             (<span class="nv">m</span> : mnd (op2_bicat B))
+    : comnd_to_op2_mnd (op2_mnd_to_comnd m) = m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ob_of_mnd m ,, z) _).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_mnd.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd_inv₂</span>
+             (<span class="nv">C</span> : comnd B)
+    : op2_mnd_to_comnd (comnd_to_op2_mnd C) = C.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_comnd_laws.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonadsInOp2Bicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op2_mnd_weq_comnd</span>
+           (<span class="nv">B</span> : bicat)
+  : mnd (op2_bicat B) ≃ comnd B.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op2_mnd_to_comnd.
+  - use isweq_iso.
+    + <span class="bp">exact</span> comnd_to_op2_mnd.
+    + <span class="bp">exact</span> op2_mnd_weq_comnd_inv₁.
+    + <span class="bp">exact</span> op2_mnd_weq_comnd_inv₂.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Monad morphisms in `op2 B`</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadMorInOp2Bicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_mor_to_comnd_mor</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂).
+  <span class="kn">Proof</span>.
+    use make_comnd_mor.
+    - use make_comnd_mor_data.
+      + <span class="bp">exact</span> (mor_of_mnd_mor f).
+      + <span class="bp">exact</span> (mnd_mor_endo f).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_mor_counit_law ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mor_unit f)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> comnd_mor_comult_law ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (mnd_mor_mu f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_mor_to_op2_mnd_mor</span>
+             (<span class="nv">f</span> : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂))
+    : m₁ --&gt; m₂.
+  <span class="kn">Proof</span>.
+    use make_mnd_mor.
+    - use make_mnd_mor_data.
+      + <span class="bp">exact</span> f.
+      + <span class="bp">exact</span> (comnd_mor_endo f).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_mor_counit f)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="bp">exact</span> (comnd_mor_comult f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor_inv₁</span>
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+    : comnd_mor_to_op2_mnd_mor (op2_mnd_mor_to_comnd_mor f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor_inv₂</span>
+             (<span class="nv">f</span> : comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂))
+    : op2_mnd_mor_to_comnd_mor (comnd_mor_to_op2_mnd_mor f) = f.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonadMorInOp2Bicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op2_mnd_mor_weq_comnd_mor</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B))
+  : m₁ --&gt; m₂ ≃ comnd_mor (op2_mnd_to_comnd m₁) (op2_mnd_to_comnd m₂).
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op2_mnd_mor_to_comnd_mor.
+  - use isweq_iso.
+    + <span class="bp">exact</span> comnd_mor_to_op2_mnd_mor.
+    + <span class="bp">exact</span> op2_mnd_mor_weq_comnd_mor_inv₁.
+    + <span class="bp">exact</span> op2_mnd_mor_weq_comnd_mor_inv₂.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Monad cells in `op2 B`</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MonadMorInOp2Bicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}
+          {<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂}.
+
+  <span class="kn">Definition</span> <span class="nf">op2_mnd_cell_to_comnd_cell</span>
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+    : comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂).
+  <span class="kn">Proof</span>.
+    use make_comnd_cell.
+    - <span class="bp">exact</span> (cell_of_mnd_cell α).
+    - <span class="bp">exact</span> (mnd_cell_endo α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comnd_cell_to_op2_mnd_cell</span>
+             (<span class="nv">α</span> : comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂))
+    : f₁ ==&gt; f₂.
+  <span class="kn">Proof</span>.
+    use make_mnd_cell.
+    - <span class="bp">exact</span> (pr1 α).
+    - <span class="bp">exact</span> (pr2 α).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadMorInOp2Bicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">op2_mnd_cell_weq_comnd_cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd (op2_bicat B)}
+           (<span class="nv">f₁</span> <span class="nv">f₂</span> : m₁ --&gt; m₂)
+  : f₁ ==&gt; f₂ ≃ comnd_cell (op2_mnd_mor_to_comnd_mor f₁) (op2_mnd_mor_to_comnd_mor f₂).
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> op2_mnd_cell_to_comnd_cell.
+  - use isweq_iso.
+    + <span class="bp">exact</span> comnd_cell_to_op2_mnd_cell.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ;
+         use eq_mnd_cell ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/Examples/MonadsInOp2Bicat.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Monad cells in `op2 B`
+  &gt;
+  &gt;  *************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

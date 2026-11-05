@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PartC.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Univalent Foundations. Vladimir Voevodsky. Feb. 2010 - Sep. 2011. Port to coq</span>
+<span class="sd">     trunk (8.4-8.5) in March 2014. The third part of the original uu0 file,</span>
+<span class="sd">     created on Dec. 3, 2014.</span>
+
+<span class="sd">   Only one universe is used, and it is never used as a type.</span>
+
+<span class="sd">   The only axiom we use is [ funextemptyAxiom ], which is the functional</span>
+<span class="sd">   extensionality axiom for functions with values in the empty type.  Any</span>
+<span class="sd">   results that don't depend on axioms should be in an earlier file.</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">- More results on propositions</span>
+<span class="sd">- Isolated points and types with decidable equality</span>
+<span class="sd"> - Basic results on complements to a point</span>
+<span class="sd"> - Basic results on types with an isolated point</span>
+<span class="sd"> - Weak equivalences and isolated points</span>
+<span class="sd"> - Recomplement on functions</span>
+<span class="sd"> - Standard weak equivalences between [compl T t1] and [compl T t2]</span>
+<span class="sd">   for isolated t1 and t2</span>
+<span class="sd"> - Transposition of two isolated points</span>
+<span class="sd"> - Types with decidable equality</span>
+<span class="sd">  - unit</span>
+<span class="sd">  - bool</span>
+<span class="sd">  - coprod</span>
+<span class="sd"> - Splitting of X into a coproduct by X -&gt; bool</span>
+<span class="sd">- Semi-boolean hfiber of functions over isolated points</span>
+<span class="sd"> - hfibers of ii1 and ii2</span>
+<span class="sd"> - ii1 and ii2 map isolated points to isolated points</span>
+<span class="sd"> - hfibers of coprodf of two functions</span>
+<span class="sd"> - Coproduct of two functions of h-level n is of h-level n</span>
+<span class="sd"> - h-levels of coproducts and their component types</span>
+<span class="sd"> - h-fibers of the sum of two functions sumofmaps f g</span>
+<span class="sd"> - The sum of two functions of h-level (S (S n)) is of h-level</span>
+<span class="sd">   (S (S n))</span>
+<span class="sd"> - The sum of two functions of h-level n with non-intersecting images</span>
+<span class="sd">   is of h-level n</span>
+<span class="sd"> - Coproducts and complements</span>
+<span class="sd">- Decidable propositions and decidable inclusions</span>
+<span class="sd"> - Decidable propositions</span>
+<span class="sd"> - Paths to and from an isolated point form a decidable proposition</span>
+<span class="sd"> - Decidable inclusions</span>
+<span class="sd"> - Decidable inclusions and isolated points</span>
+<span class="sd"> - Decidable inclusions and coprojections</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.PartB.
+<span class="kn">Require Export</span> UniMath.Foundations.UnivalenceAxiom.
+
+<span class="sd">(** *** More results on propositions *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">isapropneg</span> (<span class="nv">X</span> : UU) : isaprop (neg X).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> x x'. <span class="nb">apply</span> (funextempty X x x').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isProofIrrelevant</span> <span class="nv">X</span> : isaprop (isProofIrrelevant X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> invproofirrelevance. <span class="nb">intros</span> i j.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> y.
+  <span class="nb">generalize</span> (i x y) <span class="k">as</span> p; <span class="nb">generalize</span> (j x y) <span class="k">as</span> q; <span class="nb">intros</span>.
+  <span class="nb">apply</span> isProofIrrelevant_paths. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** See also [ isapropneg2 ] *)</span>
+
+
+<span class="kn">Corollary</span> <span class="nf">isapropdneg</span> (<span class="nv">X</span> : UU) : isaprop (dneg X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>. <span class="nb">apply</span> (isapropneg (neg X)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">isaninvprop</span> (<span class="nv">X</span> : UU) := isweq (todneg X).
+
+<span class="kn">Definition</span> <span class="nf">invimpl</span> (<span class="nv">X</span> : UU) (<span class="nv">isw</span> : isaninvprop X) : (dneg X) -&gt; X
+  := invmap (make_weq (todneg X) isw).
+
+
+<span class="kn">Lemma</span> <span class="nf">isapropaninvprop</span> (<span class="nv">X</span> : UU) : isaninvprop X -&gt; isaprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0.
+  <span class="nb">apply</span> (isofhlevelweqb (S O) (make_weq (todneg X) X0) (isapropdneg X)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isaninvpropneg</span> (<span class="nv">X</span> : UU) : isaninvprop (neg X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := todneg (neg X)).
+  <span class="nb">set</span> (g := negf (todneg X)).
+  <span class="nb">set</span> (is1 := isapropneg X).
+  <span class="nb">set</span> (is2 := isapropneg (dneg X)).
+  <span class="nb">apply</span> (isweqimplimpl f g is1 is2).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isapropdec</span> (<span class="nv">X</span> : UU) : isaprop X -&gt; isaprop (decidable X).
+<span class="c">(* uses [funextemptyAxiom] *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">apply</span> isapropcoprod.
+  - <span class="bp">exact</span> i.
+  - <span class="nb">apply</span> isapropneg.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">n</span>, n x).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Isolated points and types with decidable equality. *)</span>
+
+
+<span class="sd">(** *** Basic results on complements to a point *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">compl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) := ∑ x', x != x'.
+<span class="kn">Definition</span> <span class="nf">make_compl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) := tpair (<span class="k">λ</span> <span class="nv">x'</span> : X, x != x').
+<span class="kn">Definition</span> <span class="nf">pr1compl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) := @pr1 _ (<span class="k">λ</span> <span class="nv">x'</span> : X, x != x').
+
+
+<span class="kn">Lemma</span> <span class="nf">isinclpr1compl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) : isincl (pr1compl X x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isinclpr1 _ (<span class="k">λ</span> <span class="nv">x'</span> : X, isapropneg _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">recompl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) : compl X x ⨿ unit -&gt; X
+  := <span class="k">λ</span> <span class="nv">u</span> : _,
+       <span class="k">match</span> u <span class="k">with</span>
+       | ii1 x0 =&gt; pr1compl _ _ x0
+       | ii2 t =&gt; x
+       <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponcomplincl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isin</span> : isincl f) (<span class="nv">x</span> : X) :
+  compl X x -&gt; compl Y (f x)
+  := <span class="k">λ</span> <span class="nv">x0'</span> : _,
+       <span class="k">match</span> x0' <span class="k">with</span>
+         tpair _ x' neqx =&gt; tpair _ (f x')
+                                 (negf (invmaponpathsincl  _ isin x x') neqx)
+       <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqoncompl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) <span class="nv">x</span> : compl X x ≃ compl Y (w x).
+<span class="kn">Proof</span>.
+  <span class="c">(* uses [funextemptyAxiom] *)</span>
+  <span class="nb">intros</span>. intermediate_weq (∑ x', w x != w x').
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> x'. <span class="nb">apply</span> weqiff.
+    {<span class="nb">apply</span> logeqnegs. <span class="nb">apply</span> weq_to_iff. <span class="nb">apply</span> weqonpaths. }
+    {<span class="nb">apply</span> isapropneg. }
+    {<span class="nb">apply</span> isapropneg. }
+  - <span class="nb">refine</span> (weqfp _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqoncompl_compute</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">x</span> : X) :
+  ∏ x', pr1 (weqoncompl w x x') = w (pr1 x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> x' <span class="k">as</span> [x' b]. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homotweqoncomplcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X ≃ Y) (<span class="nv">g</span> : Y ≃ Z)
+           (<span class="nv">x</span> : X) : homot (weqcomp (weqoncompl f x) (weqoncompl g (f x)))
+                           (weqoncompl (weqcomp f g) x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x'. <span class="nb">induction</span> x' <span class="k">as</span> [ x' nexx' ].
+  <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1compl Z _) _ _).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Decomposition of a type with an isolated point into two parts [ weqrecompl ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">invrecompl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) :
+  X -&gt; coprod (compl X x) unit
+  := <span class="k">λ</span> <span class="nv">x'</span> : X, <span class="k">match</span> (isi x') <span class="k">with</span>
+                | ii1 e =&gt; ii2 tt
+                | ii2 phi =&gt; ii1 (make_compl _ _ x' phi)
+                <span class="k">end</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isweqrecompl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) :
+  isweq (recompl _ x).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := recompl _ x). <span class="nb">set</span> (g := invrecompl X x isi).
+  <span class="nb">unfold</span> invrecompl <span class="k">in</span> g. <span class="nb">simpl</span> <span class="k">in</span> g.
+  <span class="nb">assert</span> (efg: ∏ x' : X, paths (f (g x')) x').
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> (isi x') <span class="k">as</span> [ x0 | e ].
+    - <span class="nb">induction</span> x0. <span class="nb">unfold</span> f. <span class="nb">unfold</span> g. <span class="nb">simpl</span>. <span class="nb">unfold</span> recompl. <span class="nb">simpl</span>.
+      <span class="nb">induction</span> (isi x) <span class="k">as</span> [ x0 | e ].
+      + <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+      + <span class="nb">induction</span> (e (idpath x)).
+    - <span class="nb">unfold</span> f. <span class="nb">unfold</span> g. <span class="nb">simpl</span>. <span class="nb">unfold</span> recompl. <span class="nb">simpl</span>.
+      <span class="nb">induction</span> (isi x') <span class="k">as</span> [ x0 | e0 ].
+      + <span class="nb">induction</span> (e x0).
+      + <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">assert</span> (egf : ∏ u : coprod (compl X x) unit, paths (g (f u)) u).
+  {
+    <span class="nb">unfold</span> isisolated <span class="k">in</span> isi. <span class="nb">intro</span>. <span class="nb">induction</span> (isi (f u)) <span class="k">as</span> [ p | e ].
+    - <span class="nb">induction</span> u <span class="k">as</span> [ c | u].
+      + <span class="nb">simpl</span>. <span class="nb">induction</span> c <span class="k">as</span> [ t x0 ]. <span class="nb">simpl</span> <span class="k">in</span> p. <span class="nb">induction</span> (x0 p).
+      + <span class="nb">induction</span> u. <span class="nb">assert</span> (e1 : paths (g (f (ii2 tt))) (g x)).
+        <span class="nb">apply</span> (maponpaths g p).
+        <span class="nb">assert</span> (e2 : paths (g x) (ii2 tt)).
+        {
+          <span class="nb">unfold</span> g. <span class="nb">induction</span> (isi x) <span class="k">as</span> [ i | e ].
+          <span class="nb">apply</span> idpath.
+          <span class="nb">induction</span> (e (idpath x)).
+        }
+        <span class="nb">apply</span> (pathscomp0 e1 e2).
+    - <span class="nb">induction</span> u <span class="k">as</span> [ c | u ]. <span class="nb">simpl</span>. <span class="nb">induction</span> c <span class="k">as</span> [ t x0 ].
+      <span class="nb">simpl</span>. <span class="nb">unfold</span> isisolated <span class="k">in</span> isi. <span class="nb">unfold</span> g. <span class="nb">induction</span> (isi t) <span class="k">as</span> [ p | e0 ].
+      <span class="nb">induction</span> (x0 p). <span class="nb">simpl</span> <span class="k">in</span> g.  <span class="nb">unfold</span> f. <span class="nb">unfold</span> recompl. <span class="nb">simpl</span> <span class="k">in</span> e.
+      <span class="nb">assert</span> (ee : e0 = x0)
+        <span class="bp">by</span> <span class="nb">apply</span> (proofirrelevance _ (isapropneg (x = t))).
+      <span class="nb">induction</span> ee. <span class="nb">apply</span> idpath.
+      <span class="nb">unfold</span> f. <span class="nb">unfold</span> g. <span class="nb">simpl</span>. <span class="nb">induction</span> u. <span class="nb">induction</span> (isi x).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">induction</span> (e (idpath x)).
+  }
+  <span class="nb">apply</span> (isweq_iso f g egf efg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqrecompl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated _ x) :
+  compl X x ⨿ unit ≃ X := make_weq _ (isweqrecompl X x isi).
+
+<span class="sd">(** *** Theorem saying that [ recompl ] commutes up to homotopy with [ maponcomplweq ] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">homotrecomplnat</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">x</span> : X) (<span class="nv">a</span> : compl X x ⨿ unit) :
+  recompl Y (w x) (coprodf (weqoncompl w x) (idfun unit) a)
+  = w (recompl X x a).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> a <span class="k">as</span> [ ane | t ]. <span class="nb">induction</span> ane <span class="k">as</span> [ a ne ]. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> idpath. <span class="nb">induction</span> t. <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Recomplement on functions *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">recomplf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">isx</span> : isisolated X x)
+           (<span class="nv">f</span> : compl X x -&gt; compl Y y) : X -&gt; Y
+  := funcomp (funcomp (invmap (weqrecompl X x isx)) (coprodf f (idfun unit)))
+             (recompl Y y).
+
+<span class="kn">Definition</span> <span class="nf">weqrecomplf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">isx</span> : isisolated X x)
+           (<span class="nv">isy</span> : isisolated Y y) (<span class="nv">w</span> : (compl X x) ≃ (compl Y y)) : X ≃ Y
+  := weqcomp (weqcomp (invweq (weqrecompl X x isx)) (weqcoprodf w (idweq unit)))
+             (weqrecompl Y y isy).
+
+<span class="kn">Definition</span> <span class="nf">homotrecomplfhomot</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">isx</span> : isisolated X x)
+           (<span class="nv">f</span> <span class="nv">f'</span> : compl X x -&gt; compl Y y) (<span class="nv">h</span> : homot f f') :
+  homot (recomplf x y isx f) (recomplf x y isx f').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> a. <span class="nb">unfold</span> recomplf.
+  <span class="nb">apply</span> (maponpaths (recompl Y y)
+                    (homotcoprodfhomot _ _ _ _ h (<span class="k">λ</span> <span class="nv">t</span> : unit, idpath t)
+                                       (invmap (weqrecompl X x isx) a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathsrecomplfxtoy</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">isx</span> : isisolated X x)
+      (<span class="nv">f</span> : compl X x -&gt; compl Y y) : (recomplf x y isx f x) = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> recomplf. <span class="nb">unfold</span> weqrecompl. <span class="nb">unfold</span> invmap. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> invrecompl. <span class="nb">induction</span> (isx x) <span class="k">as</span> [ i1 | i2 ].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">induction</span> (i2 (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">homotrecomplfcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">z</span> : Z)
+           (<span class="nv">isx</span> : isisolated X x) (<span class="nv">isy</span> : isisolated Y y)
+           (<span class="nv">f</span> : compl X x -&gt; compl Y y) (<span class="nv">g</span> : compl Y y -&gt; compl Z z) :
+  homot (funcomp (recomplf x y isx f) (recomplf y z isy g))
+        (recomplf x z isx (funcomp f g)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x'. <span class="nb">unfold</span> recomplf.
+  <span class="nb">set</span> (e := homotinvweqweq (weqrecompl Y y isy)
+                           (coprodf f (idfun unit)
+                                    (invmap (weqrecompl X x isx) x'))).
+  <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">simpl</span>. <span class="nb">rewrite</span> e.
+  <span class="nb">set</span> (e' := homotcoprodfcomp f (idfun unit) g (idfun unit)
+                              (invmap (weqrecompl X x isx) x')).
+  <span class="nb">simpl</span> <span class="k">in</span> e'. <span class="nb">rewrite</span> e'. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">homotrecomplfidfun</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">isx</span> : isisolated X x) :
+  homot (recomplf x x isx (idfun (compl X x))) (idfun _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x'. <span class="nb">unfold</span> recomplf. <span class="nb">unfold</span> weqrecompl. <span class="nb">unfold</span> invmap. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> invrecompl. <span class="nb">induction</span> (isx x') <span class="k">as</span> [ e | ne ].
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> e.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">ishomotinclrecomplf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y) (<span class="nv">isx</span> : isisolated X x)
+      (<span class="nv">f</span> : compl X x -&gt; compl Y y) (<span class="nv">x'n</span> : compl X x) (<span class="nv">y'n</span> : compl Y y)
+      (<span class="nv">e</span> : paths (recomplf x y isx f (pr1 x'n)) (pr1 y'n)) : (f x'n) = y'n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> x'n <span class="k">as</span> [ x' nexx' ]. <span class="nb">induction</span> y'n <span class="k">as</span> [ y' neyy' ].
+  <span class="nb">simpl</span> <span class="k">in</span> e . <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1compl _ _)). <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (pathsinv0 e). <span class="nb">unfold</span> recomplf. <span class="nb">unfold</span> invmap. <span class="nb">unfold</span> coprodf.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> invrecompl.
+  <span class="nb">induction</span> (isx x') <span class="k">as</span> [ exx' | nexx'' ].
+  - <span class="nb">induction</span> (nexx' exx').
+  - <span class="nb">simpl</span>. <span class="nb">assert</span> (ee : nexx' = nexx'').
+    <span class="nb">apply</span> (proofirrelevance _ (isapropneg _)).
+    <span class="nb">rewrite</span> ee. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** Equivalence between [ compl T t1 ] and [ compl T t2 ] for isolated [ t1 t2 ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">funtranspos0</span> {<span class="nv">T</span>: UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is2</span> : isisolated T t2)
+           (<span class="nv">x</span> : compl T t1) : compl T t2
+  := <span class="k">match</span> (is2 (pr1 x)) <span class="k">with</span>
+     | ii1 e =&gt;
+       <span class="k">match</span> (is2 t1) <span class="k">with</span>
+       | ii1 e' =&gt; fromempty (pr2 x (pathscomp0 (pathsinv0 e') e))
+       | ii2 ne' =&gt; make_compl T t2 t1 ne' <span class="k">end</span>
+     | ii2 ne =&gt; make_compl T t2 (pr1 x) ne <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">homottranspos0t2t1t1t2</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T)
+           (<span class="nv">is1</span> : isisolated T t1) (<span class="nv">is2</span> : isisolated T t2) :
+  funtranspos0 t2 t1 is1 ∘ funtranspos0 t1 t2 is2 ~ idfun _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x. <span class="nb">unfold</span> funtranspos0. <span class="nb">simpl</span>.
+       <span class="nb">induction</span> x <span class="k">as</span> [ t net1 ]; <span class="nb">simpl</span>.
+       <span class="nb">induction</span> (is2 t) <span class="k">as</span> [ et2 | net2 ].
+       - <span class="nb">induction</span> (is2 t1) <span class="k">as</span> [ et2t1 | net2t1 ].
+         + <span class="nb">induction</span> (net1 (pathscomp0 (pathsinv0 et2t1) et2)).
+         + <span class="nb">simpl</span>. <span class="nb">induction</span> (is1 t1) <span class="k">as</span> [ e | ne ].
+           * <span class="nb">induction</span> (is1 t2) <span class="k">as</span> [ et1t2 | net1t2 ].
+             {<span class="nb">induction</span> (net2t1 (pathscomp0 (pathsinv0 et1t2) e)). }
+             {<span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1compl _ _)).
+              <span class="nb">simpl</span>. <span class="bp">exact</span> et2. }
+           * <span class="nb">induction</span> (ne (idpath _)).
+       - <span class="nb">simpl</span>. <span class="nb">induction</span> (is1 t) <span class="k">as</span> [ et1t | net1t ].
+         + <span class="nb">induction</span> (net1 et1t).
+         + <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1compl _ _)). <span class="nb">simpl</span>.
+           <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqtranspos0</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) :
+  isisolated T t1 -&gt; isisolated T t2 -&gt; compl T t1 ≃ compl T t2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> is1 is2.
+  <span class="nb">simple refine</span> (weq_iso (funtranspos0 t1 t2 is2)
+                           (funtranspos0 t2 t1 is1) _ _).
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> (homottranspos0t2t1t1t2 t1 t2 is1 is2).
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> (homottranspos0t2t1t1t2 t2 t1 is2 is1).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Transposition of two isolated points *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">funtranspos</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : isolated T) : T -&gt; T
+  := recomplf (pr1 t1) (pr1 t2) (pr2 t1)
+              (funtranspos0 (pr1 t1) (pr1 t2) (pr2 t2)).
+
+<span class="kn">Definition</span> <span class="nf">homottranspost2t1t1t2</span>  {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+           (<span class="nv">is2</span> : isisolated T t2) :
+  homot (funcomp (funtranspos (tpair _ t1 is1) (tpair _ t2 is2))
+                 (funtranspos (tpair _ t2 is2) (tpair _ t1 is1))) (idfun _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> t. <span class="nb">unfold</span> funtranspos.
+  <span class="nb">rewrite</span> (homotrecomplfcomp t1 t2 t1 is1 is2 _ _  t).
+  <span class="nb">set</span> (e := homotrecomplfhomot t1 t1 is1 _ (idfun _)
+                               (homottranspos0t2t1t1t2 t1 t2 is1 is2) t).
+  <span class="nb">set</span> (e' := homotrecomplfidfun t1 is1 t).
+  <span class="nb">apply</span> (pathscomp0 e e').
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">weqtranspos</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+        (<span class="nv">is2</span> : isisolated T t2) : T ≃ T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := funtranspos (tpair _ t1 is1) (tpair _ t2 is2)).
+  <span class="nb">set</span> (g := funtranspos (tpair _ t2 is2) (tpair _ t1 is1)).
+  <span class="nb">split with</span> f.
+  <span class="nb">assert</span> (egf : ∏ t : T, paths (g (f t)) t)
+    <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">refine</span> (homottranspost2t1t1t2 _ _ _ _ _)).
+  <span class="nb">assert</span> (efg : ∏ t : T, paths (f (g t)) t)
+    <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">refine</span> (homottranspost2t1t1t2 _ _ _ _ _)).
+  <span class="nb">apply</span> (isweq_iso _ _ egf efg).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">pathsfuntransposoft1</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+      (<span class="nv">is2</span> : isisolated T t2) :
+  paths (funtranspos (tpair _ t1 is1) (tpair _ t2 is2) t1) t2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> funtranspos. <span class="nb">rewrite</span> (pathsrecomplfxtoy t1 t2 is1 _).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathsfuntransposoft2</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+      (<span class="nv">is2</span> : isisolated T t2) :
+  paths (funtranspos (tpair _ t1 is1) (tpair _ t2 is2) t2) t1.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> funtranspos. <span class="nb">simpl</span>. <span class="nb">unfold</span> funtranspos0.
+  <span class="nb">unfold</span> recomplf. <span class="nb">unfold</span> coprodf. <span class="nb">unfold</span> invmap.
+  <span class="nb">unfold</span> weqrecompl. <span class="nb">unfold</span> recompl. <span class="nb">simpl</span>. <span class="nb">unfold</span> invrecompl.
+  <span class="nb">induction</span> (is1 t2) <span class="k">as</span> [ et1t2 | net1t2 ].
+  - <span class="nb">apply</span> (pathsinv0 et1t2).
+  - <span class="nb">simpl</span>. <span class="nb">induction</span> (is2 t2) <span class="k">as</span> [ et2t2 | net2t2 ].
+    + <span class="nb">induction</span> (is2 t1) <span class="k">as</span> [ et2t1 | net2t1 ].
+      * <span class="nb">induction</span> (net1t2 (pathscomp0 (pathsinv0 et2t1) et2t2)).
+      * <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    + <span class="nb">induction</span> (net2t2 (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathsfuntransposofnet1t2</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+      (<span class="nv">is2</span> : isisolated T t2) (<span class="nv">t</span> : T) (<span class="nv">net1t</span> : t1 != t)
+      (<span class="nv">net2t</span> : t2 != t) :
+  paths (funtranspos (tpair _ t1 is1) (tpair _ t2 is2) t) t.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> funtranspos. <span class="nb">simpl</span>. <span class="nb">unfold</span> funtranspos0. <span class="nb">unfold</span> recomplf.
+  <span class="nb">unfold</span> coprodf. <span class="nb">unfold</span> invmap. <span class="nb">unfold</span> weqrecompl.
+  <span class="nb">unfold</span> recompl. <span class="nb">simpl</span>. <span class="nb">unfold</span> invrecompl.
+  <span class="nb">induction</span> (is1 t) <span class="k">as</span> [ et1t | net1t' ].
+  - <span class="nb">induction</span> (net1t et1t).
+  - <span class="nb">simpl</span>. <span class="nb">induction</span> (is2 t) <span class="k">as</span> [ et2t | net2t' ]. <span class="nb">induction</span> (net2t et2t).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">homotfuntranspos2</span> {<span class="nv">T</span> : UU} (<span class="nv">t1</span> <span class="nv">t2</span> : T) (<span class="nv">is1</span> : isisolated T t1)
+      (<span class="nv">is2</span> : isisolated T t2) :
+  homot (funcomp (funtranspos (tpair _ t1 is1) (tpair _ t2 is2))
+                 (funtranspos (tpair _ t1 is1) (tpair _ t2 is2))) (idfun _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> t. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (is1 t) <span class="k">as</span> [ et1t | net1t ].
+  - <span class="nb">rewrite</span> (pathsinv0 et1t). <span class="nb">rewrite</span> (pathsfuntransposoft1 _ _).
+    <span class="nb">rewrite</span> (pathsfuntransposoft2 _ _). <span class="nb">apply</span> idpath.
+  - <span class="nb">induction</span> (is2 t) <span class="k">as</span> [ et2t | net2t ].
+    + <span class="nb">rewrite</span> (pathsinv0 et2t).
+      <span class="nb">rewrite</span> (pathsfuntransposoft2 _ _). <span class="nb">rewrite</span> (pathsfuntransposoft1 _ _).
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> (pathsfuntransposofnet1t2 _ _ _ _ _ net1t net2t).
+      <span class="nb">rewrite</span> (pathsfuntransposofnet1t2 _ _ _ _ _ net1t net2t).
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Semi-boolean hfiber of functions over isolated points *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">eqbx</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) : X -&gt; bool.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x'. <span class="nb">induction</span> (isi x'). <span class="nb">apply</span> true. <span class="nb">apply</span> false.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscontrhfibereqbx</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) :
+  iscontr (hfiber (eqbx X x isi) true).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (b : (eqbx X x isi x) = true).
+  {
+    <span class="nb">unfold</span> eqbx. <span class="nb">induction</span> (isi x) <span class="k">as</span> [ e | ne ].
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">induction</span> (ne (idpath _)).
+  }
+  <span class="nb">set</span> (i := make_hfiber (eqbx X x isi) x b). <span class="nb">split with</span> i.
+  <span class="nb">unfold</span> eqbx. <span class="nb">induction</span> (boolchoice (eqbx X x isi x)) <span class="k">as</span> [ b' | nb' ].
+  - <span class="nb">intro</span> t. <span class="nb">induction</span> t <span class="k">as</span> [ x' e ].
+    <span class="nb">assert</span> (e' : x' = x).
+    {
+      <span class="nb">induction</span> (isi x') <span class="k">as</span> [ ee | nee ]. <span class="nb">apply</span> (pathsinv0 ee).
+      <span class="nb">induction</span> (nopathsfalsetotrue e) .
+    }
+    <span class="nb">apply</span> (invmaponpathsincl _ (isinclfromhfiber (eqbx X x isi) isasetbool true)
+                             (make_hfiber _ x' e) i e').
+  - <span class="nb">induction</span> (nopathstruetofalse (pathscomp0 (pathsinv0 b) nb')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bhfiber</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">y</span> : Y) (<span class="nv">isi</span> : isisolated Y y)
+  := hfiber (<span class="k">λ</span> <span class="nv">x</span> : X, eqbx Y y isi (f x)) true.
+
+<span class="kn">Lemma</span> <span class="nf">weqhfibertobhfiber</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">y</span> : Y) (<span class="nv">isi</span> : isisolated Y y) :
+  (hfiber f y) ≃ (bhfiber f y isi).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">set</span> (g := eqbx Y y isi). <span class="nb">set</span> (ye := pr1 (iscontrhfibereqbx Y y isi)).
+  <span class="nb">split with</span> (hfibersftogf f g true ye).
+  <span class="nb">apply</span> (isofhlevelfffromZ <span class="mi">0</span> _ _ ye (fibseqhf f g true ye)).
+  <span class="nb">apply</span> (isapropifcontr).
+  <span class="nb">apply</span> (iscontrhfibereqbx _ y isi).
+<span class="kn">Defined</span>.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="sd">(** *** h-fibers of [ ii1 ] and [ ii2 ] *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">isinclii1</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) : isincl (@ii1 X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := @ii1 X Y). <span class="nb">set</span> (g := coprodtoboolsum X Y).
+  <span class="nb">set</span> (gf := <span class="k">λ</span> <span class="nv">x</span> : X, (g (f x))).
+  <span class="nb">set</span> (gf' := <span class="k">λ</span> <span class="nv">x</span> : X, tpair (boolsumfun X Y) true x).
+  <span class="nb">assert</span> (h : ∏ x : X, paths (gf' x) (gf x))
+    <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">apply</span> idpath).
+  <span class="nb">assert</span> (is1 : isofhlevelf (S O) gf')
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelfsnfib O (boolsumfun X Y) true (isasetbool true true)).
+  <span class="nb">assert</span> (is2 : isofhlevelf (S O) gf)
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelfhomot (S O) gf' gf h is1).
+  <span class="nb">apply</span> (isofhlevelff (S O) _ _ is2 (isofhlevelfweq (S (S O))
+                                                    (weqcoprodtoboolsum X Y))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Corollary</span> <span class="nf">iscontrhfiberii1x</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) :
+  iscontr (hfiber (@ii1 X Y) (ii1 x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (xe1 := make_hfiber (@ii1 _ _) x (idpath (@ii1 X Y x))).
+  <span class="nb">apply</span> (iscontraprop1 (isinclii1 X Y (ii1 x)) xe1).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">neghfiberii1y</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) : neg (hfiber (@ii1 X Y) (ii2 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> xe. <span class="nb">induction</span> xe <span class="k">as</span> [ x e ]. <span class="nb">apply</span> (negpathsii1ii2 _ _ e).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="kn">Theorem</span> <span class="nf">isinclii2</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) : isincl (@ii2 X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := @ii2 X Y). <span class="nb">set</span> (g := coprodtoboolsum X Y).
+  <span class="nb">set</span> (gf := <span class="k">λ</span> <span class="nv">y</span> : Y, (g (f y))).
+  <span class="nb">set</span> (gf' := <span class="k">λ</span> <span class="nv">y</span> : Y, tpair (boolsumfun X Y) false y).
+  <span class="nb">assert</span> (h : ∏ y : Y, paths (gf' y) (gf y))
+    <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">apply</span> idpath).
+  <span class="nb">assert</span> (is1 : isofhlevelf (S O) gf')
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelfsnfib O (boolsumfun X Y) false
+                               (isasetbool false false)).
+  <span class="nb">assert</span> (is2 : isofhlevelf (S O) gf)
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelfhomot (S O) gf' gf h is1).
+  <span class="nb">apply</span> (isofhlevelff (S O)  _ _ is2
+                      (isofhlevelfweq (S (S O)) (weqcoprodtoboolsum X Y))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Corollary</span> <span class="nf">iscontrhfiberii2y</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) :
+  iscontr (hfiber (@ii2 X Y) (ii2 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">set</span> (xe1 := make_hfiber (@ii2 _ _) y (idpath (@ii2 X Y y))).
+  <span class="nb">apply</span> (iscontraprop1 (isinclii2 X Y (ii2 y)) xe1).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">neghfiberii2x</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) : neg (hfiber (@ii2 X Y) (ii1 x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> ye. <span class="nb">induction</span> ye <span class="k">as</span> [ y e ]. <span class="nb">apply</span> (negpathsii2ii1 _ _ e).
+<span class="kn">Defined</span>.
+
+
+
+
+<span class="kn">Lemma</span> <span class="nf">negintersectii1ii2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">z</span> : coprod X Y) :
+  hfiber (@ii1 X Y) z -&gt; hfiber (@ii2 _ _) z -&gt; empty.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0 X1. <span class="nb">induction</span> X0 <span class="k">as</span> [ t x ]. <span class="nb">induction</span> X1 <span class="k">as</span> [ t0 x0 ].
+  <span class="nb">set</span> (e := pathscomp0 x (pathsinv0 x0)).
+  <span class="nb">apply</span> (negpathsii1ii2 _ _  e).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** [ ii1 ] and [ ii2 ] map isolated points to isolated points *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isolatedtoisolatedii1</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated _ x) :
+  isisolated (coprod X Y) (ii1 x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isisolated. <span class="nb">intro</span> x'. <span class="nb">induction</span> x' <span class="k">as</span> [ x0 | y ].
+  - <span class="nb">induction</span> (isi x0) <span class="k">as</span> [ p | e ].
+    + <span class="nb">apply</span> (ii1 (maponpaths (@ii1 X Y) p)).
+    + <span class="nb">apply</span> (ii2 (negf (invmaponpathsincl (@ii1 X Y) (isinclii1 X Y) _ _) e)).
+  - <span class="nb">apply</span> (ii2 (negpathsii1ii2 x y)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isolatedtoisolatedii2</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) (<span class="nv">isi</span> : isisolated _ y) :
+  isisolated (coprod X Y) (ii2 y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x'. <span class="nb">induction</span> x' <span class="k">as</span> [ x | y0 ].
+  - <span class="nb">apply</span> (ii2 (negpathsii2ii1 x y)).
+  - <span class="nb">induction</span> (isi y0) <span class="k">as</span> [ p | e ].
+    + <span class="nb">apply</span> (ii1 (maponpaths (@ii2 X Y) p)).
+    + <span class="nb">apply</span> (ii2 (negf (invmaponpathsincl (@ii2 X Y) (isinclii2 X Y) _ _) e)).
+<span class="kn">Defined</span>.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="sd">(** *** h-fibers of [ coprodf ] of two functions *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">weqhfibercoprodf1</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">X'</span> <span class="nv">Y'</span> : UU} (<span class="nv">f</span> : X -&gt; X') (<span class="nv">g</span> : Y -&gt; Y')
+        (<span class="nv">x'</span> : X') : weq (hfiber f x') (hfiber (coprodf f g) (ii1 x')).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (ix := @ii1 X Y). <span class="nb">set</span> (ix' := @ii1 X' Y').
+  <span class="nb">set</span> (fpg := coprodf f g). <span class="nb">set</span> (fpgix := <span class="k">λ</span> <span class="nv">x</span> : X, (fpg (ix x))).
+  <span class="nb">assert</span> (w1 : weq (hfiber f x') (hfiber fpgix (ix' x')))
+    <span class="bp">by</span> <span class="nb">apply</span> (samehfibers f ix' (isinclii1 _ _) x').
+  <span class="nb">assert</span> (w2 : weq (hfiber fpgix (ix' x')) (hfiber fpg (ix' x'))).
+  {
+    <span class="nb">split with</span> (hfibersgftog ix fpg (ix' x')). <span class="nb">unfold</span> isweq. <span class="nb">intro</span> y.
+
+    <span class="nb">set</span> (u := invezmaphf ix fpg (ix' x') y).
+    <span class="nb">assert</span> (isw : isweq u) <span class="bp">by</span> <span class="nb">apply</span> isweqinvezmaphf.
+
+    <span class="nb">apply</span> (iscontrweqb (make_weq u isw)).
+    <span class="nb">induction</span> y <span class="k">as</span> [ xy e ]. <span class="nb">induction</span> xy <span class="k">as</span> [ x0 | y0 ].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> iscontrhfiberofincl. <span class="nb">apply</span> (isinclii1 X Y).
+    - <span class="nb">apply</span> (fromempty ((negpathsii2ii1 x' (g y0)) e)).
+  }
+  <span class="nb">apply</span> (weqcomp w1 w2).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">weqhfibercoprodf2</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">X'</span> <span class="nv">Y'</span> : UU} (<span class="nv">f</span> : X -&gt; X') (<span class="nv">g</span> : Y -&gt; Y') (<span class="nv">y'</span> : Y') :
+  weq (hfiber g y') (hfiber (coprodf f g) (ii2 y')).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (iy := @ii2 X Y). <span class="nb">set</span> (iy' := @ii2 X' Y').
+  <span class="nb">set</span> (fpg := coprodf f g). <span class="nb">set</span> (fpgiy := <span class="k">λ</span> <span class="nv">y</span> : Y, (fpg (iy y))).
+  <span class="nb">assert</span> (w1 : weq (hfiber g y') (hfiber fpgiy (iy' y')))
+    <span class="bp">by</span> <span class="nb">apply</span> (samehfibers g iy' (isinclii2 _ _) y').
+  <span class="nb">assert</span> (w2 : weq (hfiber fpgiy (iy' y')) (hfiber fpg (iy' y'))).
+  {
+    <span class="nb">split with</span> (hfibersgftog iy fpg (iy' y')). <span class="nb">unfold</span> isweq. <span class="nb">intro</span> y.
+
+    <span class="nb">set</span> (u:= invezmaphf iy fpg (iy' y') y).
+    <span class="nb">assert</span> (isw : isweq u) <span class="bp">by</span> <span class="nb">apply</span> isweqinvezmaphf.
+
+    <span class="nb">apply</span> (iscontrweqb (make_weq u isw)).
+    <span class="nb">induction</span> y <span class="k">as</span> [ xy e ]. <span class="nb">induction</span> xy <span class="k">as</span> [ x0 | y0 ].
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (fromempty ((negpathsii1ii2 (f x0) y') e)). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> iscontrhfiberofincl. <span class="nb">apply</span> (isinclii2 X Y).
+  }
+  <span class="nb">apply</span> (weqcomp w1 w2).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** Theorem saying that coproduct of two functions of h-level n is of h-level n *)</span>
+
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelfcoprodf</span> (<span class="nv">n</span> : nat) {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">T</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; T)
+        (<span class="nv">is1</span> : isofhlevelf n f) (<span class="nv">is2</span> : isofhlevelf n g) :
+  isofhlevelf n (coprodf f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isofhlevelf. <span class="nb">intro</span> y. <span class="nb">induction</span> y <span class="k">as</span> [ z | t ].
+  <span class="nb">apply</span> (isofhlevelweqf n (weqhfibercoprodf1 f g z)). <span class="nb">apply</span> (is1 z).
+  <span class="nb">apply</span> (isofhlevelweqf n (weqhfibercoprodf2 f g t)). <span class="nb">apply</span> (is2 t).
+<span class="kn">Defined</span>.
+
+
+
+
+
+<span class="sd">(** *** Theorems about h-levels of coproducts and their component types *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelsnsummand1</span> (<span class="nv">n</span> : nat) (<span class="nv">X</span> <span class="nv">Y</span> : UU) :
+  isofhlevel (S n) (coprod X Y) -&gt; isofhlevel (S n) X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ishlvsn.
+  <span class="nb">apply</span> (isofhlevelXfromfY (S n) (@ii1 X Y)
+                           (isofhlevelfsnincl n _ (isinclii1 _ _)) ishlvsn).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelsnsummand2</span> (<span class="nv">n</span> : nat) (<span class="nv">X</span> <span class="nv">Y</span> : UU) :
+  isofhlevel (S n) (coprod X Y) -&gt; isofhlevel (S n) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ishlvsn.
+  <span class="nb">apply</span> (isofhlevelXfromfY (S n) (@ii2 X Y)
+                           (isofhlevelfsnincl n _ (isinclii2 _ _)) ishlvsn).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelssncoprod</span> (<span class="nv">n</span> : nat) (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">isx</span> : isofhlevel (S (S n)) X)
+        (<span class="nv">isy</span> : isofhlevel (S (S n)) Y) : isofhlevel (S (S n)) (coprod X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isofhlevelfromfun.
+  <span class="nb">set</span> (f := coprodf (<span class="k">λ</span> <span class="nv">x</span> : X, tt) (<span class="k">λ</span> <span class="nv">y</span> : Y, tt)).
+  <span class="nb">assert</span> (is1 : isofhlevelf (S (S n)) f)
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelfcoprodf (S (S n)) _ _ (isofhleveltofun _ X isx)
+                                 (isofhleveltofun _ Y isy)).
+  <span class="nb">assert</span> (is2 : isofhlevel (S (S n)) (coprod unit unit))
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelweqb (S (S n)) boolascoprod
+                             (isofhlevelssnset n _ (isasetbool))).
+  <span class="nb">apply</span> (isofhlevelfgf (S (S n)) _ _ is1 (isofhleveltofun _ _ is2)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isasetcoprod</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">isx</span> : isaset X) (<span class="nv">isy</span> : isaset Y) :
+  isaset (coprod X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isofhlevelssncoprod <span class="mi">0</span> _ _ isx isy).
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** h-fibers of the sum of two functions [ sumofmaps f g ] *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">coprodofhfiberstohfiber</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">z</span> : Z) :
+  (hfiber f z) ⨿ (hfiber g z) -&gt; hfiber (sumofmaps f g) z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> hfg.
+  <span class="nb">induction</span> hfg <span class="k">as</span> [ hf | hg ].
+  - <span class="nb">induction</span> hf <span class="k">as</span> [ x fe ]. <span class="nb">split with</span> (ii1 x). <span class="nb">simpl</span>. <span class="bp">assumption</span>.
+  - <span class="nb">induction</span> hg <span class="k">as</span> [ y ge ]. <span class="nb">split with</span> (ii2 y). <span class="nb">simpl</span>. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hfibertocoprodofhfibers</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">z</span> : Z) :
+  hfiber (sumofmaps f g) z -&gt; (hfiber f z) ⨿ (hfiber g z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> hsfg.
+  <span class="nb">induction</span> hsfg <span class="k">as</span> [ xy e ]. <span class="nb">induction</span> xy <span class="k">as</span> [ x | y ].
+  - <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">apply</span> (ii1 (make_hfiber _ x e)).
+  - <span class="nb">simpl</span> <span class="k">in</span> e. <span class="nb">apply</span> (ii2 (make_hfiber _ y e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">weqhfibersofsumofmaps</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">z</span> : Z) :
+  weq ((hfiber f z) ⨿ (hfiber g z)) (hfiber (sumofmaps f g) z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (ff := coprodofhfiberstohfiber f g z).
+  <span class="nb">set</span> (gg := hfibertocoprodofhfibers f g z).
+  <span class="nb">split with</span> ff.
+  <span class="nb">assert</span> (effgg : ∏ hsfg : _, paths (ff (gg hsfg)) hsfg).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> hsfg <span class="k">as</span> [ xy e ]. <span class="nb">induction</span> xy <span class="k">as</span> [ x | y ].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">assert</span> (eggff : ∏ hfg : _, paths (gg (ff hfg)) hfg).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> hfg <span class="k">as</span> [ hf | hg ]. <span class="nb">induction</span> hf <span class="k">as</span> [ x fe ].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">induction</span> hg <span class="k">as</span> [ y ge ]. <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> (isweq_iso _ _ eggff effgg).
+<span class="kn">Defined</span>.
+
+
+
+
+<span class="sd">(** *** Theorem saying that the sum of two functions of h-level (S (S n)) is of hlevel (S (S n)) *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelfssnsumofmaps</span> (<span class="nv">n</span> : nat) {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z)
+        (<span class="nv">isf</span> : isofhlevelf (S (S n)) f) (<span class="nv">isg</span> : isofhlevelf (S (S n)) g) :
+  isofhlevelf (S (S n)) (sumofmaps f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> z.
+  <span class="nb">set</span> (w := weqhfibersofsumofmaps f g z).
+  <span class="nb">set</span> (ishlvssn := isofhlevelssncoprod n _ _ (isf z) (isg z)).
+  <span class="nb">apply</span> (isofhlevelweqf _ w ishlvssn).
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** The sum of two functions of h-level n with non-intersecting images is of h-level n *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">noil1</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z)
+      (<span class="nv">noi</span> : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) (<span class="nv">z</span> : Z) :
+  hfiber f z -&gt; hfiber g z -&gt; empty.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> hfz hgz.
+  <span class="nb">induction</span> hfz <span class="k">as</span> [ x fe ]. <span class="nb">induction</span> hgz <span class="k">as</span> [ y ge ].
+  <span class="nb">apply</span> (noi x y (pathscomp0 fe (pathsinv0 ge))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">weqhfibernoi1</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z)
+      (<span class="nv">noi</span> : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) (<span class="nv">z</span> : Z)
+      (<span class="nv">xe</span> : hfiber f z) : (hfiber (sumofmaps f g) z) ≃ (hfiber f z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (w1 := invweq (weqhfibersofsumofmaps f g z)).
+  <span class="nb">assert</span> (a : neg (hfiber g z)) <span class="bp">by</span> (<span class="nb">intro</span> ye; <span class="nb">apply</span> (noil1 f g noi z xe ye)).
+  <span class="nb">set</span> (w2 := invweq (weqii1withneg (hfiber f z) a)). <span class="nb">apply</span> (weqcomp w1 w2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqhfibernoi2</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z)
+      (<span class="nv">noi</span> : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) (<span class="nv">z</span> : Z)
+      (<span class="nv">ye</span> : hfiber g z) : (hfiber (sumofmaps f g) z) ≃ (hfiber g z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">set</span> (w1 := invweq (weqhfibersofsumofmaps f g z)).
+  <span class="nb">assert</span> (a : neg (hfiber f z)). <span class="nb">intro</span> xe. <span class="nb">apply</span> (noil1 f g noi z xe ye).
+  <span class="nb">set</span> (w2 := invweq (weqii2withneg (hfiber g z) a)).
+  <span class="nb">apply</span> (weqcomp w1 w2).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Theorem</span> <span class="nf">isofhlevelfsumofmapsnoi</span> (<span class="nv">n</span> : nat) {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Z) (<span class="nv">g</span> : Y -&gt; Z)
+        (<span class="nv">isf</span> : isofhlevelf n f) (<span class="nv">isg</span> : isofhlevelf n g)
+        (<span class="nv">noi</span> : ∏ (x : X) (y : Y), neg (paths (f x) (g y))) :
+  isofhlevelf n (sumofmaps f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> z. <span class="nb">induction</span> n <span class="k">as</span> [ | n ].
+  - <span class="nb">set</span> (zinx := invweq (make_weq _ isf) z).
+    <span class="nb">set</span> (ziny := invweq (make_weq _ isg) z).
+    <span class="nb">assert</span> (ex : (f zinx) = z) <span class="bp">by</span> <span class="nb">apply</span> (homotweqinvweq (make_weq _ isf) z).
+    <span class="nb">assert</span> (ey : (g ziny) = z) <span class="bp">by</span> <span class="nb">apply</span> (homotweqinvweq (make_weq _ isg) z).
+    <span class="nb">induction</span> ((noi zinx ziny) (pathscomp0 ex (pathsinv0 ey))).
+  - <span class="nb">apply</span> isofhlevelsn. <span class="nb">intro</span> hfgz.
+    <span class="nb">induction</span> ((invweq (weqhfibersofsumofmaps f g z) hfgz)) <span class="k">as</span> [ xe | ye ].
+    + <span class="nb">apply</span> (isofhlevelweqb _ (weqhfibernoi1 f g noi z xe) (isf z)).
+    + <span class="nb">apply</span> (isofhlevelweqb _ (weqhfibernoi2 f g noi z ye) (isg z)).
+<span class="kn">Defined</span>.
+
+
+
+
+
+
+
+<span class="sd">(** *** Coproducts and complements *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">tocompltoii1x</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) :
+  coprod (compl X x) Y -&gt; compl (coprod X Y) (ii1 x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0. <span class="nb">induction</span> X0 <span class="k">as</span> [ c | y ].
+  - <span class="nb">split with</span> (ii1 (pr1 c)).
+    <span class="nb">assert</span> (e : neg (x = (pr1 c))) <span class="bp">by</span> <span class="nb">apply</span> (pr2 c).
+    <span class="nb">apply</span> (negf (invmaponpathsincl (@ii1 _ _) (isinclii1 X Y) _ _) e).
+  - <span class="nb">split with</span> (ii2 y). <span class="nb">apply</span> (negf (pathsinv0) (negpathsii2ii1 x y)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">fromcompltoii1x</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) :
+  compl (coprod X Y) (ii1 x) -&gt; coprod (compl X x) Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0. <span class="nb">induction</span> X0 <span class="k">as</span> [ t x0 ]. <span class="nb">induction</span> t <span class="k">as</span> [ x1 | y ].
+  - <span class="nb">assert</span> (ne : x != x1) <span class="bp">by</span> <span class="nb">apply</span> (negf  (maponpaths (@ii1 _ _)) x0).
+    <span class="nb">apply</span> (ii1 (make_compl _ _ x1 ne)).
+  - <span class="nb">apply</span> (ii2 y).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isweqtocompltoii1x</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">x</span> : X) : isweq (tocompltoii1x X Y x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := tocompltoii1x X Y x). <span class="nb">set</span> (g := fromcompltoii1x X Y x).
+  <span class="nb">assert</span> (egf : ∏ nexy : _, paths (g (f nexy)) nexy).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> nexy <span class="k">as</span> [ c | y ].
+    - <span class="nb">induction</span> c <span class="k">as</span> [ t x0 ]. <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (e : paths (negf (maponpaths (@ii1 X Y))
+                              (negf (invmaponpathsincl (@ii1 X Y)
+                                                       (isinclii1 X Y) x t) x0))
+                        x0) <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (x = t)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : x != t =&gt; ii1 (make_compl X x t ee)) e).
+    - <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">assert</span> (efg: ∏ neii1x : _, paths (f (g neii1x)) neii1x).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> neii1x <span class="k">as</span> [ t x0 ]. <span class="nb">induction</span> t <span class="k">as</span> [ x1 | y ].
+    - <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (e : paths (negf (invmaponpathsincl (@ii1 X Y)
+                                                 (isinclii1 X Y) x x1)
+                              (negf (maponpaths (@ii1 X Y)) x0)) x0)
+        <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (paths _ _)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : (neg (paths (ii1 x) (ii1 x1)))
+                         =&gt; (make_compl _ _ (ii1 x1) ee)) e).
+    - <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (e : paths (negf pathsinv0 (negpathsii2ii1 x y)) x0)
+        <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (paths _ _)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : (neg (paths (ii1 x) (ii2 y)))
+                         =&gt; (make_compl _ _ (ii2 y) ee)) e).
+  }
+  <span class="nb">apply</span> (isweq_iso f g egf efg).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">tocompltoii2y</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) :
+  coprod X (compl Y y) -&gt; compl (coprod X Y) (ii2 y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0. <span class="nb">induction</span> X0 <span class="k">as</span> [ x | c ].
+  - <span class="nb">split with</span> (ii1 x). <span class="nb">apply</span> (negpathsii2ii1 x y).
+  - <span class="nb">split with</span> (ii2 (pr1 c)).
+    <span class="nb">assert</span> (e : neg(y = (pr1 c))) <span class="bp">by</span> <span class="nb">apply</span> (pr2  c).
+    <span class="nb">apply</span> (negf (invmaponpathsincl (@ii2 _ _) (isinclii2 X Y) _ _) e).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Definition</span> <span class="nf">fromcompltoii2y</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) :
+  compl (coprod X Y) (ii2 y) -&gt;  coprod X (compl Y y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0. <span class="nb">induction</span> X0 <span class="k">as</span> [ t x ]. <span class="nb">induction</span> t <span class="k">as</span> [ x0 | y0 ].
+  - <span class="nb">apply</span> (ii1 x0).
+  - <span class="nb">assert</span> (ne : y != y0) <span class="bp">by</span> <span class="nb">apply</span> (negf (maponpaths (@ii2 _ _)) x).
+    <span class="nb">apply</span> (ii2 (make_compl _ _ y0 ne)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isweqtocompltoii2y</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) (<span class="nv">y</span> : Y) : isweq (tocompltoii2y X Y y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := tocompltoii2y X Y y). <span class="nb">set</span> (g := fromcompltoii2y X Y y).
+  <span class="nb">assert</span> (egf : ∏ nexy : _, paths (g (f nexy)) nexy).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> nexy <span class="k">as</span> [ x | c ].
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">induction</span> c <span class="k">as</span> [ t x ]. <span class="nb">simpl</span>.
+
+      <span class="nb">assert</span> (e : paths (negf (maponpaths (@ii2 X Y))
+                              (negf (invmaponpathsincl (@ii2 X Y)
+                                                       (isinclii2 X Y) y t) x))
+                        x) <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (y = t)).
+
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : y != t =&gt; ii2 (make_compl _ y t ee)) e).
+  }
+  <span class="nb">assert</span> (efg : ∏ neii2x : _, paths (f (g neii2x)) neii2x).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> neii2x <span class="k">as</span> [ t x ]. <span class="nb">induction</span> t <span class="k">as</span> [ x0 | y0 ].
+    - <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (e : (negpathsii2ii1 x0 y) = x)
+        <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (paths _ _)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : (neg (paths (ii2 y) (ii1 x0)))
+                         =&gt; (make_compl _ _ (ii1 x0) ee)) e).
+    - <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (e : paths (negf (invmaponpathsincl _ (isinclii2 X Y) y y0)
+                              (negf (maponpaths (@ii2 X Y)) x)) x)
+        <span class="bp">by</span> <span class="nb">apply</span> (isapropneg (paths _ _)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">ee</span> : (neg (paths (ii2 y) (ii2 y0)))
+                         =&gt; (make_compl _ _ (ii2 y0) ee)) e).
+  }
+  <span class="nb">apply</span> (isweq_iso f g egf efg).
+<span class="kn">Defined</span>.
+
+
+
+
+
+
+
+<span class="kn">Definition</span> <span class="nf">tocompltodisjoint</span> (<span class="nv">X</span> : UU) : X -&gt; compl (coprod X unit) (ii2 tt)
+  := <span class="k">λ</span> <span class="nv">x</span> : _, make_compl _ _ (ii1 x) (negpathsii2ii1 x tt).
+
+<span class="kn">Definition</span> <span class="nf">fromcompltodisjoint</span> (<span class="nv">X</span> : UU) : compl (coprod X unit) (ii2 tt) -&gt; X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X0. <span class="nb">induction</span> X0 <span class="k">as</span> [ t x ]. <span class="nb">induction</span> t <span class="k">as</span> [ x0 | u ].
+  - <span class="bp">assumption</span>.
+  - <span class="nb">induction</span> u. <span class="nb">apply</span> (fromempty (x (idpath (ii2 tt)))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isweqtocompltodisjoint</span> (<span class="nv">X</span> : UU) : isweq (tocompltodisjoint X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (ff := tocompltodisjoint X). <span class="nb">set</span> (gg := fromcompltodisjoint X).
+  <span class="nb">assert</span> (egf : ∏ x : X, paths (gg (ff x)) x) <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">apply</span> idpath).
+  <span class="nb">assert</span> (efg : ∏ xx : _, paths (ff (gg xx)) xx).
+  {
+    <span class="nb">intro</span>. <span class="nb">induction</span> xx <span class="k">as</span> [ t x ]. <span class="nb">induction</span> t <span class="k">as</span> [ x0 | u ].
+    - <span class="nb">simpl</span>. <span class="nb">unfold</span> ff. <span class="nb">unfold</span> tocompltodisjoint. <span class="nb">simpl</span>.
+      <span class="nb">assert</span> (ee : (negpathsii2ii1 x0 tt) = x)
+        <span class="bp">by</span> <span class="nb">apply</span> (proofirrelevance _ (isapropneg _)).
+      <span class="nb">induction</span> ee. <span class="nb">apply</span> idpath.
+    - <span class="nb">induction</span> u. <span class="nb">simpl</span>. <span class="nb">apply</span> (fromempty (x (idpath _))).
+  }
+  <span class="nb">apply</span> (isweq_iso ff gg egf efg).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">weqtocompltodisjoint</span> (<span class="nv">X</span> : UU) : X ≃ compl (X ⨿ unit) (ii2 tt)
+  := make_weq _ (isweqtocompltodisjoint X).
+
+<span class="kn">Corollary</span> <span class="nf">isweqfromcompltodisjoint</span> (<span class="nv">X</span> : UU) : isweq (fromcompltodisjoint X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isweqinvmap (weqtocompltodisjoint X)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Decidable propositions and decidable inclusions *)</span>
+
+<span class="sd">(** *** Decidable propositions [ isdecprop ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isdecpropif'</span> (<span class="nv">X</span> : UU) : isaprop X -&gt; X ⨿ ¬ X -&gt; iscontr (X ⨿ ¬ X).
+<span class="c">(* This contractibility was the old definition of isdecpropif.  We can probably</span>
+<span class="c">  do without it. *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isp a.
+  <span class="nb">assert</span> (is1 : isaprop (coprod X (neg X))) <span class="bp">by</span> (<span class="nb">apply</span> isapropdec; <span class="bp">exact</span> isp).
+  <span class="nb">apply</span> (iscontraprop1 is1 a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecproppaths</span> {<span class="nv">X</span> : UU} (<span class="nv">isd</span> : isdeceq X) (<span class="nv">x</span> <span class="nv">x'</span> : X) :
+  isdecprop (x = x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (isdecpropif _ (isasetifdeceq _ isd x x') (isd x x')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqif</span> {<span class="nv">X</span> : UU} (<span class="nv">isc</span> : ∏ x x' : X, isdecprop (x = x')) : isdeceq X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> x x'. <span class="nb">apply</span> (pr1 (isc x x')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaninv1</span> (<span class="nv">X</span> : UU) : isdecprop X -&gt; isaninvprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> is1. <span class="nb">unfold</span> isaninvprop.
+  <span class="nb">assert</span> (is2 := pr1 is1); <span class="nb">simpl</span> <span class="k">in</span> is2.
+  <span class="nb">assert</span> (adjevinv: dneg X -&gt; X).
+  {<span class="nb">intro</span> X0. <span class="nb">induction</span> is2 <span class="k">as</span> [ a | b ].
+   - <span class="bp">assumption</span>.
+   - contradicts X0 b. }
+  <span class="nb">assert</span> (is3: isaprop (dneg X)).
+  {<span class="nb">apply</span> (isapropneg (X -&gt; empty)). }
+  <span class="nb">apply</span> (isweqimplimpl (todneg X) adjevinv is1 is3).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isdecpropfibseq1</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">z</span> : Z)
+        (<span class="nv">fs</span> : fibseqstr f g z) : isdecprop X -&gt; isaprop Z -&gt; isdecprop Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isx isz.
+  <span class="nb">assert</span> (isc : iscontr Z) <span class="bp">by</span> <span class="nb">apply</span> (iscontraprop1 isz z).
+  <span class="nb">assert</span> (X0 : isweq f) <span class="bp">by</span> <span class="nb">apply</span> (isweqfinfibseq f g z fs isc).
+  <span class="nb">apply</span> (isdecpropweqf (make_weq _ X0) isx).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isdecpropfibseq0</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">z</span> : Z)
+        (<span class="nv">fs</span> : fibseqstr f g z) : isdecprop Y -&gt; isdeceq Z -&gt; isdecprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isy isz.
+  <span class="nb">assert</span> (isg : isofhlevelf <span class="mi">1</span> g)
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelffromXY <span class="mi">1</span> g (isdecproptoisaprop _ isy)
+                                (isasetifdeceq _ isz)).
+  <span class="nb">assert</span> (isp : isaprop X) <span class="bp">by</span> <span class="nb">apply</span> (isofhlevelXfromg <span class="mi">1</span> f g z fs isg).
+  <span class="nb">induction</span> (pr1 isy) <span class="k">as</span> [ y | ny ].
+  - <span class="nb">apply</span> (isdecpropfibseq1 _ _ y (fibseq1 f g z fs y)
+                            (isdecproppaths isz (g y) z)
+                            (isdecproptoisaprop _ isy)).
+  - <span class="nb">apply</span> (isdecpropif _ isp (ii2 (negf f ny))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isdecpropdirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">isx</span> : isdecprop X) (<span class="nv">isy</span> : isdecprop Y) :
+  isdecprop (X × Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (isp : isaprop (X × Y))
+    <span class="bp">by</span> <span class="nb">apply</span> (isofhleveldirprod <span class="mi">1</span> _ _ (isdecproptoisaprop _ isx)
+                                (isdecproptoisaprop _ isy)).
+  <span class="nb">induction</span> (pr1 isx) <span class="k">as</span> [ x | nx ].
+  - <span class="nb">induction</span> (pr1 isy) <span class="k">as</span> [ y | ny ].
+    + <span class="nb">apply</span> (isdecpropif _ isp (ii1 (make_dirprod x y))).
+    + <span class="nb">assert</span> (nxy : neg (X × Y)).
+      {
+        <span class="nb">intro</span> xy. <span class="nb">induction</span> xy <span class="k">as</span> [ x0  y0 ]. <span class="nb">apply</span> (ny y0).
+      }
+      <span class="nb">apply</span> (isdecpropif _ isp (ii2 nxy)).
+  - <span class="nb">assert</span> (nxy : neg (X × Y)).
+    {
+      <span class="nb">intro</span> xy. <span class="nb">induction</span> xy <span class="k">as</span> [ x0  y0 ]. <span class="nb">apply</span> (nx x0).
+    }
+    <span class="nb">apply</span> (isdecpropif _ isp (ii2 nxy)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fromneganddecx</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : isdecprop X -&gt; ¬ (X × Y) -&gt; ¬X ⨿ ¬Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isx nf.
+  <span class="nb">induction</span> (pr1 isx) <span class="k">as</span> [ x | nx ].
+  - <span class="nb">assert</span> (ny := negf (<span class="k">λ</span> <span class="nv">y</span> : Y, make_dirprod x y) nf).
+    <span class="bp">exact</span> (ii2 ny).
+  - <span class="bp">exact</span> (ii1 nx).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fromneganddecy</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} : isdecprop Y -&gt; ¬ (X × Y) -&gt; ¬X ⨿ ¬Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isy nf. <span class="nb">induction</span> (pr1 isy) <span class="k">as</span> [ y | ny ].
+  - <span class="nb">assert</span> (nx := negf (<span class="k">λ</span> <span class="nv">x</span> : X, make_dirprod x y) nf).
+    <span class="bp">exact</span> (ii1 nx).
+  - <span class="bp">exact</span> (ii2 ny).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Paths to and from an isolated point form a decidable proposition *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isdecproppathsfromisolated</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+      (<span class="nv">x'</span> : X) : isdecprop (x = x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isdecpropif.
+  - <span class="nb">apply</span> isaproppathsfromisolated. <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> (isi x').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecproppathstoisolated</span>  (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+      (<span class="nv">x'</span> : X) : isdecprop (x' = x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isdecpropweqf (weqpathsinv0 x x')
+                       (isdecproppathsfromisolated X x isi x')).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Decidable inclusions *)</span>
+
+
+
+<span class="kn">Definition</span> <span class="nf">isdecincl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) := ∏ y : Y, isdecprop (hfiber f y).
+<span class="kn">Lemma</span> <span class="nf">isdecincltoisincl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : isdecincl f -&gt; isincl f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isd y. <span class="nb">apply</span> (isdecproptoisaprop _ (isd y)).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">isdecincltoisincl</span> : isdecincl &gt;-&gt; isincl.
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclfromisweq</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : isweq f -&gt; isdecincl f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> iswf. <span class="nb">intro</span> y. <span class="nb">apply</span> (isdecpropfromiscontr (iswf y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecpropfromdecincl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) :
+  isdecincl f -&gt; isdecprop Y -&gt; isdecprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isf isy.
+  <span class="nb">induction</span> (pr1 isy) <span class="k">as</span> [ y | n ].
+  - <span class="nb">assert</span> (w : weq (hfiber f y) X)
+      <span class="bp">by</span> <span class="nb">apply</span> (weqhfibertocontr
+                  f y (iscontraprop1 (isdecproptoisaprop _ isy) y)).
+    <span class="nb">apply</span> (isdecpropweqf w (isf y)).
+  - <span class="nb">apply</span> isdecpropif. <span class="nb">apply</span> (isapropinclb _ isf isy). <span class="nb">apply</span> (ii2 (negf f n)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclii1</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) : isdecincl (@ii1 X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> y. <span class="nb">induction</span> y <span class="k">as</span> [ x | y ].
+  - <span class="nb">apply</span> (isdecpropif _ (isinclii1 X Y (ii1 x))
+                       (ii1 (make_hfiber (@ii1 _ _) x (idpath _)))).
+  - <span class="nb">apply</span> (isdecpropif _ (isinclii1 X Y (ii2 y))
+                       (ii2 (neghfiberii1y X Y y))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclii2</span> (<span class="nv">X</span> <span class="nv">Y</span> : UU) : isdecincl (@ii2 X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> y. <span class="nb">induction</span> y <span class="k">as</span> [ x | y ].
+  - <span class="nb">apply</span> (isdecpropif _ (isinclii2 X Y (ii1 x)) (ii2 (neghfiberii2x X Y x))).
+  - <span class="nb">apply</span> (isdecpropif _ (isinclii2 X Y (ii2 y))
+                       (ii1 (make_hfiber (@ii2 _ _) y (idpath _)))).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isdecinclpr1</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU) (<span class="nv">isd</span> : ∏ x : X, isdecprop (P x)) :
+  isdecincl (@pr1 _ P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> x.
+  <span class="nb">assert</span> (w : weq (P x) (hfiber (@pr1 _ P) x)) <span class="bp">by</span> <span class="nb">apply</span> ezweqpr1.
+  <span class="nb">apply</span> (isdecpropweqf w (isd x)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclhomot</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> <span class="nv">g</span> : X -&gt; Y)
+        (<span class="nv">h</span> : ∏ x : X, paths (f x) (g x)) (<span class="nv">isd</span> : isdecincl f) : isdecincl g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> y.
+  <span class="nb">apply</span> (isdecpropweqf (weqhfibershomot f g h y) (isd y)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclcomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z)
+        (<span class="nv">isf</span> : isdecincl f) (<span class="nv">isg</span> : isdecincl g) : isdecincl (<span class="k">λ</span> <span class="nv">x</span> : X, g (f x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> z.
+  <span class="nb">set</span> (gf := <span class="k">λ</span> <span class="nv">x</span> : X, g (f x)).
+  <span class="nb">assert</span> (wy : ∏ ye : hfiber g z, weq (hfiber f (pr1 ye))
+                                      (hfiber (hfibersgftog f g z) ye))
+    <span class="bp">by</span> <span class="nb">apply</span> ezweqhf.
+  <span class="nb">assert</span> (ww : ∏ y : Y, weq (hfiber f y) (hfiber gf (g y))).
+  {
+    <span class="nb">intro</span>. <span class="nb">apply</span> (samehfibers f g). <span class="nb">apply</span> (isdecincltoisincl _ isg).
+  }
+  <span class="nb">induction</span> (pr1 (isg z)) <span class="k">as</span> [ ye | nye ].
+  - <span class="nb">induction</span> ye <span class="k">as</span> [ y e ]. <span class="nb">induction</span> e. <span class="nb">apply</span> (isdecpropweqf (ww y) (isf y)).
+  - <span class="nb">assert</span> (wz : (hfiber gf z) ≃ (hfiber g z)).
+    {
+      <span class="nb">split with</span> (hfibersgftog f g z). <span class="nb">intro</span> ye. <span class="nb">induction</span> (nye ye).
+    }
+    <span class="nb">apply</span> (isdecpropweqb wz (isg z)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The conditions of the following theorem can be weakened by assuming only</span>
+<span class="sd">  that the h-fibers of g satisfy [ isdeceq ] i.e. are "sets with decidable</span>
+<span class="sd">  equality". *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclf</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">isg</span> : isincl g)
+        (<span class="nv">isgf</span> : isdecincl (<span class="k">λ</span> <span class="nv">x</span> : X, g (f x))) : isdecincl f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> y. <span class="nb">set</span> (gf := <span class="k">λ</span> <span class="nv">x</span> : _, g (f x)).
+  <span class="nb">assert</span> (ww : weq (hfiber f y) (hfiber gf (g y)))
+    <span class="bp">by</span> (<span class="nb">apply</span> (samehfibers f g); <span class="bp">assumption</span>).
+  <span class="nb">apply</span> (isdecpropweqb ww (isgf (g y))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *)</span>
+
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclg</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">g</span> : Y -&gt; Z) (<span class="nv">isf</span> : isweq f)
+        (<span class="nv">isgf</span> : isdecincl (<span class="k">λ</span> <span class="nv">x</span> : X, g (f x))) : isdecincl g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> z.
+  <span class="nb">set</span> (gf := <span class="k">λ</span> <span class="nv">x</span> : X, g (f x)).
+  <span class="nb">assert</span> (w : (hfiber gf z) ≃ (hfiber g z)).
+  {
+    <span class="nb">split with</span> (hfibersgftog f g z). <span class="nb">intro</span> ye.
+    <span class="nb">assert</span> (ww : weq (hfiber f (pr1 ye)) (hfiber (hfibersgftog f g z) ye))
+      <span class="bp">by</span> <span class="nb">apply</span> ezweqhf.
+    <span class="nb">apply</span> (iscontrweqf ww (isf (pr1 ye))).
+  }
+  <span class="nb">apply</span> (isdecpropweqf w (isgf z)).
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Decidable inclusions and isolated points *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">isisolateddecinclf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">x</span> : X) :
+  isdecincl f -&gt; isisolated X x -&gt; isisolated Y (f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isf isx.
+  <span class="nb">assert</span> (is' : ∏ y : Y, isdecincl (d1g f y x)).
+  {
+    <span class="nb">intro</span> y. <span class="nb">intro</span> xe. <span class="nb">set</span> (w := ezweq2g f x xe).
+    <span class="nb">apply</span> (isdecpropweqf w (isdecproppathstoisolated X x isx _)).
+  }
+  <span class="nb">assert</span> (is'' : ∏ y : Y, isdecprop ((f x) = y))
+    <span class="bp">by</span> (<span class="nb">intro</span>; <span class="nb">apply</span> (isdecpropfromdecincl _ (is' y) (isf y))).
+  <span class="nb">intro</span> y'.
+  <span class="nb">apply</span> (pr1 (is'' y')).
+<span class="kn">Defined</span>.
+
+
+
+<span class="sd">(** *** Decidable inclusions and coprojections *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">negimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : UU
+  := total2 (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)).
+<span class="kn">Definition</span> <span class="nf">make_negimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) :
+  ∏ t : Y, ¬ hfiber f t → ∑ y : Y, ¬ hfiber f y
+  := tpair (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)).
+
+<span class="kn">Lemma</span> <span class="nf">isinclfromcoprodwithnegimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isi</span> : isincl f) :
+  isincl (sumofmaps f (@pr1 _ (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (noi : ∏ (x : X) (nx : negimage f), neg (paths (f x) (pr1 nx))).
+  {
+    <span class="nb">intros</span> x nx e. <span class="nb">induction</span> nx <span class="k">as</span> [ y nhf ]. <span class="nb">simpl</span> <span class="k">in</span> e.
+    <span class="nb">apply</span> (nhf (make_hfiber _ x e)).
+  }
+  <span class="nb">assert</span> (isi' : isincl (@pr1 _ (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)))).
+  {
+    <span class="nb">apply</span> isinclpr1. <span class="nb">intro</span> y. <span class="nb">apply</span> isapropneg.
+  }
+  <span class="nb">apply</span> (isofhlevelfsumofmapsnoi <span class="mi">1</span> f _ isi isi' noi).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">iscoproj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : UU
+  := isweq (sumofmaps f (@pr1 _ (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)))).
+
+<span class="kn">Definition</span> <span class="nf">weqcoproj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isw</span> : iscoproj f) :
+  weq (coprod X (negimage f)) Y := make_weq _ isw.
+
+<span class="kn">Theorem</span> <span class="nf">iscoprojfromisdecincl</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isd</span> : isdecincl f) :
+  iscoproj f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (p := sumofmaps f (@pr1 _ (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y)))).
+  <span class="nb">assert</span> (isin : isincl p).
+  {
+    <span class="nb">apply</span> isinclfromcoprodwithnegimage. <span class="nb">apply</span> (isdecincltoisincl _ isd).
+  }
+  <span class="nb">unfold</span> iscoproj. <span class="nb">intro</span> y. <span class="nb">induction</span> (pr1 (isd y)) <span class="k">as</span> [ h | nh ].
+  - <span class="nb">induction</span> h <span class="k">as</span> [ x e ]. <span class="nb">induction</span> e. <span class="nb">change</span> (f x) <span class="k">with</span> (p (ii1 x)).
+    <span class="nb">apply</span> iscontrhfiberofincl. <span class="bp">exact</span> isin.
+  - <span class="nb">change</span> y <span class="k">with</span> (p (ii2 (make_negimage _ y nh))). <span class="nb">apply</span> iscontrhfiberofincl.
+    <span class="bp">exact</span> isin.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isdecinclfromiscoproj</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isw</span> : iscoproj f) :
+  isdecincl f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (g := (sumofmaps f (@pr1 _ (<span class="k">λ</span> <span class="nv">y</span> : Y, neg (hfiber f y))))).
+  <span class="nb">set</span> (f' :=  <span class="k">λ</span> <span class="nv">x</span> : X, g (ii1 x)).
+  <span class="nb">assert</span> (is' : isdecincl f')
+    <span class="bp">by</span> <span class="nb">apply</span> (isdecinclcomp _ _ (isdecinclii1 _ _) (isdecinclfromisweq _ isw)).
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* End of the file uu0c.v *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Foundations/PartC.v</tt>, line 52)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartB.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.PartB.&lt;&lt;&lt;
+  &gt; Require Export UniMath.Foundations.UnivalenceAxiom.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

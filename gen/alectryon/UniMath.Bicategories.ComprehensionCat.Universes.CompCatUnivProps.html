@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompCatUnivProps.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Some properties of comprehension categories with a universe</span>
+
+<span class="sd"> This file collects various properties of comprehension categories with a universe object.</span>
+<span class="sd"> While in the file `UniverseType.v` the fiber category is consistently used, we use</span>
+<span class="sd"> displayed morphisms and their operations in this file. The justification of the laws in</span>
+<span class="sd"> this file is purely that we need them elsewhere.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preservation of composition</span>
+<span class="sd"> 2. Naturality</span>
+<span class="sd"> 3. Preservation of the elements map</span>
+
+<span class="sd">                                                                                             *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Preservation of composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_el_map_on_disp_concat</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_el_map C)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> <span class="nv">t₃</span> : tm Γ (comp_cat_univ Γ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+            (<span class="nv">q</span> : t₂ = t₃)
+  : (comp_cat_el_map_on_eq el p ;; comp_cat_el_map_on_eq el q)%mor_disp
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (!(id_right _))
+      (comp_cat_el_map_on_eq el (p @ q)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (comp_cat_el_map_on_concat el p q).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_el_map_on_disp_concat_comp_functor</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_el_map C)
+            {<span class="nv">Γ</span> : C}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> <span class="nv">t₃</span> : tm Γ (comp_cat_univ Γ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+            (<span class="nv">q</span> : t₂ = t₃)
+  : comprehension_functor_mor
+      (comp_cat_comprehension C)
+      (comp_cat_el_map_on_eq el p ;; comp_cat_el_map_on_eq el q)%mor_disp
+    =
+    comprehension_functor_mor (comp_cat_comprehension C) (comp_cat_el_map_on_eq el (p @ q)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comp_cat_el_map_on_disp_concat.
+  <span class="nb">apply</span> comprehension_functor_mor_transportf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_inv_left</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el_stable_inv el s t ;; comp_cat_univ_el_stable_mor el s t
+     =
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (!(id_left _))
+       (id_disp _))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (z_iso_after_z_iso_inv (comp_cat_univ_el_stable el s t)).
+  }
+  <span class="nb">refine</span> (transport_f_f _ _ _ _ @ _).
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_inv_right</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+  : (comp_cat_univ_el_stable_mor el s t ;; comp_cat_univ_el_stable_inv el s t
+     =
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (!(id_left _))
+       (id_disp _))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (z_iso_inv_after_z_iso (comp_cat_univ_el_stable el s t)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Naturality *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_subst_natural</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_el_map C)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ₂ (comp_cat_univ Γ₂)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (comp_cat_subst _ s
+     ;; comp_cat_el_map_on_eq el p)%mor_disp
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (id_left _ @ !(id_right _))
+      (coerce_subst_ty _ (comp_cat_el_map_on_eq el p)
+       ;; comp_cat_subst _ s)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_subst_natural_alt</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_el_map C)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ₂ (comp_cat_univ Γ₂)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (coerce_subst_ty _ (comp_cat_el_map_on_eq el p)
+     ;; comp_cat_subst _ s)%mor_disp
+    =
+    transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (id_left _ @ !(id_right _))
+      (comp_cat_subst _ s
+       ;; comp_cat_el_map_on_eq el p)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comp_cat_subst_natural.
+  <span class="nb">rewrite</span> transportbfinv.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_natural_inv_disp</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ Δ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (inv_from_z_iso (comp_cat_univ_el_stable el s t₁)
+     ;; coerce_subst_ty s (comp_cat_el_map_on_eq el p)
+     =
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (id_left _ @ !(id_right _))
+       (comp_cat_el_map_on_eq el (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z [[ _ ]]tm ↑ _) p)
+        ;; inv_from_z_iso (comp_cat_univ_el_stable el s t₂)))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span> -[coerce_subst_ty].
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_coerce_subst_ty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_natural_inv_disp_alt</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ Δ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+            (<span class="nv">q</span> : t₁ [[ s ]]tm ↑ sub_comp_cat_univ s
+                 =
+                 t₂ [[ s ]]tm ↑ sub_comp_cat_univ s)
+  : (comp_cat_el_map_on_eq el q
+     ;; inv_from_z_iso (comp_cat_univ_el_stable el s t₂)
+     =
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (id_right _ @ !(id_left _))
+       (inv_from_z_iso (comp_cat_univ_el_stable el s t₁)
+        ;; coerce_subst_ty s (comp_cat_el_map_on_eq el p)))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_cat_univ_el_stable_natural_inv_disp.
+  }
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> transportf_set ; [ | <span class="nb">apply</span> homset_property ].
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> eq_comp_cat_el_map_on_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_natural_disp</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ Δ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (pr1 (comp_cat_univ_el_stable el s t₁)
+     ;; comp_cat_el_map_on_eq
+          el
+          (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z [[ s ]]tm ↑ sub_comp_cat_univ s) p))%mor_disp
+    =
+    (coerce_subst_ty s (comp_cat_el_map_on_eq el p)
+     ;; pr1 (comp_cat_univ_el_stable el s t₂))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">refine</span> (id_right_disp _ @ _).
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> id_coerce_subst_ty.
+  }
+  <span class="nb">refine</span> (id_left_disp _ @ _).
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_univ_el_stable_natural_disp_alt</span>
+            {<span class="nv">C</span> : comp_cat_with_ob}
+            (<span class="nv">el</span> : comp_cat_univ_type C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Δ (comp_cat_univ Δ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+            (<span class="nv">q</span> : t₁ [[ s ]]tm ↑ sub_comp_cat_univ s
+                 =
+                 t₂ [[ s ]]tm ↑ sub_comp_cat_univ s)
+  : (pr1 (comp_cat_univ_el_stable el s t₁)
+     ;; comp_cat_el_map_on_eq el q)%mor_disp
+    =
+    (coerce_subst_ty s (comp_cat_el_map_on_eq el p)
+     ;; pr1 (comp_cat_univ_el_stable el s t₂))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> comp_cat_el_map_on_idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> id_coerce_subst_ty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_mor_natural_disp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂}
+            {<span class="nv">u₁</span> : comp_cat_univ_type C₁}
+            {<span class="nv">u₂</span> : comp_cat_univ_type C₂}
+            (<span class="nv">Fu</span> : comp_cat_functor_preserves_univ_type F u₁ u₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ Γ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (♯(comp_cat_type_functor F) (comp_cat_el_map_on_eq _ p)
+     ;; comp_cat_functor_preserves_univ_type_el_mor Fu t₂)%mor_disp
+    =
+    transportf
+      _
+      (id_right _ @ !(functor_id _ _) @ !(id_right _))
+      (comp_cat_functor_preserves_univ_type_el_mor Fu t₁
+       ;; comp_cat_el_map_on_eq
+            _
+            (comp_cat_functor_preserves_univ_type_el_mor_natural_path F p))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">rewrite</span> !comp_cat_el_map_on_idpath.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> disp_functor_id.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_left_disp.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_right_disp.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_iso_natural_path</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            (<span class="nv">Γ</span> : C₁)
+  : identity _ · identity _ = #F (identity Γ) · identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_iso_natural</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            (<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂)
+            {<span class="nv">el₁</span> : comp_cat_univ_type C₁}
+            {<span class="nv">el₂</span> : comp_cat_univ_type C₂}
+            (<span class="nv">Fel</span> : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (comp_cat_univ Γ)}
+            (<span class="nv">p</span> : t₁ = t₂)
+  : (♯(comp_cat_type_functor F) (comp_cat_el_map_on_eq el₁ p)
+     ;; (comp_cat_functor_preserves_univ_type_el_iso Fel t₂ : _ --&gt; _)
+     =
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (comp_cat_functor_preserves_univ_type_el_iso_natural_path F Γ)
+       ((comp_cat_functor_preserves_univ_type_el_iso Fel t₁ : _ --&gt; _)
+        ;; comp_cat_el_map_on_eq
+             el₂
+             (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, comp_cat_functor_tm F z ↑ functor_comp_cat_on_univ F Γ)
+                p)))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !comp_cat_el_map_on_idpath.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> disp_functor_id.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> id_right_disp.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Preservation of the elements map *)</span>
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_stable_alt_inv</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂}
+            {<span class="nv">el₁</span> : comp_cat_univ_type C₁}
+            {<span class="nv">el₂</span> : comp_cat_univ_type C₂}
+            (<span class="nv">Fi</span> : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+  : comp_cat_functor_subst_ty_coe F s _
+    · coerce_subst_ty (#F s) (comp_cat_functor_preserves_univ_type_el_mor Fi t)
+    =
+    comp_cat_functor_coerce F (comp_cat_univ_el_stable el₁ s t : _ --&gt; _)
+    · comp_cat_functor_preserves_univ_type_el_iso Fi (t [[ s ]]tm ↑ sub_comp_cat_univ _)
+    · comp_cat_el_map_on_eq_iso _ (comp_cat_functor_preserves_stable_el_path F s t)
+    · inv_from_z_iso (comp_cat_univ_el_stable
+                        el₂ (#F s)
+                        (comp_cat_functor_tm F t ↑ functor_comp_cat_on_univ F Δ)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- comp_cat_functor_preserves_univ_type_el_stable.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_stable_alt_inv_disp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂}
+            {<span class="nv">el₁</span> : comp_cat_univ_type C₁}
+            {<span class="nv">el₂</span> : comp_cat_univ_type C₂}
+            (<span class="nv">Fi</span> : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+  : comprehension_functor_mor
+      (comp_cat_comprehension C₂)
+      (comp_cat_functor_subst_ty_coe F s _
+       ;; coerce_subst_ty _ (comp_cat_functor_preserves_univ_type_el_mor Fi t)
+       ;; comp_cat_subst _ _)%mor_disp
+    =
+    comprehension_functor_mor
+      (comp_cat_comprehension C₂)
+      (comp_cat_functor_coerce F (comp_cat_univ_el_stable el₁ s t : _ --&gt; _)
+       ;; comp_cat_functor_preserves_univ_type_el_mor Fi (t [[ s ]]tm ↑ sub_comp_cat_univ _)
+       ;; comp_cat_el_map_on_eq _ (comp_cat_functor_preserves_stable_el_path F s t)
+       ;; inv_from_z_iso (comp_cat_univ_el_stable
+                            el₂ _
+                            (comp_cat_functor_tm F t ↑ functor_comp_cat_on_univ F Δ))
+       ;; comp_cat_subst _ _)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (maponpaths
+          (<span class="k">λ</span> <span class="nv">z</span>, comprehension_functor_mor
+                  (comp_cat_comprehension C₂)
+                  (z ;; comp_cat_subst _ _)%mor_disp)
+          (comp_cat_functor_preserves_univ_type_el_stable_alt_inv Fi s t))
+    <span class="k">as</span> p.
+  <span class="nb">refine</span> (_ @ p @ _) ; <span class="nb">clear</span> p.
+  - <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">apply</span> comprehension_functor_mor_transportf.
+  - etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">apply</span> comprehension_functor_mor_transportf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_cat_functor_preserves_univ_type_el_stable_alt_inv_disp_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : comp_cat_with_ob}
+            {<span class="nv">F</span> : comp_cat_functor_ob C₁ C₂}
+            {<span class="nv">el₁</span> : comp_cat_univ_type C₁}
+            {<span class="nv">el₂</span> : comp_cat_univ_type C₂}
+            (<span class="nv">Fi</span> : comp_cat_functor_preserves_univ_type F el₁ el₂)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C₁}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            (<span class="nv">t</span> : tm Δ (comp_cat_univ Δ))
+  : comprehension_functor_mor
+      (comp_cat_comprehension C₂)
+      (♯ (comp_cat_type_functor F) (comp_cat_subst _ _)
+       ;; comp_cat_functor_preserves_univ_type_el_mor Fi t)%mor_disp
+    =
+    comprehension_functor_mor
+      (comp_cat_comprehension C₂)
+      (comp_cat_functor_coerce F (comp_cat_univ_el_stable el₁ s t : _ --&gt; _)
+       ;; comp_cat_functor_preserves_univ_type_el_mor Fi (t [[ s ]]tm ↑ sub_comp_cat_univ _)
+       ;; comp_cat_el_map_on_eq _ (comp_cat_functor_preserves_stable_el_path F s t)
+       ;; inv_from_z_iso (comp_cat_univ_el_stable
+                            el₂ _
+                            (comp_cat_functor_tm F t ↑ functor_comp_cat_on_univ F Δ))
+       ;; comp_cat_subst _ _)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ comp_cat_functor_preserves_univ_type_el_stable_alt_inv_disp Fi s t).
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_disp_var.
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">refine</span> (comprehension_functor_mor_transportf _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cartesian_factorisation_commutes.
+    }
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">apply</span> comprehension_functor_mor_transportf.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatUnivProps.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Preservation of the elements map
+  &gt;
+  &gt;                                                                                              *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

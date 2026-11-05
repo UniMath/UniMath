@@ -1,0 +1,872 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LimitsStructuredCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************</span>
+
+<span class="sd"> Limits in bicategories of structured categories</span>
+
+<span class="sd"> We look at terminal objects, products, pullbacks, and</span>
+<span class="sd"> Eilenberg-Moore objects</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Limits of categories with a terminal objects</span>
+<span class="sd"> 2. Limits of categories with products</span>
+<span class="sd"> 3. Limits of categories with pullbacks</span>
+<span class="sd"> 4. Limits of categories with finite limits</span>
+<span class="sd"> 5. Limits of categories with initial objects</span>
+<span class="sd"> 6. Limits of categories with coproducts</span>
+
+<span class="sd"> *******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.EilenbergMoore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IsoCommaCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Examples.UnitCategoryLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Examples.CategoryProductLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Examples.IsoCommaLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Examples.EilenbergMooreLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.EilenbergMooreObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.TotalBicategoryLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.DispConstructionsLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.SubbicatLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInTotalBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Limits of categories with a terminal objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_univ_cat_with_terminal_obj</span>
+  : disp_bifinal_obj disp_bicat_terminal_obj bifinal_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_final.
+  - <span class="bp">exact</span> terminal_unit_category.
+  - <span class="nb">intros</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_terminal.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_univ_cat_with_terminal_obj</span>
+  : bifinal_obj univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use subbicat_final.
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> terminal_unit_category.
+  - <span class="nb">intros</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_terminal.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_terminal_obj</span>
+  : disp_has_binprod disp_bicat_terminal_obj has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_binprod.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span>, terminal_category_binproduct (pr12 C₁) (pr12 C₂)).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_terminal.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_terminal.
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_terminal_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_univ_cat_with_terminal_obj</span>
+  : has_binprod univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use subbicat_binprod.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span>, terminal_category_binproduct (pr12 C₁) (pr12 C₂)).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_terminal.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_terminal.
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_terminal_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_terminal_obj</span>
+  : disp_has_pb disp_bicat_terminal_obj has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_has_pb.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           terminal_category_iso_comma
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           iso_comma_pr1_preserves_terminal
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           iso_comma_pr2_preserves_terminal
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">q</span>,
+           iso_comma_ump1_preserves_terminal
+             _ _
+             (pr22 G)
+             _ (pr22 (pb_cone_pr1 q))
+             _ (pr22 (pb_cone_pr2 q))
+             _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_univ_cat_with_terminal_obj</span>
+  : has_pb univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use subbicat_has_pb.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           terminal_category_iso_comma
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           iso_comma_pr1_preserves_terminal
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>,
+           iso_comma_pr2_preserves_terminal
+             _ _
+             (pr22 F) (pr22 G)
+             (pr12 C₁) (pr12 C₂)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">q</span>,
+           iso_comma_ump1_preserves_terminal
+             _ _
+             (pr22 G)
+             _ (pr22 (pb_cone_pr1 q))
+             _ (pr22 (pb_cone_pr2 q))
+             _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_em_univ_cat_with_terminal_obj</span>
+  : bicat_has_em univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use subbicat_has_em.
+  - <span class="bp">exact</span> has_em_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           terminal_eilenberg_moore_cat _ (pr12 (ob_of_mnd m))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           eilenberg_moore_pr_preserves_terminal _ (pr12 (ob_of_mnd m))).
+  - <span class="nb">intros</span> m q.
+    use functor_to_eilenberg_moore_cat_preserves_terminal.
+    <span class="bp">exact</span> (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Limits of categories with products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_obj_univ_cat_with_binprod</span>
+  : disp_bifinal_obj disp_bicat_binprod bifinal_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_final.
+  - <span class="bp">exact</span> binproduct_unit_category.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> functor_to_unit_preserves_binproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_univ_cat_with_binprod</span>
+  : bifinal_obj univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use subbicat_final.
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> binproduct_unit_category.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> functor_to_unit_preserves_binproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_binprod</span>
+  : disp_has_binprod disp_bicat_binprod has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_binprod.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> binproducts_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_binproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_binproduct_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_univ_cat_with_binprod</span>
+  : has_binprod univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use subbicat_binprod.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> binproducts_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_binproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_binproduct_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_binprod</span>
+  : disp_has_pb disp_bicat_binprod has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_has_pb.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> binproducts_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_univ_cat_with_binprod</span>
+  : has_pb univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use subbicat_has_pb.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> binproducts_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_binproduct.
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_em_univ_cat_with_binprod</span>
+  : bicat_has_em univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use subbicat_has_em.
+  - <span class="bp">exact</span> has_em_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           BinProducts_eilenberg_moore_cat _ (pr12 (ob_of_mnd m))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           eilenberg_moore_pr_preserves_binproduct _ (pr12 (ob_of_mnd m))).
+  - <span class="nb">intros</span> m q.
+    use functor_to_eilenberg_moore_cat_preserves_binproduct.
+    <span class="bp">exact</span> (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Limits of categories with pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_obj_univ_cat_with_pb</span>
+  : disp_bifinal_obj disp_bicat_pullback bifinal_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_final.
+  - <span class="bp">exact</span> pullbacks_unit_category.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> functor_to_unit_preserves_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_univ_cat_with_pb</span>
+  : bifinal_obj univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use subbicat_final.
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> pullbacks_unit_category.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> functor_to_unit_preserves_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_pb</span>
+  : disp_has_binprod disp_bicat_pullback has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_binprod.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pullbacks_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_pullback.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_pullback.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_pullback_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_univ_cat_with_pb</span>
+  : has_binprod univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use subbicat_binprod.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pullbacks_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_pullback.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_pullback.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_pullback_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_pb</span>
+  : disp_has_pb disp_bicat_pullback has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_has_pb.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> pullbacks_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_univ_cat_with_pb</span>
+  : has_pb univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use subbicat_has_pb.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> pullbacks_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_pullback.
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_em_univ_cat_with_pb</span>
+  : bicat_has_em univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use subbicat_has_em.
+  - <span class="bp">exact</span> has_em_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           Pullbacks_eilenberg_moore _ (pr12 (ob_of_mnd m))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span>,
+           eilenberg_moore_pr_preserves_pullback _ (pr12 (ob_of_mnd m))).
+  - <span class="nb">intros</span> m q.
+    use functor_to_eilenberg_moore_cat_preserves_pullback.
+    <span class="bp">exact</span> (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Limits of categories with finite limits</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_obj_univ_cat_with_finlim</span>
+  : disp_bifinal_obj disp_bicat_finlim bifinal_cats.
+<span class="kn">Proof</span>.
+  use disp_dirprod_bifinal.
+  - <span class="bp">exact</span> disp_bifinal_univ_cat_with_terminal_obj.
+  - <span class="bp">exact</span> disp_bifinal_obj_univ_cat_with_pb.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_bicat_of_univ_cat_with_finlim</span>
+  : bifinal_obj bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use total_bicat_final.
+  - use disp_2cells_isaprop_prod.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> ((tt ,, tt) ,, (tt ,, tt)).
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> disp_bifinal_obj_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_finlim</span>
+  : disp_has_binprod disp_bicat_finlim has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_dirprod_binprod.
+  - <span class="bp">exact</span> disp_has_binprod_univ_cat_with_terminal_obj.
+  - <span class="bp">exact</span> disp_has_binprod_univ_cat_with_pb.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_bicat_of_univ_cat_with_finlim</span>
+  : has_binprod bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use total_bicat_prod.
+  - use disp_2cells_isaprop_prod.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> ((tt ,, tt) ,, (tt ,, tt)).
+  - <span class="nb">apply</span> disp_locally_groupoid_prod.
+    + <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+      <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    + <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+      <span class="nb">apply</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> disp_has_binprod_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_finlim</span>
+  : disp_has_pb disp_bicat_finlim has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_dirprod_pb.
+  - <span class="bp">exact</span> disp_has_pb_univ_cat_with_terminal_obj.
+  - <span class="bp">exact</span> disp_has_pb_univ_cat_with_pb.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_bicat_of_univ_cat_with_finlim</span>
+  : has_pb bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use total_bicat_has_pb.
+  - use disp_2cells_isaprop_prod.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+    + <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> ((tt ,, tt) ,, (tt ,, tt)).
+  - <span class="nb">apply</span> disp_locally_groupoid_prod.
+    + <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+      <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    + <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+      <span class="nb">apply</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> disp_has_pb_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Limits of categories with initial objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_obj_univ_cat_with_initial</span>
+  : disp_bifinal_obj disp_bicat_initial_obj bifinal_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_final.
+  - <span class="bp">exact</span> initial_unit_category.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_initial.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_univ_cat_with_initial</span>
+  : bifinal_obj univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use subbicat_final.
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> initial_unit_category.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_initial.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_initial</span>
+  : disp_has_binprod disp_bicat_initial_obj has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_binprod.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span>, initial_category_binproduct (pr12 C₁) (pr12 C₂)).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_initial.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_initial.
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_initial_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_univ_cat_with_initial</span>
+  : has_binprod univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use subbicat_binprod.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span>, initial_category_binproduct (pr12 C₁) (pr12 C₂)).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_initial.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_initial.
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_initial_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_initial</span>
+  : disp_has_pb disp_bicat_initial_obj has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_has_pb.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> initial_category_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_univ_cat_with_initial</span>
+  : has_pb univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use subbicat_has_pb.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> initial_category_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_initial.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_em_univ_cat_with_initial</span>
+  : bicat_has_em univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use subbicat_has_em.
+  - <span class="bp">exact</span> has_em_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">m</span>,
+            initial_eilenberg_moore_cat
+              _
+              (pr12 (ob_of_mnd m))
+              _).
+    <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">m</span>,
+            eilenberg_moore_pr_preserves_initial _ (pr12 (ob_of_mnd m)) _).
+    <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+  - <span class="nb">intros</span> m q.
+    use functor_to_eilenberg_moore_cat_preserves_initial.
+    + <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+    + <span class="bp">exact</span> (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Limits of categories with coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bifinal_obj_univ_cat_with_bincoprod</span>
+  : disp_bifinal_obj disp_bicat_bincoprod bifinal_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_final.
+  - <span class="bp">exact</span> bincoproduct_unit_category.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_bincoproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifinal_obj_univ_cat_with_bincoprod</span>
+  : bifinal_obj univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use subbicat_final.
+  - <span class="bp">exact</span> bifinal_cats.
+  - <span class="bp">exact</span> bincoproduct_unit_category.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> functor_to_unit_preserves_bincoproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_binprod_univ_cat_with_bincoprod</span>
+  : disp_has_binprod disp_bicat_bincoprod has_binprod_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_binprod.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> bincoproducts_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_bincoproduct_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_binprod_univ_cat_with_bincoprod</span>
+  : has_binprod univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use subbicat_binprod.
+  - <span class="bp">exact</span> has_binprod_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> bincoproducts_in_product_category.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂.
+    <span class="nb">apply</span> pr2_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ q.
+    <span class="nb">apply</span> preserves_bincoproduct_bindelta_pair_functor.
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (binprod_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_has_pb_univ_cat_with_bincoprod</span>
+  : disp_has_pb disp_bicat_bincoprod has_pb_bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use subbicat_disp_has_pb.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> bincoproducts_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_pb_univ_cat_with_bincoprod</span>
+  : has_pb univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use subbicat_has_pb.
+  - <span class="bp">exact</span> has_pb_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> bincoproducts_in_iso_comma.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G.
+    <span class="nb">apply</span> iso_comma_pr2_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 G).
+    + <span class="bp">exact</span> (pr12 C₁).
+    + <span class="bp">exact</span> (pr12 C₂).
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G q.
+    <span class="nb">apply</span> iso_comma_ump1_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 F).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr1 q)).
+    + <span class="bp">exact</span> (pr22 (pb_cone_pr2 q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_em_univ_cat_with_bincoprod</span>
+  : bicat_has_em univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use subbicat_has_em.
+  - <span class="bp">exact</span> has_em_bicat_of_univ_cats.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">m</span>,
+            bincoproducts_eilenberg_moore
+              _
+              (pr12 (ob_of_mnd m))
+              _).
+    <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">m</span>,
+            eilenberg_moore_pr_preserves_bincoproduct _ (pr12 (ob_of_mnd m)) _).
+    <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+  - <span class="nb">intros</span> m q.
+    use functor_to_eilenberg_moore_cat_preserves_bincoproduct.
+    + <span class="bp">exact</span> (pr22 (endo_of_mnd m)).
+    + <span class="bp">exact</span> (pr22 (mor_of_mnd_mor (mor_of_em_cone m q))).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/Examples/LimitsStructuredCategories.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Limits of categories with coproducts
+  &gt;
+  &gt;  *******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

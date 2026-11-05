@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Continuous.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Continuous DCPOs</span>
+
+<span class="sd"> We define the notion of continuous DCPOs. A DCPO is called continuous if every</span>
+<span class="sd"> element is the least upper bound of a directed set consisting only of elements</span>
+<span class="sd"> way below that element. Note that there are multiple ways to formulate this</span>
+<span class="sd"> definition in univalent foundations:</span>
+<span class="sd"> 1. We can formulate it as structure [continuous_dcpo_struct]</span>
+<span class="sd"> 2. We can formulate it as a property [is_continuous_dcpo]</span>
+<span class="sd"> There also is a third way, called pseudocontinuity, which also is a property.</span>
+
+<span class="sd"> Furthermore, we study properties of continuous DCPOs. The first properties</span>
+<span class="sd"> that we look at, characterize the order relation and the way-below relation in</span>
+<span class="sd"> continuous DCPOs. The last properties that we look at, are about interpolation.</span>
+<span class="sd"> These come in three flavors:</span>
+<span class="sd"> 1. Nullary interpolation: given an element, we can find some element that is</span>
+<span class="sd">    way-below the original element.</span>
+<span class="sd"> 2. Unary interpolation: given two elements `x` and `y` such that `x ⊑ y`, we</span>
+<span class="sd">    can find an element inbetween `x` and `y`: `x ≪ i ≪ y`.</span>
+<span class="sd"> 3. Binary interpolation: given three elements `x₁, x₂, y` such that `x₁ ⊑ y`</span>
+<span class="sd">    and `x₂ ⊑ y`, we can find an element `i` such that `x₁ ≪ i ≪ y` and</span>
+<span class="sd">    `x₂ ≪ i ≪ y`.</span>
+<span class="sd"> Note that we can generalize interpolation to finite sets. These interpolation</span>
+<span class="sd"> properties are useful when proving stuff about continuous DCPOs.</span>
+
+<span class="sd"> We also show that if a DCPO is continuous (as a property), then we  have</span>
+<span class="sd"> a canonical continuity structure on that DCPO. We define the approximating</span>
+<span class="sd"> family for `x` to consist of all elements `y` such that `y ≪ x`. We can show</span>
+<span class="sd"> that this set is directed, and for that we use that we know that the DCPO is</span>
+<span class="sd"> continuous (as a property). We can use this assumption, because being directed</span>
+<span class="sd"> is a proposition. In addition, we can also show that the supremum of the</span>
+<span class="sd"> approximating family of `x` is indeed `x`. Here we again use the continuity,</span>
+<span class="sd"> and since equality of elements in DCPOs is a proposition, we can indeed do so.</span>
+<span class="sd"> Intuitively, what is happening here, is that there is a canonical choice for</span>
+<span class="sd"> the approximating family, and this allows us to choose a continuity structure</span>
+<span class="sd"> if we know one exists.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in</span>
+<span class="sd">   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)</span>
+<span class="sd"> - Section 4.4 and 4.5  in Domain Theory in Constructive and Predicative</span>
+<span class="sd">   Univalent Foundations (https://tdejong.com/writings/phd-thesis.pdf)</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Continuous DCPOs (as structure)</span>
+<span class="sd"> 2. Continuous DCPOs (as property)</span>
+<span class="sd"> 3. Equivalent formulations of inequality in continuous DCPOs</span>
+<span class="sd"> 4. Characterization of the way-below relation in continuous DCPOs</span>
+<span class="sd"> 5. Nullary interpolation</span>
+<span class="sd"> 6. Unary interpolation</span>
+<span class="sd"> 7. Binary interpolation</span>
+<span class="sd"> 8. Continuity structure from the property</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Continuous DCPOs (as structure)</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">continuous_dcpo_struct</span>
+           (<span class="nv">X</span> : dcpo)
+  : UU
+  := ∏ (x : X),
+     ∑ (D : directed_set X),
+     (∏ (i : D), D i ≪ x)
+     ×
+     is_least_upperbound X D x.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Continuous DCPOs (as property)</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_continuous_dcpo</span>
+           (<span class="nv">X</span> : dcpo)
+  : hProp
+  := ∥ continuous_dcpo_struct X ∥.
+
+<span class="kn">Section</span> <span class="nf">ContinuousDCPOAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          (<span class="nv">CX</span> : continuous_dcpo_struct X).
+
+  <span class="kn">Definition</span> <span class="nf">approximating_family</span>
+             (<span class="nv">x</span> : X)
+    : directed_set X
+    := pr1 (CX x).
+
+  <span class="kn">Proposition</span> <span class="nf">approximating_family_way_below</span>
+              (<span class="nv">x</span> : X)
+              (<span class="nv">i</span> : approximating_family x)
+    : approximating_family x i ≪ x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (CX x) i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">approximating_family_lub</span>
+              (<span class="nv">x</span> : X)
+    : ⨆ (approximating_family x) = x.
+  <span class="kn">Proof</span>.
+    use antisymm_dcpo.
+    - use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="bp">exact</span> (approximating_family_way_below x i).
+    - use (is_least_upperbound_is_least (pr22 (CX x))).
+      <span class="nb">apply</span> is_least_upperbound_is_upperbound.
+      <span class="nb">apply</span> is_least_upperbound_dcpo_lub.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ContinuousDCPOAccessors</span>.
+
+<span class="kn">Section</span> <span class="nf">PropertiesContinuousDCPO</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          (<span class="nv">CX</span> : continuous_dcpo_struct X).
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equivalent formulations of inequality in continuous DCPOs</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_le_to_way_below</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x ⊑ y)
+              (<span class="nv">i</span> : approximating_family CX x)
+    : approximating_family CX x i ≪ y.
+  <span class="kn">Proof</span>.
+    use (trans_way_below_le _ p).
+    <span class="nb">apply</span> approximating_family_way_below.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_approx_way_below_to_le</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : ∏ (i : approximating_family CX x),
+                   approximating_family CX x i ≪ y)
+              (<span class="nv">i</span> : approximating_family CX x)
+    : approximating_family CX x i ⊑ y.
+  <span class="kn">Proof</span>.
+    use way_below_to_le.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_approx_le_to_le</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : ∏ (i : approximating_family CX x),
+                   approximating_family CX x i ⊑ y)
+    : x ⊑ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (approximating_family_lub CX x).
+    use dcpo_lub_is_least.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_le_weq_approx_le</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊑ y
+      ≃
+      <span class="k">∀</span> (<span class="nv">i</span> : approximating_family CX x),
+      approximating_family CX x i ⊑ y.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> p i.
+      <span class="nb">apply</span> continuous_dcpo_struct_approx_way_below_to_le.
+      <span class="nb">intro</span> j.
+      <span class="nb">apply</span> continuous_dcpo_struct_le_to_way_below.
+      <span class="bp">exact</span> p.
+    - <span class="nb">intros</span> H.
+      <span class="nb">apply</span> continuous_dcpo_struct_approx_le_to_le.
+      <span class="bp">exact</span> H.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_le_weq_approx_way_below</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊑ y
+      ≃
+      <span class="k">∀</span> (<span class="nv">i</span> : approximating_family CX x),
+      approximating_family CX x i ≪ y.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> continuous_dcpo_struct_le_to_way_below.
+    - <span class="nb">intros</span> H.
+      <span class="nb">apply</span> continuous_dcpo_struct_approx_le_to_le.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> continuous_dcpo_struct_approx_way_below_to_le.
+      <span class="bp">exact</span> H.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_le_via_approximation</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊑ y
+      ≃
+      <span class="k">∀</span> (<span class="nv">z</span> : X), (z ≪ x ⇒ z ≪ y)%logic.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> p z q.
+      <span class="bp">exact</span> (trans_way_below_le q p).
+    - <span class="nb">intros</span> H.
+      <span class="nb">rewrite</span> &lt;- (approximating_family_lub CX x).
+      use dcpo_lub_is_least.
+      <span class="nb">pose</span> (D := approximating_family CX x).
+      <span class="nb">fold</span> D.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="nb">apply</span> (H (D i)).
+      <span class="nb">apply</span> approximating_family_way_below.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Characterization of the way-below relation in continuous DCPOs</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">continuous_dcpo_struct_way_below</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ≪ y
+      ≃
+      <span class="k">∃</span> (<span class="nv">i</span> : approximating_family CX y), x ⊑ approximating_family CX y i.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> p.
+      <span class="nb">apply</span> (p (approximating_family CX y)).
+      <span class="nb">rewrite</span> approximating_family_lub.
+      <span class="nb">apply</span> refl_dcpo.
+    - use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ i p ].
+      <span class="nb">refine</span> (trans_le_way_below p _).
+      <span class="nb">apply</span> approximating_family_way_below.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Nullary interpolation</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">nullary_interpolation</span>
+              (<span class="nv">x</span> : X)
+    : <span class="k">∃</span> (<span class="nv">y</span> : X), y ≪ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (D := approximating_family CX x).
+    <span class="nb">assert</span> (H := directed_set_el D).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> i.
+    <span class="nb">refine</span> (hinhpr (D i ,, _)).
+    <span class="nb">apply</span> approximating_family_way_below.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Unary interpolation</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">UnaryInterpolation</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : X}
+            (<span class="nv">p</span> : x ≪ y).
+
+    <span class="kn">Let</span> <span class="nf">D</span> : directed_set X := approximating_family CX y.
+    <span class="kn">Let</span> <span class="nf">D_a</span> : D → directed_set X := <span class="k">λ</span> <span class="nv">i</span>, approximating_family CX (D i).
+
+    <span class="kn">Proposition</span> <span class="nf">unary_interpolation_cofinal_lem</span>
+                {<span class="nv">i₁</span> <span class="nv">i₂</span> : D}
+                (<span class="nv">q</span> : D i₁ ⊑ D i₂)
+                (<span class="nv">j₁</span> : D_a i₁)
+      : D_a i₁ j₁ ≪ ⨆ (D_a i₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (trans_way_below_le _ _).
+      - <span class="nb">apply</span> approximating_family_way_below.
+      - <span class="nb">refine</span> (trans_dcpo q _).
+        <span class="nb">unfold</span> D_a.
+        <span class="nb">rewrite</span> approximating_family_lub.
+        <span class="nb">apply</span> refl_dcpo.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">unary_interpolation_cofinal</span>
+                {<span class="nv">i₁</span> <span class="nv">i₂</span> : D}
+                (<span class="nv">q</span> : D i₁ ⊑ D i₂)
+                (<span class="nv">j₁</span> : D_a i₁)
+      : <span class="k">∃</span> (<span class="nv">j₂</span> : D_a i₂), D_a i₁ j₁ ⊑ D_a i₂ j₂.
+    <span class="kn">Proof</span>.
+      use (unary_interpolation_cofinal_lem q j₁ (D_a i₂)).
+      <span class="nb">apply</span> refl_dcpo.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_directed_unary_interpolation_directed_set</span>
+      : is_directed X (<span class="k">λ</span> (<span class="nv">ij</span> : ∑ (i : D), D_a i), D_a (pr1 ij) (pr2 ij)).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">assert</span> (H := directed_set_el D).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intro</span> i.
+        <span class="nb">assert</span> (H := directed_set_el (D_a i)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intro</span> j.
+        <span class="bp">exact</span> (hinhpr (i ,, j)).
+      - <span class="nb">intros</span> ij₁ ij₂.
+        <span class="nb">induction</span> ij₁ <span class="k">as</span> [ i₁ j₁ ].
+        <span class="nb">induction</span> ij₂ <span class="k">as</span> [ i₂ j₂ ].
+        <span class="nb">assert</span> (H := directed_set_top D i₁ i₂).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span> [ k [ q₁ q₂ ]].
+        <span class="nb">assert</span> (H := unary_interpolation_cofinal q₁ j₁).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> H₁.
+        <span class="nb">induction</span> H₁ <span class="k">as</span> [ l₁ H₁ ].
+        <span class="nb">assert</span> (H := unary_interpolation_cofinal q₂ j₂).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> H₂.
+        <span class="nb">induction</span> H₂ <span class="k">as</span> [ l₂ H₂ ].
+        <span class="nb">assert</span> (H := directed_set_top (D_a k) l₁ l₂).
+        <span class="nb">revert</span> H.
+        use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> H.
+        <span class="nb">induction</span> H <span class="k">as</span> [ m [ r₁ r₂ ]].
+        <span class="nb">refine</span> (hinhpr ((k ,, m) ,, _ ,, _)).
+        + <span class="bp">exact</span> (trans_dcpo H₁ r₁).
+        + <span class="bp">exact</span> (trans_dcpo H₂ r₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">unary_interpolation_directed_set</span>
+      : directed_set X.
+    <span class="kn">Proof</span>.
+      use make_directed_set.
+      - <span class="bp">exact</span> (∑ (i : D), D_a i).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ij</span>, D_a (pr1 ij) (pr2 ij)).
+      - <span class="bp">exact</span> is_directed_unary_interpolation_directed_set.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">unary_interpolation</span>
+      : <span class="k">∃</span> (<span class="nv">z</span> : X), x ≪ z ∧ z ≪ y.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (s : y ⊑ ⨆ unary_interpolation_directed_set).
+      {
+        <span class="nb">apply</span> continuous_dcpo_struct_approx_le_to_le.
+        <span class="nb">intro</span> i.
+        use continuous_dcpo_struct_approx_le_to_le.
+        <span class="nb">intro</span> j.
+        use less_than_dcpo_lub.
+        {
+          <span class="bp">exact</span> (i ,, j).
+        }
+        <span class="nb">apply</span> refl_dcpo.
+      }
+      <span class="nb">assert</span> (H := p unary_interpolation_directed_set s).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i r ].
+      <span class="nb">refine</span> (hinhpr (D (pr1 i) ,, _ ,, _)).
+      - <span class="nb">refine</span> (trans_le_way_below r _).
+        <span class="nb">apply</span> approximating_family_way_below.
+      - <span class="nb">apply</span> approximating_family_way_below.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UnaryInterpolation</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. Binary interpolation</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">binary_interpolation</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span> : X}
+              (<span class="nv">p₁</span> : x₁ ≪ y)
+              (<span class="nv">p₂</span> : x₂ ≪ y)
+    : <span class="k">∃</span> (<span class="nv">z</span> : X), x₁ ≪ z ∧ x₂ ≪ z ∧ z ≪ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (D := approximating_family CX y).
+    <span class="nb">assert</span> (s : y ⊑ ⨆ D).
+    {
+      <span class="nb">unfold</span> D.
+      <span class="nb">rewrite</span> approximating_family_lub.
+      <span class="nb">apply</span> refl_dcpo.
+    }
+    <span class="nb">assert</span> (z₁ := unary_interpolation p₁).
+    <span class="nb">revert</span> z₁.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> z₁.
+    <span class="nb">induction</span> z₁ <span class="k">as</span> [ z₁ [ q₁ r₁ ]].
+    <span class="nb">assert</span> (H := r₁ D s).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ i₁ H₁ ].
+    <span class="nb">assert</span> (z₂ := unary_interpolation p₂).
+    <span class="nb">revert</span> z₂.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> z₂.
+    <span class="nb">induction</span> z₂ <span class="k">as</span> [ z₂ [ q₂ r₂ ]].
+    <span class="nb">assert</span> (H := r₂ D s).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ i₂ H₂ ].
+    <span class="nb">assert</span> (H := directed_set_top D i₁ i₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ k [ w₁ w₂ ]].
+    <span class="nb">refine</span> (hinhpr (D k ,, _ ,, _ ,, _)).
+    - <span class="bp">exact</span> (trans_way_below_le q₁ (trans_dcpo H₁ w₁)).
+    - <span class="bp">exact</span> (trans_way_below_le q₂ (trans_dcpo H₂ w₂)).
+    - <span class="nb">apply</span> approximating_family_way_below.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesContinuousDCPO</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Continuity structure from the property</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_continuous_dcpo_is_directed</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : is_continuous_dcpo X)
+            (<span class="nv">x</span> : X)
+  : is_directed X (<span class="k">λ</span> (<span class="nv">z</span> : ∑ (b : X), b ≪ x), pr1 z).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CX.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> CX.
+  <span class="nb">pose</span> (D := approximating_family CX x).
+  <span class="nb">split</span>.
+  - <span class="nb">assert</span> (H := directed_set_el D).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> d.
+    use hinhpr.
+    <span class="nb">refine</span> (D d ,, _).
+    <span class="nb">apply</span> approximating_family_way_below.
+  - <span class="nb">intros</span> [ b₁ p₁ ] [ b₂ p₂ ].
+    <span class="nb">assert</span> (x ⊑ ⨆ D) <span class="k">as</span> q.
+    {
+      <span class="nb">rewrite</span> &lt;- (approximating_family_lub CX x).
+      <span class="nb">apply</span> refl_dcpo.
+    }
+    <span class="nb">assert</span> (H := way_below_elem p₁ D q).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ c₁ r₁ ].
+    <span class="nb">assert</span> (H := way_below_elem p₂ D q).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ c₂ r₂ ].
+    <span class="nb">assert</span> (H := directed_set_top D c₁ c₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ k [ s₂ s₃ ]].
+    use hinhpr.
+    <span class="nb">simple refine</span> ((D k ,, _) ,, _ ,, _).
+    + <span class="nb">apply</span> approximating_family_way_below.
+    + <span class="bp">exact</span> (trans_dcpo r₁ s₂).
+    + <span class="bp">exact</span> (trans_dcpo r₂ s₃).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_continuous_dcpo_directed_set</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : is_continuous_dcpo X)
+           (<span class="nv">x</span> : X)
+  : directed_set X.
+<span class="kn">Proof</span>.
+  use make_directed_set.
+  - <span class="bp">exact</span> (∑ (b : X), b ≪ x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 z).
+  - <span class="bp">exact</span> (is_continuous_dcpo_is_directed CX x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_continuous_dcpo_directed_set_lub</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : is_continuous_dcpo X)
+            (<span class="nv">x</span> : X)
+  : ⨆ (is_continuous_dcpo_directed_set CX x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CX.
+  use factor_dep_through_squash.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">intros</span> CX.
+  <span class="nb">pose</span> (D := approximating_family CX x).
+  <span class="nb">cbn</span>.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    <span class="nb">intros</span> i.
+    <span class="nb">apply</span> way_below_to_le.
+    <span class="bp">exact</span> (pr2 i).
+  - <span class="nb">refine</span> (trans_dcpo _ _).
+    {
+      <span class="nb">apply</span> eq_to_le_dcpo.
+      <span class="bp">exact</span> (!(approximating_family_lub CX x)).
+    }
+    use dcpo_lub_is_least.
+    <span class="nb">intros</span> i.
+    use less_than_dcpo_lub ; <span class="nb">cbn</span> -[way_below].
+    + <span class="nb">refine</span> (D i ,, _).
+      <span class="nb">apply</span> approximating_family_way_below.
+    + <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_continuous_to_continuous_struct</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : is_continuous_dcpo X)
+  : continuous_dcpo_struct X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">refine</span> (is_continuous_dcpo_directed_set CX x ,, _ ,, _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> i ;
+       <span class="nb">apply</span> i).
+  - <span class="kp">abstract</span>
+      (<span class="nb">pose</span> (is_least_upperbound_dcpo_lub (is_continuous_dcpo_directed_set CX x)) <span class="k">as</span> h ;
+       <span class="nb">rewrite</span> (is_continuous_dcpo_directed_set_lub CX x) <span class="k">in</span> h ;
+       <span class="bp">exact</span> h).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Basis/Continuous.v</tt>, line 56)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Continuity structure from the property
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

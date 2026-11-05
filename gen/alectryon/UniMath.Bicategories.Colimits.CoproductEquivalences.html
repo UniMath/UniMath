@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CoproductEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> Equivalences for coproducts</span>
+
+<span class="sd"> ************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpMorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Coproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd">   Suppose, we have a diagram as follows</span>
+
+<span class="sd">         ι₁        ι₂</span>
+<span class="sd">   x₁ ------&gt; p &lt;------ x₂</span>
+<span class="sd">   |          |         |</span>
+<span class="sd">   l₁    ≃    l₃   ≃    l₂</span>
+<span class="sd">   |     γ₁   |    γ₂   |</span>
+<span class="sd">   V          V         V</span>
+<span class="sd">   y₁ ------&gt; q &lt;------ y₂</span>
+<span class="sd">         λ₁        κ₂</span>
+
+<span class="sd">   where l₁, l₂, and l₃ are adjoint equivalences.</span>
+<span class="sd">   If the top row is a product cone, then so is the bottom row</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CoproductEquivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">p</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">q</span> : B}
+          (<span class="nv">ι₁</span> : x₁ --&gt; p)
+          (<span class="nv">ι₂</span> : x₂ --&gt; p)
+          (<span class="nv">cone₁</span> := make_bincoprod_cocone p ι₁ ι₂)
+          (<span class="nv">Hp</span> : has_bincoprod_ump cone₁)
+          (<span class="nv">κ₁</span> : y₁ --&gt; q)
+          (<span class="nv">κ₂</span> : y₂ --&gt; q)
+          (<span class="nv">cone₂</span> := make_bincoprod_cocone q κ₁ κ₂)
+          (<span class="nv">l₁</span> : x₁ --&gt; y₁)
+          (<span class="nv">l₂</span> : x₂ --&gt; y₂)
+          (<span class="nv">l₃</span> : p --&gt; q)
+          (<span class="nv">Hl₁</span> : left_adjoint_equivalence l₁)
+          (<span class="nv">Hl₂</span> : left_adjoint_equivalence l₂)
+          (<span class="nv">Hl₃</span> : left_adjoint_equivalence l₃)
+          (<span class="nv">γ₁</span> : invertible_2cell
+                  (l₁ · κ₁)
+                  (ι₁ · l₃))
+          (<span class="nv">γ₂</span> : invertible_2cell
+                  (l₂ · κ₂)
+                  (ι₂ · l₃)).
+
+  <span class="kn">Let</span> <span class="nf">r₁</span> : y₁ --&gt; x₁
+    := left_adjoint_right_adjoint Hl₁.
+  <span class="kn">Let</span> <span class="nf">η₁</span> : invertible_2cell (id₁ _) (l₁ · r₁)
+    := left_equivalence_unit_iso Hl₁.
+  <span class="kn">Let</span> <span class="nf">ε₁</span> : invertible_2cell (r₁ · l₁) (id₁ _)
+    := left_equivalence_counit_iso Hl₁.
+
+  <span class="kn">Let</span> <span class="nf">r₂</span> : y₂ --&gt; x₂
+    := left_adjoint_right_adjoint Hl₂.
+  <span class="kn">Let</span> <span class="nf">η₂</span> : invertible_2cell (id₁ _) (l₂ · r₂)
+    := left_equivalence_unit_iso Hl₂.
+  <span class="kn">Let</span> <span class="nf">ε₂</span> : invertible_2cell (r₂ · l₂) (id₁ _)
+    := left_equivalence_counit_iso Hl₂.
+
+  <span class="kn">Let</span> <span class="nf">r₃</span> : q --&gt; p
+    := left_adjoint_right_adjoint Hl₃.
+  <span class="kn">Let</span> <span class="nf">η₃</span> : invertible_2cell (id₁ _) (l₃ · r₃)
+    := left_equivalence_unit_iso Hl₃.
+  <span class="kn">Let</span> <span class="nf">ε₃</span> : invertible_2cell (r₃ · l₃) (id₁ _)
+    := left_equivalence_counit_iso Hl₃.
+
+  <span class="kn">Let</span> <span class="nf">γ₁'</span> : invertible_2cell (κ₁ · r₃) (r₁ · ι₁)
+    := comp_of_invertible_2cell
+         (linvunitor_invertible_2cell _)
+         (comp_of_invertible_2cell
+            (rwhisker_of_invertible_2cell
+               _
+               (inv_of_invertible_2cell ε₁))
+            (comp_of_invertible_2cell
+               (rassociator_invertible_2cell _ _ _)
+               (lwhisker_of_invertible_2cell
+                  _
+                  (comp_of_invertible_2cell
+                     (lassociator_invertible_2cell _ _ _)
+                     (comp_of_invertible_2cell
+                        (rwhisker_of_invertible_2cell
+                           _
+                           γ₁)
+                        (comp_of_invertible_2cell
+                           (rassociator_invertible_2cell _ _ _)
+                           (comp_of_invertible_2cell
+                              (lwhisker_of_invertible_2cell
+                                 _
+                                 (inv_of_invertible_2cell η₃))
+                              (runitor_invertible_2cell _)))))))).
+
+  <span class="kn">Let</span> <span class="nf">γ₂'</span> : invertible_2cell (κ₂ · r₃) (r₂ · ι₂)
+    := comp_of_invertible_2cell
+         (linvunitor_invertible_2cell _)
+         (comp_of_invertible_2cell
+            (rwhisker_of_invertible_2cell
+               _
+               (inv_of_invertible_2cell ε₂))
+            (comp_of_invertible_2cell
+               (rassociator_invertible_2cell _ _ _)
+               (lwhisker_of_invertible_2cell
+                  _
+                  (comp_of_invertible_2cell
+                     (lassociator_invertible_2cell _ _ _)
+                     (comp_of_invertible_2cell
+                        (rwhisker_of_invertible_2cell
+                           _
+                           γ₂)
+                        (comp_of_invertible_2cell
+                           (rassociator_invertible_2cell _ _ _)
+                           (comp_of_invertible_2cell
+                              (lwhisker_of_invertible_2cell
+                                 _
+                                 (inv_of_invertible_2cell η₃))
+                              (runitor_invertible_2cell _)))))))).
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_1_left_adjoint_equivalence</span>
+    : bincoprod_ump_1 cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c.
+    use make_bincoprod_1cell.
+    - <span class="nb">refine</span> (r₃ · _).
+      <span class="bp">exact</span> (bincoprod_ump_1cell
+                Hp
+                (l₁ · bincoprod_cocone_inl c)
+                (l₂ · bincoprod_cocone_inr c)).
+    - <span class="bp">exact</span> (comp_of_invertible_2cell
+               (lassociator_invertible_2cell _ _ _)
+               (comp_of_invertible_2cell
+                  (rwhisker_of_invertible_2cell _ γ₁')
+                  (comp_of_invertible_2cell
+                     (rassociator_invertible_2cell _ _ _)
+                     (comp_of_invertible_2cell
+                        (lwhisker_of_invertible_2cell
+                           _
+                           (bincoprod_ump_1cell_inl Hp _ _ _))
+                        (comp_of_invertible_2cell
+                           (lassociator_invertible_2cell _ _ _)
+                           (comp_of_invertible_2cell
+                              (rwhisker_of_invertible_2cell
+                                 _
+                                 ε₁)
+                              (lunitor_invertible_2cell _))))))).
+    - <span class="bp">exact</span> (comp_of_invertible_2cell
+               (lassociator_invertible_2cell _ _ _)
+               (comp_of_invertible_2cell
+                  (rwhisker_of_invertible_2cell _ γ₂')
+                  (comp_of_invertible_2cell
+                     (rassociator_invertible_2cell _ _ _)
+                     (comp_of_invertible_2cell
+                        (lwhisker_of_invertible_2cell
+                           _
+                           (bincoprod_ump_1cell_inr Hp _ _ _))
+                        (comp_of_invertible_2cell
+                           (lassociator_invertible_2cell _ _ _)
+                           (comp_of_invertible_2cell
+                              (rwhisker_of_invertible_2cell
+                                 _
+                                 ε₂)
+                              (lunitor_invertible_2cell _))))))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UMP2</span>.
+    <span class="kn">Context</span> {<span class="nv">c</span> : B}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : q --&gt; c}
+            (<span class="nv">α</span> : κ₁ · φ ==&gt; κ₁ · ψ)
+            (<span class="nv">β</span> : κ₂ · φ ==&gt; κ₂ · ψ).
+
+    <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_left_adjoint_equivalence_unique</span>
+      : isaprop (∑ (γ : φ ==&gt; ψ), κ₁ ◃ γ = α × κ₂ ◃ γ = β).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> ζ₁ ζ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+      }
+      <span class="nb">apply</span> (adj_equiv_faithful
+               (bicat_left_adjoint_equivalence_to_op1_bicat_left_adjoint_equivalence
+                  _
+                  Hl₃)).
+      <span class="nb">cbn</span>.
+      use (bincoprod_ump_2cell_unique_alt Hp) ; <span class="nb">cbn</span>.
+      - use (vcomp_lcancel (rassociator _ _ _)).
+        {
+          is_iso.
+        }
+        <span class="nb">rewrite</span> !lwhisker_lwhisker_rassociator.
+        <span class="nb">apply</span> maponpaths_2.
+        use (vcomp_lcancel (γ₁ ▹ _)).
+        {
+          is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+        }
+        <span class="nb">rewrite</span> !vcomp_whisker.
+        <span class="nb">apply</span> maponpaths_2.
+        use (vcomp_lcancel (lassociator _ _ _)).
+        {
+          is_iso.
+        }
+        <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr12 ζ₁ @ !(pr12 ζ₂)).
+      - use (vcomp_lcancel (rassociator _ _ _)).
+        {
+          is_iso.
+        }
+        <span class="nb">rewrite</span> !lwhisker_lwhisker_rassociator.
+        <span class="nb">apply</span> maponpaths_2.
+        use (vcomp_lcancel (γ₂ ▹ _)).
+        {
+          is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+        }
+        <span class="nb">rewrite</span> !vcomp_whisker.
+        <span class="nb">apply</span> maponpaths_2.
+        use (vcomp_lcancel (lassociator _ _ _)).
+        {
+          is_iso.
+        }
+        <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr22 ζ₁ @ !(pr22 ζ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">Hr₁</span> : @left_adjoint_equivalence (op1_bicat B) _ _ r₁
+      := bicat_left_adjoint_equivalence_to_op1_bicat_left_adjoint_equivalence
+           _
+           (pr2 (inv_adjequiv (_ ,, Hl₁))).
+
+    <span class="kn">Let</span> <span class="nf">Hr₂</span> : @left_adjoint_equivalence (op1_bicat B) _ _ r₂
+      := bicat_left_adjoint_equivalence_to_op1_bicat_left_adjoint_equivalence
+           _
+           (pr2 (inv_adjequiv (_ ,, Hl₂))).
+
+    <span class="kn">Let</span> <span class="nf">α'</span> : ι₁ · (l₃ · φ) ==&gt; ι₁ · (l₃ · ψ)
+      := fully_faithful_1cell_inv_map
+           (adj_equiv_fully_faithful Hr₁)
+           (lassociator _ _ _
+            • ((γ₁')^-<span class="mi">1</span> ▹ _)
+            • rassociator _ _ _
+            • (_ ◃ lassociator _ _ _)
+            • (_ ◃ (ε₃ ▹ _))
+            • (_ ◃ lunitor φ)
+            • α
+            • (_ ◃ linvunitor ψ)
+            • (_ ◃ (ε₃^-<span class="mi">1</span> ▹ _))
+            • (_ ◃ rassociator _ _ _)
+            • lassociator _ _ _
+            • (γ₁' ▹ _)
+            • rassociator _ _ _).
+
+    <span class="kn">Let</span> <span class="nf">β'</span> : ι₂ · (l₃ · φ) ==&gt; ι₂ · (l₃ · ψ)
+      := fully_faithful_1cell_inv_map
+           (adj_equiv_fully_faithful Hr₂)
+           (lassociator _ _ _
+            • ((γ₂')^-<span class="mi">1</span> ▹ _)
+            • rassociator _ _ _
+            • (_ ◃ lassociator _ _ _)
+            • (_ ◃ (ε₃ ▹ _))
+            • (_ ◃ lunitor _)
+            • β
+            • (_ ◃ linvunitor _)
+            • (_ ◃ (ε₃^-<span class="mi">1</span> ▹ _))
+            • (_ ◃ rassociator _ _ _)
+            • lassociator _ _ _
+            • (γ₂' ▹ _)
+            • rassociator _ _ _).
+
+    <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_left_adjoint_equivalence_cell</span>
+      : φ ==&gt; ψ
+      := linvunitor _
+         • (ε₃^-<span class="mi">1</span> ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ bincoprod_ump_2cell Hp α' β')
+         • lassociator _ _ _
+         • (ε₃ ▹ _)
+         • lunitor _.
+
+    <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_left_adjoint_equivalence_inl</span>
+      : κ₁ ◃ has_bincoprod_ump_2_left_adjoint_equivalence_cell = α.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> has_bincoprod_ump_2_left_adjoint_equivalence_cell.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">3</span> (use vcomp_move_R_pM ; [ is_iso | ]).
+      <span class="nb">cbn</span> -[ε₃ α' β'].
+      use (vcomp_lcancel (rassociator _ _ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+      use (vcomp_lcancel ((γ₁')^-<span class="mi">1</span> ▹ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      use (vcomp_lcancel (lassociator _ _ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span>( bincoprod_ump_2cell_inl Hp).
+      }
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+        <span class="nb">apply</span> ε₃.
+      }
+      <span class="nb">cbn</span> -[ε₃ γ₁' α'].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> (fully_faithful_1cell_inv_map_eq (adj_equiv_fully_faithful Hr₁)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_left_adjoint_equivalence_inr</span>
+      : κ₂ ◃ has_bincoprod_ump_2_left_adjoint_equivalence_cell = β.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> has_bincoprod_ump_2_left_adjoint_equivalence_cell.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">3</span> (use vcomp_move_R_pM ; [ is_iso | ]).
+      <span class="nb">cbn</span> -[ε₃ α' β'].
+      use (vcomp_lcancel (rassociator _ _ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+      use (vcomp_lcancel ((γ₂')^-<span class="mi">1</span> ▹ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      use (vcomp_lcancel (lassociator _ _ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span>( bincoprod_ump_2cell_inr Hp).
+      }
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+        <span class="nb">apply</span> ε₃.
+      }
+      <span class="nb">cbn</span> -[ε₃ γ₂' β'].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> (fully_faithful_1cell_inv_map_eq (adj_equiv_fully_faithful Hr₂)).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP2</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_left_adjoint_equivalence</span>
+    : bincoprod_ump_2 cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c φ ψ α β.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (has_bincoprod_ump_2_left_adjoint_equivalence_unique α β).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (has_bincoprod_ump_2_left_adjoint_equivalence_cell α β).
+      + <span class="bp">exact</span> (has_bincoprod_ump_2_left_adjoint_equivalence_inl α β).
+      + <span class="bp">exact</span> (has_bincoprod_ump_2_left_adjoint_equivalence_inr α β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_left_adjoint_equivalence</span>
+    : has_bincoprod_ump cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> has_bincoprod_ump_1_left_adjoint_equivalence.
+    - <span class="bp">exact</span> has_bincoprod_ump_2_left_adjoint_equivalence.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CoproductEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Colimits/CoproductEquivalences.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Equivalences for coproducts
+  &gt;
+  &gt;  ************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

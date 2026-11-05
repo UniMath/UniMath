@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiniteSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Finite sets. Vladimir Voevodsky . Apr. - Sep. 2011.</span>
+
+<span class="sd">    This file contains the definition and main properties of finite sets. In the</span>
+<span class="sd">    file [Combinatorics/Tests.v] there are several elementary examples which are</span>
+<span class="sd">    used as test cases to check that our constructions do not prevent Coq from</span>
+<span class="sd">    normalizing terms of type nat to numerals.</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Imports. *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.NegativePropositions.
+<span class="kn">Require Export</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="sd">(** ** Sets with a given number of elements. *)</span>
+
+<span class="kn">Section</span> <span class="nf">nelstructure</span>.
+  <span class="sd">(** *** Structure of a set with [n] elements on [X] defined as a term in [⟦ n ⟧ ≃ X].  *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">nelstruct</span> (<span class="nv">n</span> : nat) (<span class="nv">X</span> : UU) : UU
+    := ⟦ n ⟧ ≃ X.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructToFunction</span> {<span class="nv">n</span> : nat} {<span class="nv">X</span> : UU} (<span class="nv">S</span> : nelstruct n X)
+    : ⟦ n ⟧ -&gt; X
+    := pr1weq S.
+
+  <span class="kn">Coercion</span> <span class="nf">nelstructToFunction</span> : nelstruct &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonstn</span> (<span class="nv">n</span> : nat) : nelstruct n (⟦ n ⟧)
+    := idweq (⟦ n ⟧).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructweqf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sx</span> : nelstruct n X)
+    : nelstruct n Y
+    := weqcomp sx w.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructweqb</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sy</span> : nelstruct n Y)
+    : nelstruct n X
+    := weqcomp sy (invweq w).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonempty</span> : nelstruct <span class="mi">0</span> empty
+    := weqstn0toempty.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonempty2</span> {<span class="nv">X</span> : UU} (<span class="nv">nx</span> : neg X)
+    : nelstruct <span class="mi">0</span> X
+    := weqcomp weqstn0toempty (invweq (weqtoempty nx)).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonunit</span> : nelstruct <span class="mi">1</span> unit
+    := weqstn1tounit.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructoncontr</span> {<span class="nv">X</span> : UU} (<span class="nv">contrx</span> : iscontr X)
+    : nelstruct <span class="mi">1</span> X
+    := weqcomp weqstn1tounit (invweq (weqcontrtounit contrx)).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonbool</span> : nelstruct <span class="mi">2</span> bool := weqstn2tobool.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructoncoprodwithunit</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">sx</span> : nelstruct n X)
+    : nelstruct (S n) (X ⨿ unit)
+    := weqcomp (invweq (weqdnicoprod n lastelement)) (weqcoprodf1 sx).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructoncompl</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">x</span> : X)
+    : nelstruct (S n) X -&gt; nelstruct n (compl X x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> sx.
+    <span class="nb">refine</span> (invweq (weqoncompl (invweq sx) x) ∘ _ ∘ weqdnicompl (invweq sx x))%weq.
+    <span class="nb">apply</span> compl_weq_compl_ne.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructoncoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : nelstruct n X)
+    (<span class="nv">sy</span> : nelstruct m Y)
+    : nelstruct (n + m) (X ⨿ Y)
+    := ((weqcoprodf sx sy) ∘ (invweq (weqfromcoprodofstn n m)))%weq.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructontotal2</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">f</span> : X -&gt; nat)
+    (<span class="nv">sx</span> : nelstruct n X)
+    (<span class="nv">fs</span> : ∏ x : X, nelstruct (f x) (P x))
+    : nelstruct (stnsum (f ∘ sx)) (∑ (y : X), P y)
+    := weqcomp
+         (invweq (weqstnsum (P ∘ sx) (f ∘ sx) (fs ∘ sx)))
+         (weqfp sx P).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructondirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : nelstruct n X)
+    (<span class="nv">sy</span> : nelstruct m Y)
+    : nelstruct (n * m) (X × Y)
+    := (weqdirprodf sx sy ∘ invweq (weqfromprodofstn n m))%weq.
+
+  <span class="sd">(** For a generalization of [ weqfromdecsubsetofstn ] see below *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : nelstruct n X)
+    (<span class="nv">sy</span> : nelstruct m Y)
+    : nelstruct (natpower m n) (X -&gt; Y)
+    := (weqbfun Y (invweq sx) ∘ weqffun (⟦ n ⟧) sy ∘ invweq (weqfromfunstntostn n m))%weq.
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonforall</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat} (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">f</span> : X -&gt; nat)
+    (<span class="nv">sx</span> : nelstruct n X)
+    (<span class="nv">fs</span> : ∏ x : X , nelstruct (f x) (P x))
+    : nelstruct (stnprod (f ∘ sx)) (∏ x : X , P x)
+    := invweq (weqcomp
+                 (weqonsecbase P sx)
+                 (weqstnprod (P ∘ sx) (f ∘ sx) (<span class="k">λ</span> <span class="nv">i</span> : ⟦ n ⟧, fs (sx i)))).
+
+  <span class="kn">Definition</span> <span class="nf">nelstructonweq</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">sx</span> : nelstruct n X)
+    : nelstruct (factorial n) (X ≃ X)
+    := (weqfweq X sx ∘ weqbweq (⟦ n ⟧) (invweq sx) ∘ invweq (weqfromweqstntostn n))%weq.
+<span class="kn">End</span> <span class="nf">nelstructure</span>.
+
+<span class="kn">Section</span> <span class="nf">nelproperty</span>.
+
+  <span class="sd">(** *** The property of [ X ] to have [ n ] elements *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isofnel</span> (<span class="nv">n</span> : nat) (<span class="nv">X</span> : UU) : hProp
+    := ∥ ⟦ n ⟧ ≃  X ∥.
+
+  <span class="kn">Definition</span> <span class="nf">isofneluniv</span> {<span class="nv">n</span> : nat} {<span class="nv">X</span> : UU}  (<span class="nv">P</span> : hProp)
+    : ((nelstruct n X) -&gt; P) -&gt; (isofnel n X -&gt; P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> pnel xofnel.
+    <span class="bp">exact</span>(hinhuniv pnel xofnel).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelstn</span> (<span class="nv">n</span> : nat) : isofnel n (⟦ n ⟧)
+    := hinhpr (nelstructonstn n).
+
+  <span class="kn">Definition</span> <span class="nf">isofnelweqf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sx</span> : isofnel n X)
+    : isofnel n Y
+    := hinhfun (nelstructweqf w) sx.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelweqb</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sy</span> : isofnel n Y)
+    : isofnel n X
+    := hinhfun (nelstructweqb w) sy.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelempty</span> : isofnel <span class="mi">0</span> empty
+    := hinhpr nelstructonempty.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelempty2</span> {<span class="nv">X</span> : UU} (<span class="nv">nx</span> : neg X) : isofnel <span class="mi">0</span> X
+    := hinhpr (nelstructonempty2 nx).
+
+  <span class="kn">Definition</span> <span class="nf">isofnelunit</span> : isofnel <span class="mi">1</span> unit
+    := hinhpr nelstructonunit.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelcontr</span> {<span class="nv">X</span> : UU} (<span class="nv">contrx</span> : iscontr X) : isofnel <span class="mi">1</span> X
+    := hinhpr (nelstructoncontr contrx).
+
+  <span class="kn">Definition</span> <span class="nf">isofnelbool</span> : isofnel <span class="mi">2</span> bool
+    := hinhpr nelstructonbool.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelcoprodwithunit</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">sx</span> : isofnel n X)
+    : isofnel (S n) (X ⨿ unit)
+    := hinhfun nelstructoncoprodwithunit sx.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelcompl</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">x</span> : X) (<span class="nv">sx</span> : isofnel (S n) X)
+    : isofnel n (compl X x)
+    := hinhfun (nelstructoncompl x) sx.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelcoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : isofnel n X) (<span class="nv">sy</span> : isofnel m Y)
+    : isofnel (n + m) (X ⨿ Y)
+    := hinhfun2 nelstructoncoprod sx sy.
+
+  <span class="sd">(** For a result corresponding to [ nelstructontotal2 ] see below . *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isofnelondirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : isofnel n X) (<span class="nv">sy</span> : isofnel m Y)
+    : isofnel (n * m) (X × Y)
+    := hinhfun2 nelstructondirprod sx sy.
+
+  <span class="kn">Definition</span> <span class="nf">isofnelonfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">n</span> <span class="nv">m</span> : nat}
+    (<span class="nv">sx</span> : isofnel n X) (<span class="nv">sy</span> : isofnel m Y)
+    : isofnel (natpower m n) (X -&gt; Y)
+    := hinhfun2 nelstructonfun sx sy.
+
+  <span class="sd">(** For a result corresponding to [ nelstructonforall ] see below . *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isofnelonweq</span> {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">sx</span> : isofnel n X)
+    : isofnel (factorial n) (X ≃ X)
+    := hinhfun nelstructonweq sx.
+<span class="kn">End</span> <span class="nf">nelproperty</span>.
+
+<span class="sd">(** ** General finite sets. *)</span>
+
+<span class="kn">Section</span> <span class="nf">finite_structure</span>.
+  <span class="sd">(** *** Finite structure.</span>
+
+<span class="sd">      A finite structure on a type [X] is defined as a pair [( n , w )]</span>
+<span class="sd">      where [n : nat] and [w : ⟦ n ⟧ ≃ X]. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">finstruct</span>  (<span class="nv">X</span> : UU) : UU
+    := ∑ (n : nat), nelstruct n X.
+
+  <span class="kn">Definition</span> <span class="nf">finstruct_cardinality</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">fs</span> : finstruct X) : nat
+    := pr1 fs.
+
+  <span class="kn">Definition</span> <span class="nf">finstructToFunction</span> {<span class="nv">X</span> : UU} (<span class="nv">S</span> : finstruct X) : nelstruct (pr1 S) X
+    := pr2 S.
+  <span class="kn">Coercion</span> <span class="nf">finstructToFunction</span> : finstruct &gt;-&gt; nelstruct.
+
+  <span class="kn">Definition</span> <span class="nf">make_finstruct</span> (<span class="nv">X</span> : UU) {<span class="nv">n</span> : nat} (<span class="nv">w</span> : ⟦ n ⟧ ≃ X) : finstruct X
+    := (n ,, w).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonstn</span> (<span class="nv">n</span> : nat) : finstruct (⟦ n ⟧)
+    := make_finstruct _ (nelstructonstn n).
+
+  <span class="kn">Definition</span> <span class="nf">finstructweqf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sx</span> : finstruct X)
+    : finstruct Y
+    := make_finstruct Y (nelstructweqf w sx).
+
+  <span class="kn">Definition</span> <span class="nf">finstructweqb</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sy</span> : finstruct Y)
+    : finstruct X
+    := make_finstruct X (nelstructweqb w sy).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonempty</span> : finstruct empty
+    := make_finstruct empty nelstructonempty.
+
+  <span class="kn">Definition</span> <span class="nf">finstructonempty2</span> {<span class="nv">X</span> : UU} (<span class="nv">nx</span> : neg X)
+    : finstruct X
+    := make_finstruct X (nelstructonempty2 nx).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonunit</span> : finstruct unit
+    := make_finstruct unit nelstructonunit.
+
+  <span class="kn">Definition</span> <span class="nf">finstructoncontr</span> {<span class="nv">X</span> : UU} (<span class="nv">xcontr</span> : iscontr X)
+    : finstruct X
+    := make_finstruct X (nelstructoncontr xcontr).
+
+  <span class="sd">(** It is not difficult to show that a direct summand of a finite set is a finite set. As a</span>
+<span class="sd">    corrolary it follows that a proposition (a type of h-level 1) is a finite set if and only if it</span>
+<span class="sd">    is decidable . *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">finstructonbool</span> : finstruct bool
+    := make_finstruct bool nelstructonbool.
+
+  <span class="kn">Definition</span> <span class="nf">finstructoncoprodwithunit</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">sx</span> : finstruct X)
+    : finstruct (X ⨿ unit)
+    := make_finstruct (X ⨿ unit) (nelstructoncoprodwithunit sx).
+
+  <span class="kn">Definition</span> <span class="nf">finstructoncompl</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) (<span class="nv">sx</span> : finstruct X) : finstruct (compl X x).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> sx <span class="k">as</span> [n w].
+    <span class="nb">induction</span> n <span class="k">as</span> [| n ].
+    - <span class="bp">exact</span>(fromempty (negstn0 (invweq w x))).
+    - <span class="bp">exact</span>(make_finstruct (compl X x) (nelstructoncompl x w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finstructoncoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : finstruct X) (<span class="nv">sy</span> : finstruct Y)
+    : finstruct (X ⨿ Y)
+    := make_finstruct (X ⨿ Y) (nelstructoncoprod sx sy).
+
+  <span class="kn">Definition</span> <span class="nf">finstructontotal2</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">sx</span> : finstruct X)
+    (<span class="nv">fs</span> : ∏ x : X, finstruct (P x))
+    : finstruct (∑ (x : X), P x)
+    := make_finstruct _
+         (nelstructontotal2 P
+            (<span class="k">λ</span> <span class="nv">x</span> : X, finstruct_cardinality (fs x))
+            sx
+            (<span class="k">λ</span> <span class="nv">x</span> : X, fs x)).
+
+  <span class="kn">Definition</span> <span class="nf">finstructondirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : finstruct X) (<span class="nv">sy</span> : finstruct Y)
+    : finstruct (X × Y)
+    := make_finstruct (X × Y) (nelstructondirprod sx sy).
+
+  <span class="kn">Definition</span> <span class="nf">finstructondecsubset</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">f</span> : X -&gt; bool) (<span class="nv">sx</span> : finstruct X)
+    : finstruct (hfiber f true)
+    := make_finstruct _  (weqcomp (invweq (pr2 (weqfromdecsubsetofstn (f ∘ sx))))
+                            (weqhfibersgwtog _ f true)).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : finstruct X) (<span class="nv">sy</span> : finstruct Y)
+    : finstruct (X -&gt; Y)
+    := make_finstruct _ (nelstructonfun sx sy).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonforall</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">sx</span> : finstruct X)
+    (<span class="nv">fs</span> : ∏ x : X , finstruct (P x))
+    : finstruct (∏ x : X , P x)
+    := make_finstruct _
+         (nelstructonforall P _ sx fs).
+
+  <span class="kn">Definition</span> <span class="nf">finstructonweq</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">sx</span> : finstruct X)
+    : finstruct (X ≃ X)
+    := make_finstruct (X ≃ X) (nelstructonweq sx).
+<span class="kn">End</span> <span class="nf">finite_structure</span>.
+
+
+<span class="kn">Section</span> <span class="nf">finite_property</span>.
+  <span class="sd">(** *** Finite types.</span>
+
+<span class="sd">      A type [X] is finite if it is merely equipped with some finite</span>
+<span class="sd">      structure.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">isfinite</span> (<span class="nv">X</span> : UU) : hProp
+    := ∥ finstruct X ∥.
+
+  <span class="kn">Definition</span> <span class="nf">isfinite_isdeceq</span> (<span class="nv">X</span> : UU)
+    : isfinite X -&gt; isdeceq X.
+  <span class="c">(* uses funextemptyAxiom *)</span>
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isfin.
+    use(factor_through_squash (isapropisdeceq X) _ isfin).
+    <span class="nb">intro</span> fstruct.
+    use(isdeceqweqf _ (isdeceqstn (finstruct_cardinality fstruct))).
+    <span class="nb">apply</span> fstruct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isfinite_isaset</span> (<span class="nv">X</span> : UU) : isfinite X -&gt; isaset X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> isfin.
+    use(factor_through_squash (isapropisaset X) _ isfin).
+    <span class="nb">intros</span> f.
+    use(isofhlevelweqf <span class="mi">2</span> _ (isasetstn (finstruct_cardinality f))).
+    <span class="nb">apply</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fincard</span> {<span class="nv">X</span> : UU} (<span class="nv">xf</span> : isfinite X) : nat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_pairs_to_set (<span class="k">λ</span> <span class="nv">n</span> : nat, ⟦ n ⟧ ≃ X) isasetnat).
+    {
+      <span class="nb">intros</span> n n' w w'.
+      <span class="nb">apply</span> weqtoeqstn.
+      <span class="bp">exact</span> (invweq w' ∘ w)%weq.
+    }
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ischoicebasefiniteset</span> {<span class="nv">X</span> : UU} (<span class="nv">xf</span> : isfinite X) : ischoicebase X.
+  <span class="kn">Proof</span>.
+    use(hinhuniv _ xf).
+    <span class="nb">intros</span> [n w].
+    <span class="bp">exact</span>(ischoicebaseweqf w (ischoicebasestn n)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitestn</span> (<span class="nv">n</span> : nat) : isfinite (⟦ n ⟧)
+    := hinhpr (finstructonstn n).
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteweqf</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sx</span> : isfinite X)
+    : isfinite Y
+    := hinhfun (finstructweqf w) sx.
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteweqb</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">sy</span> : isfinite Y)
+    : isfinite X
+    := hinhfun (finstructweqb w) sy.
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteempty</span> : isfinite empty
+    := hinhpr finstructonempty.
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteempty2</span> {<span class="nv">X</span> : UU} (<span class="nv">nx</span> : neg X)
+    : isfinite X
+    := hinhpr (finstructonempty2 nx).
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteunit</span> : isfinite unit
+    := hinhpr finstructonunit.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitecontr</span> {<span class="nv">X</span> : UU} (<span class="nv">contrx</span> : iscontr X)
+    : isfinite X
+    := hinhpr (finstructoncontr contrx).
+
+  <span class="kn">Definition</span> <span class="nf">isfinitebool</span> : isfinite bool
+    := hinhpr finstructonbool.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitecoprodwithunit</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">sx</span> : isfinite X)
+    : isfinite (X ⨿ unit)
+    := hinhfun finstructoncoprodwithunit sx.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitecompl</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">x</span> : X) (<span class="nv">sx</span> : isfinite X)
+    : isfinite (compl X x)
+    := hinhfun (finstructoncompl x) sx.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitecoprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : isfinite X) (<span class="nv">sy</span> : isfinite Y)
+    : isfinite (X ⨿ Y)
+    := hinhfun2 finstructoncoprod sx sy.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitetotal2</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">sx</span> : isfinite X)
+    (<span class="nv">fs</span> : ∏ x : X , isfinite (P x))
+    : isfinite (∑ (x : X), P x).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (fs' := ischoicebasefiniteset sx _ fs).
+    use(hinhfun2 _ fs' sx).
+    <span class="nb">intros</span>.
+    <span class="nb">apply</span> finstructontotal2;
+      <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitedirprod</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : isfinite X) (<span class="nv">sy</span> : isfinite Y)
+    : isfinite (X × Y)
+    := hinhfun2 finstructondirprod sx sy.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitedecsubset</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">f</span> : X -&gt; bool)  (<span class="nv">sx</span> : isfinite X)
+    : isfinite (hfiber f true)
+    := hinhfun (finstructondecsubset f) sx.
+
+  <span class="kn">Definition</span> <span class="nf">isfinitefun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+    (<span class="nv">sx</span> : isfinite X) (<span class="nv">sy</span> : isfinite Y)
+    : isfinite (X -&gt; Y)
+    := hinhfun2 finstructonfun sx sy.
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteforall</span> {<span class="nv">X</span> : UU}
+    (<span class="nv">P</span> : X -&gt; UU)
+    (<span class="nv">sx</span> : isfinite X)
+    (<span class="nv">fs</span> : ∏ x : X , isfinite (P x))
+    : isfinite (∏ (x : X) , P x).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (fs' := ischoicebasefiniteset sx _ fs).
+    <span class="bp">exact</span>(hinhfun2 (<span class="k">fun</span> <span class="nv">a</span> <span class="nv">b</span> =&gt; finstructonforall P b a) fs' sx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isfiniteweq</span> {<span class="nv">X</span> : UU} (<span class="nv">sx</span> : isfinite X) : isfinite (X ≃ X)
+    := hinhfun finstructonweq sx.
+<span class="kn">End</span> <span class="nf">finite_property</span>.
+<span class="c">(*</span>
+
+<span class="c">(* The cardinality of finite sets using double negation and decidability of equality in nat. *)</span>
+
+<span class="c">   Definition carddneg  (X : UU) (fx: isfinite X) : nat</span>
+<span class="c">              := pr1 (isfiniteimplisfinite0 X fx).</span>
+
+<span class="c">Definition preweq  ( X : UU ) (isc: isfinite X): isofnel (carddneg X isc) X.</span>
+<span class="c">Proof. intros X isc X0.  set (c:= carddneg X isc). set (dnw:= pr2 (isfiniteimplisfinite0 X isc)). simpl in dnw. change (pr1 nat (λ n : nat, isofnel0 n X) (isfiniteimplisfinite0 X isc)) with c in dnw.</span>
+
+<span class="c">assert (f: dirprod (finitestruct X) (dneg (weq (stn c) X)) -&gt; weq (stn c) X). intro H. destruct H as [ t x ].  destruct t as [ t x0 ].</span>
+<span class="c">assert (dw: dneg ((stn t) ≃ (stn c))). set (ff:= fun ab:dirprod (weq (stn t) X)(weq (stn c) X) =&gt; weqcomp _ _ _ (pr1 ab) (invweq (pr2 ab))).  apply (dnegf _ _ ff (inhdnegand _ _ (todneg _ x0) x)).</span>
+<span class="c">assert (e:t = c). apply (stnsdnegweqtoeq _ _  dw). clear dnw. destruct e. assumption. unfold isofnel.</span>
+<span class="c">apply (hinhfun _ _ f (hinhand (finitestruct X) _ is (hinhpr dnw))). Defined.</span>
+
+<span class="c">*)</span>
+
+<span class="c">(* to be completed</span>
+
+<span class="c">Theorem carddnegweqf (X Y:UU)(f: X -&gt; Y)(isw:isweq f)(isx: isfinite X): paths  (carddneg _ isx) (carddneg _ (isfiniteweqf _ _ _ isw isx)).</span>
+<span class="c">Proof. intros. *)</span>
+
+<span class="c">(* The cardinality of finite sets defined using the "impredicative" ishinh *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isfinite_to_DecidableEquality</span> {<span class="nv">X</span> : UU}
+  : isfinite X -&gt; DecidableRelation X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> fin x y.
+  <span class="bp">exact</span> (@isdecprop_to_DecidableProposition
+           (x=y)
+           (isdecpropif (x=y)
+              (isfinite_isaset X fin x y)
+              (isfinite_isdeceq X fin x y))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subsetFiniteness</span> {<span class="nv">X</span> : UU} (<span class="nv">isc</span> : isfinite X) (<span class="nv">P</span> : DecidableSubtype X)
+  : isfinite (decidableSubtypeCarrier P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (fin : isfinite (decidableSubtypeCarrier' P)).
+  { <span class="bp">now</span> <span class="nb">apply</span> isfinitedecsubset. }
+  <span class="nb">refine</span> (isfiniteweqf _ fin).
+  <span class="nb">apply</span> decidableSubtypeCarrier_weq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fincard_subset</span> {<span class="nv">X</span> : UU}
+  (<span class="nv">fx</span> : isfinite X) (<span class="nv">P</span> : DecidableSubtype X)
+  : nat
+  := fincard (subsetFiniteness fx P).
+
+<span class="kn">Definition</span> <span class="nf">fincard_standardSubset</span> {<span class="nv">n</span> : nat}
+  (<span class="nv">P</span> : DecidableSubtype (⟦ n ⟧))
+  : nat
+  := fincard (subsetFiniteness (isfinitestn n) P).
+
+<span class="kn">Local Definition</span> <span class="nf">bound01</span> (<span class="nv">P</span> : DecidableProposition) : ((choice P <span class="mi">1</span> <span class="mi">0</span>) ≤ <span class="mi">1</span>)%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> choice.
+  choose P p q;
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tallyStandardSubset</span> {<span class="nv">n</span> : nat}
+  (<span class="nv">P</span> : DecidableSubtype (⟦ n ⟧))
+  : ⟦ S n ⟧.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">stnsum</span> (<span class="k">λ</span> <span class="nv">x</span>, choice (P x) <span class="mi">1</span> <span class="mi">0</span>)).
+  <span class="nb">apply</span> natlehtolthsn.
+  <span class="nb">apply</span> (istransnatleh (m := stnsum(<span class="k">λ</span> <span class="nv">_</span> : stn n, <span class="mi">1</span>))).
+  {
+    <span class="nb">apply</span> stnsum_le; <span class="nb">intro</span> i.
+    <span class="nb">apply</span> bound01.
+  }
+  <span class="nb">assert</span> (p : ∏ r s : nat, r = s -&gt; (r ≤ s)%nat).
+  {
+    <span class="nb">intros</span> ? ? e.
+    <span class="nb">destruct</span> e.
+    <span class="nb">apply</span> isreflnatleh.
+  }
+  <span class="nb">apply</span> p.
+  <span class="bp">exact</span>(stnsum_1 n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tallyStandardSubsetSegment</span> {<span class="nv">n</span> : nat}
+  (<span class="nv">P</span> : DecidableSubtype (⟦ n ⟧))
+  (<span class="nv">i</span> : ⟦ n ⟧)
+  : ⟦ n ⟧.
+<span class="kn">Proof</span>.
+  <span class="c">(* count how many elements less than i satisfy P *)</span>
+  <span class="nb">assert</span> (k := tallyStandardSubset
+                 (<span class="k">λ</span> <span class="nv">j</span> : ⟦ i ⟧, P (stnmtostnn i n (natlthtoleh i n (pr2 i)) j))).
+
+  <span class="nb">apply</span> (stnmtostnn (S i) n).
+  {
+    <span class="nb">apply</span> natlthtolehsn.
+    <span class="bp">exact</span>(pr2 i).
+  }
+
+  <span class="bp">exact</span> k.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">finite_subsets</span>.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+  <span class="kn">Definition</span> <span class="nf">finite_subset</span> (<span class="nv">X</span> : hSet) : UU
+    := ∑ (A : hsubtype X),
+      isfinite (carrier A).
+
+  <span class="kn">Definition</span> <span class="nf">make_finite_subset</span> {<span class="nv">X</span> : hSet} (<span class="nv">A</span> : hsubtype X) (<span class="nv">P</span> : isfinite (carrier A))
+    : finite_subset X
+    := (A ,, P).
+
+  <span class="kn">Definition</span> <span class="nf">subtype_from_finite_subset</span> {<span class="nv">X</span> : hSet} (<span class="nv">A</span> : finite_subset X) : hsubtype X
+    := pr1 A.
+  <span class="kn">Coercion</span> <span class="nf">subtype_from_finite_subset</span> : finite_subset &gt;-&gt; hsubtype.
+
+  <span class="kn">Lemma</span> <span class="nf">isfinite_singleton</span> {<span class="nv">X</span> : hSet} {<span class="nv">x</span> : X} : isfinite (singleton x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isfinitecontr.
+    <span class="nb">apply</span> iscontr_singleton.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finite_singleton</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : finite_subset X.
+  <span class="kn">Proof</span>.
+    use make_finite_subset.
+    - <span class="bp">exact</span>(singleton x).
+    - <span class="bp">exact</span> isfinite_singleton.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finite_singleton_is_in</span> {<span class="nv">X</span> : hSet}
+    (<span class="nv">A</span> : hsubtype X)
+    (<span class="nv">a</span> : A)
+    : finite_singleton (pr1 a) ⊆ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> singleton_is_in.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">finite_subsets</span>.
+
+<span class="kn">Section</span> <span class="nf">FiniteSets</span>.
+  <span class="kn">Definition</span> <span class="nf">FiniteSet</span> : UU
+    := ∑ (X : UU), isfinite X.
+
+  <span class="kn">Definition</span> <span class="nf">isfinite_to_FiniteSet</span> {<span class="nv">X</span> : UU} (<span class="nv">f</span> : isfinite X) : FiniteSet
+    := X ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">FiniteSet_to_hSet</span> (<span class="nv">X</span> : FiniteSet) : hSet
+    := make_hSet (pr1 X) (isfinite_isaset (pr1 X) (pr2 X)).
+  <span class="kn">Coercion</span> <span class="nf">FiniteSet_to_hSet</span> : FiniteSet &gt;-&gt; hSet.
+
+  <span class="kn">Definition</span> <span class="nf">FiniteSetSum</span> {<span class="nv">I</span> : FiniteSet} (<span class="nv">X</span> : I -&gt; FiniteSet) : FiniteSet.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="k">exists</span> (∑ i, X i).
+    <span class="nb">apply</span> isfinitetotal2.
+    - <span class="bp">exact</span> (pr2 I).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">i</span> : I), pr2 (X i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cardinalityFiniteSet</span> (<span class="nv">X</span> : FiniteSet) : nat
+    := fincard (pr2 X).
+
+  <span class="kn">Definition</span> <span class="nf">standardFiniteSet</span> (<span class="nv">n</span> : nat) : FiniteSet
+    := isfinite_to_FiniteSet (isfinitestn n).
+
+  <span class="kn">Definition</span> <span class="nf">subsetFiniteSet</span> {<span class="nv">X</span> : FiniteSet} (<span class="nv">P</span> : DecidableSubtype X)
+    : FiniteSet.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(isfinite_to_FiniteSet (subsetFiniteness (pr2 X) P)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiniteSets</span>.
+
+<span class="kn">Declare Scope</span> finset.
+<span class="kn">Delimit Scope</span> finset <span class="k">with</span> finset.
+
+<span class="kn">Notation</span> <span class="s2">"'∑' x .. y , P"</span> := (FiniteSetSum (<span class="k">λ</span> <span class="nv">x</span>,.. (FiniteSetSum (<span class="k">λ</span> <span class="nv">y</span>, P))..))
+                               (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : finset.
+<span class="c">(* type this in emacs in agda-input method with \sum *)</span>
+
+<span class="c">(* A surjection from stn 0 is an equivalence *)</span>
+<span class="kn">Lemma</span> <span class="nf">surj_from_stn0_to_neg</span> {<span class="nv">X</span> : UU} (<span class="nv">f</span> : ⟦ <span class="mi">0</span> ⟧ → X ) : (issurjective f) → nelstruct <span class="mi">0</span> X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> surj. <span class="nb">apply</span> tpair <span class="k">with</span> (pr1 := f). <span class="nb">intros</span> x.
+  <span class="nb">apply</span> fromempty, (squash_to_prop (surj x) (isapropempty)).
+  <span class="nb">intros</span> [contra eq]; <span class="nb">clear</span> surj.
+  <span class="nb">apply</span> negstn0, contra.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/FiniteSets.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Tactics.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Tactics.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.DecidablePropositions.
+  &gt; Require Import UniMath.MoreFoundations.NegativePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

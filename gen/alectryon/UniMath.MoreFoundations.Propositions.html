@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Propositions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type.
+
+<span class="kn">Lemma</span> <span class="nf">ishinh_irrel</span> {<span class="nv">X</span>:UU} (<span class="nv">x</span>:X) (<span class="nv">x'</span>:∥X∥) : hinhpr x = x'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">squash_to_hProp</span> {<span class="nv">X</span>:UU} {<span class="nv">Q</span>:hProp} : ∥ X ∥ -&gt; (X -&gt; Q) -&gt; Q.
+<span class="kn">Proof</span>. <span class="nb">intros</span> h f. <span class="bp">exact</span> (hinhuniv f h). <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hdisj_impl_1</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : P∨Q -&gt; (Q-&gt;P) -&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> o f. <span class="nb">apply</span> (squash_to_hProp o).
+  <span class="nb">intros</span> [p|q].
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> (f q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hdisj_impl_2</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : P∨Q -&gt; (P-&gt;Q) -&gt; Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> o f. <span class="nb">apply</span> (squash_to_hProp o).
+  <span class="nb">intros</span> [p|q].
+  - <span class="bp">exact</span> (f p).
+  - <span class="bp">exact</span> q.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqlogeq</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P = Q) ≃ (P ⇔ Q).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="nb">intro</span> e. <span class="nb">induction</span> e. <span class="nb">apply</span> isrefl_logeq.
+  - <span class="nb">intro</span> c. <span class="nb">apply</span> hPropUnivalence.
+    + <span class="bp">exact</span> (pr1 c).
+    + <span class="bp">exact</span> (pr2 c).
+  - <span class="nb">apply</span> isasethProp.
+  - <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hrel_set</span> (<span class="nv">X</span> : hSet) : hSet := make_hSet (hrel X) (isaset_hrel X).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_assume_it_is</span> {<span class="nv">X</span> : UU} : (X -&gt; isaprop X) -&gt; isaprop X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f. <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> proofirrelevance. <span class="bp">now</span> <span class="nb">apply</span> f.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaproptotal2</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : X → UU) :
+  isPredicate P →
+  (∏ x y : X, P x → P y → x = y) →
+  isaprop (∑ x : X, P x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HP Heq.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> [x p] [y q].
+  <span class="nb">induction</span> (Heq x y p q).
+  <span class="nb">induction</span> (iscontrpr1 (HP x p q)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* this is the dependent eliminator for propositional truncation *)</span>
+<span class="kn">Lemma</span> <span class="nf">squash_rec</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : ∥ X ∥ -&gt; hProp) : (∏ x, P (hinhpr x)) -&gt; (∏ x, P x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xp x'. <span class="nb">simple refine</span> (hinhuniv _ x'). <span class="nb">intro</span> x.
+  <span class="nb">assert</span> (q : hinhpr x = x').
+  { <span class="nb">apply</span> propproperty. }
+  <span class="nb">induction</span> q. <span class="bp">exact</span> (xp x).
+<span class="kn">Defined</span>.
+
+<span class="c">(* here we show that the dependent eliminator does not compute judgmentally *)</span>
+<span class="kn">Goal</span> ∏ {X:UU} {P:∥X∥ -&gt; hProp} (h : ∏ x, P (hinhpr x)) (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.             <span class="c">(* too bad! *)</span>
+<span class="kn">Abort</span>.
+
+<span class="c">(* here's another version *)</span>
+<span class="kn">Goal</span> ∏ (X:<span class="kt">Type</span>)
+     (P := <span class="k">λ</span> <span class="nv">x'</span>:∥X∥, <span class="k">∃</span> <span class="nv">x</span>, (x' = hinhpr x))
+     (h := <span class="k">λ</span> <span class="nv">x</span>, (hinhpr (x,,idpath _) : P (hinhpr x)))
+     (x:X),
+  squash_rec _ h (hinhpr x) = h x.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.             <span class="c">(* too bad! *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">logeq_if_both_true</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : P -&gt; Q -&gt; ( P ⇔ Q ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p q.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> _. <span class="bp">exact</span> q.
+  - <span class="nb">intros</span> _. <span class="bp">exact</span> p.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">logeq_if_both_false</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : ¬P -&gt; ¬Q -&gt; ( P ⇔ Q ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> np nq.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> p. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (np p).
+  - <span class="nb">intros</span> q. <span class="nb">apply</span> fromempty. <span class="bp">exact</span> (nq q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">proofirrelevance_hProp</span> (<span class="nv">X</span> : hProp) : isProofIrrelevant X
+  := proofirrelevance X (propproperty X).
+
+<span class="kn">Ltac</span> <span class="nf">induction_hProp</span> x y := <span class="nb">induction</span> (proofirrelevance_hProp _ x y).
+
+<span class="kn">Definition</span> <span class="nf">iscontr_hProp</span> (<span class="nv">X</span>:UU) : hProp := make_hProp (iscontr X) (isapropiscontr X).
+
+<span class="kn">Notation</span> <span class="s2">"'∃!' x .. y , P"</span>
+  := (iscontr_hProp (∑ x, .. (∑ y, P) ..))
+       (<span class="kn">at level</span> <span class="mi">200</span>, x <span class="kn">binder</span>, y <span class="kn">binder</span>, <span class="kn">right associativity</span>) : logic.
+<span class="c">(* type this in emacs in agda-input method with \ex ! *)</span>
+
+
+<span class="sd">(** Various algebraic properties of hProp *)</span>
+<span class="kn">Section</span> <span class="nf">hProp_logic</span>.
+
+<span class="sd">(** We first state the algebraic properties as bi-implications *)</span>
+
+<span class="c">(* This is already in Foundations/Propositions.v *)</span>
+<span class="c">(* Lemma islogeqcommhdisj {P Q : hProp} : hdisj P Q &lt;-&gt; hdisj Q P. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">islogeqassochconj</span> {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : hProp} : (P ∧ Q) ∧ R &lt;-&gt; P ∧ (Q ∧ R).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> PQR.
+  <span class="bp">exact</span> (pr1 (pr1 PQR),,(pr2 (pr1 PQR),,pr2 PQR)).
+- <span class="nb">intros</span> PQR.
+  <span class="bp">exact</span> ((pr1 PQR,,pr1 (pr2 PQR)),,pr2 (pr2 PQR)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqcommhconj</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : P ∧ Q &lt;-&gt; Q ∧ P.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> PQ.
+  <span class="bp">exact</span> (pr2 PQ,,pr1 PQ).
+- <span class="nb">intros</span> QP.
+  <span class="bp">exact</span> (pr2 QP,,pr1 QP).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqassochdisj</span> {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : hProp} : (P ∨ Q) ∨ R &lt;-&gt; P ∨ (Q ∨ R).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> hPQR.
+  <span class="nb">induction</span> hPQR <span class="k">as</span> [hPQ|hR].
+  + use (hinhuniv _ hPQ); <span class="nb">clear</span> hPQ; <span class="nb">intros</span> hPQ.
+    <span class="nb">induction</span> hPQ <span class="k">as</span> [hP|hQ].
+    * <span class="bp">exact</span> (hinhpr (ii1 hP)).
+    * <span class="bp">exact</span> (hinhpr (ii2 (hinhpr (ii1 hQ)))).
+  + <span class="bp">exact</span> (hinhpr (ii2 (hinhpr (ii2 hR)))).
+- <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> hPQR.
+  <span class="nb">induction</span> hPQR <span class="k">as</span> [hP|hQR].
+  + <span class="bp">exact</span> (hinhpr (ii1 (hinhpr (ii1 hP)))).
+  + use (hinhuniv _ hQR); <span class="nb">clear</span> hQR; <span class="nb">intros</span> hQR.
+    <span class="nb">induction</span> hQR <span class="k">as</span> [hQ|hR].
+    * <span class="bp">exact</span> (hinhpr (ii1 (hinhpr (ii2 hQ)))).
+    * <span class="bp">exact</span> (hinhpr (ii2 hR)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqhconj_absorb_hdisj</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : P ∧ (P ∨ Q) &lt;-&gt; P.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> hPPQ; <span class="nb">apply</span> (pr1 hPPQ).
+- <span class="nb">intros</span> hP.
+  <span class="nb">split</span>; [ <span class="nb">apply</span> hP | <span class="nb">apply</span> (hinhpr (ii1 hP)) ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqhdisj_absorb_hconj</span> {<span class="nv">P</span> <span class="nv">Q</span> : hProp} : P ∨ (P ∧ Q) &lt;-&gt; P.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> hPPQ.
+  <span class="nb">induction</span> hPPQ <span class="k">as</span> [hP|hPQ].
+  + <span class="bp">exact</span> hP.
+  + <span class="bp">exact</span> (pr1 hPQ).
+- <span class="nb">intros</span> hP; <span class="nb">apply</span> (hinhpr (ii1 hP)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqhfalse_hdisj</span> {<span class="nv">P</span> : hProp} : ∅ ∨ P &lt;-&gt; P.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">apply</span> hinhuniv; <span class="nb">intros</span> hPPQ.
+  <span class="nb">induction</span> hPPQ <span class="k">as</span> [hF|hP].
+  + <span class="nb">induction</span> hF.
+  + <span class="bp">exact</span> hP.
+- <span class="nb">intros</span> hP; <span class="nb">apply</span> (hinhpr (ii2 hP)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islogeqhhtrue_hconj</span> {<span class="nv">P</span> : hProp} : htrue ∧ P &lt;-&gt; P.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> hP; <span class="nb">apply</span> (pr2 hP).
+- <span class="nb">intros</span> hP.
+  <span class="nb">split</span>; [ <span class="nb">apply</span> tt | <span class="nb">apply</span> hP ].
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** We now turn these into equalities using univalence for propositions *)</span>
+<span class="kn">Lemma</span> <span class="nf">isassoc_hconj</span> (<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : hProp) : ((P ∧ Q) ∧ R) = (P ∧ (Q ∧ R)).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqassochconj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_hconj</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P ∧ Q) = (Q ∧ P).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqcommhconj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isassoc_hdisj</span> (<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : hProp) : ((P ∨ Q) ∨ R) = (P ∨ (Q ∨ R)).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqassochdisj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_hdisj</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P ∨ Q) = (Q ∨ P).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqcommhdisj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hconj_absorb_hdisj</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P ∧ (P ∨ Q)) = P.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqhconj_absorb_hdisj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hdisj_absorb_hconj</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp) : (P ∨ (P ∧ Q)) = P.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqhdisj_absorb_hconj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hfalse_hdisj</span> (<span class="nv">P</span> : hProp) : (∅ ∨ P) = P.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqhfalse_hdisj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">htrue_hconj</span> (<span class="nv">P</span> : hProp) : (htrue ∧ P) = P.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> hPropUnivalence; <span class="nb">apply</span> islogeqhhtrue_hconj.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">hProp_logic</span>.
+
+<span class="sd">(** ** Factoring maps through squash *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">squash_uniqueness</span> {<span class="nv">X</span>} (<span class="nv">x</span>:X) (<span class="nv">h</span>:∥ X ∥) : squash_element x = h.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="nb">apply</span> propproperty. <span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ X Q (i:isaprop Q) (f:X -&gt; Q) (x:X),
+   factor_through_squash i f (squash_element x) = f x.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">factor_dep_through_squash</span> {<span class="nv">X</span>} {<span class="nv">Q</span>:∥ X ∥-&gt;UU} :
+  (∏ h, isaprop (Q h)) -&gt;
+  (∏ x, Q(squash_element x)) -&gt;
+  (∏ h, Q h).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i f ?.  <span class="nb">apply</span> (h (make_hProp (Q h) (i h))).
+  <span class="nb">intro</span> x. <span class="nb">simpl</span>. <span class="nb">induction</span> (squash_uniqueness x h). <span class="bp">exact</span> (f x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">factor_through_squash_hProp</span> {<span class="nv">X</span>} : ∏ hQ:hProp, (X -&gt; hQ) -&gt; ∥ X ∥ -&gt; hQ.
+<span class="kn">Proof</span>. <span class="nb">intros</span> [Q i] f h. <span class="nb">refine</span> (h _ _). <span class="bp">assumption</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">funspace_isaset</span> {<span class="nv">X</span> <span class="nv">Y</span>} : isaset Y -&gt; isaset (X -&gt; Y).
+<span class="kn">Proof</span>. <span class="nb">intros</span> iss. <span class="nb">apply</span> (impredfun <span class="mi">2</span>). <span class="bp">assumption</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">squash_map_uniqueness</span> {<span class="nv">X</span> <span class="nv">S</span>} (<span class="nv">ip</span> : isaset S) (<span class="nv">g</span> <span class="nv">g'</span> : ∥ X ∥ -&gt; S) :
+  g ∘ squash_element ~ g' ∘ squash_element -&gt; g ~ g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h.
+  <span class="nb">set</span> ( Q := <span class="k">λ</span> <span class="nv">y</span>, g y = g' y ).
+  <span class="nb">unfold</span> homot.
+  <span class="nb">apply</span> (@factor_dep_through_squash X). <span class="nb">intros</span> y. <span class="nb">apply</span> ip.
+  <span class="nb">intro</span> x. <span class="nb">apply</span> h.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">squash_map_epi</span> {<span class="nv">X</span> <span class="nv">S</span>} (<span class="nv">ip</span> : isaset S) (<span class="nv">g</span> <span class="nv">g'</span> : ∥ X ∥ -&gt; S) :
+  g ∘ squash_element = g'∘ squash_element -&gt; g = g'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">apply</span> squash_map_uniqueness. <span class="bp">exact</span> ip.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">uniqueExists</span> {<span class="nv">A</span> : UU} {<span class="nv">P</span> : A -&gt; UU} {<span class="nv">a</span> <span class="nv">b</span> : A}
+  (<span class="nv">Hexists</span> : <span class="k">∃</span>! a, P a) (<span class="nv">Ha</span> : P a) (<span class="nv">Hb</span> : P b) : a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H : tpair _ _ Ha = tpair _ _ Hb).
+  { <span class="bp">now</span> <span class="nb">apply</span> proofirrelevancecontr. }
+  <span class="bp">exact</span> (base_paths _ _ H).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Connected types *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isConnected</span> <span class="nv">X</span> : hProp := ∥ X ∥ ∧ <span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span>:X), ∥ x = y ∥.
+
+<span class="kn">Lemma</span> <span class="nf">predicateOnConnectedType</span> {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">i</span> : isConnected X) {<span class="nv">P</span>:X-&gt;hProp} (<span class="nv">x0</span>:X) (<span class="nv">p</span>:P x0) :
+   ∏ x, P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">apply</span> (squash_to_hProp (pr2 i x x0)); <span class="nb">intros</span> e. <span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isBaseConnected</span> (<span class="nv">X</span>:PointedType) : hProp := <span class="k">∀</span> (<span class="nv">y</span>:X), ∥ basepoint X = y ∥.
+
+<span class="kn">Lemma</span> <span class="nf">isConnected_isBaseConnected</span> (<span class="nv">X</span>:PointedType) : isConnected X &lt;-&gt; isBaseConnected X.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [_ ic] x. use ic.
+  - <span class="nb">intros</span> ibc. <span class="nb">split</span>.
+    + <span class="bp">exact</span> (hinhpr (basepoint X)).
+    + <span class="nb">intros</span> x y.
+      <span class="nb">apply</span> (squash_to_hProp (ibc x)); <span class="nb">intros</span> p; <span class="nb">apply</span> (squash_to_hProp (ibc y)); <span class="nb">intros</span> q.
+      <span class="bp">exact</span> (hinhpr (!p @ q)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BasePointComponent</span> (<span class="nv">X</span>:PointedType) : PointedType :=
+  pointedType (∑ (y:X), ∥ basepoint X = y ∥) (basepoint X,, hinhpr (idpath (basepoint X))).
+
+<span class="kn">Definition</span> <span class="nf">basePointComponent_inclusion</span> {<span class="nv">X</span>:PointedType} (<span class="nv">x</span> : BasePointComponent X) : X
+  := pr1 x.
+
+<span class="kn">Lemma</span> <span class="nf">BasePointComponent_isBaseConnected</span> (<span class="nv">X</span>:PointedType) : isBaseConnected (BasePointComponent X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [x' c'].
+  <span class="nb">change</span> (basepoint (BasePointComponent X))
+    <span class="k">with</span> (tpair (<span class="k">λ</span> (<span class="nv">y</span>:X), ∥ basepoint X = y ∥) (basepoint X) (hinhpr (idpath (basepoint X)))).
+  use (hinhfun _ c'); <span class="nb">intro</span> q. <span class="nb">induction</span> q.
+  <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BasePointComponent_isincl</span> {<span class="nv">X</span>:PointedType} : isincl (@basePointComponent_inclusion X).
+<span class="kn">Proof</span>.
+  use isinclpr1. <span class="nb">intros</span> x. <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">BasePointComponent_isweq</span> {<span class="nv">X</span>:PointedType} (<span class="nv">bc</span> : isBaseConnected X) :
+  isweq (@basePointComponent_inclusion X).
+<span class="kn">Proof</span>.
+  use isweqpr1.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="bp">exact</span> (bc x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">BasePointComponent_weq</span> {<span class="nv">X</span>:PointedType} (<span class="nv">bc</span> : isBaseConnected X) :
+  BasePointComponent X ≃ X
+  := make_weq (@basePointComponent_inclusion X) (BasePointComponent_isweq bc).
+
+<span class="kn">Lemma</span> <span class="nf">baseConnectedness</span> <span class="nv">X</span> : isBaseConnected X -&gt; isConnected X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p. <span class="nb">split</span>.
+  - <span class="bp">exact</span> (hinhpr (basepoint X)).
+  - <span class="nb">intros</span> x y. <span class="nb">assert</span> (a := p x); <span class="nb">assert</span> (b := p y); <span class="nb">clear</span> p.
+    <span class="nb">apply</span> (squash_to_prop a); [<span class="nb">apply</span> propproperty|]; <span class="nb">clear</span> a; <span class="nb">intros</span> a.
+    <span class="nb">apply</span> (squash_to_prop b); [<span class="nb">apply</span> propproperty|]; <span class="nb">clear</span> b; <span class="nb">intros</span> b.
+    <span class="nb">apply</span> hinhpr. <span class="bp">exact</span> (!a@b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">predicateOnBaseConnectedType</span> (<span class="nv">X</span>:PointedType) (<span class="nv">b</span>:isBaseConnected X)
+      (<span class="nv">P</span>:X-&gt;hProp) (<span class="nv">p</span>:P (basepoint X)) :
+   ∏ x, P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">apply</span> (squash_to_hProp (b x)); <span class="nb">intros</span> e. <span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (X:PointedType) (b:isBaseConnected X) (P:X-&gt;hProp) (p:P (basepoint X)),
+       predicateOnBaseConnectedType X b P p (basepoint X) = p.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+  <span class="nb">intros</span>.
+  <span class="c">(* stuck *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">predicateOnBasePointComponent</span>
+      (<span class="nv">X</span>:PointedType) (<span class="nv">X'</span> := BasePointComponent X) (<span class="nv">pt'</span> := basepoint X')
+      (<span class="nv">P</span>:X'-&gt;hProp) (<span class="nv">p</span>:P pt') :
+   ∏ x, P x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (squash_to_hProp (BasePointComponent_isBaseConnected _ x)); <span class="nb">intros</span> e.
+  <span class="bp">now</span> <span class="nb">induction</span> e.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> ∏ (X:PointedType)
+     (X' := BasePointComponent X) (pt' := basepoint X')
+     (P:X'-&gt;hProp) (p:P pt'),
+   predicateOnBasePointComponent X P p pt' = p.
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="bp">reflexivity</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> pt', basepoint, X', BasePointComponent, pointedType, pr2; <span class="nb">cbn</span> beta.
+<span class="kn">Abort</span>.
+
+
+<span class="c">(*Lemmas on [prtoimage]*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hfiberprtoimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">y</span> : image f)
+  : hfiber (prtoimage f) y = hfiber f (pr1image f y).
+<span class="kn">Proof</span>.
+  use weqtopaths.
+  use (samehfibers (prtoimage f) (pr1image f) (isinclpr1image f) y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclprtoimage</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isin</span>: isincl f) : isincl (prtoimage f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> y.
+  <span class="nb">fold</span> isaprop.
+  <span class="nb">rewrite</span> hfiberprtoimage.
+  use isin.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Propositions.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt; Require Export UniMath.MoreFoundations.PartA.
+  &gt; Require Export UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

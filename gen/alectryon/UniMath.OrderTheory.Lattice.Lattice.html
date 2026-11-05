@@ -1,0 +1,1649 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Lattice.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Lattice *)</span>
+<span class="sd">(** Catherine Lelay. Nov. 2016 - *)</span>
+<span class="sd">(**</span>
+<span class="sd">Definition of a lattice: (Burris, S., &amp; Sankappanavar, H. P. (2006).</span>
+<span class="sd">A Course in Universal Algebra-With 36 Illustrations. Chapter I)</span>
+<span class="sd">A lattice is a set with two binary operators min and max such that:</span>
+<span class="sd">- min and max are associative</span>
+<span class="sd">- min and max are commutative</span>
+<span class="sd">- ∏ x y : X, min x (max x y) = x</span>
+<span class="sd">- ∏ x y : X, max x (min x y) = x</span>
+
+<span class="sd">In a lattice, we can define a partial order:</span>
+<span class="sd">- le := λ (x y : X), min lat x y = x</span>
+
+<span class="sd">Lattice with a strong order:</span>
+<span class="sd">A lattice equipped with a strong order gt such that additionally:</span>
+<span class="sd">- ∏ (x y : X), (¬ gt x y) &lt;-&gt; le x y</span>
+<span class="sd">- ∏ x y z : X, gt x z → gt y z → gt (min x y) z</span>
+<span class="sd">- ∏ x y z : X, gt z x → gt z y → gt z (max lat x y)</span>
+
+<span class="sd">Lattice with a total and decidable order:</span>
+<span class="sd">- le is total and decidable</span>
+<span class="sd">- it is a lattice with a strong order *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">Lattice in an abelian monoid:</span>
+<span class="sd">- compatibility and cancelation of addition for le</span>
+
+<span class="sd">Truncated minus is a lattice:</span>
+<span class="sd">- a function minus such that: ∏ (x y : X), (minus x y) + y = max x y *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">Define new lattices using:</span>
+<span class="sd">- weq</span>
+<span class="sd">- abmonoidfrac</span>
+<span class="sd">*)</span>
+
+<span class="sd">(**</span>
+<span class="sd">Define dual lattice</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="sd">(** ** Definition *)</span>
+
+<span class="kn">Definition</span> <span class="nf">islatticeop</span> {<span class="nv">X</span> : hSet} (<span class="nv">min</span> <span class="nv">max</span> : binop X) : UU :=
+  ((isassoc min) × (iscomm min))
+    × ((isassoc max) × (iscomm max))
+    × (isabsorb min max)
+    × (isabsorb max min).
+<span class="kn">Lemma</span> <span class="nf">isaprop_islatticeop</span> {<span class="nv">X</span> : hSet} (<span class="nv">min</span> <span class="nv">max</span> : binop X) :
+  isaprop (islatticeop min max).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod ;
+    [ | <span class="nb">apply</span> isapropdirprod] ;
+    <span class="nb">apply</span> isapropdirprod.
+  <span class="nb">apply</span> isapropisassoc.
+  <span class="nb">apply</span> isapropiscomm.
+  <span class="nb">apply</span> isapropisassoc.
+  <span class="nb">apply</span> isapropiscomm.
+  <span class="nb">apply</span> isapropisabsorb.
+  <span class="nb">apply</span> isapropisabsorb.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lattice</span> (<span class="nv">X</span> : hSet) :=
+  ∑ min max : binop X, islatticeop min max.
+
+<span class="kn">Definition</span> <span class="nf">make_lattice</span> {<span class="nv">X</span> : hSet} {<span class="nv">min</span> <span class="nv">max</span> : binop X} : islatticeop min max → lattice X :=
+  <span class="k">λ</span> (<span class="nv">isc</span> : islatticeop min max), min,, max ,, isc.
+
+<span class="kn">Definition</span> <span class="nf">Lmin</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : lattice X) : binop X := pr1 lat.
+<span class="kn">Definition</span> <span class="nf">Lmax</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : lattice X) : binop X := pr1 (pr2 lat).
+
+<span class="kn">Lemma</span> <span class="nf">isaset_lattice</span> (<span class="nv">X</span> : hSet) : isaset (lattice X) .
+<span class="kn">Proof</span>.
+use isaset_total2.
+- use (isasetbinoponhSet X).
+- <span class="nb">intro</span> min.
+  use isaset_total2.
+  -- use (isasetbinoponhSet X).
+  -- <span class="nb">intro</span> max.
+     use (isasetaprop (isaprop_islatticeop _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">lattice_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : lattice X).
+
+<span class="kn">Definition</span> <span class="nf">isassoc_Lmin</span> : isassoc (Lmin lat) :=
+  pr1 (pr1 (pr2 (pr2 lat))).
+<span class="kn">Definition</span> <span class="nf">iscomm_Lmin</span> : iscomm (Lmin lat) :=
+  pr2 (pr1 (pr2 (pr2 lat))).
+<span class="kn">Definition</span> <span class="nf">isassoc_Lmax</span> : isassoc (Lmax lat) :=
+  pr1 (pr1 (pr2 (pr2 (pr2 lat)))).
+<span class="kn">Definition</span> <span class="nf">iscomm_Lmax</span> : iscomm (Lmax lat) :=
+  pr2 (pr1 (pr2 (pr2 (pr2 lat)))).
+<span class="kn">Definition</span> <span class="nf">Lmin_absorb</span> : isabsorb (Lmin lat) (Lmax lat) :=
+  pr1 (pr2 (pr2 (pr2 (pr2 lat)))).
+<span class="kn">Definition</span> <span class="nf">Lmax_absorb</span> : isabsorb (Lmax lat) (Lmin lat) :=
+  pr2 (pr2 (pr2 (pr2 (pr2 lat)))).
+
+<span class="kn">Lemma</span> <span class="nf">Lmin_id</span> :
+  ∏ x : X, Lmin lat x x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  intermediate_path (Lmin lat x (Lmax lat x (Lmin lat x x))).
+  - <span class="nb">apply</span> maponpaths, pathsinv0, Lmax_absorb.
+  - <span class="nb">apply</span> Lmin_absorb.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmax_id</span> :
+  ∏ x : X, Lmax lat x x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  intermediate_path (Lmax lat x (Lmin lat x (Lmax lat x x))).
+  - <span class="nb">apply</span> maponpaths, pathsinv0, Lmin_absorb.
+  - <span class="nb">apply</span> Lmax_absorb.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">lattice_pty</span>.
+
+<span class="sd">(** ** Partial order in a lattice *)</span>
+
+<span class="sd">(** [Lle] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Lle</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : lattice X) : hrel X :=
+  <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : X), (Lmin lat x y = x)%logic.
+
+<span class="kn">Section</span> <span class="nf">lattice_le</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : lattice X).
+
+<span class="kn">Definition</span> <span class="nf">isrefl_Lle</span> : isrefl (Lle lat) :=
+  Lmin_id lat.
+<span class="kn">Lemma</span> <span class="nf">isantisymm_Lle</span> :
+  isantisymm (Lle lat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hxy Hyx.
+  <span class="nb">apply</span> pathscomp0 <span class="k">with</span> (<span class="mi">1</span> := pathsinv0 Hxy).
+  <span class="nb">apply</span> pathscomp0 <span class="k">with</span> (<span class="mi">2</span> := Hyx).
+  <span class="nb">apply</span> iscomm_Lmin.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istrans_Lle</span> :
+  istrans (Lle lat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z &lt;- &lt;-.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !isassoc_Lmin, Lmin_id.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isPartialOrder_Lle</span> :
+  isPartialOrder (Lle lat).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; [ <span class="nb">split</span> | ].
+  - <span class="bp">exact</span> istrans_Lle.
+  - <span class="bp">exact</span> isrefl_Lle.
+  - <span class="bp">exact</span> isantisymm_Lle.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Lmin_le_l</span> :
+  ∏ x y : X, Lle lat (Lmin lat x y) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> iscomm_Lmin, &lt;- isassoc_Lmin, Lmin_id.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmin_le_r</span> :
+  ∏ x y : X, Lle lat (Lmin lat x y) y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">rewrite</span> iscomm_Lmin.
+  <span class="nb">apply</span> Lmin_le_l.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmin_le_case</span> :
+  ∏ x y z : X, Lle lat z x → Lle lat z y → Lle lat z (Lmin lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z &lt;- &lt;-.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (iscomm_Lmin _ x), &lt;- isassoc_Lmin.
+  <span class="nb">rewrite</span> (isassoc_Lmin _ _ _ y), Lmin_id.
+  <span class="nb">rewrite</span> isassoc_Lmin, (iscomm_Lmin _ y).
+  <span class="nb">rewrite</span> isassoc_Lmin, &lt;- (isassoc_Lmin _ x), Lmin_id.
+  <span class="nb">apply</span> pathsinv0, isassoc_Lmin.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Lmax_le_l</span> :
+  ∏ x y : X, Lle lat x (Lmax lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> Lmin_absorb.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmax_le_r</span> :
+  ∏ x y : X, Lle lat y (Lmax lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">rewrite</span> iscomm_Lmax.
+  <span class="nb">apply</span> Lmax_le_l.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmax_le_case</span> :
+  ∏ x y z : X, Lle lat x z → Lle lat y z → Lle lat (Lmax lat x y) z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z &lt;- &lt;-.
+  <span class="nb">set</span> (w := Lmax _ (Lmin _ x z) (Lmin _ y z)).
+  <span class="nb">assert</span> (c : z = (Lmax lat w z)).
+  - <span class="nb">unfold</span> w.
+    <span class="bp">now</span> <span class="nb">rewrite</span> isassoc_Lmax, (iscomm_Lmax _ (Lmin _ y z) _),
+    (iscomm_Lmin _ y z), Lmax_absorb, iscomm_Lmax, iscomm_Lmin, Lmax_absorb.
+  - <span class="nb">rewrite</span> c. use (Lmin_absorb lat).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Lmin_le_eq_l</span> :
+  ∏ x y : X, Lle lat x y → Lmin lat x y = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmin_le_eq_r</span> :
+  ∏ x y : X, Lle lat y x → Lmin lat x y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">rewrite</span> iscomm_Lmin.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Lmax_le_eq_l</span> :
+  ∏ x y : X, Lle lat y x → Lmax lat x y = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y &lt;-.
+  <span class="nb">rewrite</span> iscomm_Lmin.
+  <span class="nb">apply</span> Lmax_absorb.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmax_le_eq_r</span> :
+  ∏ x y : X, Lle lat x y → Lmax lat x y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">rewrite</span> iscomm_Lmax.
+  <span class="bp">now</span> <span class="nb">apply</span> Lmax_le_eq_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">lattice_le</span>.
+
+<span class="sd">(** [Lge] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Lge</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : lattice X) : hrel X :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, Lle lat y x.
+
+<span class="kn">Section</span> <span class="nf">Lge_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : lattice X).
+
+<span class="kn">Definition</span> <span class="nf">isrefl_Lge</span> : isrefl (Lge lat) :=
+  isrefl_Lle lat.
+<span class="kn">Lemma</span> <span class="nf">isantisymm_Lge</span> :
+  isantisymm (Lge lat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hle Hge.
+  <span class="nb">apply</span> (isantisymm_Lle lat).
+  <span class="bp">exact</span> Hge.
+  <span class="bp">exact</span> Hle.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istrans_Lge</span> :
+  istrans (Lge lat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxy Hyz.
+  <span class="nb">apply</span> (istrans_Lle lat) <span class="k">with</span> y.
+  <span class="bp">exact</span> Hyz.
+  <span class="bp">exact</span> Hxy.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isPartialOrder_Lge</span> :
+  isPartialOrder (Lge lat).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; [ <span class="nb">split</span> | ].
+  - <span class="bp">exact</span> istrans_Lge.
+  - <span class="bp">exact</span> isrefl_Lge.
+  - <span class="bp">exact</span> isantisymm_Lge.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Lmin_ge_l</span> :
+  ∏ (x y : X), Lge lat x (Lmin lat x y) :=
+  Lmin_le_l lat.
+<span class="kn">Definition</span> <span class="nf">Lmin_ge_r</span> :
+  ∏ (x y : X), Lge lat y (Lmin lat x y) :=
+  Lmin_le_r lat.
+<span class="kn">Definition</span> <span class="nf">Lmin_ge_case</span> :
+  ∏ (x y z : X),
+  Lge lat x z → Lge lat y z → Lge lat (Lmin lat x y) z :=
+  Lmin_le_case lat.
+
+<span class="kn">Definition</span> <span class="nf">Lmax_ge_l</span> :
+  ∏ (x y : X), Lge lat (Lmax lat x y) x :=
+  Lmax_le_l lat.
+<span class="kn">Definition</span> <span class="nf">Lmax_ge_r</span> :
+  ∏ (x y : X), Lge lat (Lmax lat x y) y :=
+  Lmax_le_r lat.
+<span class="kn">Definition</span> <span class="nf">Lmax_ge_case</span> :
+  ∏ x y z : X, Lge lat z x → Lge lat z y → Lge lat z (Lmax lat x y) :=
+  Lmax_le_case lat.
+
+<span class="kn">Definition</span> <span class="nf">Lmin_ge_eq_l</span> :
+  ∏ (x y : X), Lge lat y x → Lmin lat x y = x :=
+  Lmin_le_eq_l lat.
+<span class="kn">Definition</span> <span class="nf">Lmin_ge_eq_r</span> :
+  ∏ (x y : X), Lge lat x y → Lmin lat x y = y :=
+  Lmin_le_eq_r lat.
+
+<span class="kn">Definition</span> <span class="nf">Lmax_ge_eq_l</span> :
+  ∏ (x y : X), Lge lat x y → Lmax lat x y = x :=
+  Lmax_le_eq_l lat.
+<span class="kn">Definition</span> <span class="nf">Lmax_ge_eq_r</span> :
+  ∏ (x y : X), Lge lat y x → Lmax lat x y = y :=
+  Lmax_le_eq_r lat.
+
+<span class="kn">End</span> <span class="nf">Lge_pty</span>.
+
+<span class="sd">(** ** Lattice with a strong order *)</span>
+
+<span class="kn">Definition</span> <span class="nf">islatticewithgtrel</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : lattice X) (<span class="nv">gt</span> : StrongOrder X) :=
+  (∏ x y : X, (¬ (gt x y)) &lt;-&gt; Lle lat x y)
+    × (∏ x y z : X, gt x z → gt y z → gt (Lmin lat x y) z)
+    × (∏ x y z : X, gt z x → gt z y → gt z (Lmax lat x y)).
+
+<span class="kn">Definition</span> <span class="nf">latticewithgt</span> (<span class="nv">X</span> : hSet) :=
+  ∑ (lat : lattice X) (gt : StrongOrder X), islatticewithgtrel lat gt.
+
+<span class="kn">Definition</span> <span class="nf">lattice_latticewithgt</span> {<span class="nv">X</span> : hSet} : latticewithgt X → lattice X :=
+  pr1.
+<span class="kn">Coercion</span> <span class="nf">lattice_latticewithgt</span> : latticewithgt &gt;-&gt; lattice.
+
+<span class="sd">(** [Lgt] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Lgt</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : latticewithgt X) : StrongOrder X :=
+  pr1 (pr2 lat).
+
+<span class="kn">Section</span> <span class="nf">latticewithgt_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : latticewithgt X).
+
+<span class="kn">Definition</span> <span class="nf">notLgt_Lle</span> :
+  ∏ x y : X, (¬ Lgt lat x y) → Lle lat x y :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, pr1 (pr1 (pr2 (pr2 lat)) x y).
+<span class="kn">Definition</span> <span class="nf">Lle_notLgt</span> :
+  ∏ x y : X, Lle lat x y → ¬ Lgt lat x y :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, pr2 (pr1 (pr2 (pr2 lat)) x y).
+
+<span class="kn">Definition</span> <span class="nf">isirrefl_Lgt</span> : isirrefl (Lgt lat) :=
+  isirrefl_isStrongOrder (Lgt lat).
+<span class="kn">Definition</span> <span class="nf">istrans_Lgt</span> : istrans (Lgt lat) :=
+  istrans_isStrongOrder (Lgt lat).
+<span class="kn">Definition</span> <span class="nf">iscotrans_Lgt</span> : iscotrans (Lgt lat) :=
+  iscotrans_isStrongOrder (Lgt lat).
+<span class="kn">Definition</span> <span class="nf">isasymm_Lgt</span> : isasymm (Lgt lat) :=
+  isasymm_isStrongOrder (Lgt lat).
+
+<span class="kn">Lemma</span> <span class="nf">Lgt_Lge</span> :
+  ∏ x y : X, Lgt lat x y → Lge lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">apply</span> notLgt_Lle.
+  <span class="nb">intro</span> H0.
+  <span class="nb">eapply</span> isasymm_Lgt.
+  <span class="bp">exact</span> H.
+  <span class="bp">exact</span> H0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_Lgt_Lge</span> :
+  ∏ x y z : X, Lgt lat x y → Lge lat y z → Lgt lat x z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hgt Hge.
+  <span class="nb">generalize</span> (iscotrans_Lgt _ z _ Hgt).
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="bp">exact</span> H.
+  - <span class="nb">apply</span> fromempty.
+    <span class="nb">refine</span> (Lle_notLgt _ _ _ _).
+    <span class="bp">exact</span> Hge.
+    <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istrans_Lge_Lgt</span> :
+  ∏ x y z : X, Lge lat x y → Lgt lat y z → Lgt lat x z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hge Hgt.
+  <span class="nb">generalize</span> (iscotrans_Lgt _ x _ Hgt).
+  <span class="nb">apply</span> hinhuniv.
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="nb">apply</span> fromempty.
+    <span class="nb">refine</span> (Lle_notLgt _ _ _ _).
+    <span class="bp">exact</span> Hge.
+    <span class="bp">exact</span> H.
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Lmin_Lgt</span> :
+  ∏ x y z : X, Lgt lat x z → Lgt lat y z → Lgt lat (Lmin lat x y) z :=
+  pr1 (pr2 (pr2 (pr2 lat))).
+
+<span class="kn">Definition</span> <span class="nf">Lmax_Lgt</span> :
+  ∏ x y z : X, Lgt lat z x → Lgt lat z y → Lgt lat z (Lmax lat x y) :=
+  pr2 (pr2 (pr2 (pr2 lat))).
+
+<span class="kn">End</span> <span class="nf">latticewithgt_pty</span>.
+
+<span class="sd">(** ** Lattice with a total order *)</span>
+
+<span class="kn">Definition</span> <span class="nf">latticedec</span> (<span class="nv">X</span> : hSet) :=
+  ∑ lat : lattice X, istotal (Lle lat) × (isdecrel (Lle lat)).
+<span class="kn">Definition</span> <span class="nf">lattice_latticedec</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : latticedec X) : lattice X :=
+  pr1 lat.
+<span class="kn">Coercion</span> <span class="nf">lattice_latticedec</span> : latticedec &gt;-&gt; lattice.
+<span class="kn">Definition</span> <span class="nf">istotal_latticedec</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : latticedec X) : istotal (Lle lat) :=
+  pr1 (pr2 lat).
+<span class="kn">Definition</span> <span class="nf">isdecrel_latticedec</span> {<span class="nv">X</span> : hSet} (<span class="nv">lat</span> : latticedec X) : isdecrel (Lle lat) :=
+  pr2 (pr2 lat).
+
+<span class="kn">Section</span> <span class="nf">latticedec_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : latticedec X).
+
+<span class="kn">Lemma</span> <span class="nf">Lmin_case_strong</span> :
+  ∏ (P : X → UU) (x y : X),
+  (Lle lat x y → P x) → (Lle lat y x → P y) → P (Lmin lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">generalize</span> (isdecrel_latticedec lat x y).
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="nb">rewrite</span> Lmin_le_eq_l.
+    <span class="nb">apply</span> Hx, H.
+    <span class="bp">exact</span> H.
+  - <span class="nb">enough</span> (H0 : Lle lat y x).
+    + <span class="nb">rewrite</span> Lmin_le_eq_r.
+      <span class="nb">apply</span> Hy, H0.
+      <span class="bp">exact</span> H0.
+    + <span class="nb">generalize</span> (istotal_latticedec lat x y).
+      <span class="nb">apply</span> hinhuniv, sumofmaps ; <span class="nb">intros</span> H0.
+      <span class="nb">apply</span> fromempty, H, H0.
+      <span class="bp">exact</span> H0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmin_case</span> :
+  ∏ (P : X → UU) (x y : X),
+  P x → P y → P (Lmin lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">apply</span> Lmin_case_strong ; <span class="nb">intros</span> _.
+  - <span class="bp">exact</span> Hx.
+  - <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Lmax_case_strong</span> :
+  ∏ (P : X → UU) (x y : X),
+  (Lle lat y x → P x) → (Lle lat x y → P y) → P (Lmax lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">generalize</span> (isdecrel_latticedec lat x y).
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="nb">rewrite</span> Lmax_le_eq_r.
+    <span class="nb">apply</span> Hy, H.
+    <span class="bp">exact</span> H.
+  - <span class="nb">enough</span> (H0 : Lle lat y x).
+    + <span class="nb">rewrite</span> Lmax_le_eq_l.
+      <span class="nb">apply</span> Hx, H0.
+      <span class="bp">exact</span> H0.
+    + <span class="nb">generalize</span> (istotal_latticedec lat x y).
+      <span class="nb">apply</span> hinhuniv, sumofmaps ; <span class="nb">intros</span> H0.
+      <span class="nb">apply</span> fromempty, H, H0.
+      <span class="bp">exact</span> H0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">Lmax_case</span> :
+  ∏ (P : X → UU) (x y : X),
+  P x → P y → P (Lmax lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P x y Hx Hy.
+  <span class="nb">apply</span> Lmax_case_strong ; <span class="nb">intros</span> _.
+  - <span class="bp">exact</span> Hx.
+  - <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">latticedec_pty</span>.
+
+<span class="sd">(** It is a lattice with a strong order *)</span>
+
+<span class="kn">Section</span> <span class="nf">latticedec_gt</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+        (<span class="nv">lat</span> : latticedec X).
+
+<span class="kn">Definition</span> <span class="nf">latticedec_gt_rel</span> : hrel X :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, hneg (Lle lat x y).
+
+<span class="kn">Lemma</span> <span class="nf">latticedec_gt_ge</span> :
+  ∏ x y : X, latticedec_gt_rel x y → Lge lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hxy.
+  <span class="nb">generalize</span> (istotal_latticedec lat x y).
+  <span class="nb">apply</span> hinhuniv, sumofmaps ; <span class="nb">intros</span> H.
+  - <span class="nb">apply</span> fromempty.
+    <span class="bp">exact</span> (Hxy H).
+  - <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_latticedec_gt_rel</span> :
+  istrans latticedec_gt_rel.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxy Hyz Hxz.
+  <span class="nb">simple refine</span> (Hxy _).
+  <span class="nb">apply</span> istrans_Lle <span class="k">with</span> z.
+  <span class="nb">apply</span> Hxz.
+  <span class="nb">apply</span> latticedec_gt_ge.
+  <span class="bp">exact</span> Hyz.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscotrans_latticedec_gt_rel</span> :
+  iscotrans latticedec_gt_rel.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxz.
+  <span class="nb">induction</span> (isdecrel_latticedec lat x y) <span class="k">as</span> [Hxy | Hyx].
+  - <span class="nb">apply</span> hinhpr, ii2.
+    <span class="nb">intros</span> Hyz.
+    <span class="nb">simple refine</span> (Hxz _).
+    <span class="nb">apply</span> istrans_Lle <span class="k">with</span> y.
+    <span class="bp">exact</span> Hxy.
+    <span class="bp">exact</span> Hyz.
+  - <span class="nb">apply</span> hinhpr, ii1.
+    <span class="bp">exact</span> Hyx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">latticedec_gt_so</span> : StrongOrder X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">latticedec_gt_rel</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> istrans_latticedec_gt_rel.
+  - <span class="nb">apply</span> iscotrans_latticedec_gt_rel.
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">simple refine</span> (Hx _).
+    <span class="nb">apply</span> isrefl_Lle.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">latticedec_notgtle</span> :
+  ∏ (x y : X), ¬ latticedec_gt_so x y → Lle lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">induction</span> (isdecrel_latticedec lat x y) <span class="k">as</span> [H0 | H0].
+  + <span class="bp">exact</span> H0.
+  + <span class="nb">apply</span> fromempty, H.
+    <span class="bp">exact</span> H0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">latticedec_lenotgt</span> :
+  ∏ (x y : X), Lle lat x y → ¬ latticedec_gt_so x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H H0.
+  <span class="nb">simple refine</span> (H0 _).
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">latticedec_gtmin</span> :
+  ∏ (x y z : X),
+  latticedec_gt_so x z
+  → latticedec_gt_so y z → latticedec_gt_so (Lmin lat x y) z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxz Hyz.
+  <span class="nb">apply</span> (Lmin_case lat (<span class="k">λ</span> <span class="nv">t</span> : X, latticedec_gt_so t z)).
+  - <span class="bp">exact</span> Hxz.
+  - <span class="bp">exact</span> Hyz.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">latticedec_gtmax</span> :
+  ∏ (x y z : X),
+  latticedec_gt_so z x
+  → latticedec_gt_so z y → latticedec_gt_so z (Lmax lat x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hxz Hyz.
+  <span class="nb">apply</span> (Lmax_case lat (latticedec_gt_so z)).
+  - <span class="bp">exact</span> Hxz.
+  - <span class="bp">exact</span> Hyz.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">latticedec_gt</span> : latticewithgt X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">lattice_latticedec</span> <span class="nv">lat</span>).
+  <span class="k">exists</span> <span class="nv">latticedec_gt_so</span>.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="nb">apply</span> latticedec_notgtle.
+  - <span class="nb">apply</span> latticedec_lenotgt.
+  - <span class="nb">apply</span> latticedec_gtmin.
+  - <span class="nb">apply</span> latticedec_gtmax.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">latticedec_gt</span>.
+
+<span class="sd">(** ** Lattice in an abmonoid *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+
+<span class="kn">Section</span> <span class="nf">lattice_abmonoid</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : abmonoid}
+        (<span class="nv">lat</span> : lattice X)
+        (<span class="nv">is0</span> : isrcancellative (@op X))
+        (<span class="nv">is2</span> : isrdistr (Lmin lat) op).
+
+<span class="kn">Lemma</span> <span class="nf">op_le_r</span> :
+  ∏ k x y : X, Lle lat x y → Lle lat (x + k) (y + k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y H.
+  <span class="nb">unfold</span> Lle ; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- is2, H.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">op_le_r'</span> :
+  ∏ k x y : X, Lle lat (x + k) (y + k) → Lle lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y H.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is0. }
+  <span class="bp">now</span> <span class="nb">rewrite</span> is2, H.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">lattice_abmonoid</span>.
+
+<span class="sd">(** ** Truncated minus *)</span>
+
+<span class="kn">Definition</span> <span class="nf">istruncminus</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">lat</span> : lattice X) (<span class="nv">minus</span> : binop X) :=
+  ∏ x y : X, minus x y + y = Lmax lat x y.
+<span class="kn">Lemma</span> <span class="nf">isaprop_istruncminus</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">lat</span> : lattice X) (<span class="nv">minus</span> : binop X) :
+  isaprop (istruncminus lat minus).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intros</span> y.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">extruncminus</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">lat</span> : lattice X) :=
+  ∑ minus : binop X, istruncminus lat minus.
+<span class="kn">Lemma</span> <span class="nf">isaprop_extruncminus</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">lat</span> : lattice X)
+              (<span class="nv">Hop</span> : isrcancellative (@op X)) :
+  isaprop (extruncminus lat).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> minus1 minus2 ; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="nb">apply</span> isaset_total2.
+    <span class="nb">apply</span> impred_isaset ; <span class="nb">intros</span> _.
+    <span class="nb">apply</span> impred_isaset ; <span class="nb">intros</span> _.
+    <span class="nb">apply</span> setproperty.
+    <span class="nb">intros</span> minus.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_istruncminus.
+  - <span class="nb">apply</span> subtypePath.
+    + <span class="nb">intros</span> f. <span class="nb">apply</span> isaprop_istruncminus.
+    + <span class="nb">apply</span> weqfunextsec ; <span class="nb">intros</span> x.
+      <span class="nb">apply</span> weqfunextsec ; <span class="nb">intros</span> y.
+      <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> Hop. }
+      <span class="nb">rewrite</span> (pr2 minus1).
+      <span class="nb">apply</span> pathsinv0, (pr2 minus2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">truncminus</span> {<span class="nv">X</span> : abmonoid} {<span class="nv">lat</span> : lattice X} (<span class="nv">ex</span> : extruncminus lat) : binop X :=
+  pr1 ex.
+
+<span class="kn">Lemma</span> <span class="nf">istruncminus_ex</span> {<span class="nv">X</span> : abmonoid} {<span class="nv">lat</span> : lattice X} (<span class="nv">ex</span> : extruncminus lat) :
+  ∏ x y : X, truncminus ex x y + y = Lmax lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 ex).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">truncminus_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : abmonoid}
+        {<span class="nv">lat</span> : lattice X}
+        (<span class="nv">ex</span> : extruncminus lat)
+        (<span class="nv">is1</span> : isrcancellative (@op X))
+        (<span class="nv">is2</span> : isrdistr (Lmax lat) op)
+        (<span class="nv">is3</span> : isrdistr (Lmin lat) op)
+        (<span class="nv">is4</span> : isrdistr (Lmin lat) (Lmax lat))
+        (<span class="nv">is5</span> : isrdistr (Lmax lat) (Lmin lat)).
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_0_r</span> :
+  ∏ x : X, truncminus ex x <span class="mi">0</span> = Lmax lat x <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">rewrite</span> &lt;- (runax _ (truncminus _ _ _)).
+  <span class="nb">apply</span> (istruncminus_ex).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_eq_0</span> :
+  ∏ x y : X, Lle lat x y → truncminus ex x y = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y H.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is1. }
+  <span class="nb">simpl</span>.
+  <span class="nb">refine</span> (pathscomp0 _ _).
+  <span class="nb">apply</span> istruncminus_ex.
+  <span class="nb">refine</span> (pathscomp0 _ _).
+  <span class="nb">apply</span> Lmax_le_eq_r, H.
+  <span class="nb">apply</span> pathsinv0, (lunax X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_0_l_ge0</span> :
+  ∏ x : X, Lle lat <span class="mi">0</span> x → truncminus ex <span class="mi">0</span> x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">apply</span> truncminus_eq_0, Hx.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">truncminus_0_l_le0</span> :
+  ∏ x : X, Lle lat x <span class="mi">0</span> → truncminus ex <span class="mi">0</span> x + x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">rewrite</span> istruncminus_ex.
+  <span class="nb">apply</span> Lmax_le_eq_l, Hx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_ge_0</span> :
+  ∏ x y : X, Lle lat <span class="mi">0</span> (truncminus ex x y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> (op_le_r' _ is1 is3 y).
+  <span class="nb">rewrite</span> istruncminus_ex, lunax.
+  <span class="nb">apply</span> Lmax_ge_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_le</span> :
+  ∏ x y : X,
+          Lle lat <span class="mi">0</span> x → Lle lat <span class="mi">0</span> y
+          → Lle lat (truncminus ex x y) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx Hy.
+  <span class="nb">apply</span> (op_le_r' _ is1 is3 y).
+  <span class="nb">rewrite</span> istruncminus_ex.
+  <span class="nb">apply</span> Lmax_le_case.
+  - <span class="nb">apply</span> istrans_Lle <span class="k">with</span> (<span class="mi">0</span> + x).
+    + <span class="nb">rewrite</span> (lunax _ x).
+      <span class="nb">apply</span> isrefl_Lle.
+    + <span class="nb">rewrite</span> (commax _ x).
+      <span class="bp">now</span> <span class="nb">apply</span> op_le_r.
+  - <span class="nb">apply</span> istrans_Lle <span class="k">with</span> (<span class="mi">0</span> + y).
+    + <span class="nb">rewrite</span> (lunax _ y).
+      <span class="nb">apply</span> isrefl_Lle.
+    + <span class="bp">now</span> <span class="nb">apply</span> op_le_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_truncminus</span> :
+  ∏ x y, Lle lat <span class="mi">0</span> x → Lle lat x y → truncminus ex y (truncminus ex y x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hx Hxy.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is1. }
+  <span class="nb">simpl</span>.
+  <span class="nb">erewrite</span> (commax _ x), istruncminus_ex.
+  <span class="nb">refine</span> (pathscomp0 _ _).
+  <span class="nb">apply</span> istruncminus_ex.
+  <span class="nb">rewrite</span> !Lmax_le_eq_l.
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">exact</span> Hxy.
+  - <span class="nb">apply</span> truncminus_le.
+    <span class="nb">apply</span> istrans_Lle <span class="k">with</span> x.
+    <span class="bp">exact</span> Hx.
+    <span class="bp">exact</span> Hxy.
+    <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_le_r</span> :
+  ∏ k x y : X, Lle lat x y → Lle lat (truncminus ex x k) (truncminus ex y k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y &lt;-.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is1. }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> is3, <span class="mi">2</span>!istruncminus_ex.
+  <span class="nb">rewrite</span> is4, isassoc_Lmin, Lmin_id.
+  <span class="nb">rewrite</span> &lt;- is4.
+  <span class="nb">apply</span> pathsinv0, istruncminus_ex.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">truncminus_le_l</span> :
+  ∏ k x y : X, Lle lat y x → Lle lat (truncminus ex k x) (truncminus ex k y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y H.
+  <span class="nb">apply</span> (rcancel (is1 y)).
+  <span class="nb">rewrite</span> is3, istruncminus_ex.
+  <span class="nb">apply</span> (rcancel (is1 x)).
+  <span class="nb">rewrite</span> is3, assocax, (commax _ y), &lt;- assocax, istruncminus_ex.
+  <span class="nb">rewrite</span> !is2, (commax _ y), &lt;- is4, !(commax _ k), &lt;- is3, H.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_Lmax_l</span> :
+  ∏ (k x y : X),
+  truncminus ex (Lmax lat x y) k = Lmax lat (truncminus ex x k) (truncminus ex y k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y.
+  <span class="nb">apply</span> (rcancel (is1 k)).
+  <span class="nb">rewrite</span> is2, !istruncminus_ex.
+  <span class="nb">rewrite</span> !isassoc_Lmax, (iscomm_Lmax _ k), isassoc_Lmax, Lmax_id.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">truncminus_Lmax_r</span> :
+  ∏ (k x y : X),
+  Lle lat (Lmin lat (y + y) (x + x)) (x + y) →
+  truncminus ex k (Lmax lat x y) = Lmin lat (truncminus ex k x) (truncminus ex k y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y H.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is1. }
+  <span class="nb">rewrite</span> is3, istruncminus_ex.
+  <span class="nb">rewrite</span> !(commax _ _ (Lmax _ _ _)), !is2.
+  <span class="nb">rewrite</span> !(commax _ _ (truncminus _ _ _)), !istruncminus_ex.
+  <span class="nb">rewrite</span> (iscomm_Lmax _ (_*_)%multmonoid (Lmax _ _ _)).
+  <span class="nb">rewrite</span> !isassoc_Lmax, !(iscomm_Lmax _ k).
+  <span class="nb">rewrite</span> &lt;- is4.
+
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> is1. }
+  <span class="nb">rewrite</span> !is2, is3, !is2.
+  <span class="nb">rewrite</span> assocax, (commax _ y x), &lt;- assocax.
+  <span class="nb">rewrite</span> istruncminus_ex, is2.
+
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> (is1 y). }
+  <span class="nb">rewrite</span> !is2, is3, !is2.
+  <span class="nb">rewrite</span> !assocax, (commax _ (truncminus _ _ _)), !assocax, (commax _ _ (truncminus _ _ _)).
+  <span class="nb">rewrite</span> istruncminus_ex.
+  <span class="nb">rewrite</span> (commax _ _ (Lmax _ _ _)), is2.
+  <span class="nb">rewrite</span> (commax _ _ (Lmax _ _ _)), is2.
+
+  <span class="nb">rewrite</span> <span class="mi">4</span>!(commax _ _ x).
+  <span class="nb">rewrite</span> &lt;- (isassoc_Lmax _ _ _ (x * (y * y))%multmonoid).
+  <span class="nb">rewrite</span> (iscomm_Lmax _ (x * (y * y))%multmonoid (Lmax _ _ _)).
+
+  <span class="nb">rewrite</span> &lt;- is4.
+  <span class="nb">rewrite</span> (iscomm_Lmax _ (x * (x * y))%multmonoid (k * (y * y))%multmonoid), &lt;- is4.
+  <span class="nb">rewrite</span> !(commax _ k), &lt;- !assocax.
+  <span class="nb">rewrite</span> &lt;- is3.
+  <span class="nb">rewrite</span> !(iscomm_Lmax _ _ (x * y * k)%multmonoid), &lt;- !isassoc_Lmax.
+  <span class="nb">rewrite</span> (Lmax_le_eq_l _ (x * y * k)%multmonoid
+                     (Lmin lat (y * y) (x * x) * k)%multmonoid).
+  <span class="bp">reflexivity</span>.
+  <span class="nb">apply</span> op_le_r.
+  <span class="bp">exact</span> is3.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_Lmin_l</span> :
+  ∏ k x y : X, truncminus ex (Lmin lat x y) k = Lmin lat (truncminus ex x k) (truncminus ex y k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y.
+  <span class="nb">eapply</span> rcancel. { <span class="nb">apply</span> (is1 k). }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> is3, <span class="mi">2</span>!istruncminus_ex.
+  <span class="nb">apply</span> (pathscomp0 (istruncminus_ex _ _ _)).
+  <span class="nb">apply</span> is4.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">truncminus_pty</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abgr_truncminus</span> {<span class="nv">X</span> : abgr} (<span class="nv">lat</span> : lattice X) :
+  isrdistr (Lmax lat) op →
+  istruncminus (X := abgrtoabmonoid X) lat (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, Lmax lat <span class="mi">0</span> (x + grinv X y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H x y.
+  <span class="nb">rewrite</span> H, assocax, grlinvax, lunax, runax.
+  <span class="nb">apply</span> iscomm_Lmax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">truncminus_gt</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : abmonoid}
+        (<span class="nv">lat</span> : latticewithgt X)
+        (<span class="nv">ex</span> : extruncminus lat)
+        (<span class="nv">is0</span> : ∏ x y z : X, Lgt lat y z → Lgt lat (y + x) (z + x))
+        (<span class="nv">is1</span> : ∏ x y z : X, Lgt lat (y + x) (z + x) → Lgt lat y z).
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_pos</span> :
+  ∏ x y : X, Lgt lat x y → Lgt lat (truncminus ex x y) <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">intros</span> H.
+  <span class="nb">apply</span> (is1 y).
+  <span class="nb">rewrite</span> lunax, istruncminus_ex.
+  <span class="nb">rewrite</span> Lmax_le_eq_l.
+  <span class="bp">exact</span> H.
+  <span class="nb">apply</span> Lgt_Lge, H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">truncminus_pos'</span> :
+  ∏ x y : X, Lgt lat (truncminus ex x y) <span class="mi">0</span> → Lgt lat x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hgt.
+  <span class="nb">apply</span> (is0 y) <span class="k">in</span> Hgt.
+  <span class="nb">rewrite</span> istruncminus_ex, lunax <span class="k">in</span> Hgt.
+  <span class="nb">rewrite</span> &lt;- (Lmax_le_eq_l lat x y).
+  <span class="bp">exact</span> Hgt.
+  <span class="nb">apply</span> notLgt_Lle.
+  <span class="nb">intros</span> H ; <span class="nb">revert</span> Hgt.
+  <span class="nb">apply</span> Lle_notLgt.
+  <span class="nb">rewrite</span> Lmax_le_eq_r.
+  <span class="nb">apply</span> isrefl_Lle.
+  <span class="nb">apply</span> Lgt_Lge.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">truncminus_gt</span>.
+
+<span class="kn">Close Scope</span> addmonoid.
+
+<span class="sd">(** ** lattice and [weq] *)</span>
+
+<span class="sd">(** *** Definition *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">islatticeop_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) {<span class="nv">min</span> <span class="nv">max</span> : binop X} (<span class="nv">lat</span> : islatticeop min max) :
+  islatticeop (binop_weq_bck H min) (binop_weq_bck H max).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">split</span> ; [ | <span class="nb">split</span>] ; <span class="nb">split</span>.
+  - <span class="nb">apply</span> (isassoc_weq_bck H), (isassoc_Lmin (_,,_,,lat)).
+  - <span class="nb">apply</span> (iscomm_weq_bck H), (iscomm_Lmin (_,,_,,lat)).
+  - <span class="nb">apply</span> (isassoc_weq_bck H), (isassoc_Lmax (_,,_,,lat)).
+  - <span class="nb">apply</span> (iscomm_weq_bck H), (iscomm_Lmax (_,,_,,lat)).
+  - <span class="nb">apply</span> (isabsorb_weq_bck H), (Lmin_absorb (_,,_,,lat)).
+  - <span class="nb">apply</span> (isabsorb_weq_bck H), (Lmax_absorb (_,,_,,lat)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lattice_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) (<span class="nv">lat</span> : lattice X) : lattice Y.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">binop_weq_bck</span> <span class="nv">H</span> (Lmin lat)), (binop_weq_bck H (Lmax lat)).
+  <span class="nb">apply</span> islatticeop_weq.
+  <span class="nb">apply</span> (pr2 (pr2 lat)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Value of [Lle] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">Lle_correct_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) (<span class="nv">lat</span> : lattice X) :
+  fun_hrel_comp H (Lle lat) = Lle (lattice_weq H lat).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> y.
+  <span class="nb">apply</span> hPropUnivalence ; <span class="nb">intros</span> Hle.
+  - <span class="nb">apply</span> pathsinv0, pathsweq1, pathsinv0.
+    <span class="nb">apply</span> Hle.
+  - <span class="nb">apply</span> pathsinv0, pathsweq1', pathsinv0.
+    <span class="nb">apply</span> Hle.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Lattice with strong order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">islatticewithgtrel_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) {<span class="nv">gt</span> : StrongOrder X} (<span class="nv">lat</span> : lattice X) :
+  islatticewithgtrel lat gt →
+  islatticewithgtrel (lattice_weq H lat) (StrongOrder_bck H gt).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hgt.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="nb">intros</span> Hngt.
+    <span class="nb">unfold</span> Lle ; <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> binop_weq_bck.
+    <span class="nb">rewrite</span> (pr1 (pr1 Hgt _ _)).
+    <span class="nb">apply</span> homotinvweqweq.
+    <span class="nb">apply</span> Hngt.
+  - <span class="nb">intros</span> Hle.
+    <span class="nb">apply</span> (pr2 (pr1 Hgt _ _)).
+    <span class="nb">unfold</span> Lle ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0, pathsweq1', pathsinv0.
+    <span class="nb">apply</span> Hle.
+  - <span class="nb">simpl</span> ; <span class="nb">intros</span> x y z Hx Hy.
+    <span class="nb">unfold</span> binop_weq_bck, fun_hrel_comp.
+    <span class="nb">rewrite</span> homotweqinvweq.
+    <span class="nb">apply</span> (pr1 (pr2 Hgt)).
+    <span class="bp">exact</span> Hx.
+    <span class="bp">exact</span> Hy.
+  - <span class="nb">unfold</span> Lmax ; <span class="nb">simpl</span> ; <span class="nb">intros</span> x y z Hx Hy.
+    <span class="nb">unfold</span> binop_weq_bck, fun_hrel_comp.
+    <span class="nb">rewrite</span> homotweqinvweq.
+    <span class="nb">apply</span> (pr2 (pr2 Hgt)).
+    <span class="bp">exact</span> Hx.
+    <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">latticewithgt_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) (<span class="nv">lat</span> : latticewithgt X) :
+  latticewithgt Y.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">lattice_weq</span> <span class="nv">H</span> <span class="nv">lat</span>), (StrongOrder_bck H (Lgt lat)).
+  <span class="nb">apply</span> islatticewithgtrel_weq.
+  <span class="nb">apply</span> (pr2 (pr2 lat)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Lattice with a decidable order *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">istotal_Lle_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X)
+      (<span class="nv">lat</span> : lattice X) (<span class="nv">is'</span> : istotal (Lle lat)) :
+  istotal (Lle (lattice_weq H lat)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">generalize</span> (is' (H x) (H y)).
+  <span class="nb">apply</span> hinhfun, sumofmaps ; <span class="nb">intros</span> Hmin.
+  - <span class="nb">apply</span> ii1, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+  - <span class="nb">apply</span> ii2, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isdecrel_Lle_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X)
+      (<span class="nv">lat</span> : lattice X) (<span class="nv">is'</span> : isdecrel (Lle lat)) :
+  isdecrel (Lle (lattice_weq H lat)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">generalize</span> (is' (H x) (H y)).
+  <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hmin.
+  - <span class="nb">apply</span> ii1, (pathscomp0 (maponpaths (invmap H) Hmin)), homotinvweqweq.
+  - <span class="nb">apply</span> ii2.
+    <span class="nb">intros</span> Hinv ; <span class="nb">apply</span> Hmin.
+    <span class="nb">apply</span> pathsinv0, pathsweq1', pathsinv0, Hinv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">latticedec_weq</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">H</span> : weq Y X) :
+  latticedec X → latticedec Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lat.
+  <span class="k">exists</span> (<span class="nv">lattice_weq</span> <span class="nv">H</span> (lattice_latticedec lat)).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> istotal_Lle_weq.
+    <span class="nb">apply</span> istotal_latticedec.
+  - <span class="nb">apply</span> isdecrel_Lle_weq.
+    <span class="nb">apply</span> isdecrel_latticedec.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** lattice in [abmonoid] *)</span>
+
+<span class="kn">Open Scope</span> multmonoid.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_setquotpr_equiv</span> {<span class="nv">X</span> : abmonoid} {<span class="nv">Y</span> : @submonoid X} :
+  ∏ (k : Y) (x : X) (y : Y),
+  setquotpr (binopeqrelabmonoidfrac X Y) (x,,y) = setquotpr (binopeqrelabmonoidfrac X Y) (x * pr1 k,, @op Y y k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> k x y.
+  <span class="nb">apply</span> iscompsetquotpr, hinhpr.
+  <span class="k">exists</span> <span class="nv">y</span> ; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !(assocax X) ;
+    <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> commax, !assocax.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ispartrdistr</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">opp1</span> <span class="nv">opp2</span> : binop X) :=
+  ∏ (x y : X) (k : Y),
+  opp2 (opp1 x y) (pr1 k) = opp1 (opp2 x (pr1 k)) (opp2 y (pr1 k)).
+
+<span class="kn">Section</span> <span class="nf">abmonoidfrac_lattice</span>.
+
+<span class="kn">Context</span> (<span class="nv">X</span> : abmonoid)
+        (<span class="nv">Y</span> : @submonoid X)
+        {<span class="nv">min</span> <span class="nv">max</span> : binop X}
+        (<span class="nv">Hmin_assoc</span> : isassoc min)
+        (<span class="nv">Hmin_comm</span> : iscomm min)
+        (<span class="nv">Hmax_assoc</span> : isassoc max)
+        (<span class="nv">Hmax_comm</span> : iscomm max)
+        (<span class="nv">Hmin_max</span> : isabsorb min max)
+        (<span class="nv">Hmax_min</span> : isabsorb max min)
+        (<span class="nv">Hmin</span> : ispartrdistr Y min op)
+        (<span class="nv">Hmax</span> : ispartrdistr Y max op).
+
+<span class="sd">(** generic lemmas *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">abmonoidfrac_lattice_fun</span> (<span class="nv">f</span> : binop X) : binop (X × Y) :=
+  <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>,
+  (f (pr1 x * pr1 (pr2 y))%multmonoid (pr1 y * pr1 (pr2 x))%multmonoid ,, @op Y (pr2 x) (pr2 y)).
+
+<span class="kn">Local Lemma</span> <span class="nf">abmonoidfrac_lattice_def</span> :
+  ∏ (f : X → X → X),
+  ispartrdistr Y f op →
+  iscomprelrelfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y)
+                   (abmonoidfrac_lattice_fun f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f Hf.
+  <span class="nb">intros</span> x y x' y'.
+  <span class="nb">apply</span> hinhfun2.
+  <span class="nb">intros</span> c c'.
+  <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+  <span class="nb">change</span> (∑ a0 : Y,
+  f (pr1 x * pr1 (pr2 x')) (pr1 x' * pr1 (pr2 x)) *
+  pr1 (pr2 y * pr2 y') * pr1 a0 =
+  f (pr1 y * pr1 (pr2 y')) (pr1 y' * pr1 (pr2 y)) *
+  pr1 (pr2 x * pr2 x') * pr1 a0).
+  <span class="k">exists</span> (@op Y (pr1 c) (pr1 c')).
+  - <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> Hf.
+    <span class="nb">apply</span> map_on_two_paths.
+    + <span class="nb">change</span> ((pr1 x * pr1 (pr2 x') * (pr1 (pr2 y) * pr1 (pr2 y')) * (pr1 (pr1 c) * pr1 (pr1 c')))%multmonoid =
+  (pr1 y * pr1 (pr2 y') * (pr1 (pr2 x) * pr1 (pr2 x')) * (pr1 (pr1 c) * pr1 (pr1 c')))%multmonoid).
+      <span class="nb">rewrite</span> (assocax X (pr1 x)), (assocax X (pr1 y)).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 x'))), (commax X (pr1 (pr2 y'))).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x)), &lt;- (assocax X (pr1 y)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (assocax X (pr1 x * pr1 (pr2 y))%multmonoid), (assocax X (pr1 y * pr1 (pr2 x))%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (commax X _ (pr1 (pr1 c) * _)%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X _ (pr1 (pr1 c) * _)%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X _ (pr1 (pr1 c))%multmonoid).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 y'))).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x * _ * _)%multmonoid)).
+      <span class="nb">apply</span> (pr2 c).
+    + <span class="nb">rewrite</span> (commax _ (pr2 y)), (commax _ (pr2 x)), (iscommcarrier Y (pr1 c)).
+      <span class="nb">change</span> ((pr1 x' * pr1 (pr2 x) * (pr1 (pr2 y') * pr1 (pr2 y)) * (pr1 (pr1 c') * pr1 (pr1 c)))%multmonoid =
+  (pr1 y' * pr1 (pr2 y) * (pr1 (pr2 x') * pr1 (pr2 x)) * (pr1 (pr1 c') * pr1 (pr1 c)))%multmonoid).
+      <span class="nb">rewrite</span> (assocax X (pr1 x')), (assocax X (pr1 y')).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))), (commax X (pr1 (pr2 y))).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x')), &lt;- (assocax X (pr1 y')).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (assocax X (pr1 x' * pr1 (pr2 y'))%multmonoid), (assocax X (pr1 y' * pr1 (pr2 x'))%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (commax X _ (pr1 (pr1 c') * _)%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X _ (pr1 (pr1 c') * _)%multmonoid).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X _ (pr1 (pr1 c'))%multmonoid).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 y))).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x * _ * _)%multmonoid)).
+      <span class="nb">apply</span> (pr2 c').
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">iscomm_abmonoidfrac_def</span> :
+  ∏ (f : X → X → X) Hf,
+  iscomm f →
+  iscomm (X := abmonoidfrac X Y)
+         (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                      (abmonoidfrac_lattice_def f Hf)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f Hf Hcomm.
+  <span class="nb">simple refine</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (_ x y = _ y x) ,, _) _).
+  - <span class="nb">apply</span> (pr2 (pr1 (pr1 (abmonoidfrac X Y)))).
+  - <span class="nb">intros</span> x y.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+    <span class="nb">rewrite</span> Hcomm, (commax X (pr1 x)), (commax _ (pr2 x)).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="kn">Local Lemma</span> <span class="nf">isassoc_abmonoidfrac_def</span> :
+  ∏ (f : X → X → X) Hf,
+  isassoc f →
+  isassoc (X := abmonoidfrac X Y)
+         (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                      (abmonoidfrac_lattice_def f Hf)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f Hf Hassoc.
+  <span class="nb">simple refine</span> (setquotuniv3prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, (_ (_ x y) z = _ x (_ y z)) ,, _) _).
+  - <span class="nb">apply</span> (pr2 (pr1 (pr1 (abmonoidfrac X Y)))).
+  - <span class="nb">intros</span> x y z ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    <span class="nb">apply</span> (iscompsetquotpr (eqrelabmonoidfrac X Y)), hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x * _)%multmonoid)).
+    <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+    <span class="nb">simpl</span> ; <span class="nb">unfold</span> pr1carrier ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (assocax X (pr1 (pr2 x))).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>: X, op x _)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> Hf.
+    <span class="nb">rewrite</span> Hassoc.
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> (assocax X).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isabsorb_abmonoidfrac_def</span> :
+  ∏ f g Hf Hg,
+  isabsorb f g →
+  isabsorb (X := abmonoidfrac X Y) (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                        (abmonoidfrac_lattice_def f Hf))
+           (setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+                        (abmonoidfrac_lattice_def g Hg)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g Hf Hg Habsorb.
+  <span class="nb">simple refine</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (_ x (_ x y) = x) ,, _) _).
+  - <span class="nb">apply</span> (setproperty (abmonoidfrac X Y)).
+  - <span class="nb">intros</span> x y.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> !(setquotfun2comm (eqrelabmonoidfrac X Y)).
+    <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+    <span class="nb">apply</span> (iscompsetquotpr (eqrelabmonoidfrac X Y)), hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x * _)%multmonoid)).
+    <span class="nb">simpl</span> ; <span class="nb">unfold</span> pr1carrier ; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> Hf, Hg, Hg.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (assocax X (pr1 x)).
+    <span class="nb">rewrite</span> (commax X (pr1 (pr2 y))).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (assocax X (pr1 (pr2 x))).
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+    <span class="nb">apply</span> Habsorb.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** definition of abmonoidfrac_lattice *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac_min</span> : binop (abmonoidfrac X Y) :=
+  setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+              (abmonoidfrac_lattice_def min Hmin).
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac_max</span> : binop (abmonoidfrac X Y) :=
+  setquotfun2 (binopeqrelabmonoidfrac X Y) (binopeqrelabmonoidfrac X Y) _
+              (abmonoidfrac_lattice_def max Hmax).
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_abmonoidfrac_min</span> :
+  iscomm abmonoidfrac_min.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscomm_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmin_comm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isassoc_abmonoidfrac_min</span> :
+  isassoc abmonoidfrac_min.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isassoc_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmin_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_abmonoidfrac_max</span> :
+  iscomm abmonoidfrac_max.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> iscomm_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmax_comm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isassoc_abmonoidfrac_max</span> :
+  isassoc abmonoidfrac_max.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isassoc_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmax_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isabsorb_abmonoidfrac_max_min</span> :
+  isabsorb abmonoidfrac_max abmonoidfrac_min.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isabsorb_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmax_min.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isabsorb_abmonoidfrac_min_max</span> :
+  isabsorb abmonoidfrac_min abmonoidfrac_max.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isabsorb_abmonoidfrac_def.
+  <span class="nb">apply</span> Hmin_max.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">abmonoidfrac_lattice</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_islatticeop</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X) :
+  ∏ (Hmin : ispartrdistr Y (Lmin lat) op) (Hmax : ispartrdistr Y (Lmax lat) op),
+  islatticeop (abmonoidfrac_min X Y Hmin) (abmonoidfrac_max X Y Hmax).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hmin Hmax.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> isassoc_abmonoidfrac_min, isassoc_Lmin.
+  - <span class="nb">apply</span> iscomm_abmonoidfrac_min, iscomm_Lmin.
+  - <span class="nb">apply</span> isassoc_abmonoidfrac_max, isassoc_Lmax.
+  - <span class="nb">apply</span> iscomm_abmonoidfrac_max, iscomm_Lmax.
+  - <span class="nb">apply</span> isabsorb_abmonoidfrac_min_max, Lmin_absorb.
+  - <span class="nb">apply</span> isabsorb_abmonoidfrac_max_min, Lmax_absorb.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac_lattice</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X)
+           (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) : lattice (abmonoidfrac X Y).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">abmonoidfrac_min</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Hmin</span>).
+  <span class="k">exists</span> (<span class="nv">abmonoidfrac_max</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Hmax</span>).
+  <span class="nb">apply</span> abmonoidfrac_islatticeop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispartbinophrel_Lle</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X)
+      (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) :
+  ispartbinophrel Y (Lle lat).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b c Yc.
+    <span class="nb">rewrite</span> !(commax _ c).
+    <span class="nb">unfold</span> Lle ; <span class="nb">rewrite</span> &lt;- (Hmin _ _ (c,,Yc)).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, op x _)).
+  - <span class="nb">intros</span> a b c Yc.
+    <span class="nb">unfold</span> Lle ; <span class="nb">rewrite</span> &lt;- (Hmin _ _ (c,,Yc)).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, op x _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_Lle_1</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X)
+      (<span class="nv">Hmin</span> : ispartrdistr _ (Lmin lat) op) :
+  ∏ (x y : abmonoiddirprod X _),
+  abmonoidfracrel X Y (ispartbinophrel_Lle X Y lat Hmin)
+                  (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                  (setquotpr (binopeqrelabmonoidfrac X Y) y) →
+  abmonoidfrac_min X Y Hmin (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                   (setquotpr (binopeqrelabmonoidfrac X Y) y) =
+  setquotpr (binopeqrelabmonoidfrac X Y) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">unfold</span> abmonoidfracrel, quotrel, abmonoidfrac_min.
+  <span class="nb">rewrite</span> setquotuniv2comm, setquotfun2comm.
+  <span class="nb">intros</span> H.
+  <span class="nb">apply</span> iscompsetquotpr.
+  <span class="nb">revert</span> H.
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> c.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">c</span>).
+  <span class="nb">simpl</span> <span class="k">in</span> c |- *.
+  <span class="nb">rewrite</span> (assocax X), (commax _ _ (pr1 (pr1 c))), &lt;- (assocax X).
+  <span class="nb">rewrite</span> Hmin.
+  <span class="nb">refine</span> (pathscomp0 _ _).
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * _) _).
+  <span class="nb">apply</span> (pr2 c).
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (assocax X) ;
+    <span class="nb">apply</span> maponpaths.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> commax, assocax.
+  <span class="nb">apply</span> pathsinv0, assocax.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_Lle_2</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X)
+      (<span class="nv">Hmin</span> : ispartrdistr _ (Lmin lat) op) :
+  ∏ (x y : abmonoiddirprod X _),
+  abmonoidfrac_min X Y Hmin (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                   (setquotpr (binopeqrelabmonoidfrac X Y) y) =
+  setquotpr (binopeqrelabmonoidfrac X Y) x
+  → abmonoidfracrel X Y (ispartbinophrel_Lle X Y lat Hmin)
+                    (setquotpr (binopeqrelabmonoidfrac X Y) x)
+                    (setquotpr (binopeqrelabmonoidfrac X Y) y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">unfold</span> abmonoidfracrel, quotrel, abmonoidfrac_min.
+  <span class="nb">rewrite</span> setquotuniv2comm, setquotfun2comm.
+  <span class="nb">intros</span> H.
+  <span class="nb">generalize</span> (invmap (weqpathsinsetquot _ _ _) H).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">simpl</span>.
+  <span class="nb">intros</span> c.
+  <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span> * pr1 c).
+  <span class="nb">rewrite</span> &lt;- Hmin.
+  <span class="nb">change</span> (pr1 (pr2 x * pr1 c))%multmonoid
+  <span class="k">with</span> (pr1 (pr2 x) * pr1 (pr1 c))%multmonoid.
+  <span class="nb">rewrite</span> &lt;- assocax.
+  <span class="nb">refine</span> (pathscomp0 _ _).
+  <span class="nb">apply</span> (pr2 c).
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (assocax X) ;
+    <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> commax, assocax.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> commax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_Lle</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X)
+      (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) :
+  ∏ x y : abmonoidfrac X Y, abmonoidfracrel X Y (ispartbinophrel_Lle X Y lat Hmin) x y &lt;-&gt; Lle (abmonoidfrac_lattice X Y lat Hmin Hmax) x y.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (setquotuniv2prop _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, _ ,, _) _).
+  - <span class="nb">apply</span> isapropdirprod ;
+    <span class="nb">apply</span> isapropimpl, propproperty.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> abmonoidfrac_Lle_1.
+    + <span class="nb">apply</span> abmonoidfrac_Lle_2.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** lattice with a strong order in [abmonoidfrac] *)</span>
+
+<span class="kn">Section</span> <span class="nf">abmonoidfrac_latticewithgt</span>.
+
+<span class="kn">Context</span> (<span class="nv">X</span> : abmonoid)
+        (<span class="nv">Y</span> : @submonoid X)
+        (<span class="nv">lat</span> : lattice X)
+        (<span class="nv">gt</span> : StrongOrder X)
+        (<span class="nv">Hnotgtle</span> : ∏ x y : X, ¬ gt x y → Lle lat x y)
+        (<span class="nv">Hlenotgt</span> : ∏ x y : X, Lle lat x y → ¬ gt x y)
+        (<span class="nv">Hgtmin</span> : ∏ x y z : X, gt x z → gt y z → gt (Lmin lat x y) z)
+        (<span class="nv">Hgtmax</span> : ∏ x y z : X, gt z x → gt z y → gt z (Lmax lat x y))
+
+        (<span class="nv">Hgt</span> : ispartbinophrel Y gt)
+        (<span class="nv">Hop</span> : ∏ (x : Y) (y z : X), y * pr1 x = z * pr1 x → y = z)
+        (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op)
+        (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op).
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_notgtle</span> :
+  ∏ (x y : abmonoidfrac X Y),
+  ¬ (StrongOrder_abmonoidfrac Y gt Hgt) x y
+  → Lle (abmonoidfrac_lattice X Y lat Hmin Hmax) x y.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (setquotuniv2prop (eqrelabmonoidfrac X Y) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ ,, _) _).
+  - <span class="nb">apply</span> isapropimpl, propproperty.
+  - <span class="nb">intros</span> x y H.
+    <span class="nb">apply</span> abmonoidfrac_Lle.
+    <span class="nb">unfold</span> abmonoidfracrel, quotrel.
+    <span class="nb">rewrite</span> setquotuniv2comm.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+    <span class="nb">apply</span> Hnotgtle.
+    <span class="nb">intros</span> H0 ; <span class="nb">apply</span> H.
+    <span class="nb">change</span> (abmonoidfracrel X Y Hgt
+                            (setquotpr (eqrelabmonoidfrac X Y) x)
+                            (setquotpr (eqrelabmonoidfrac X Y) y)).
+    <span class="nb">unfold</span> abmonoidfracrel, quotrel.
+    <span class="nb">rewrite</span> setquotuniv2comm.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+    <span class="bp">exact</span> H0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_lenotgt</span> :
+  ∏ (x y : abmonoidfrac X Y),
+  Lle (abmonoidfrac_lattice X Y lat Hmin Hmax) x y
+  → ¬ (StrongOrder_abmonoidfrac Y gt Hgt) x y.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (setquotuniv2prop (eqrelabmonoidfrac X Y) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ ,, _) _).
+  + <span class="nb">apply</span> isapropimpl, isapropimpl, isapropempty.
+  + <span class="nb">intros</span> x y H.
+    <span class="nb">apply</span> (pr2 (abmonoidfrac_Lle _ _ _ _ _ _ _)) <span class="k">in</span> H.
+    <span class="nb">change</span> (abmonoidfracrel X Y Hgt
+                            (setquotpr (eqrelabmonoidfrac X Y) x)
+                            (setquotpr (eqrelabmonoidfrac X Y) y) → ∅).
+    <span class="nb">revert</span> H.
+    <span class="nb">unfold</span> abmonoidfracrel, quotrel.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> setquotuniv2comm.
+    <span class="nb">apply</span> (hinhuniv2 (P := make_hProp _ isapropempty)).
+    <span class="nb">intros</span> c c'.
+    <span class="nb">refine</span> (Hlenotgt _ _ _ _).
+    <span class="mi">2</span>: <span class="nb">apply</span> (pr2 c').
+    <span class="nb">unfold</span> Lle.
+    <span class="nb">rewrite</span> &lt;- Hmin.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, op x _)).
+    <span class="nb">apply</span> (Hop (pr1 c)).
+    <span class="nb">rewrite</span> Hmin.
+    <span class="nb">apply</span> (pr2 c).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_gtmin</span> :
+  ∏ (x y z : abmonoidfrac X Y),
+  (StrongOrder_abmonoidfrac Y gt Hgt) x z
+  → (StrongOrder_abmonoidfrac Y gt Hgt) y z
+  → (StrongOrder_abmonoidfrac Y gt Hgt)
+      (Lmin (abmonoidfrac_lattice X Y lat Hmin Hmax) x y) z.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (setquotuniv3prop (eqrelabmonoidfrac X Y) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, _ ,, _) _).
+  - <span class="nb">apply</span> isapropimpl, isapropimpl, propproperty.
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">change</span> (abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) z)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) y) (setquotpr (eqrelabmonoidfrac X Y) z)
+            → abmonoidfracrel X Y Hgt (abmonoidfrac_min X Y Hmin (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) y)) (setquotpr (eqrelabmonoidfrac X Y) z)).
+    <span class="nb">unfold</span> abmonoidfrac_min, abmonoidfracrel, quotrel.
+    <span class="nb">rewrite</span> setquotfun2comm ;
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> setquotuniv2comm.
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> cx cy.
+    <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+    <span class="nb">simpl</span>.
+    <span class="k">exists</span> (@op Y (pr1 cx) (pr1 cy)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> Hmin.
+    <span class="nb">apply</span> Hgtmin.
+    + <span class="nb">change</span> (gt (pr1 x * pr1 (pr2 y) * pr1 (pr2 z) * (pr1 (pr1 cx) * pr1 (pr1 cy)))
+                 (pr1 z * (pr1 (pr2 x) * pr1 (pr2 y)) * (pr1 (pr1 cx) * pr1 (pr1 cy)))).
+      <span class="nb">rewrite</span> (assocax X (pr1 x)).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 y))).
+      <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x)), &lt;- (assocax X (pr1 z)).
+      <span class="nb">rewrite</span> (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      <span class="nb">generalize</span> (commax X (pr1 (pr2 y)) (pr1 (pr1 cx) * pr1 (pr1 cy))).
+      <span class="nb">intros</span> -&gt;.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), &lt;- (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr2 y)).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr1 cy)).
+      <span class="nb">apply</span> (pr2 cx).
+    + <span class="nb">change</span> (gt (pr1 y * pr1 (pr2 x) * pr1 (pr2 z) * (pr1 (pr1 cx) * pr1 (pr1 cy)))
+                 (pr1 z * (pr1 (pr2 x) * pr1 (pr2 y)) * (pr1 (pr1 cx) * pr1 (pr1 cy)))).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr1 cx))).
+      <span class="nb">rewrite</span> (assocax X (pr1 y)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+      <span class="nb">rewrite</span> &lt;- (assocax X (pr1 y)), &lt;- (assocax X (pr1 z)).
+      <span class="nb">rewrite</span> (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), &lt;- (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr2 x)).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr1 cx)).
+      <span class="nb">apply</span> (pr2 cy).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abmonoidfrac_gtmax</span> :
+  ∏ (x y z : abmonoidfrac X Y),
+  (StrongOrder_abmonoidfrac Y gt Hgt) z x
+  → (StrongOrder_abmonoidfrac Y gt Hgt) z y
+    → (StrongOrder_abmonoidfrac Y gt Hgt) z
+         (Lmax (abmonoidfrac_lattice X Y lat Hmin Hmax) x y).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (setquotuniv3prop (eqrelabmonoidfrac X Y) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, _ ,, _) _).
+  - <span class="nb">apply</span> isapropimpl, isapropimpl, propproperty.
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">change</span> (abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (setquotpr (eqrelabmonoidfrac X Y) x)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (setquotpr (eqrelabmonoidfrac X Y) y)
+            → abmonoidfracrel X Y Hgt (setquotpr (eqrelabmonoidfrac X Y) z) (abmonoidfrac_max X Y Hmax (setquotpr (eqrelabmonoidfrac X Y) x) (setquotpr (eqrelabmonoidfrac X Y) y))).
+    <span class="nb">unfold</span> abmonoidfrac_max, abmonoidfracrel, quotrel.
+    <span class="nb">rewrite</span> setquotfun2comm ;
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> setquotuniv2comm.
+    <span class="nb">apply</span> hinhfun2.
+    <span class="nb">intros</span> cx cy.
+    <span class="nb">unfold</span> abmonoidfrac_lattice_fun.
+    <span class="nb">change</span> (∑ c0 : Y,
+  gt
+    (pr1 z * pr1 (pr2 x * pr2 y) * pr1 c0)
+    (Lmax lat (pr1 x * pr1 (pr2 y)) (pr1 y * pr1 (pr2 x)) *
+     pr1 (pr2 z) * pr1 c0)).
+    <span class="k">exists</span> (@op Y (pr1 cx) (pr1 cy)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> Hmax.
+    <span class="nb">apply</span> Hgtmax.
+    + <span class="nb">change</span> (gt (pr1 z * (pr1 (pr2 x) * pr1 (pr2 y)) * (pr1 (pr1 cx) * pr1 (pr1 cy)))
+    (pr1 x * pr1 (pr2 y) * pr1 (pr2 z) * (pr1 (pr1 cx) * pr1 (pr1 cy)))).
+      <span class="nb">rewrite</span> (assocax X (pr1 x)).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 y))).
+      <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x)), &lt;- (assocax X (pr1 z)).
+      <span class="nb">rewrite</span> (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      <span class="nb">generalize</span> (commax X (pr1 (pr2 y)) (pr1 (pr1 cx) * pr1 (pr1 cy))).
+      <span class="nb">intros</span> -&gt;.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 x * pr1 (pr2 z))%multmonoid), &lt;- (assocax X (pr1 z * pr1 (pr2 x))%multmonoid).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr2 y)).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr1 cy)).
+      <span class="nb">apply</span> (pr2 cx).
+    + <span class="nb">change</span> (gt (pr1 z * (pr1 (pr2 x) * pr1 (pr2 y)) * (pr1 (pr1 cx) * pr1 (pr1 cy)))
+    (pr1 y * pr1 (pr2 x) * pr1 (pr2 z) * (pr1 (pr1 cx) * pr1 (pr1 cy)))).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr1 cx))).
+      <span class="nb">rewrite</span> (assocax X (pr1 y)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+      <span class="nb">rewrite</span> &lt;- (assocax X (pr1 y)), &lt;- (assocax X (pr1 z)).
+      <span class="nb">rewrite</span> (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      <span class="nb">rewrite</span> (commax X (pr1 (pr2 x))).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- (assocax X (pr1 y * pr1 (pr2 z))%multmonoid), &lt;- (assocax X (pr1 z * pr1 (pr2 y))%multmonoid).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr2 x)).
+      <span class="nb">apply</span> (pr2 Hgt).
+      <span class="nb">apply</span> (pr2 (pr1 cx)).
+      <span class="nb">apply</span> (pr2 cy).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">abmonoidfrac_latticewithgt</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac_latticewithgt</span> (<span class="nv">X</span> : abmonoid) (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : latticewithgt X)
+           (<span class="nv">Hgt</span> : ispartbinophrel Y (Lgt lat))
+           (<span class="nv">Hop</span> : ∏ (x : Y) (y z : X), y * pr1 x = z * pr1 x → y = z)
+           (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) : latticewithgt (abmonoidfrac X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (tpair _ _ _).
+  <span class="nb">refine</span> (abmonoidfrac_lattice _ _ _ _ _).
+  <span class="bp">exact</span> Hmin.
+  <span class="bp">exact</span> Hmax.
+  <span class="nb">simple refine</span> (tpair _ _ _).
+  <span class="nb">simple refine</span> (StrongOrder_abmonoidfrac _ _ _).
+  <span class="nb">apply</span> (Lgt lat).
+  <span class="nb">apply</span> Hgt.
+  <span class="nb">split</span> ; <span class="nb">split</span>.
+  - <span class="nb">apply</span> abmonoidfrac_notgtle.
+    <span class="nb">apply</span> notLgt_Lle.
+  - <span class="nb">apply</span> abmonoidfrac_lenotgt.
+    <span class="nb">apply</span> Lle_notLgt.
+    <span class="nb">apply</span> Hop.
+  - <span class="nb">apply</span> abmonoidfrac_gtmin.
+    <span class="nb">apply</span> Lmin_Lgt.
+  - <span class="nb">apply</span> abmonoidfrac_gtmax.
+    <span class="nb">apply</span> Lmax_Lgt.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** lattice with a decidable order in [abmonoidfrac] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">istotal_Lle_abmonoidfrac</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X) (<span class="nv">is'</span> : istotal (Lle lat))
+           (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) :
+  istotal (Lle (abmonoidfrac_lattice X Y lat Hmin Hmax)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (istotallogeqf _ _).
+  - <span class="nb">apply</span> abmonoidfrac_Lle.
+  - <span class="nb">apply</span> istotalabmonoidfracrel, is'.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isdecrel_Lle_abmonoidfrac</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : lattice X) (<span class="nv">is'</span> : isdecrel (Lle lat))
+           (<span class="nv">Hop</span> : ∏ (x : Y) (y z : X), y * pr1 x = z * pr1 x → y = z)
+           (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) :
+  isdecrel (Lle (abmonoidfrac_lattice X Y lat Hmin Hmax)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (isdecrellogeqf _ _).
+  - <span class="nb">apply</span> abmonoidfrac_Lle.
+  - <span class="nb">apply</span> isdecabmonoidfracrel.
+    <span class="nb">split</span>.
+    + <span class="nb">clear</span> -Hmin Hop.
+      <span class="nb">intros</span> x y z Hz ;
+        <span class="nb">rewrite</span> !(commax X z) ;
+        <span class="nb">unfold</span> Lle ;
+        <span class="nb">rewrite</span> &lt;- (Hmin _ _ (z,,Hz)) ;
+        <span class="nb">apply</span> Hop.
+    + <span class="nb">clear</span> -Hmin Hop.
+      <span class="nb">intros</span> x y z Hz ;
+        <span class="nb">unfold</span> Lle ;
+        <span class="nb">rewrite</span> &lt;- (Hmin _ _ (z,,Hz)) ;
+        <span class="nb">apply</span> Hop.
+    + <span class="nb">apply</span> is'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abmonoidfrac_latticedec</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">Y</span> : @submonoid X) (<span class="nv">lat</span> : latticedec X)
+           (<span class="nv">Hop</span> : ∏ (x : Y) (y z : X), y * pr1 x = z * pr1 x → y = z)
+           (<span class="nv">Hmin</span> : ispartrdistr Y (Lmin lat) op) (<span class="nv">Hmax</span> : ispartrdistr Y (Lmax lat) op) :
+  latticedec (abmonoidfrac X Y).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">abmonoidfrac_lattice</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">lat</span> <span class="nv">Hmin</span> <span class="nv">Hmax</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> istotal_Lle_abmonoidfrac.
+    <span class="nb">apply</span> istotal_latticedec.
+  - <span class="nb">apply</span> isdecrel_Lle_abmonoidfrac.
+    + <span class="nb">apply</span> isdecrel_latticedec.
+    + <span class="nb">apply</span> Hop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Close Scope</span> multmonoid.
+
+<span class="kn">Definition</span> <span class="nf">dual_lattice</span> {<span class="nv">X</span> : hSet} (<span class="nv">l</span> : lattice X) : lattice X := make_lattice (((isassoc_Lmax l),, (iscomm_Lmax l)),, ((isassoc_Lmin l),,(iscomm_Lmin l)),,(Lmax_absorb l),,(Lmin_absorb l)).
+
+<span class="kn">Section</span> <span class="nf">hProp_lattice</span>.
+
+<span class="kn">Definition</span> <span class="nf">hProp_lattice</span> : lattice (hProp,,isasethProp).
+<span class="kn">Proof</span>.
+use make_lattice.
+- <span class="nb">intros</span> P Q; <span class="bp">exact</span> (P ∧ Q).
+- <span class="nb">simpl</span>; <span class="nb">intros</span> P Q; <span class="bp">exact</span> (P ∨ Q).
+- <span class="kp">repeat</span> <span class="nb">split</span>.
+  + <span class="nb">intros</span> P Q R; <span class="nb">apply</span> isassoc_hconj.
+  + <span class="nb">intros</span> P Q; <span class="nb">apply</span> iscomm_hconj.
+  + <span class="nb">intros</span> P Q R; <span class="nb">apply</span> isassoc_hdisj.
+  + <span class="nb">intros</span> P Q; <span class="nb">apply</span> iscomm_hdisj.
+  + <span class="nb">intros</span> P Q; <span class="nb">apply</span> hconj_absorb_hdisj.
+  + <span class="nb">intros</span> P Q; <span class="nb">apply</span> hdisj_absorb_hconj.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">hProp_lattice</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/Lattice.v</tt>, line 42)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Define dual lattice
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.Monoids.
+  &gt; Require Import UniMath.Algebra.Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

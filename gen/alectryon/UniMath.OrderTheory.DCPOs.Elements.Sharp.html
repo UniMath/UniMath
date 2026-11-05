@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sharp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Sharp elements in a DCPO</span>
+
+<span class="sd"> In this file, we define the notion of sharp elements of a DCPO. Every DCPO</span>
+<span class="sd"> gives rise to an intrinsic apartness relation, which, in general, is neither</span>
+<span class="sd"> tight nor cotransitive in constructive foundations. However, if we restrict</span>
+<span class="sd"> ourselves to a subclass of elements, called the sharp elements, then we can</span>
+<span class="sd"> prove constructively that the apartness relation is both tight and</span>
+<span class="sd"> cotransitive.</span>
+
+<span class="sd"> Reference:</span>
+<span class="sd"> - https://arxiv.org/pdf/2106.05064.pdf</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of sharp elements</span>
+<span class="sd"> 2. Characterization of sharp elements in a continuous DCPO</span>
+<span class="sd"> 3. Tightness of the intrinsic apartness relation for sharp elements</span>
+<span class="sd"> 4. Cotransitivity of the intrinsic apartness relation for sharp elements</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition of sharp elements</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_sharp</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> : X)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">y</span> <span class="nv">z</span> : X), y ≪ z ⇒ (y ≪ x ∨ ¬(z ⊑ x)))%logic.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Characterization of sharp elements in a continuous DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_sharp_continuous_dcpo</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            (<span class="nv">x</span> : X)
+  : is_sharp x ≃ (<span class="k">∀</span> (<span class="nv">y</span> <span class="nv">z</span> : X), y ≪ z ⇒ (y ≪ x ∨ z ⊄ x))%logic.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">intros</span> Hx y z p.
+    <span class="nb">assert</span> (H := unary_interpolation CX p).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> u.
+    <span class="nb">induction</span> u <span class="k">as</span> [ u [ q₁ q₂ ]].
+    <span class="nb">assert</span> (H := unary_interpolation CX q₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> v.
+    <span class="nb">induction</span> v <span class="k">as</span> [ v [ r₁ r₂ ]].
+    <span class="nb">specialize</span> (Hx u v r₁).
+    <span class="nb">revert</span> Hx.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> s.
+    <span class="nb">induction</span> s <span class="k">as</span> [ s | s ].
+    + <span class="nb">refine</span> (hinhpr (inl _)).
+      <span class="bp">exact</span> (trans_way_below q₁ s).
+    + <span class="nb">cbn</span> <span class="k">in</span> s.
+      <span class="nb">refine</span> (hinhpr (inr _)).
+      use (invmap (continuous_not_specialization_weq CX z x)).
+      <span class="bp">exact</span> (hinhpr (v ,, r₂ ,, s)).
+  - <span class="nb">intros</span> Hx y z p.
+    <span class="nb">specialize</span> (Hx y z p).
+    <span class="nb">revert</span> Hx.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> q.
+    <span class="nb">induction</span> q <span class="k">as</span> [ q | q ].
+    + <span class="bp">exact</span> (hinhpr (inl q)).
+    + <span class="nb">refine</span> (hinhpr (inr _)).
+      <span class="nb">apply</span> dcpo_not_specialization_le.
+      <span class="bp">exact</span> q.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Tightness of the instrinsic apartness relation for sharp elements</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_sharp_to_le</span>
+      {<span class="nv">X</span> : dcpo}
+      (<span class="nv">CX</span> : continuous_dcpo_struct X)
+      {<span class="nv">x</span> <span class="nv">y</span> : X}
+      (<span class="nv">Hy</span> : is_sharp y)
+      (<span class="nv">p</span> : ¬(x ⊄ y))
+  : x ⊑ y.
+<span class="kn">Proof</span>.
+  use (invmap (continuous_dcpo_struct_le_via_approximation CX x y)).
+  <span class="nb">intros</span> z q.
+  <span class="nb">assert</span> (H := unary_interpolation CX q).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ u [ r₁ r₂ ]].
+  <span class="nb">assert</span> (H := Hy _ _ r₁).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ s | s ].
+  - <span class="bp">exact</span> s.
+  - <span class="nb">cbn</span> <span class="k">in</span> s.
+    <span class="nb">refine</span> (fromempty (p _)).
+    <span class="nb">refine</span> (hinhpr (_ ,, upper_set_is_scott_open CX u ,, r₂ ,, _)).
+    <span class="nb">intro</span> w.
+    <span class="nb">apply</span> s.
+    <span class="nb">apply</span> way_below_to_le.
+    <span class="bp">exact</span> w.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_sharp_tight_apartness</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            {<span class="nv">x</span> <span class="nv">y</span> : X}
+            (<span class="nv">Hx</span> : is_sharp x)
+            (<span class="nv">Hy</span> : is_sharp y)
+            (<span class="nv">p</span> : ¬(x # y))
+  : x = y.
+<span class="kn">Proof</span>.
+  use antisymm_dcpo.
+  - use (is_sharp_to_le CX Hy).
+    <span class="nb">intro</span> q.
+    <span class="nb">apply</span> p.
+    <span class="bp">exact</span> (hinhpr (inl q)).
+  - use (is_sharp_to_le CX Hx).
+    <span class="nb">intro</span> q.
+    <span class="nb">apply</span> p.
+    <span class="bp">exact</span> (hinhpr (inr q)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Cotransitivity of the intrinsic apartness relation for sharp elements</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_sharp_cotransitive_apartness_help</span>
+      {<span class="nv">X</span> : dcpo}
+      (<span class="nv">CX</span> : continuous_dcpo_struct X)
+      {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+      (<span class="nv">Hz</span> : is_sharp z)
+      (<span class="nv">p</span> : x ⊄ y)
+  : x # z ∨ y # z.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H := continuous_not_specialization_weq CX x y p).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> u.
+  <span class="nb">induction</span> u <span class="k">as</span> [ u [ q₁ q₂ ]].
+  <span class="nb">assert</span> (H := unary_interpolation CX q₁).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ v [ r₁ r₂ ]].
+  <span class="nb">assert</span> (H := Hz u v r₁).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> s.
+  <span class="nb">induction</span> s <span class="k">as</span> [ s | s ].
+  - <span class="nb">refine</span> (hinhpr (inr (hinhpr (inr _)))).
+    use (invmap (continuous_not_specialization_weq CX z y)).
+    <span class="bp">exact</span> (hinhpr (u ,, s ,, q₂)).
+  - <span class="nb">refine</span> (hinhpr (inl (hinhpr (inl _)))).
+    use (invmap (continuous_not_specialization_weq CX x z)).
+    <span class="bp">exact</span> (hinhpr (v ,, r₂ ,, s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_sharp_cotransitive_apartness</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+            (<span class="nv">Hz</span> : is_sharp z)
+            (<span class="nv">p</span> : x # y)
+  : x # z ∨ y # z.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> p.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> p.
+  <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+  - <span class="bp">exact</span> (is_sharp_cotransitive_apartness_help CX Hz p).
+  - <span class="nb">assert</span> (H := is_sharp_cotransitive_apartness_help CX Hz p).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> q.
+    <span class="nb">induction</span> q <span class="k">as</span> [ q | q ].
+    + <span class="bp">exact</span> (hinhpr (inr q)).
+    + <span class="bp">exact</span> (hinhpr (inl q)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Elements/Sharp.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Cotransitivity of the intrinsic apartness relation for sharp elements
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,885 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadKtripleBiequiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ========================================================================= *)</span>
+<span class="sd">(** * Biequivalence between Monads and Ktriples                              *)</span>
+<span class="c">(* ========================================================================= *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.AlgebraMap.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Algebras.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Add2Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Monads.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.KleisliTriple.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispModification.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBiequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Unitality.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.KleisliTriple.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Miscellanea                                                           *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isaprop_eq_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">x</span> <span class="nv">y</span> : f ==&gt; g)
+  : isaprop (x = y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> B.
+<span class="kn">Defined</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Basic monadic constructions built from a Ktriple.                     *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Monad_of_Kleisli_Data</span>.
+
+<span class="kn">Context</span> {<span class="nv">x</span> : category} (<span class="nv">k</span> : kleisli_triple x).
+
+<span class="kn">Local Lemma</span> <span class="nf">unit_kleisli_natural</span>
+  : is_nat_trans (functor_identity_data x)
+                 (functor_data_of_kleisli_triple k)
+                 (unit_kt k).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f. <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (unit_bind k).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_kleisli</span>
+  : functor_identity x ⟹ functor_of_kleisli_triple k
+  := make_nat_trans (functor_identity x)
+                    (functor_of_kleisli_triple k)
+                    (unit_kt k)
+                    unit_kleisli_natural.
+
+<span class="kn">Local Lemma</span> <span class="nf">mu_kleisli_natural</span>
+  : is_nat_trans (functor_composite_data (functor_of_kleisli_triple k)
+                                         (functor_of_kleisli_triple k))
+                 (functor_of_kleisli_triple k)
+                 (<span class="k">λ</span> <span class="nv">a</span>, bind_kt k (identity (k a))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f. <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bind_bind k).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> (unit_bind k).
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mu_kleisli</span>
+  : functor_of_kleisli_triple k ∙ functor_of_kleisli_triple k
+    ⟹
+    functor_of_kleisli_triple k
+  := make_nat_trans (functor_of_kleisli_triple k ∙ functor_of_kleisli_triple k)
+                    (functor_of_kleisli_triple k)
+                    _
+                    mu_kleisli_natural.
+<span class="kn">End</span> <span class="nf">Monad_of_Kleisli_Data</span>.
+
+<span class="kn">Section</span> <span class="nf">Monad_of_Kleisli_Data</span>.
+
+<span class="kn">Context</span> {<span class="nv">x</span> : univalent_category} (<span class="nv">k</span> : kleisli_triple x).
+
+<span class="kn">Definition</span> <span class="nf">unit_mu_kleisli</span>
+  : monad bicat_of_univ_cats x.
+<span class="kn">Proof</span>.
+  use make_cat_monad.
+  - <span class="bp">exact</span> (functor_of_kleisli_triple k).
+  - <span class="bp">exact</span> (unit_kleisli k).
+  - <span class="bp">exact</span> (mu_kleisli k).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span>; <span class="nb">intros</span>;
+       <span class="nb">rewrite</span> (bind_bind k);
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> (unit_bind k);
+       <span class="nb">rewrite</span> id_right;
+       <span class="nb">apply</span> (bind_unit k)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span>; <span class="nb">intros</span>;
+       <span class="nb">apply</span> (unit_bind k)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span>; <span class="nb">intros</span>;
+       <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bind_bind k);
+       <span class="nb">rewrite</span> id_left;
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> (unit_bind k);
+       <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Monad_of_Kleisli_Data</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Pseudofunctor Ktriples to Monads.                                     *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">functor_of_kleisli_comm</span>
+      {<span class="nv">x</span> <span class="nv">y</span> : univalent_category}
+      {<span class="nv">f</span> : x ⟶ y}
+      {<span class="nv">kx</span> : kleisli_triple x}
+      {<span class="nv">ky</span> : kleisli_triple y}
+      (<span class="nv">kf</span> : kleisli_triple_on_functor kx ky f)
+  : (functor_of_kleisli_triple kx ∙ f)
+    ⟹
+    (f ∙ functor_of_kleisli_triple ky).
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, inv_from_z_iso (pr1 kf a)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> a b p;
+       <span class="nb">cbn</span>;
+       <span class="nb">pose</span> (pr22 kf) <span class="k">as</span> H;
+       <span class="nb">cbn</span> <span class="k">in</span> H;
+       <span class="nb">rewrite</span> H;
+       <span class="nb">rewrite</span> !assoc';
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">rewrite</span> z_iso_inv_after_z_iso;
+       <span class="nb">rewrite</span> id_right;
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">rewrite</span> functor_comp;
+       <span class="nb">rewrite</span> !assoc';
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">rewrite</span> (pr12 kf);
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> z_iso_inv_after_z_iso;
+       <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functor_of_kleisli_comm_nat_z_iso</span>
+      {<span class="nv">x</span> <span class="nv">y</span> : univalent_category}
+      {<span class="nv">f</span> : x ⟶ y}
+      {<span class="nv">kx</span> : kleisli_triple x}
+      {<span class="nv">ky</span> : kleisli_triple y}
+      (<span class="nv">kf</span> : kleisli_triple_on_functor kx ky f)
+  : is_nat_z_iso (functor_of_kleisli_comm kf).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_of_kleisli_z_iso</span>
+           {<span class="nv">x</span> <span class="nv">y</span> : univalent_category}
+           {<span class="nv">f</span> : x ⟶ y}
+           {<span class="nv">kx</span> : kleisli_triple x}
+           {<span class="nv">ky</span> : kleisli_triple y}
+           (<span class="nv">kf</span> : kleisli_triple_on_functor kx ky f)
+  : nat_z_iso (functor_of_kleisli_triple kx ∙ f)
+            (f ∙ functor_of_kleisli_triple ky).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (functor_of_kleisli_comm kf).
+  - <span class="bp">exact</span> (functor_of_kleisli_comm_nat_z_iso kf).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_mu_kleisli_functor</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : univalent_category}
+           {<span class="nv">F</span> : C ⟶ D}
+           {<span class="nv">KC</span> : kleisli_triple_disp_bicat C}
+           {<span class="nv">KD</span> : kleisli_triple_disp_bicat D}
+           (<span class="nv">KF</span> : KC --&gt;[F] KD)
+  : unit_mu_kleisli KC --&gt;[ F] unit_mu_kleisli KD.
+<span class="kn">Proof</span>.
+  use make_cat_monad_mor ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (functor_of_kleisli_z_iso KF).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> (kleisli_triple_on_functor_unit_kt KF);
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> z_iso_inv_after_z_iso;
+       <span class="nb">rewrite</span> id_right;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> X ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> (kleisli_triple_on_functor_bind_kt KF);
+       <span class="nb">rewrite</span> !assoc';
+       <span class="nb">apply</span> maponpaths;
+       <span class="nb">rewrite</span> (bind_bind KD);
+       <span class="nb">rewrite</span> !assoc';
+       <span class="nb">rewrite</span> (unit_bind KD), id_right;
+       <span class="nb">rewrite</span> z_iso_inv_after_z_iso, id_right;
+       <span class="nb">rewrite</span> functor_id, id_left;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ktriple_to_Monad</span>
+  : disp_psfunctor kleisli_triple_disp_bicat
+                   (monad bicat_of_univ_cats)
+                   (id_psfunctor bicat_of_univ_cats).
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor.
+  - <span class="nb">apply</span> disp_2cells_isaprop_monad.
+    <span class="nb">apply</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (disp_locally_groupoid_monad
+             bicat_of_univ_cats
+             univalent_cat_is_univalent_2).
+  - <span class="bp">exact</span> @unit_mu_kleisli.
+  - <span class="bp">exact</span> @unit_mu_kleisli_functor.
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span>; <span class="nb">intros</span> x y f g α kx ky kf kg e;
+       <span class="nb">refine</span> ((_,, (tt,, tt)),, tt);
+       use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">cbn</span>; <span class="nb">intro</span> a;
+       <span class="nb">apply</span> pathsinv0;
+       <span class="nb">apply</span> z_iso_inv_on_left;
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> &lt;- e;
+       <span class="nb">rewrite</span> assoc;
+       <span class="nb">rewrite</span> z_iso_after_z_iso_inv;
+       <span class="nb">apply</span> pathsinv0;
+       <span class="nb">apply</span> id_left).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x kx;
+       <span class="nb">refine</span> ((_,, (tt,, tt)),, tt);
+       <span class="nb">unfold</span> alg_disp_cat_2cell;
+       use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intro</span> a; <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> !id_left;
+       <span class="nb">rewrite</span> (bind_bind kx);
+       <span class="nb">rewrite</span> (unit_bind kx);
+       <span class="nb">apply</span> pathsinv0;
+       <span class="nb">apply</span> (bind_unit kx)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">simpl</span>;
+       <span class="nb">intros</span> x y z f g kx ky kz kf kg;
+       <span class="nb">refine</span> ((_,, (tt,, tt)),, tt);
+       use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intro</span> a; <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> !id_left;
+       <span class="nb">rewrite</span> !id_right;
+       <span class="nb">rewrite</span> assoc';
+       <span class="nb">rewrite</span> (bind_bind kz);
+       <span class="nb">rewrite</span> (unit_bind kz);
+       <span class="nb">rewrite</span> (bind_unit kz);
+       <span class="nb">rewrite</span> id_right;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(*  Kleisli_of_Monad                                                         *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_data</span> {<span class="nv">x</span> : univalent_category}
+           (<span class="nv">m</span> : monad bicat_of_univ_cats x)
+  : kleisli_triple_disp_bicat (id_psfunctor bicat_of_univ_cats x).
+<span class="kn">Proof</span>.
+  use make_kleisli_triple.
+  - <span class="nb">apply</span> m.
+  - <span class="bp">exact</span> (pr1 (monad_unit m)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, monad_bind m F).
+  - <span class="nb">intros</span> A. <span class="nb">apply</span> (cat_monad_unit_bind m).
+  - <span class="nb">simpl</span>. <span class="nb">intros</span>. <span class="nb">apply</span> (cat_monad_bind_unit m).
+  - <span class="nb">simpl</span>. <span class="nb">intros</span>. <span class="nb">apply</span> (cat_monad_bind_bind m).
+<span class="kn">Defined</span>.
+
+<span class="c">(* NB: We need to take the inverse to match the definition used to build the biequivalence. *)</span>
+<span class="kn">Definition</span> <span class="nf">monad_mor_natural_pointwise</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+           {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+           (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+           (<span class="nv">X</span> : C₁)
+  : z_iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso
+       (nat_z_iso_inv (monad_mor_nat_z_iso FF)) X.
+
+<span class="kn">Lemma</span> <span class="nf">inv_monad_mor_natural_pointwise</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+      {<span class="nv">F</span> : C₁ ⟶ C₂}
+      {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+      {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+      (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+      (<span class="nv">X</span> : C₁)
+  : inv_from_z_iso (monad_mor_natural_pointwise FF X)
+    =
+    CompositesAndInverses.nat_z_iso_to_pointwise_z_iso (monad_mor_nat_z_iso FF) X.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> inv_z_iso_unique'.
+  <span class="nb">unfold</span> precomp_with.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (nat_trans_eq_pointwise (vcomp_linv (monad_mor_natural FF)) X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_functor</span>
+           {<span class="nv">x</span> <span class="nv">y</span> : univalent_category}
+           {<span class="nv">f</span> : bicat_of_univ_cats ⟦ x, y ⟧}
+           {<span class="nv">mx</span> : (monad bicat_of_univ_cats) x}
+           {<span class="nv">my</span> : (monad bicat_of_univ_cats) y}
+           (<span class="nv">mf</span> : mx --&gt;[ f] my)
+  : Monad_to_Ktriple_data mx --&gt;[ f ] Monad_to_Ktriple_data my.
+<span class="kn">Proof</span>.
+  use make_kleisli_triple_on_functor.
+  - <span class="bp">exact</span> (monad_mor_natural_pointwise mf).
+  - <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : x), _); <span class="nb">simpl</span>;
+        <span class="nb">pose</span> (nat_trans_eq_pointwise (monad_mor_unit mf) X) <span class="k">as</span> mf_unit;
+        <span class="nb">cbn</span> <span class="k">in</span> mf_unit;
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> mf_unit;
+        etrans; [ <span class="nb">apply</span> pathsinv0 | <span class="nb">apply</span> maponpaths_2; <span class="bp">exact</span> mf_unit ];
+        etrans; [ <span class="nb">rewrite</span> assoc' | <span class="nb">apply</span> id_right ];
+      <span class="nb">apply</span> maponpaths;
+        <span class="bp">exact</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural mf)) X))
+      ).
+  - <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> <span class="nv">Y</span> : x) (<span class="nv">p</span> : x ⟦ X, pr1 (Monad_to_Ktriple_data mx) Y ⟧), _);
+        <span class="nb">unfold</span> Monad_to_Ktriple_data, bind_kt; <span class="nb">simpl</span>;
+        etrans; [ <span class="nb">apply</span> (monad_mor_bind_alt mf) | <span class="kp">idtac</span> ];
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (inv_monad_mor_natural_pointwise mf);
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc';
+        <span class="nb">apply</span> idpath
+      ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** the extra identities in the statement are no longer of use for [Monad_to_Ktriple] *)</span>
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_2cell</span>
+  : ∏ (x y : univalent_category)
+      (f g : x ⟶ y)
+      (α : prebicat_cells bicat_of_univ_cats f g)
+      (mx : (monad bicat_of_univ_cats) x) (my : (monad bicat_of_univ_cats) y)
+      (mf : mx --&gt;[ f] my)
+      (mg : mx --&gt;[ g] my),
+    mf ==&gt;[ α] mg
+    →
+    ∏ X,
+    pr1 ((pr2 (monad_mor_natural mf)) ^-<span class="mi">1</span>) X
+        · id₁ (f (pr1 (monad_endo mx) X))
+        · pr1 α ((pr111 (pr1 mx)) X) =
+    monad_bind my (pr1 α X · pr1 (monad_unit my) (g X))
+               · (pr1 ((pr2 (monad_mor_natural mg)) ^-<span class="mi">1</span>) X
+                      · id₁ (g (pr1 (monad_endo mx) X))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f g α mx my mf mg mα.
+  <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span>: (x:univalent_category), _).
+  <span class="nb">rewrite</span> !id_right.
+  <span class="nb">pose</span> (nat_trans_eq_pointwise (pr11 mα) X) <span class="k">as</span> d.
+  <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · pr1 ((pr2 (monad_mor_natural mg)) ^-<span class="mi">1</span>) X) d) <span class="k">as</span> p₁.
+  <span class="nb">cbn</span> <span class="k">in</span> p₁.
+  <span class="nb">rewrite</span> assoc' <span class="k">in</span> p₁.
+  <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 α (pr1 (pr11 mx) X) · z)
+                   (!(nat_trans_eq_pointwise
+                        (vcomp_rinv (monad_mor_natural mg))
+                        X))) <span class="k">as</span> p₂.
+  <span class="nb">pose</span> (!(id_right _) @ p₂ @ p₁) <span class="k">as</span> r.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) r @ _).
+  <span class="nb">clear</span> d p₁ p₂ r.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · # (pr111 my) (pr1 α X))
+                   (!(nat_trans_eq_pointwise
+                        (vcomp_linv (monad_mor_natural mf))
+                        X))) <span class="k">as</span> p.
+  <span class="nb">pose</span> (!(id_left _) @ p) <span class="k">as</span> r.
+  <span class="nb">refine</span> (!r @ _).
+  <span class="nb">clear</span> p r.
+  <span class="nb">apply</span> cat_monad_map_as_bind.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_identitor</span>
+  : ∏ (x : bicat_of_univ_cats) (xx : (monad bicat_of_univ_cats) x),
+    (id_disp (Monad_to_Ktriple_data xx))
+      ==&gt;[ psfunctor_id (id_psfunctor bicat_of_univ_cats) x]
+      Monad_to_Ktriple_functor (id_disp xx).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x mx X; <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left ; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> (functor_id (pr11 mx)), id_right.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> (cat_monad_unit_bind mx).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_compositor</span>
+  : ∏ (x y z : univalent_category)
+      (f : x ⟶ y) (g : y ⟶ z)
+      (xx : (monad bicat_of_univ_cats) x)
+      (yy : (monad bicat_of_univ_cats) y)
+      (zz : (monad bicat_of_univ_cats) z)
+      (ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+    (Monad_to_Ktriple_functor ff;; Monad_to_Ktriple_functor gg)
+      ==&gt;[ id₂ _]
+      Monad_to_Ktriple_functor (ff;; gg).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z f g mx my mz mf mg.
+  <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> : pr1 x, _).
+  <span class="nb">cbn</span>.
+  etrans.
+  { <span class="nb">apply</span> id_right. }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="bp">exact</span> (cat_monad_unit_bind mz).
+    }
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">apply</span> id_right.
+  }
+  etrans.
+  {
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (functor_id (pr11 mz) (g(f X))).
+    }
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>. <span class="c">(* 32 seconds on my computer *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple</span>
+  : disp_psfunctor (monad bicat_of_univ_cats)
+                   kleisli_triple_disp_bicat
+                   (id_psfunctor bicat_of_univ_cats).
+<span class="kn">Proof</span>.
+  use make_disp_psfunctor.
+  - <span class="bp">exact</span> disp_2cells_isaprop_kleisli.
+  - <span class="bp">exact</span> disp_locally_groupoid_kleisli.
+  - <span class="bp">exact</span> @Monad_to_Ktriple_data.
+  - <span class="bp">exact</span> @Monad_to_Ktriple_functor.
+  - <span class="nb">intros</span> x y f g α mx my mf mg mα X.
+    <span class="nb">assert</span> (Hyp := Monad_to_Ktriple_2cell x y f g α mx my mf mg mα X).
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right <span class="k">in</span> Hyp.
+    <span class="bp">assumption</span>.
+  - <span class="bp">exact</span> Monad_to_Ktriple_identitor.
+  - <span class="bp">exact</span> Monad_to_Ktriple_compositor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_kt_monad_to_kleisli</span>
+      {<span class="nv">x</span> : univalent_category}
+      (<span class="nv">k</span> : kleisli_triple x)
+      {<span class="nv">a</span> <span class="nv">b</span> : x}
+      (<span class="nv">f</span> : x ⟦ a, k b ⟧)
+  : bind_kt (Monad_to_Ktriple_data (unit_mu_kleisli k)) f = bind_kt k f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> bind_kt <span class="nb">at</span> <span class="mi">1</span>; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> monad_bind; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (bind_bind k).
+  <span class="nb">apply</span> maponpaths.
+  etrans; [ <span class="kp">idtac</span> | <span class="nb">apply</span> id_right ].
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (unit_bind k).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_biequiv_Ktriple_unit</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         (id_psfunctor bicat_of_univ_cats) (id_psfunctor bicat_of_univ_cats)
+         (monad bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         (monad bicat_of_univ_cats)
+         Monad_to_Ktriple
+         Ktriple_to_Monad)
+      (disp_pseudo_id (monad bicat_of_univ_cats))
+      (lunitor_pstrans (id_psfunctor bicat_of_univ_cats)).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> (disp_2cells_isaprop_monad
+             bicat_of_univ_cats
+             univalent_cat_is_univalent_2).
+  - <span class="bp">exact</span> (disp_locally_groupoid_monad
+             bicat_of_univ_cats
+             univalent_cat_is_univalent_2).
+  - <span class="nb">intros</span>.
+    use make_cat_monad_mor.
+    + <span class="nb">simpl</span>.
+      <span class="nb">cbn</span>.
+      use make_nat_z_iso.
+      * use make_nat_trans.
+        ** <span class="nb">intro</span> z. <span class="nb">apply</span> identity.
+        ** <span class="kp">abstract</span>
+             (<span class="nb">intros</span> z t f ; <span class="nb">cbn</span>;
+              <span class="nb">rewrite</span> id_left, id_right;
+              <span class="nb">unfold</span> monad_bind;
+              <span class="nb">rewrite</span> (functor_comp (monad_endo xx : _ ⟶ _));
+              <span class="nb">rewrite</span> assoc';
+              etrans;
+              [ <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> (cat_monad_ημ xx)
+              | <span class="nb">apply</span> id_right ]).
+      * <span class="nb">intros</span> z. <span class="nb">apply</span> identity_is_z_iso.
+    + <span class="nb">intros</span> z.
+      <span class="nb">apply</span> id_right.
+    + <span class="kp">abstract</span> (
+          <span class="nb">simpl</span>;
+          <span class="nb">intros</span> X;
+          <span class="nb">rewrite</span> id_left;
+          <span class="nb">apply</span> id_right).
+  - <span class="kp">abstract</span> (
+        <span class="nb">intros</span>;
+        use make_cat_monad_cell;
+        <span class="nb">simpl</span>;
+        <span class="nb">intros</span> X;
+        <span class="nb">rewrite</span> !(functor_id ((monad_endo yy) : _ ⟶ _));
+        <span class="nb">rewrite</span> (functor_id f);
+        <span class="nb">rewrite</span> !id_left;
+        <span class="nb">rewrite</span> !(functor_id ((monad_endo yy) : _ ⟶ _));
+        <span class="nb">rewrite</span> !id_right;
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">apply</span> inv_z_iso_unique';
+        <span class="nb">unfold</span> precomp_with;
+        <span class="nb">simpl</span>;
+        <span class="bp">exact</span> (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural ff)) X))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_bequiv_Ktriple_counit</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         (id_psfunctor bicat_of_univ_cats) (id_psfunctor bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         (monad bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         Ktriple_to_Monad Monad_to_Ktriple)
+      (disp_pseudo_id kleisli_triple_disp_bicat)
+      (lunitor_pstrans (id_psfunctor bicat_of_univ_cats)).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> disp_2cells_isaprop_kleisli.
+  - <span class="bp">exact</span> disp_locally_groupoid_kleisli.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> : univalent_category) (<span class="nv">kx</span> : kleisli_triple x), _).
+    use make_kleisli_triple_on_functor.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, identity_z_iso (kx X)).
+    + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">A</span> : x, _);
+          <span class="nb">apply</span> pathsinv0;
+          <span class="nb">apply</span> id_right).
+    + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">A</span> <span class="nv">B</span> : pr1 x) (<span class="nv">f</span> : pr1 x ⟦ A, pr1 kx B ⟧), _);
+          <span class="nb">simpl</span>;
+          <span class="nb">rewrite</span> id_right;
+          etrans; [ <span class="nb">apply</span> bind_kt_monad_to_kleisli | <span class="kp">idtac</span> ];
+          etrans;
+          [ <span class="nb">pose</span> (kleisli_triple_on_functor_bind_kt
+                    (kleisli_triple_on_identity_functor
+                       kx)
+                    _ _ f
+                 ) <span class="k">as</span> H;
+            <span class="nb">simpl</span> <span class="k">in</span> H;
+            <span class="bp">exact</span> H
+          | <span class="kp">idtac</span> ];
+          <span class="nb">apply</span> id_right
+        ).
+  - <span class="kp">abstract</span> (
+        <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : univalent_category)
+                  (<span class="nv">f</span> : pr1 x ⟶ pr1 y)
+                  (<span class="nv">kx</span> : kleisli_triple x)
+                  (<span class="nv">ky</span> : kleisli_triple y)
+                  (<span class="nv">kf</span> : kleisli_triple_on_functor kx ky f)
+                  (<span class="nv">X</span> : x),
+                _);
+        <span class="nb">simpl</span>;
+        <span class="nb">apply</span> pathsinv0;
+        etrans;
+        [ <span class="nb">apply</span> maponpaths_2;
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left;
+          <span class="nb">apply</span> (bind_unit ky)
+        | <span class="kp">idtac</span> ];
+        etrans; [ <span class="nb">apply</span> id_left | <span class="kp">idtac</span>];
+        etrans; [ <span class="nb">apply</span> id_left | <span class="kp">idtac</span>];
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">simpl</span>;
+        etrans;
+        [ <span class="nb">rewrite</span> assoc';
+          <span class="nb">apply</span> maponpaths;
+          <span class="nb">rewrite</span> functor_id;
+          etrans; [ <span class="nb">apply</span> id_left | <span class="kp">idtac</span>];
+          <span class="nb">apply</span> id_left
+        | <span class="kp">idtac</span> ];
+          etrans; [ <span class="nb">apply</span> id_right | <span class="kp">idtac</span>];
+        <span class="nb">apply</span> idpath
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_biequiv_Ktriple_unit_counit</span>
+  : is_disp_biequivalence_unit_counit
+      (monad bicat_of_univ_cats)
+      kleisli_triple_disp_bicat
+      (id_is_biequivalence _) Monad_to_Ktriple Ktriple_to_Monad.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> Monad_biequiv_Ktriple_unit.
+  - <span class="bp">exact</span> Monad_bequiv_Ktriple_counit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_biequiv_Ktriple_unit_inv</span>
+  : disp_pstrans
+      (disp_pseudo_id (monad bicat_of_univ_cats))
+      (disp_pseudo_comp
+         (id_psfunctor bicat_of_univ_cats) (id_psfunctor bicat_of_univ_cats)
+         (monad bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         (monad bicat_of_univ_cats)
+         Monad_to_Ktriple
+         Ktriple_to_Monad)
+      (linvunitor_pstrans (id_psfunctor bicat_of_univ_cats)).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> (disp_2cells_isaprop_monad
+             bicat_of_univ_cats
+             univalent_cat_is_univalent_2).
+  - <span class="bp">exact</span> (disp_locally_groupoid_monad
+             bicat_of_univ_cats
+             univalent_cat_is_univalent_2).
+  - <span class="nb">intros</span>.
+    use make_cat_monad_mor.
+    + <span class="nb">simpl</span>.
+      <span class="nb">cbn</span>.
+      use make_nat_z_iso.
+      * use make_nat_trans.
+        ** <span class="nb">intro</span> z. <span class="nb">apply</span> identity.
+        ** <span class="kp">abstract</span>
+             (<span class="nb">intros</span> z t f ; <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> id_left, id_right ;
+              <span class="nb">apply</span> cat_monad_map_as_bind).
+      * <span class="nb">intros</span> z. <span class="nb">apply</span> identity_is_z_iso.
+    + <span class="nb">intros</span> z.
+      <span class="nb">apply</span> id_right.
+    + <span class="kp">abstract</span>
+        (<span class="nb">simpl</span> ;
+         <span class="nb">intros</span> X ;
+         <span class="nb">rewrite</span> !id_left, id_right ;
+         <span class="nb">rewrite</span> bind_unit ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> monad_bind ;
+         <span class="nb">rewrite</span> functor_id ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ;
+       use make_cat_monad_cell ;
+       <span class="nb">simpl</span> ;
+       <span class="nb">intro</span> z ;
+       <span class="nb">rewrite</span> !id_left ;
+       <span class="nb">rewrite</span> !id_right ;
+       <span class="nb">rewrite</span> (functor_id f) ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> &lt;- assoc ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">q</span>, _ · q) (cat_monad_unit_bind _) @ _) ;
+       <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_biequiv_Ktriple_counit_inv</span>
+  : disp_pstrans
+      (disp_pseudo_id kleisli_triple_disp_bicat)
+      (disp_pseudo_comp
+         (id_psfunctor bicat_of_univ_cats) (id_psfunctor bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         (monad bicat_of_univ_cats)
+         kleisli_triple_disp_bicat
+         Ktriple_to_Monad Monad_to_Ktriple)
+      (linvunitor_pstrans (id_psfunctor bicat_of_univ_cats)).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> disp_2cells_isaprop_kleisli.
+  - <span class="bp">exact</span> disp_locally_groupoid_kleisli.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> : univalent_category) (<span class="nv">kx</span> : kleisli_triple x), _).
+    use make_kleisli_triple_on_functor.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, identity_z_iso (kx X)).
+    + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">A</span> : x, _);
+          <span class="nb">apply</span> pathsinv0;
+          <span class="nb">apply</span> id_right).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> A B f ;
+         <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">refine</span> (!_) ;
+         etrans ; [ <span class="nb">apply</span> bind_kt_monad_to_kleisli | ] ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> id_right).
+  - <span class="kp">abstract</span>
+      ( <span class="nb">intros</span> x y f kx ky kf z ;
+        <span class="nb">simpl</span> ;
+        <span class="nb">cbn</span>;
+        <span class="nb">rewrite</span> !id_left, !id_right;
+        <span class="nb">rewrite</span> functor_id, id_right;
+        etrans;
+        [| <span class="nb">apply</span> cancel_postcomposition, pathsinv0,
+          (cat_monad_unit_bind (unit_mu_kleisli ky))];
+        <span class="nb">apply</span> pathsinv0, id_left
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_disp_biequiv_Ktriple</span>
+  : disp_is_biequivalence_data
+      (monad bicat_of_univ_cats)
+      kleisli_triple_disp_bicat
+      (id_is_biequivalence _)
+      Monad_biequiv_Ktriple_unit_counit.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, ((_ ,, _) ,, (_ ,, _))).
+  - <span class="bp">exact</span> Monad_biequiv_Ktriple_unit_inv.
+  - <span class="bp">exact</span> Monad_biequiv_Ktriple_counit_inv.
+  - use make_disp_invmodification.
+    + <span class="bp">exact</span> (disp_2cells_isaprop_monad
+               bicat_of_univ_cats
+               univalent_cat_is_univalent_2).
+    + <span class="bp">exact</span> (disp_locally_groupoid_monad
+               bicat_of_univ_cats
+               univalent_cat_is_univalent_2).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx ;
+         use make_cat_monad_cell ;
+         <span class="nb">intros</span> z ;
+         <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">rewrite</span> (functor_id (pr11 xx)), (functor_id (monad_endo xx)) ;
+         <span class="bp">exact</span> (!(id_left _))).
+  - use make_disp_invmodification.
+    + <span class="bp">exact</span> (disp_2cells_isaprop_monad
+               bicat_of_univ_cats
+               univalent_cat_is_univalent_2).
+    + <span class="bp">exact</span> (disp_locally_groupoid_monad
+               bicat_of_univ_cats
+               univalent_cat_is_univalent_2).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx ;
+         use make_cat_monad_cell ;
+         <span class="nb">intros</span> z ;
+         <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !id_left ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">refine</span> (bind_bind
+                   (Monad_to_Ktriple_data xx)
+                   (unit_kt (Monad_to_Ktriple_data xx) z)
+                   (unit_kt (Monad_to_Ktriple_data xx) z)
+                 @ _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> unit_bind).
+  - use make_disp_invmodification.
+    + <span class="bp">exact</span> disp_2cells_isaprop_kleisli.
+    + <span class="bp">exact</span> disp_locally_groupoid_kleisli.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx z ;
+         <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !id_left, id_right ;
+         <span class="nb">rewrite</span> bind_unit ;
+         <span class="nb">apply</span> idpath).
+  - use make_disp_invmodification.
+    + <span class="bp">exact</span> disp_2cells_isaprop_kleisli.
+    + <span class="bp">exact</span> disp_locally_groupoid_kleisli.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x xx z ;
+         <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !id_left, id_right ;
+         <span class="nb">rewrite</span> bind_unit ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Monad_to_Ktriple_psfunctor</span>
+  : psfunctor
+      (total_bicat (monad bicat_of_univ_cats))
+      (total_bicat kleisli_triple_disp_bicat)
+  := total_psfunctor
+       (monad bicat_of_univ_cats)
+       kleisli_triple_disp_bicat
+       (id_psfunctor bicat_of_univ_cats)
+       Monad_to_Ktriple.
+
+<span class="kn">Definition</span> <span class="nf">Monad_biequiv_Ktriple</span>
+  : is_biequivalence Monad_to_Ktriple_psfunctor
+  := total_is_biequivalence
+       _
+       _
+       _
+       Monad_disp_biequiv_Ktriple.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/MonadKtripleBiequiv.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Biequivalence between Monads and Ktriples                              *)
+  &gt; (* ========================================================================= *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

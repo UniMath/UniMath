@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedDisplayedCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence. <span class="c">(* only coercions *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+
+<span class="kn">Section</span> <span class="nf">DisplayedDisplayedCategories</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_disp_cat</span> (<span class="nv">C</span> : category) : UU
+  := ∑ (D : disp_cat C), disp_cat (total_category D).
+
+<span class="kn">Definition</span> <span class="nf">base_disp_cat</span> {<span class="nv">C</span> : category} (<span class="nv">E</span> : disp_disp_cat C) : disp_cat C
+  := pr1 E.
+
+<span class="kn">Definition</span> <span class="nf">top_disp_cat</span> {<span class="nv">C</span> : category} (<span class="nv">E</span> : disp_disp_cat C)
+  : disp_cat (total_category (base_disp_cat E))
+  := pr2 E.
+
+<span class="kn">End</span> <span class="nf">DisplayedDisplayedCategories</span>.
+
+
+<span class="kn">Section</span> <span class="nf">CompositeDisplayedCategories</span>.
+
+<span class="kn">Definition</span> <span class="nf">composite_disp_cat_ob_mor</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C)
+  : disp_cat_ob_mor C.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  use tpair.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (∑ xx : D x, E (x ,, xx)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x y [xx xxx] [yy yyy] f.
+    <span class="bp">exact</span> (∑ ff : xx --&gt;[f] yy, xxx --&gt;[(f ,, ff)] yyy).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">composite_disp_cat_id_comp</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C)
+  : disp_cat_id_comp C (composite_disp_cat_ob_mor DD).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  use tpair.
+  - <span class="nb">intros</span> x [xx xxx].
+    use tpair.
+    + <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (id_disp xx).
+    + <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (id_disp xxx).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x y z f g [xx xxx] [yy yyy] [zz zzz] [ff fff] [gg ggg].
+    use tpair.
+    + <span class="bp">exact</span> (ff ;; gg).
+    + <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (fff ;; ggg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">composite_disp_cat_data</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C)
+  := (composite_disp_cat_ob_mor DD ,, composite_disp_cat_id_comp DD) : disp_cat_data C.
+
+<span class="kn">Definition</span> <span class="nf">composite_disp_cat_axioms</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C)
+  : disp_cat_axioms C (composite_disp_cat_data DD).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y f [xx xxx] [yy yyy] [ff fff].
+    use total2_reassoc_paths'.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> id_left_disp.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (pathscomp0 (id_left_disp fff)).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> x y f [xx xxx] [yy yyy] [ff fff].
+    use total2_reassoc_paths'.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> id_right_disp.
+    + <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> (id_right_disp fff).
+      * <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> x y z w f g h [xx xxx] [yy yyy] [zz zzz] [ww www] [ff fff] [gg ggg] [hh hhh].
+    use total2_reassoc_paths'.
+    + <span class="nb">simpl</span>.
+      <span class="nb">apply</span> assoc_disp.
+    + <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> (assoc_disp fff ggg hhh).
+      * <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> x y f [xx xxx] [yy yyy].
+    <span class="nb">apply</span> isaset_total2.
+    + <span class="nb">apply</span> homsets_disp.
+    + <span class="nb">intros</span> ff.
+      <span class="nb">apply</span> homsets_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">composite_disp_cat</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C)
+  : disp_cat C
+  := (_,, composite_disp_cat_axioms DD).
+
+<span class="kn">End</span> <span class="nf">CompositeDisplayedCategories</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Auxiliary</span>. <span class="c">(* Auxiliary lemmas for the axioms of fiber displayed categories. *)</span>
+
+<span class="c">(* analogous to UniMath.MoreFoundations.PartA.total2_reassoc_paths' for fiber instead of composite: *)</span>
+<span class="kn">Definition</span> <span class="nf">total2_fiber_path</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A -&gt; UU} {<span class="nv">C</span> : (∑ a, B a) -&gt; UU} (<span class="nv">a</span> : A)
+    (<span class="nv">Ca</span> : B a -&gt; UU := <span class="k">λ</span> <span class="nv">b</span>, C (a ,, b))
+    {<span class="nv">b1</span> <span class="nv">b2</span> : B a} (<span class="nv">c1</span> : Ca b1) (<span class="nv">c2</span> : Ca b2)
+    (<span class="nv">eb</span> : b1 = b2)
+    (<span class="nv">ec</span> : c1 = transportb C (two_arg_paths_b (idpath a) eb) c2)
+  : c1 = transportb Ca eb c2.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> eb; <span class="nb">cbn</span>.
+  <span class="nb">destruct</span> (! ec); <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* the following lemma roughly means that a morphism of dependent types commutes with transport: *)</span>
+<span class="kn">Definition</span> <span class="nf">mor_disp_types_comm_transp</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">P</span>: A → UU) (<span class="nv">Q</span> : B → UU)
+    (<span class="nv">f0</span>: A → B) (<span class="nv">f1</span>: ∏ a : A, P a → Q(f0 a))
+    {<span class="nv">x</span> <span class="nv">x'</span> : A} (<span class="nv">h</span>: x = x')
+  : ∏ (p : P x), transportf Q (maponpaths f0 h) (f1 x p) = f1 x' (transportf P h p).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">induction</span> h.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Auxiliary</span>.
+
+
+<span class="kn">Section</span> <span class="nf">FiberDisplayedCategories</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_disp_cat_ob_mor</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C) (<span class="nv">c</span> : C)
+  : disp_cat_ob_mor (base_disp_cat DD)[{c}].
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  use tpair.
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (E (c ,, x)).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x y xx yy f.
+    <span class="bp">exact</span> (xx --&gt;[(identity c ,, f)] yy).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_disp_cat_id_comp</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C) (<span class="nv">c</span> : C)
+  : disp_cat_id_comp (base_disp_cat DD)[{c}] (fiber_disp_cat_ob_mor DD c).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  <span class="nb">split</span>.
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x xx.
+    <span class="nb">apply</span> (@id_disp _ E _ xx).
+  - <span class="nb">simpl</span>.
+    <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    use (transportf _ _ (ff ;; gg)).
+    use total2_paths_f; <span class="nb">simpl</span>.
+    + <span class="nb">apply</span> id_right.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_disp_cat_data</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C) (<span class="nv">c</span> : C)
+  := (fiber_disp_cat_ob_mor DD c,, fiber_disp_cat_id_comp DD c)
+  : disp_cat_data (base_disp_cat DD)[{c}].
+
+<span class="kn">Definition</span> <span class="nf">fiber_disp_cat_axioms</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C) (<span class="nv">c</span> : C)
+  : disp_cat_axioms (base_disp_cat DD)[{c}] (fiber_disp_cat_data DD c).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> DD <span class="k">as</span> [D E].
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>.
+  - <span class="nb">simpl</span> <span class="k">in</span> *.
+    use total2_fiber_path.
+    <span class="nb">unfold</span> <span class="s2">";;"</span>.
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">apply</span> (pathscomp0 (id_left_disp ff)).
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> transport_b_b. }
+    + <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">simpl</span> <span class="k">in</span> *.
+    use total2_fiber_path.
+    <span class="nb">unfold</span> <span class="s2">";;"</span>.
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">apply</span> (pathscomp0 (id_right_disp ff)).
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> transport_b_b. }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">simpl</span> <span class="k">in</span> *.
+    use total2_fiber_path.
+    <span class="nb">unfold</span> <span class="s2">";;"</span>; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> transport_b_b. }
+    use pathscomp0.
+    + <span class="nb">eapply</span> transportf.
+      <span class="mi">2</span>: { <span class="bp">exact</span> (ff ;; (gg ;; hh)). }
+      <span class="nb">unfold</span> <span class="s2">"·"</span>; <span class="nb">simpl</span>.
+      use total2_paths_f; <span class="nb">simpl</span>.
+      * <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      * <span class="nb">apply</span> (mor_disp_types_comm_transp _ _ (<span class="k">λ</span> <span class="nv">e</span>, identity c · e) (<span class="k">λ</span> <span class="nv">e</span> <span class="nv">ee</span>, f ;; ee)).
+    + <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> pathsinv0.
+        <span class="nb">unfold</span> <span class="s2">"·"</span>; <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (mor_disp_types_comm_transp (mor_disp yy ww) (mor_disp xx ww) _ (<span class="k">λ</span> <span class="nv">e</span> <span class="nv">ee</span>, ff ;; ee) (@total2_paths_f _ _ (identity c · identity c,, _) (identity c,, _) (id_right (identity c)) (idpath (transportf (mor_disp y w) (id_right (identity c)) (g ;; h)))) (gg ;; hh)).
+      * <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homset_property (total_category D) (c,, x) (c,, w)).
+    + <span class="nb">eapply</span> pathscomp0.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> transport_b_f. }
+      <span class="nb">apply</span> transportf_transpose_right.
+      use pathscomp0.
+      * use transportf.
+        -- <span class="bp">exact</span> ((identity c,, f : total_category D ⟦(c,, x), (c,, y)⟧) · (identity c,, g : total_category D ⟦(c,, y), (c,, z)⟧) · (identity c,, h : total_category D ⟦(c,, z), (c,, w)⟧)).
+        -- <span class="nb">simpl</span>.
+           <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e</span>, pr2 (pr2 (total_category_data D)) (c,, x) (c,, z) (c,, w) e (identity c,, h))).
+           use total2_paths_f; <span class="nb">simpl</span>.
+           ++ <span class="nb">apply</span> id_right.
+           ++ <span class="nb">apply</span> idpath.
+        -- <span class="bp">exact</span> (ff ;; gg ;; hh).
+      * <span class="nb">eapply</span> pathscomp0.
+        -- <span class="nb">apply</span> transport_b_f.
+        -- <span class="nb">apply</span> transportf_transpose_left.
+           <span class="nb">apply</span> (pathscomp0 (assoc_disp ff gg hh)).
+           <span class="nb">eapply</span> pathscomp0.
+           <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> transport_b_f. }
+           <span class="nb">unfold</span> transportb.
+           <span class="nb">unfold</span> <span class="s2">";;"</span> <span class="nb">at</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">9</span> <span class="mi">10</span>.
+           <span class="nb">apply</span> maponpaths_2.
+           <span class="nb">apply</span> (homset_property (total_category D) (c,, x) (c,, w)).
+      * <span class="nb">apply</span> (mor_disp_types_comm_transp _ _ (<span class="k">λ</span> <span class="nv">e</span> : total_category_data D ⟦ c,, x, c,, z ⟧, e · (identity c,, h : total_category D ⟦(c,, z), (c,, w)⟧)) (<span class="k">λ</span> <span class="nv">e</span> <span class="nv">ee</span>, ee ;; hh)).
+  - <span class="nb">apply</span> homsets_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_disp_cat</span> {<span class="nv">C</span> : category} (<span class="nv">DD</span> : disp_disp_cat C) (<span class="nv">c</span> : C)
+  : disp_cat (base_disp_cat DD)[{c}]
+  := (_,, fiber_disp_cat_axioms DD c).
+
+<span class="kn">End</span> <span class="nf">FiberDisplayedCategories</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MoreFibrations/DisplayedDisplayedCats.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

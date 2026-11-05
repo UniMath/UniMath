@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Products.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Type indexed products of DCPOs</span>
+
+<span class="sd"> In this file, we construct type indexed products of DCPOs, and</span>
+<span class="sd"> we prove the usual universal property. In addition, we use this</span>
+<span class="sd"> construction to construct the DCPO whose inhabitants are subsets</span>
+<span class="sd"> of a fixed set.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Type indexed products</span>
+<span class="sd"> 2. The universal property</span>
+<span class="sd"> 3. It is pointed</span>
+<span class="sd"> 4. Functions to a fixed DCPO</span>
+<span class="sd"> 5. The subtype DCPO</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.Propositions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.SubDCPO.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Type indexed products</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TypeIndexedProductsDCPO</span>.
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU}
+          (<span class="nv">D</span> : I → dcpo).
+
+  <span class="kn">Definition</span> <span class="nf">app_directed_set_depfun</span>
+             (<span class="nv">E</span> : directed_set
+                    (depfunction_poset (<span class="k">λ</span> <span class="nv">i</span>, D i) (<span class="k">λ</span> <span class="nv">i</span>, D i)))
+             (<span class="nv">i</span> : I)
+    : directed_set (D i).
+  <span class="kn">Proof</span>.
+    use make_directed_set.
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">e</span>, E e i).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (directed_set_el E).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> e₁ e₂ ;
+           <span class="nb">assert</span> (k := directed_set_top E e₁ e₂) ;
+           <span class="nb">revert</span> k ;
+           use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ] ;
+           <span class="nb">intros</span> k ;
+           <span class="nb">induction</span> k <span class="k">as</span> [ k [ H₁ H₂ ]] ;
+           <span class="bp">exact</span> (hinhpr (k ,, (H₁ i ,, H₂ i)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">DepFunctionLub</span>.
+    <span class="kn">Context</span> (<span class="nv">E</span> : directed_set
+                   (depfunction_poset (<span class="k">λ</span> <span class="nv">i</span>, D i) (<span class="k">λ</span> <span class="nv">i</span>, D i))).
+
+    <span class="kn">Definition</span> <span class="nf">type_prod_pointwise_lub</span>
+               (<span class="nv">i</span> : I)
+      : D i
+      := ⨆ (app_directed_set_depfun E i).
+
+    <span class="kn">Proposition</span> <span class="nf">is_lub_type_prod_pointwise_lub</span>
+      : is_least_upperbound
+          (depfunction_poset (<span class="k">λ</span> <span class="nv">i</span> : I, D i) (<span class="k">λ</span> <span class="nv">i</span> : I, D i))
+          E
+          type_prod_pointwise_lub.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> e i ; <span class="nb">cbn</span>.
+        use less_than_dcpo_lub ; [ <span class="bp">exact</span> e | ] ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+      - <span class="nb">intros</span> f Hf i.
+        use dcpo_lub_is_least.
+        <span class="nb">intro</span> e ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (Hf e i).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">DepFunctionLub</span>.
+
+  <span class="kn">Definition</span> <span class="nf">directed_complete_depfunction</span>
+    : directed_complete_poset
+        (depfunction_poset (<span class="k">λ</span> <span class="nv">i</span>, D i) (<span class="k">λ</span> <span class="nv">i</span>, D i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> J E HE.
+    use make_lub.
+    - <span class="bp">exact</span> (type_prod_pointwise_lub (J ,, (E ,, HE))).
+    - <span class="bp">exact</span> (is_lub_type_prod_pointwise_lub (J ,, (E ,, HE))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">depfunction_dcpo_struct</span>
+    : dcpo_struct (∏ y, D y)%<span class="nb">set</span>
+    := depfunction_poset _ (<span class="k">λ</span> <span class="nv">i</span>, D i) ,, directed_complete_depfunction.
+
+  <span class="kn">Definition</span> <span class="nf">depfunction_dcpo</span>
+    : dcpo
+    := _ ,, depfunction_dcpo_struct.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The universal property</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_depfunction_pr</span>
+              (<span class="nv">i</span> : I)
+    : is_scott_continuous
+        depfunction_dcpo
+        (D i)
+        (<span class="k">λ</span> <span class="nv">f</span>, f i).
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="bp">exact</span> (is_monotone_depfunction_poset_pr (<span class="k">λ</span> <span class="nv">i</span>, D i) (<span class="k">λ</span> <span class="nv">i</span>, D i) i).
+    - <span class="nb">intros</span> E.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> type_prod_pointwise_lub.
+      use antisymm_dcpo.
+      + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> e.
+        use less_than_dcpo_lub ; [ <span class="bp">exact</span> e | ] ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+      + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> e.
+        use less_than_dcpo_lub ; [ <span class="bp">exact</span> e | ] ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_depfunction_map</span>
+              {<span class="nv">W</span> : dcpo}
+              (<span class="nv">fs</span> : ∏ (i : I), scott_continuous_map W (D i))
+    : is_scott_continuous W depfunction_dcpo (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">i</span>, fs i w).
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="bp">exact</span> (is_monotone_depfunction_poset_pair fs (<span class="k">λ</span> <span class="nv">i</span>, pr12 (fs i))).
+    - <span class="nb">intros</span> E.
+      use funextsec ; <span class="nb">intro</span> i.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> type_prod_pointwise_lub.
+      <span class="nb">rewrite</span> scott_continuous_map_on_lub.
+      use antisymm_dcpo.
+      + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> e.
+        use less_than_dcpo_lub ; [ <span class="bp">exact</span> e | ] ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+      + use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> e.
+        use less_than_dcpo_lub ; [ <span class="bp">exact</span> e | ] ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">TypeIndexedProductsDCPO</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. It is pointed</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">depfunction_dcppo_struct</span>
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">D</span> : I → dcppo)
+  : dcppo_struct (∏ y, D y)%<span class="nb">set</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (depfunction_dcpo_struct (<span class="k">λ</span> <span class="nv">i</span>, D i) ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, ⊥_{ D i }).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> f i ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> is_min_bottom_dcppo).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">depfunction_dcppo</span>
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">D</span> : I → dcppo)
+  : dcppo
+  := _ ,, depfunction_dcppo_struct D.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_scott_continuous_depfunction_pr</span>
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">D</span> : I → dcppo)
+            (<span class="nv">i</span> : I)
+  : is_strict_scott_continuous
+      (depfunction_dcppo_struct D)
+      (D i)
+      (<span class="k">λ</span> <span class="nv">f</span>, f i).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (is_scott_continuous_depfunction_pr D i).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_scott_continuous_depfunction_map</span>
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">D</span> : I → dcppo)
+            {<span class="nv">W</span> : dcppo}
+            (<span class="nv">fs</span> : ∏ (i : I), strict_scott_continuous_map W (D i))
+  : is_strict_scott_continuous
+      W
+      (depfunction_dcppo  D)
+      (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">i</span>, fs i w).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (is_scott_continuous_depfunction_map D fs).
+  - use funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> strict_scott_continuous_map_on_point.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Functions to a fixed DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">funset_dcpo</span>
+           (<span class="nv">X</span> : UU)
+           (<span class="nv">D</span> : dcpo)
+  : dcpo
+  := @depfunction_dcpo X (<span class="k">λ</span> <span class="nv">_</span>, D).
+
+<span class="kn">Definition</span> <span class="nf">funset_dcppo</span>
+           (<span class="nv">X</span> : UU)
+           (<span class="nv">D</span> : dcppo)
+  : dcppo
+  := @depfunction_dcppo X (<span class="k">λ</span> <span class="nv">_</span>, D).
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The subtype DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">subtype_dcppo</span>
+           (<span class="nv">X</span> : UU)
+  : dcppo
+  := funset_dcppo X hProp_dcppo.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. The DCPO of monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lub_is_monotone</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">D</span> : directed_set (funset_dcpo X Y))
+            (<span class="nv">HD</span> : ∏ (d : D), is_monotone X Y (D d))
+  : is_monotone X Y (⨆ D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y p.
+  use dcpo_lub_is_least.
+  <span class="nb">intro</span> d ; <span class="nb">cbn</span> <span class="k">in</span> d ; <span class="nb">cbn</span>.
+  use less_than_dcpo_lub.
+  {
+    <span class="bp">exact</span> d.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> HD.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monotone_map_dcpo</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : dcpo)
+  : dcpo
+  := sub_dcpo
+       (funset_dcpo X Y)
+       (<span class="k">λ</span> <span class="nv">f</span>, make_hProp (is_monotone X Y f) (isaprop_is_monotone _ _ _))
+       lub_is_monotone.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/Products.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The subtype DCPO
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.PointedPosets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

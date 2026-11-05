@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DirectedSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Directed sets</span>
+
+<span class="sd"> To define DCPOs, we need a suitable notion of directed sets. In</span>
+<span class="sd"> this file, we define these basic notions and give some elementary</span>
+<span class="sd"> constructions of directed sets.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Directed sets in a poset</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Precomposing a directed set with a monotone map</span>
+<span class="sd"> 4. The constant directed set</span>
+<span class="sd"> 5. The product of directed sets</span>
+<span class="sd"> 6. Directed sets indexed by the natural numbers</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+
+<span class="kn">Declare Scope</span> dcpo.
+<span class="kn">Delimit Scope</span> dcpo <span class="k">with</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Directed sets in a poset</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Directed</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">PX</span> : PartialOrder X)
+          {<span class="nv">I</span> : UU}
+          (<span class="nv">D</span> : I → X).
+
+  <span class="kn">Definition</span> <span class="nf">is_directed</span>
+    : hProp
+    := ∥ I ∥ ∧ <span class="k">∀</span> (<span class="nv">i</span> <span class="nv">j</span> : I), <span class="k">∃</span> (<span class="nv">k</span> : I), PX (D i) (D k) × PX (D j) (D k).
+
+  <span class="kn">Definition</span> <span class="nf">is_directed_el</span>
+             (<span class="nv">H</span> : is_directed)
+    : ∥ I ∥
+    := pr1 H.
+
+  <span class="kn">Definition</span> <span class="nf">is_directed_top</span>
+             (<span class="nv">H</span> : is_directed)
+             (<span class="nv">i</span> <span class="nv">j</span> : I)
+    : <span class="k">∃</span> (<span class="nv">k</span> : I), PX (D i) (D k) × PX (D j) (D k)
+    := pr2 H i j.
+<span class="kn">End</span> <span class="nf">Directed</span>.
+
+<span class="kn">Arguments</span> is_directed_el {X PX I D} H.
+<span class="kn">Arguments</span> is_directed_top {X PX I D} H i j.
+
+<span class="kn">Definition</span> <span class="nf">directed_set</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+  : UU
+  := ∑ (I : UU)
+       (D : I → X),
+     is_directed PX D.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> *)</span>
+<span class="kn">Coercion</span> <span class="nf">directed_set_dom</span>
+         {X : hSet}
+         {PX : PartialOrder X}
+         (D : directed_set PX)
+  : UU
+  := pr1 D.
+
+<span class="kn">Definition</span> <span class="nf">directed_set_map</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           (<span class="nv">D</span> : directed_set PX)
+  : directed_set_dom D → X
+  := pr12 D.
+
+<span class="kn">Coercion</span> <span class="nf">directed_set_map</span> : directed_set &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_set_is_directed</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           (<span class="nv">D</span> : directed_set PX)
+  : is_directed PX D
+  := pr22 D.
+
+<span class="kn">Definition</span> <span class="nf">directed_set_el</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           (<span class="nv">D</span> : directed_set PX)
+  : ∥ D ∥
+  := is_directed_el (directed_set_is_directed D).
+
+<span class="kn">Definition</span> <span class="nf">directed_set_top</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           (<span class="nv">D</span> : directed_set PX)
+           (<span class="nv">i</span> <span class="nv">j</span> : D)
+  : <span class="k">∃</span> (<span class="nv">k</span> : D), PX (D i) (D k) × PX (D j) (D k)
+  := is_directed_top (directed_set_is_directed D) i j.
+
+<span class="kn">Definition</span> <span class="nf">make_directed_set</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">I</span> : UU)
+           (<span class="nv">D</span> : I → X)
+           (<span class="nv">HD</span> : is_directed PX D)
+  : directed_set PX
+  := I ,, (D ,, HD).
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Precomposing a directed set with a monotone map</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_directed_comp</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">PX</span> : PartialOrder X}
+            {<span class="nv">PY</span> : PartialOrder Y}
+            (<span class="nv">f</span> : X → Y)
+            (<span class="nv">Hf</span> : is_monotone PX PY f)
+            {<span class="nv">I</span> : UU}
+            {<span class="nv">D</span> : I → X}
+            (<span class="nv">HD</span> : is_directed PX D)
+  : is_directed PY (<span class="k">λ</span> <span class="nv">i</span>, f(D i)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> HD <span class="k">as</span> [ H₁ H₂ ].
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> H₁.
+  - <span class="nb">clear</span> H₁.
+    <span class="nb">intros</span> i j.
+    <span class="nb">specialize</span> (H₂ i j).
+    <span class="nb">revert</span> H₂.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> kp.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">refine</span> (pr1 kp ,, _ ,, _).
+    + <span class="nb">apply</span> Hf.
+      <span class="bp">exact</span> (pr12 kp).
+    + <span class="nb">apply</span> Hf.
+      <span class="bp">exact</span> (pr22 kp).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_set_comp</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           {<span class="nv">PY</span> : PartialOrder Y}
+           (<span class="nv">f</span> : monotone_function PX PY)
+           (<span class="nv">D</span> : directed_set PX)
+  : directed_set PY.
+<span class="kn">Proof</span>.
+  use (make_directed_set _ D).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, f(D i)).
+  - use (is_directed_comp f (pr2 f)).
+    <span class="bp">exact</span> (directed_set_is_directed D).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"f '{{' D '}}'"</span> := (directed_set_comp f D) (<span class="kn">at level</span> <span class="mi">30</span>) : dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The constant directed set</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_directed_const</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : PartialOrder X)
+            (<span class="nv">x</span> : X)
+            (<span class="nv">I</span> : UU)
+            (<span class="nv">i</span> : ∥ I ∥)
+  : is_directed PX (<span class="k">λ</span> <span class="nv">_</span> : I, x).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> i.
+  - <span class="nb">intros</span> i₁ i₂.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">i₁</span>.
+    <span class="nb">split</span> ; <span class="nb">apply</span> refl_PartialOrder.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">const_directed_set</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">x</span> : X)
+           (<span class="nv">I</span> : UU)
+           (<span class="nv">i</span> : ∥ I ∥)
+  : directed_set PX.
+<span class="kn">Proof</span>.
+  use (make_directed_set _ I).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, x).
+  - <span class="bp">exact</span> (is_directed_const PX x I i).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The product of directed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_directed_prod</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">PX</span> : PartialOrder X}
+            {<span class="nv">PY</span> : PartialOrder Y}
+            (<span class="nv">D₁</span> : directed_set PX)
+            (<span class="nv">D₂</span> : directed_set PY)
+  : is_directed
+      (prod_PartialOrder PX PY)
+      (<span class="k">λ</span> (<span class="nv">xy</span> : D₁ × D₂), D₁ (pr1 xy),, D₂ (pr2 xy)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">assert</span> (i₁ := directed_set_el D₁).
+    <span class="nb">assert</span> (i₂ := directed_set_el D₂).
+    <span class="nb">apply</span> hinhand; <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> ij₁ ij₂.
+    <span class="nb">induction</span> ij₁ <span class="k">as</span> [ i₁ j₁ ].
+    <span class="nb">induction</span> ij₂ <span class="k">as</span> [ i₂ j₂ ].
+    <span class="nb">assert</span> (k₁ := directed_set_top D₁ i₁ i₂).
+    <span class="nb">assert</span> (k₂ := directed_set_top D₂ j₁ j₂).
+    <span class="nb">simple refine</span> (hinhuniv2 _ k₁ k₂).
+    <span class="nb">clear</span> k₁ k₂.
+    <span class="nb">intros</span> k₁ k₂.
+    <span class="nb">induction</span> k₁ <span class="k">as</span> [ k₁ [ H₁ H₂ ]].
+    <span class="nb">induction</span> k₂ <span class="k">as</span> [ k₂ [ H₃ H₄ ]].
+    <span class="nb">refine</span> (hinhpr ((k₁ ,, k₂) ,, _)) ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (H₁ ,, H₃).
+    + <span class="bp">exact</span> (H₂ ,, H₄).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_directed_set</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           {<span class="nv">PX</span> : PartialOrder X}
+           {<span class="nv">PY</span> : PartialOrder Y}
+           (<span class="nv">D₁</span> : directed_set PX)
+           (<span class="nv">D₂</span> : directed_set PY)
+  : directed_set (prod_PartialOrder PX PY).
+<span class="kn">Proof</span>.
+  use make_directed_set.
+  - <span class="bp">exact</span> (D₁ × D₂).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, D₁ (pr1 xy) ,, D₂ (pr2 xy)).
+  - <span class="bp">exact</span> (is_directed_prod D₁ D₂).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Directed sets indexed by the natural numbers</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_directed_nat</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : PartialOrder X)
+            (<span class="nv">D</span> : ℕ → X)
+            (<span class="nv">HD</span> : ∏ (i j : ℕ), i ≤ j → PX (D i) (D j))
+  : is_directed PX D.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (hinhpr <span class="mi">0</span>).
+  - <span class="nb">intros</span> i₁ i₂.
+    <span class="nb">assert</span> (p := istotalnatleh i₁ i₂).
+    <span class="nb">revert</span> p.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    + <span class="nb">refine</span> (i₂ ,, HD _ _ _ ,, HD _ _ _).
+      * <span class="bp">exact</span> p.
+      * <span class="nb">apply</span> isreflnatleh.
+    + <span class="nb">refine</span> (i₁ ,, HD _ _ _ ,, HD _ _ _).
+      * <span class="nb">apply</span> isreflnatleh.
+      * <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_directed_set_monotone</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">D</span> : ℕ → X)
+           (<span class="nv">HD</span> : ∏ (i j : ℕ), i ≤ j → PX (D i) (D j))
+  : directed_set PX
+  := ℕ ,, D ,, is_directed_nat PX D HD.
+
+<span class="kn">Proposition</span> <span class="nf">nat_directed_set_help_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : PartialOrder X)
+            (<span class="nv">D</span> : ℕ → X)
+            (<span class="nv">HD</span> : ∏ (i : ℕ), PX (D i) (D (S i)))
+            (<span class="nv">i</span> <span class="nv">k</span> : ℕ)
+  : PX (D i) (D (i + k)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> k <span class="k">as</span> [ | k IHk ].
+  - <span class="nb">rewrite</span> natplusr0.
+    <span class="nb">apply</span> refl_PartialOrder.
+  - <span class="nb">rewrite</span> &lt;- plus_n_Sm.
+    <span class="nb">refine</span> (trans_PartialOrder PX IHk _).
+    <span class="nb">apply</span> HD.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_directed_set</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+           (<span class="nv">D</span> : ℕ → X)
+           (<span class="nv">HD</span> : ∏ (i : ℕ), PX (D i) (D (S i)))
+  : directed_set PX.
+<span class="kn">Proof</span>.
+  use (nat_directed_set_monotone PX D).
+  <span class="kp">abstract</span>
+    (<span class="nb">intros</span> i j p ;
+     <span class="nb">pose</span> (k := nat_le_diff p) ;
+     <span class="nb">induction</span> k <span class="k">as</span> [ k q ] ;
+     <span class="nb">rewrite</span> &lt;- q ;
+     use nat_directed_set_help_monotone ;
+     <span class="bp">exact</span> HD).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/DirectedSets.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Directed sets indexed by the natural numbers
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

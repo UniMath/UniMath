@@ -1,0 +1,953 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraStructures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Algebra structures</span>
+
+<span class="sd"> In this file, we construct the Eilenberg-Moore category of monads</span>
+<span class="sd"> over set as a category of structured sets. Note that we can</span>
+<span class="sd"> instantiate this with, for example, the free abelian group monad,</span>
+<span class="sd"> and that way we get the category of abelian groups.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Algebra structures</span>
+<span class="sd"> 2. The cartesian structure of algebras</span>
+<span class="sd"> 3. Equalizers of algebras</span>
+<span class="sd"> 4. Type indexed products of algebras</span>
+<span class="sd"> 5. The free algebra adjunction</span>
+<span class="sd"> 6. Every algebra is a coequalizer of a free algebra</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonadToStruct</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : Monad SET).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Algebra structures</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">monad_algebra_laws</span>
+             {<span class="nv">X</span> : SET}
+             (<span class="nv">f</span> : M X --&gt; X)
+    : UU
+    := (η M X · f = identity X)
+       ×
+       (μ M X · f = #M f · f).
+
+  <span class="kn">Definition</span> <span class="nf">monad_algebra</span>
+             (<span class="nv">X</span> : SET)
+    : UU
+    := ∑ (f : M X --&gt; X), monad_algebra_laws f.
+
+  <span class="kn">Definition</span> <span class="nf">make_monad_algebra</span>
+             {<span class="nv">X</span> : SET}
+             (<span class="nv">f</span> : M X --&gt; X)
+             (<span class="nv">p</span> : monad_algebra_laws f)
+    : monad_algebra X
+    := f ,, p.
+
+  <span class="kn">Coercion</span> <span class="nf">monad_algebra_struct_to_mor</span>
+           {X : hSet}
+           (f : monad_algebra X)
+    : M X --&gt; X
+    := pr1 f.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_algebra_unit</span>
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">f</span> : monad_algebra X)
+    : η M X · f = identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_algebra_mu</span>
+              {<span class="nv">X</span> : hSet}
+              (<span class="nv">f</span> : monad_algebra X)
+    : μ M X · f = #M f · f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_struct_data</span>
+    : hset_struct_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> monad_algebra.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, f · h = #M h · g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_to_hset_struct_laws</span>
+    : hset_struct_laws monad_to_hset_struct_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> X.
+      use isaset_total2.
+      + <span class="nb">apply</span> homset_property.
+      + <span class="nb">intro</span> f.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> X Y f g h.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> X f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (functor_id M).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y Z fX fY fZ h₁ h₂ Mh₁ Mh₂ ; <span class="nb">cbn</span> -[Monad] <span class="k">in</span> *.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> (eqtohomot Mh₁).
+      <span class="nb">rewrite</span> (eqtohomot Mh₂).
+      <span class="nb">rewrite</span> (eqtohomot (functor_comp M h₁ h₂)).
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X fX fX' p q.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">cbn</span> -[Monad] <span class="k">in</span> *.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (eqtohomot p x @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (eqtohomot (functor_id M X) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_struct</span>
+    : hset_struct
+    := monad_to_hset_struct_data ,, monad_to_hset_struct_laws.
+
+  <span class="kn">Definition</span> <span class="nf">category_of_monad_algebra</span>
+    : category
+    := category_of_hset_struct monad_to_hset_struct.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The cartesian structure of algebras</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">unit_monad_algebra_laws</span>
+    : @monad_algebra_laws unitHSET (<span class="k">λ</span> <span class="nv">_</span>, tt).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">cbn</span>.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_monad_algebra</span>
+    : monad_algebra unitHSET.
+  <span class="kn">Proof</span>.
+    use make_monad_algebra.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+    - <span class="bp">exact</span> unit_monad_algebra_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ProdAlgebra</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : SET}
+            (<span class="nv">f</span> : monad_algebra X)
+            (<span class="nv">g</span> : monad_algebra Y).
+
+    <span class="kn">Let</span> <span class="nf">XY</span> : SET := (X × Y)%<span class="nb">set</span>.
+    <span class="kn">Let</span> <span class="nf">p₁</span> : XY --&gt; X := dirprod_pr1.
+    <span class="kn">Let</span> <span class="nf">p₂</span> : XY --&gt; Y := dirprod_pr2.
+
+    <span class="kn">Definition</span> <span class="nf">prod_monad_algebra_map</span>
+      : M XY --&gt; XY
+      := BinProductArrow _ (BinProductsHSET X Y) (#M p₁ · f) (#M p₂ · g).
+
+    <span class="kn">Proposition</span> <span class="nf">prod_monad_algebra_laws</span>
+      : monad_algebra_laws prod_monad_algebra_map.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use (BinProductArrowsEq _ _ _ (BinProductsHSET X Y)).
+        + <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> &lt;- (nat_trans_ax (η M) _ _ p₁).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (monad_algebra_unit f).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> &lt;- (nat_trans_ax (η M) _ _ p₂).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (monad_algebra_unit g).
+          <span class="nb">apply</span> idpath.
+      - use (BinProductArrowsEq _ _ _ (BinProductsHSET X Y)).
+        + <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr1Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> &lt;- (nat_trans_ax (μ M) _ _ p₁).
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (monad_algebra_mu f).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (BinProductPr2Commutes _ _ _ (BinProductsHSET X Y)).
+          }
+          <span class="nb">rewrite</span> &lt;- (nat_trans_ax (μ M) _ _ p₂).
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (monad_algebra_mu g).
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">prod_monad_algebra</span>
+      : monad_algebra XY.
+    <span class="kn">Proof</span>.
+      use make_monad_algebra.
+      - <span class="bp">exact</span> prod_monad_algebra_map.
+      - <span class="bp">exact</span> prod_monad_algebra_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ProdAlgebra</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_cartesian_struct_data</span>
+    : hset_cartesian_struct_data
+    := monad_to_hset_struct
+       ,, unit_monad_algebra
+       ,, <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span>, prod_monad_algebra f g.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_to_hset_cartesian_struct_laws</span>
+    : hset_cartesian_struct_laws monad_to_hset_cartesian_struct_data.
+  <span class="kn">Proof</span>.
+    split4.
+    - <span class="nb">intros</span> X f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> W X Y fW fX fY g₁ g₂ Mg₁ Mg₂ ; <span class="nb">cbn</span> -[Monad] <span class="k">in</span> *.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      use pathsdirprod ; <span class="nb">cbn</span>.
+      + <span class="nb">refine</span> (eqtohomot Mg₁ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (eqtohomot (functor_comp M _ _)).
+        }
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (eqtohomot Mg₂ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (eqtohomot (functor_comp M _ _)).
+        }
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_cartesian_struct</span>
+    : hset_cartesian_struct
+    := monad_to_hset_cartesian_struct_data
+       ,,
+       monad_to_hset_cartesian_struct_laws.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equalizers of algebras</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">EqualizerAlgebra</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : SET}
+            {<span class="nv">f</span> <span class="nv">g</span> : X --&gt; Y}
+            (<span class="nv">hX</span> : monad_algebra X)
+            (<span class="nv">hY</span> : monad_algebra Y)
+            (<span class="nv">Mf</span> : hX · f = #M f · hY)
+            (<span class="nv">Mg</span> : hX · g = #M g · hY).
+
+    <span class="kn">Let</span> <span class="nf">E</span> : SET := (∑ x, hProp_to_hSet (eqset (f x) (g x)))%<span class="nb">set</span>.
+    <span class="kn">Let</span> <span class="nf">π</span> : E --&gt; X := <span class="k">λ</span> <span class="nv">z</span>, pr1 z.
+
+    <span class="kn">Definition</span> <span class="nf">equalizer_algebra_map</span>
+      : M E --&gt; E.
+    <span class="kn">Proof</span>.
+      use (EqualizerIn (Equalizers_in_HSET X Y f g)).
+      - <span class="bp">exact</span> (#M π · hX).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> Mf, Mg ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> &lt;- !functor_comp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> (EqualizerEqAr (Equalizers_in_HSET X Y f g))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">equalizer_algebra_laws</span>
+      : monad_algebra_laws equalizer_algebra_map.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use (EqualizerInsEq (Equalizers_in_HSET X Y f g)).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (EqualizerCommutes (Equalizers_in_HSET X Y f g)).
+        }
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- (nat_trans_ax (η M) _ _ π).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> monad_algebra_unit.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - use (EqualizerInsEq (Equalizers_in_HSET X Y f g)).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (EqualizerCommutes (Equalizers_in_HSET X Y f g)).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (EqualizerCommutes (Equalizers_in_HSET X Y f g)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (EqualizerCommutes (Equalizers_in_HSET X Y f g)).
+        }
+        <span class="nb">rewrite</span> &lt;- (nat_trans_ax (μ M) _ _ π).
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (monad_algebra_mu hX).
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">equalizer_algebra</span>
+      : monad_algebra E.
+    <span class="kn">Proof</span>.
+      use make_monad_algebra.
+      - <span class="bp">exact</span> equalizer_algebra_map.
+      - <span class="bp">exact</span> equalizer_algebra_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EqualizerAlgebra</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_equalizer_struct_data</span>
+    : hset_equalizer_struct_data monad_to_hset_struct
+    := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">hX</span> <span class="nv">hY</span> <span class="nv">Mf</span> <span class="nv">Mg</span>, equalizer_algebra hX hY Mf Mg.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_to_hset_equalizer_struct_laws</span>
+    : hset_equalizer_struct_laws monad_to_hset_equalizer_struct_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y f g hX hY Mf Mg.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y f g hX hY Mf Mg W hW k Mk q.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">cbn</span> -[Monad] <span class="k">in</span> *.
+      <span class="nb">refine</span> (eqtohomot Mk x @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (!(eqtohomot (functor_comp M _ _) _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_equalizer_struct</span>
+    : hset_equalizer_struct monad_to_hset_struct
+    := monad_to_hset_equalizer_struct_data
+       ,,
+       monad_to_hset_equalizer_struct_laws.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Type indexed products of algebras</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">TypeProdAlgebra</span>.
+    <span class="kn">Context</span> {<span class="nv">J</span> : UU}
+            {<span class="nv">D</span> : J → hSet}
+            (<span class="nv">p</span> : ∏ (i : J), monad_algebra (D i)).
+
+    <span class="kn">Let</span> <span class="nf">prod</span> : Product J SET D := ProductsHSET J D.
+
+    <span class="kn">Definition</span> <span class="nf">monad_type_prod_map</span>
+      : M prod --&gt; prod
+      := ProductArrow _ _ prod (<span class="k">λ</span> <span class="nv">i</span>, #M (ProductPr _ _ _ i) · p i).
+
+    <span class="kn">Proposition</span> <span class="nf">monad_type_prod_laws</span>
+      : monad_algebra_laws monad_type_prod_map.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use (ProductArrow_eq _ _ _ prod).
+        <span class="nb">intro</span> i.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> ProductPrCommutes.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- (nat_trans_ax (η M)).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (monad_algebra_unit (p i)).
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - use (ProductArrow_eq _ _ _ prod).
+        <span class="nb">intro</span> i.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> ProductPrCommutes.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> ProductPrCommutes.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> ProductPrCommutes.
+        }
+        <span class="nb">rewrite</span> &lt;- (nat_trans_ax (μ M)).
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> (monad_algebra_mu (p i)).
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">TypeProdAlgebra</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_struct_type_prod_data</span>
+             (<span class="nv">J</span> : UU)
+    : hset_struct_type_prod_data monad_to_hset_struct J.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D p.
+    use make_monad_algebra.
+    - <span class="bp">exact</span> (monad_type_prod_map p).
+    - <span class="bp">exact</span> (monad_type_prod_laws p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monad_to_hset_struct_type_prod_laws</span>
+              (<span class="nv">J</span> : UU)
+    : hset_struct_type_prod_laws (monad_to_hset_struct_type_prod_data J).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> D PD i.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> D PD W hW ps Mps.
+      <span class="nb">cbn</span> -[Monad] <span class="k">in</span> *.
+      use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (eqtohomot (Mps i) x @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (!(eqtohomot (functor_comp M _ _) _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_hset_struct_type_prod</span>
+             (<span class="nv">J</span> : UU)
+    : hset_struct_type_prod monad_to_hset_struct J
+    := monad_to_hset_struct_type_prod_data J
+       ,,
+       monad_to_hset_struct_type_prod_laws J.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. The free algebra adjunction</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">monad_free_alg_laws</span>
+              (<span class="nv">X</span> : hSet)
+    : monad_algebra_laws (μ M X).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> Monad_law1.
+    - <span class="bp">exact</span> (!(@Monad_law3 _ M X)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_free_alg_struct</span>
+             (<span class="nv">X</span> : hSet)
+    : monad_algebra (M X).
+  <span class="kn">Proof</span>.
+    use make_monad_algebra.
+    - <span class="bp">exact</span> (μ M X).
+    - <span class="bp">exact</span> (monad_free_alg_laws X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_free_alg</span>
+             (<span class="nv">X</span> : hSet)
+    : category_of_monad_algebra
+    := M X ,, monad_free_alg_struct X.
+
+  <span class="kn">Section</span> <span class="nf">FreeAlgAdjunction</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+            {<span class="nv">Y</span> : hSet}
+            (<span class="nv">hY</span> : monad_algebra Y)
+            (<span class="nv">f</span> : X → Y).
+
+    <span class="kn">Let</span> <span class="nf">YY</span> : category_of_monad_algebra
+      := Y ,, hY.
+
+    <span class="kn">Definition</span> <span class="nf">monad_to_hset_struct_adj_lift</span>
+      : monad_free_alg X --&gt; YY.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (#M f · hY ,, _).
+      <span class="nb">cbn</span>.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax (μ M) _ _ f) x)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (eqtohomot (monad_algebra_mu hY) (# M (# M f) x) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(eqtohomot (functor_comp M _ _) _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">monad_to_hset_struct_adj_lift_eq</span>
+      : f = η M X · #M f · hY.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- (nat_trans_ax (η M) _ _ f).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!id_right (f : SET⟦_, _⟧) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!monad_algebra_unit hY).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">monad_to_hset_struct_adj_lift_unique</span>
+      (<span class="nv">g</span> : monad_free_alg X --&gt; YY)
+      (<span class="nv">Hg</span> : f = η M X · # (underlying_of_hset_struct monad_to_hset_struct) g)
+      : g = monad_to_hset_struct_adj_lift.
+    <span class="kn">Proof</span>.
+      use eq_mor_hset_struct.
+      <span class="nb">cbn</span> ; <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!maponpaths (pr1 g) (eqtohomot (@Monad_law2 _ M X) x) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (eqtohomot (pr2 g) (# M (η M X) x)) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p ; <span class="nb">clear</span> p.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!eqtohomot (functor_comp M (η M X) (pr1 g)) x @ _).
+      <span class="nb">apply</span> (maponpaths_2 _ (!Hg)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">FreeAlgAdjunction</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_underlying_is_right_adjoint</span>
+    : is_right_adjoint (underlying_of_hset_struct monad_to_hset_struct).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> reflections_to_is_right_adjoint.
+    <span class="nb">intro</span> X.
+    use make_reflection'.
+    - <span class="bp">exact</span> (monad_free_alg X).
+    - <span class="bp">exact</span> (η M X).
+    - <span class="nb">intro</span> f.
+      use make_reflection_arrow.
+      + <span class="bp">exact</span> (monad_to_hset_struct_adj_lift _ (f : _ --&gt; _)).
+      + <span class="bp">exact</span> (monad_to_hset_struct_adj_lift_eq _ (f : _ --&gt; _)).
+      + <span class="bp">exact</span> (monad_to_hset_struct_adj_lift_unique _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_free_alg_functor</span>
+    : SET ⟶ category_of_monad_algebra
+    := left_adjoint
+         monad_underlying_is_right_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">monad_free_alg_unit</span>
+    : functor_identity _
+      ⟹
+      monad_free_alg_functor ∙ underlying_of_hset_struct monad_to_hset_struct
+    := unit_from_right_adjoint monad_underlying_is_right_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">monad_free_alg_counit</span>
+    : underlying_of_hset_struct monad_to_hset_struct ∙ monad_free_alg_functor
+      ⟹
+      functor_identity _
+    := counit_from_right_adjoint monad_underlying_is_right_adjoint.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_coproduct</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : hSet)
+    : BinCoproduct (monad_free_alg X) (monad_free_alg Y)
+    := (monad_free_alg (setcoprod X Y) ,, _ ,, _)
+       ,,
+       left_adjoint_preserves_bincoproduct
+         (left_adjoint
+            monad_underlying_is_right_adjoint)
+         (is_left_adjoint_left_adjoint _)
+         _ _ _ _ _
+         (pr2 (BinCoproductsHSET X Y)).
+
+  <span class="kn">Proposition</span> <span class="nf">mor_from_free_alg_eq</span>
+              {<span class="nv">X</span> : hSet}
+              {<span class="nv">Y</span> : category_of_monad_algebra}
+              {<span class="nv">f</span> <span class="nv">g</span> : monad_free_alg_functor X --&gt; Y}
+              (<span class="nv">p</span> : η M X · pr1 f = η M X · pr1 g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (triangle_id_left_ad
+               (pr2 monad_underlying_is_right_adjoint)
+               X).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (triangle_id_left_ad
+               (pr2 monad_underlying_is_right_adjoint)
+               X).
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">enough</span> (# M (η M X · η M (M X)) · μ M (M X) · (# M (identity _) · μ M X · pr1 f)
+            =
+            # M (η M X · η M (M X)) · μ M (M X) · (# M (identity _) · μ M X · pr1 g))
+      <span class="k">as</span> q.
+    {
+      <span class="bp">exact</span> q.
+    }
+    <span class="nb">rewrite</span> !functor_id.
+    <span class="nb">rewrite</span> id_left.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr2 f).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr2 g).
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (@Monad_law2 _ M (M X)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (@Monad_law2 _ M (M X)).
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">rewrite</span> &lt;- !functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Every algebra is a coequalizer of a free algebra</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">AlgebraAsCoequalizer</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+            (<span class="nv">hX</span> : monad_algebra X).
+
+    <span class="kn">Let</span> <span class="nf">F</span> : SET ⟶ category_of_monad_algebra := monad_free_alg_functor.
+    <span class="kn">Let</span> <span class="nf">AX</span> : category_of_monad_algebra := X ,, hX.
+
+    <span class="kn">Let</span> <span class="nf">FX</span> : category_of_monad_algebra := monad_free_alg X.
+    <span class="kn">Let</span> <span class="nf">FUFX</span> : category_of_monad_algebra := monad_free_alg (pr1 FX).
+
+    <span class="kn">Definition</span> <span class="nf">algebra_as_coequalizer_left_map</span>
+      : FUFX --&gt; FX
+      := monad_free_alg_counit FX.
+
+    <span class="kn">Let</span> <span class="nf">ℓ</span> : FUFX --&gt; FX := algebra_as_coequalizer_left_map.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_as_coequalizer_right_map</span>
+      : FUFX --&gt; FX
+      := #F hX.
+
+    <span class="kn">Let</span> <span class="nf">ρ</span> : FUFX --&gt; FX := algebra_as_coequalizer_right_map.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_as_coequalizer_arr</span>
+      : FX --&gt; AX.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> hX.
+      - <span class="bp">exact</span> (monad_algebra_mu hX).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">algebra_as_coequalizer_arr_eq</span>
+      : ℓ · algebra_as_coequalizer_arr
+        =
+        ρ · algebra_as_coequalizer_arr.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> ℓ, ρ.
+      <span class="nb">unfold</span> algebra_as_coequalizer_left_map.
+      <span class="nb">unfold</span> algebra_as_coequalizer_right_map.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (functor_id M).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (id_left (μ M X)).
+      }
+      <span class="nb">refine</span> (monad_algebra_mu hX @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> (functor_comp M).
+      <span class="nb">refine</span> (_ @ assoc _ _ _).
+      <span class="nb">refine</span> (!(id_right _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> Monad_law2.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">Y</span> : category_of_monad_algebra}
+              (<span class="nv">g</span> : FX --&gt; Y)
+              (<span class="nv">p</span> : ℓ · g = ρ · g).
+
+      <span class="kn">Proposition</span> <span class="nf">algebra_as_coequalizer_ump_unique</span>
+        : isaprop (∑ φ, algebra_as_coequalizer_arr · φ = g).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(monad_algebra_unit hX)).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(monad_algebra_unit hX)).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁ @ !(pr2 φ₂))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">algebra_as_coequalizer_ump_eq_lem_1</span>
+        : # M hX · pr1 g = μ M X · pr1 g.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (_ @ maponpaths pr1 (!p) @ _).
+        - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> (functor_comp M).
+          <span class="nb">refine</span> (_ @ assoc (#M hX) _ _).
+          <span class="nb">refine</span> (!(id_right _) @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> Monad_law2.
+        - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+          <span class="nb">apply</span> functor_id.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">algebra_as_coequalizer_ump_eq_lem_2</span>
+        : hX · η M X · pr1 g = pr1 g.
+      <span class="kn">Proof</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (nat_trans_ax (η M) _ _ hX).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> algebra_as_coequalizer_ump_eq_lem_1.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (_ @ id_left _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> Monad_law1.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">algebra_as_coequalizer_ump_eq</span>
+        : hX · (η M X · pr1 g) = # M (η M X · pr1 g) · pr12 Y.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(pr2 g)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> (@Monad_law2 _ M).
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> algebra_as_coequalizer_ump_eq_lem_2.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">algebra_as_coequalizer_ump</span>
+        : AX --&gt; Y.
+      <span class="kn">Proof</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        - <span class="bp">exact</span> (η M X · pr1 g).
+        - <span class="bp">exact</span> algebra_as_coequalizer_ump_eq.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">algebra_as_coequalizer_ump_comm</span>
+        : algebra_as_coequalizer_arr · algebra_as_coequalizer_ump = g.
+      <span class="kn">Proof</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">simpl</span>.
+        <span class="nb">apply</span> algebra_as_coequalizer_ump_eq_lem_2.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_as_coequalizer</span>
+      : Coequalizer ℓ ρ.
+    <span class="kn">Proof</span>.
+      use make_Coequalizer.
+      - <span class="bp">exact</span> AX.
+      - <span class="bp">exact</span> algebra_as_coequalizer_arr.
+      - <span class="bp">exact</span> algebra_as_coequalizer_arr_eq.
+      - <span class="nb">intros</span> Y g p.
+        use iscontraprop1.
+        + <span class="bp">exact</span> (algebra_as_coequalizer_ump_unique g).
+        + <span class="nb">simple refine</span> (_ ,, _).
+          * <span class="bp">exact</span> (algebra_as_coequalizer_ump g p).
+          * <span class="bp">exact</span> (algebra_as_coequalizer_ump_comm g p).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">AlgebraAsCoequalizer</span>.
+<span class="kn">End</span> <span class="nf">MonadToStruct</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/AlgebraStructures.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Every algebra is a coequalizer of a free algebra
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

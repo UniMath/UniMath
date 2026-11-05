@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Uniqueness.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Uniqueness of M-types</span>
+
+<span class="sd">    M-types are unique up to propositional equality.</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.M.Core.
+
+<span class="kn">Section</span> <span class="nf">Uniqueness</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> functions.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : UU).
+  <span class="kn">Context</span> (<span class="nv">B</span> : A → UU).
+
+  <span class="sd">(** Following the paper, we have [X ⇒ Y] = Hom(X, Y) *)</span>
+  <span class="kn">Local Notation</span> <span class="nf">F</span> := (polynomial_functor A B). <span class="c">(* can be coerced to a function *)</span>
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F*"</span> := (polynomial_functor_arr A B).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ⇒ Y"</span> := (coalgebra_homo F X Y).
+
+  <span class="sd">(** Since we can't use the standard categorical proof, we must re-prove that</span>
+<span class="sd">      final coalgebras are unique up to isomorphism.</span>
+
+<span class="sd">      (Lemma 5 in Ahrens, Capriotti, and Spadotti)</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(** We prove that their carriers (first projections) are isomorphic, and hence</span>
+<span class="sd">      equal (by univalence).</span>
+
+<span class="sd">      This is standard categorical reasoning: each has exactly one arrow to the</span>
+<span class="sd">      other, which, composing, gives an endormorphism. However, each has exactly</span>
+<span class="sd">      one endomorphism, the identity map. Therefore, they are isomorphic. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">M_carriers_iso</span> : ∏ X Y : M B, (coalgebra_ob _ X) ≃
+                                      (coalgebra_ob _ Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+
+    <span class="sd">(** Get the coalgebra morphisms X → Y and Y → X via finality *)</span>
+    <span class="nb">pose</span> (X_mor_Y := iscontrpr1 (pr2 Y X)).
+    <span class="nb">pose</span> (Y_mor_X := iscontrpr1 (pr2 X Y)).
+
+    <span class="nb">apply</span> (weq_iso
+             (mor_from_coalgebra_homo _ _ _ X_mor_Y)
+             (mor_from_coalgebra_homo _ _ _ Y_mor_X)).
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> (@eqtohomot _ _ (Y_mor_X ∘ X_mor_Y) (idfun _)).
+      <span class="nb">refine</span> (base_paths (coalgebra_homo_comp _ _ _ _ X_mor_Y Y_mor_X)
+                         (coalgebra_homo_id F X) _).
+      <span class="nb">apply</span> (proofirrelevancecontr (pr2 X X)).
+    - <span class="nb">intro</span> y.
+      <span class="nb">apply</span> (@eqtohomot _ _ (X_mor_Y ∘ Y_mor_X) (idfun _)).
+      <span class="nb">refine</span> (base_paths (coalgebra_homo_comp _ _ _ _ Y_mor_X X_mor_Y)
+                         (coalgebra_homo_id F Y) _).
+      <span class="nb">apply</span> (proofirrelevancecontr (pr2 Y Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Note the crucial use of univalence *)</span>
+  <span class="kn">Lemma</span> <span class="nf">M_carriers_eq</span> : ∏ X Y : M B, (coalgebra_ob _ X) = (coalgebra_ob _ Y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">X</span> <span class="nv">Y</span> =&gt; weqtopaths (M_carriers_iso X Y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Now we must prove that the coalgebra morphisms, when transported along</span>
+<span class="sd">      the path M_carriers_eq, will be equal.</span>
+
+<span class="sd">      (≅⇒≡ in HoTT/M-types)</span>
+<span class="sd">   *)</span>
+
+  <span class="c">(* We use "refine (x @ _)" instead of "rewrite" for more predictable proof terms. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">M_coalg_eq</span> : ∏ X Y : M B, M_coalgebra B X = M_coalgebra B Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">pose</span> (π1eq := (M_carriers_eq X Y)).
+    <span class="nb">pose</span> (f := pr1 ((pr2 Y) (M_coalgebra B X))).
+    <span class="nb">apply</span> (total2_paths_f π1eq).
+
+    <span class="sd">(** Some shorthands for items we'll use *)</span>
+    <span class="nb">pose</span> (is_final_X := pr2 X).
+    <span class="nb">pose</span> (is_final_Y := pr2 Y).
+    <span class="nb">pose</span> (θ := pr2 (pr1 X)).
+    <span class="nb">pose</span> (ψ := pr2 (pr1 Y)).
+
+    <span class="sd">(** substⁱ-lemma in HoTT/M-types *)</span>
+    <span class="nb">assert</span> (trans_fun : <span class="k">forall</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">F</span> : UU → UU} {<span class="nv">f</span> : X → F X} {<span class="nv">g</span> : Y → F Y}
+                          (<span class="nv">p</span> : X = Y),
+               (<span class="k">forall</span> (<span class="nv">x</span> : X), transportf F p (f x) = g (transportf (idfun UU) p x)) →
+               transportf (<span class="k">λ</span> <span class="nv">X</span>, X → F X) p f = g).
+    {
+      <span class="nb">intros</span> ? ? ? ? ? p H.
+      <span class="nb">induction</span> p.
+      <span class="nb">unfold</span> transportf.
+      <span class="nb">apply</span> funextfun.
+      <span class="bp">exact</span> H.
+    }
+
+    <span class="nb">apply</span> trans_fun.
+    <span class="nb">intro</span> x.
+
+    <span class="sd">(** imap-subst in HoTT/M-types *)</span>
+    <span class="nb">assert</span> (arr_transport :
+              <span class="k">forall</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">p</span> : X = Y),
+                F* (transportf (idfun _) p) = transportf F p).
+    {
+      <span class="nb">intros</span> ? ? p.
+      <span class="nb">induction</span> p.
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="sd">(** In HoTT/M-types: lemma₁ : ∀ i x → subst (λ Z → Z i) π₁≡ x ≡ proj₁ f i x *)</span>
+    <span class="nb">assert</span> (lemma1 : <span class="k">forall</span> <span class="nv">x</span> : pr1 (pr1 X), transportf (idfun UU) π1eq x = (pr1 f) x).
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">refine</span> (toforallpaths _ _ _ _ x0).
+      <span class="nb">refine</span> ((weqpath_transport (M_carriers_iso _ Y)) @ _).
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="sd">(** lemma₂ in HoTT/M-types *)</span>
+    <span class="nb">assert</span> (lemma2 : transportf F π1eq = F* (pr1 f)).
+    {
+      <span class="nb">refine</span> (!(arr_transport _ _ π1eq) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> π1eq, M_carriers_eq.
+      <span class="nb">refine</span> ((weqpath_transport (M_carriers_iso _ _)) @ _).
+      <span class="bp">reflexivity</span>.
+    }
+
+    <span class="nb">refine</span> (_ @ !(maponpaths ψ (lemma1 x))).
+    <span class="nb">refine</span> (toforallpaths _ (transportf F π1eq) (F* (pr1 f)) lemma2 (θ x) @ _).
+
+    <span class="sd">(** Now our goal is simply the condition that f is a coalgebra morphism *)</span>
+    <span class="nb">apply</span> (toforallpaths _ (F* (pr1 f) ∘ θ) (ψ ∘ pr1 f)).
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_M</span> : isaprop (M B).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> X Y.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="bp">exact</span> isaprop_is_final.
+    - <span class="bp">exact</span> (M_coalg_eq X Y).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Uniqueness</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/M/Uniqueness.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     Author: Langston Barrett (&#64;siddharthist)
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Univalence.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiberwiseInitial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Fiberwise initial objects</span>
+
+<span class="sd"> A fibration has a fiberwise initial object if</span>
+<span class="sd"> - Every fiber has a initial object</span>
+<span class="sd"> - These initial objects are preserved under reindexing</span>
+<span class="sd"> In this file, we define the notion of fiberwise initial objects.</span>
+
+<span class="sd"> We also define when a displayed functor preserves fiberwise initial objects. For this,</span>
+<span class="sd"> it suffices to say that it preserves initial objects for every fiber.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiberwise initial objects</span>
+<span class="sd"> 2. Preservation of fiberwise initial objects</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Fiberwise initial objects *)</span>
+<span class="kn">Definition</span> <span class="nf">fiberwise_initial</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+  : UU
+  := (∏ (x : C),
+      Initial (D[{x}]))
+     ×
+     (∏ (x y : C)
+        (f : x --&gt; y),
+      preserves_initial (fiber_functor_from_cleaving D HD f)).
+
+<span class="kn">Definition</span> <span class="nf">initial_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">T</span> : fiberwise_initial HD)
+           (<span class="nv">x</span> : C)
+  : Initial (D[{x}])
+  := pr1 T x.
+
+<span class="kn">Definition</span> <span class="nf">initial_obj_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">T</span> : fiberwise_initial HD)
+           (<span class="nv">x</span> : C)
+  : D[{x}]
+  := initial_in_fib T x.
+
+<span class="kn">Definition</span> <span class="nf">isInitial_initial_obj_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">T</span> : fiberwise_initial HD)
+           (<span class="nv">x</span> : C)
+  : isInitial _ (initial_obj_in_fib T x)
+  := pr2 (pr1 T x).
+
+<span class="kn">Definition</span> <span class="nf">preserves_initial_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">T</span> : fiberwise_initial HD)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : preserves_initial (fiber_functor_from_cleaving D HD f)
+  := pr2 T x y f.
+
+<span class="kn">Definition</span> <span class="nf">lift_initial_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">T</span> : fiberwise_initial HD)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : Initial (D[{x}])
+  := make_Initial
+       _
+       (preserves_initial_in_fib T f _ (isInitial_initial_obj_in_fib T y)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_fiberwise_initial</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : disp_univalent_category C}
+            (<span class="nv">HD</span> : cleaving D)
+  : isaprop (fiberwise_initial HD).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_Initial.
+    use is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_preserves_initial.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">FiberwiseInitialPoset</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D)
+          (<span class="nv">HD'</span> : locally_propositional D)
+          (<span class="nv">false</span> : ∏ (Γ : C), D[{Γ}])
+          (<span class="nv">false_out</span> : ∏ (Γ : C) (φ : D[{Γ}]), false Γ --&gt;[ identity _ ] φ)
+          (<span class="nv">false_sub</span> : ∏ (Γ₁ Γ₂ : C) (s : Γ₁ --&gt; Γ₂),
+                       pr1 (HD Γ₂ Γ₁ s (false Γ₂))
+                       --&gt;[ identity _ ]
+                       false Γ₁).
+
+  <span class="kn">Definition</span> <span class="nf">make_initial_fiber_locally_propositional</span>
+             (<span class="nv">Γ</span> : C)
+    : Initial D[{Γ}].
+  <span class="kn">Proof</span>.
+    use make_Initial.
+    - <span class="bp">exact</span> (false Γ).
+    - <span class="nb">intros</span> φ.
+      use iscontraprop1.
+      + <span class="nb">apply</span> HD'.
+      + <span class="nb">apply</span> false_out.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_fiberwise_initial_locally_propositional</span>
+    : fiberwise_initial HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> make_initial_fiber_locally_propositional.
+    - <span class="nb">intros</span> Γ₁ Γ₂ s.
+      use preserves_initial_if_preserves_chosen.
+      + <span class="nb">apply</span> make_initial_fiber_locally_propositional.
+      + <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> preserves_chosen_initial ;
+           use (iso_to_Initial
+                  (make_initial_fiber_locally_propositional Γ₁)) ;
+           use make_z_iso ; [ <span class="nb">apply</span> InitialArrow | <span class="nb">apply</span> false_sub | ] ;
+           <span class="nb">split</span> ; <span class="nb">apply</span> HD').
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberwiseInitialPoset</span>.
+
+<span class="sd">(** * 2. Preservation of fiberwise initial objects *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_fiberwise_initial</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : UU
+  := ∏ (x : C₁),
+     preserves_initial (fiber_functor FF x).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_fiberwise_initial</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : isaprop (preserves_fiberwise_initial FF).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_preserves_initial.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_preserves_fiberwise_initial</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : disp_cat C)
+  : preserves_fiberwise_initial (disp_functor_identity D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy.
+  <span class="bp">exact</span> Hy.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_preserves_fiberwise_initial</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           {<span class="nv">D₃</span> : disp_cat C₃}
+           {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+           (<span class="nv">HFF</span> : preserves_fiberwise_initial FF)
+           {<span class="nv">GG</span> : disp_functor G D₂ D₃}
+           (<span class="nv">HGG</span> : preserves_fiberwise_initial GG)
+  : preserves_fiberwise_initial (disp_functor_composite FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hy ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> HGG.
+  <span class="nb">apply</span> HFF.
+  <span class="bp">exact</span> Hy.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/FiberwiseInitial.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Preservation of fiberwise initial objects
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

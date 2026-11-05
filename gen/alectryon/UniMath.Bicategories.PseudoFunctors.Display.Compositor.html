@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Compositor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.</span>
+<span class="sd">    Third part: we add a 2-cell witnessing preservation of composition.</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Compositor</span>.
+  <span class="kn">Variable</span> (<span class="nv">C</span> <span class="nv">D</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">compositor_disp_cat_data</span>
+    : disp_cat_ob_mor (map1cells C D).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>,
+             ∏ (X Y Z : C) (f : X --&gt; Y) (g : Y --&gt; Z),
+             Fmor F f · Fmor F g ==&gt; Fmor F (f · g)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">Fcomp</span> <span class="nv">Gcomp</span> <span class="nv">η</span>,
+             ∏ (X Y Z : C) (f : X --&gt; Y) (g : Y --&gt; Z),
+             (ηobj η X ◃ Gcomp X Y Z f g)
+               • ηmor η (f · g)
+             =
+             (lassociator (ηobj η X) (Fmor G f) (Fmor G g))
+               • (ηmor η f ▹ (Fmor G g))
+               • rassociator (Fmor F f) (ηobj η Y) (Fmor G g)
+               • (Fmor F f ◃ ηmor η g)
+               • lassociator (Fmor F f) (Fmor F g) (ηobj η Z)
+               • (Fcomp X Y Z f g ▹ ηobj η Z)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_disp_cat_id_comp</span>
+    : disp_cat_id_comp (map1cells C D) compositor_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> F Fcomp X Y Z f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> lwhisker_hcomp.
+      <span class="nb">rewrite</span> triangle_l.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor, id2_rwhisker, id2_left.
+      <span class="nb">rewrite</span> rinvunitor_triangle.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> F₁ F₂ F₃ η ε Fcomp₁ Fcomp₂ Fcomp₃ ηcomp εcomp X Y Z f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">specialize</span> (ηcomp X Y Z f g).
+      <span class="nb">specialize</span> (εcomp X Y Z f g).
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp, &lt;- !rwhisker_vcomp.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> εcomp.
+      }
+      <span class="nb">clear</span> εcomp.
+      use vcomp_move_R_pM.
+      { is_iso. }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> maponpaths).
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_lwhisker.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> ηcomp.
+      }
+      <span class="nb">clear</span> ηcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">symmetry</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">12</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> !vassocl, &lt;- pentagon_2.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">11</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> rwhisker_lwhisker.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      use vcomp_move_L_pM.
+      { is_iso. }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">10</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> pentagon.
+      }
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">symmetry</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> (maponpaths_2).
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">symmetry</span>.
+        <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+        <span class="nb">apply</span> pentagon.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_lwhisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> rwhisker_rwhisker.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">symmetry</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">9</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">apply</span> rwhisker_rwhisker.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">7</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- inverse_pentagon_4.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="bp">reflexivity</span>.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">6</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> lassociator_rassociator, lwhisker_id2, id2_right.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">symmetry</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">symmetry</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">apply</span> maponpaths.
+      use vcomp_move_L_pM.
+      { is_iso. }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> maponpaths_2).
+        <span class="nb">rewrite</span> inverse_pentagon.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp, &lt;- rwhisker_hcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> rassociator_lassociator, lwhisker_id2, id2_right.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> inverse_pentagon_2.
+      }
+      <span class="nb">rewrite</span> !vassocl, &lt;- rwhisker_hcomp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> rwhisker_rwhisker_alt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_disp_cat</span>
+    : disp_bicat (map1cells C D).
+  <span class="kn">Proof</span>.
+    use disp_cell_unit_bicat.
+    use tpair.
+    - <span class="bp">exact</span> compositor_disp_cat_data.
+    - <span class="bp">exact</span> compositor_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_is_disp_univalent_2_1</span>
+    : disp_univalent_2_1 compositor_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_cell_unit_bicat_univalent_2_1.
+    <span class="nb">intros</span> F G η Fcomp Gcomp ; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> D.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_is_disp_univalent_2_0</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : disp_univalent_2_0 compositor_disp_cat.
+  <span class="kn">Proof</span>.
+    use disp_cell_unit_bicat_univalent_2_0.
+    - <span class="nb">apply</span> map1cells_is_univalent_2_1.
+      <span class="bp">exact</span> HD_2_1.
+    - <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> D.
+    - <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> D.
+    - <span class="nb">intros</span> F F₂ F₂' η ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> η <span class="k">as</span> [η₁ η₂].
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> Y.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> Z.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> g.
+      <span class="nb">specialize</span> (η₁ X Y Z f g).
+      <span class="nb">specialize</span> (η₂ X Y Z f g).
+      <span class="nb">rewrite</span> !vassocr <span class="k">in</span> η₁.
+      <span class="nb">rewrite</span> vcomp_lunitor <span class="k">in</span> η₁.
+      <span class="nb">rewrite</span> !vassocl <span class="k">in</span> η₁.
+      <span class="nb">rewrite</span> rinvunitor_natural <span class="k">in</span> η₁.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp <span class="k">in</span> η₁.
+      <span class="nb">rewrite</span> !vassocr <span class="k">in</span> η₁.
+      <span class="nb">apply</span> rwhisker_id_inj.
+      use (vcomp_lcancel (lunitor _ • rinvunitor _)).
+      { is_iso. }
+      <span class="nb">refine</span> (_ @ !η₁).
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> linvunitor_lunitor, lwhisker_id2, id2_left.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_is_disp_univalent_2</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : disp_univalent_2 compositor_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> compositor_is_disp_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="bp">exact</span> compositor_is_disp_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_disp_left_adjequiv_over_id</span>
+             {<span class="nv">F</span> : map1cells C D}
+             {<span class="nv">Fc</span> <span class="nv">Gc</span> : compositor_disp_cat F}
+             (<span class="nv">ηc</span> : Fc --&gt;[ internal_adjoint_equivalence_identity _ ] Gc)
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ηc.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_cell_unit_bicat_left_adjoint_equivalence_weq.
+    <span class="nb">intros</span> x y z f g.
+    <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (ηc x y z f g) <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+    <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> !vassocl <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ !p @ _).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">refine</span> (!(id2_left _) @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">refine</span> (!(id2_left _) @ _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">compositor_disp_left_adjequiv</span>
+             {<span class="nv">HD</span> : is_univalent_2 D}
+             {<span class="nv">F</span> <span class="nv">G</span> : map1cells C D}
+             (<span class="nv">η</span> : adjoint_equivalence F G)
+             {<span class="nv">F₂</span> : compositor_disp_cat F}
+             {<span class="nv">G₂</span> : compositor_disp_cat G}
+             (<span class="nv">η₂</span> : F₂ --&gt;[ η ] G₂)
+    : disp_left_adjoint_equivalence η η₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> F G η F₂ G₂ η₂.
+    use J_2_0.
+    - <span class="nb">apply</span> map1cells_is_univalent_2_0.
+      <span class="bp">exact</span> HD.
+    - <span class="nb">intros</span> F F₂ G₂ η₂.
+      <span class="nb">apply</span> compositor_disp_left_adjequiv_over_id.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Compositor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Display/Compositor.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** The second layer of the construction of the bicategory of pseudofunctors consists of three parts.
+  &gt;     Third part: we add a 2-cell witnessing preservation of composition.
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

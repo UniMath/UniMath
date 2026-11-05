@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Properties of the category of algebraic theory algebras</span>
+
+<span class="sd">  The displayed category structure is leveraged to show that the category univalent. The total</span>
+<span class="sd">  category of algebras forms a fibration over the category of algebraic theories. Also, a</span>
+<span class="sd">  characterization of isomorphisms is given.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Univalence [is_univalent_algebra_cat]</span>
+<span class="sd">  2. Algebras are fibered over theories [algebra_fibration]</span>
+<span class="sd">  3. A characterization of iso's of algebras [make_algebra_z_iso]</span>
+<span class="sd">  4. Algebra pullback functor along an algebraic theory morphism [algebra_pullback]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Export</span> UniMath.AlgebraicTheories.AlgebraCategoryCore.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** * 1. Univalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_algebra_data_full_disp_cat</span>
+  : is_univalent_disp algebra_data_full_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">intros</span> TA action action'.
+  use isweq_iso.
+  - <span class="nb">intro</span> f.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (z_iso_mor f _).
+  - <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaset; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_algebra_data_full_cat</span>
+  : is_univalent algebra_data_full_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_total_category.
+  - <span class="bp">exact</span> (is_univalent_cartesian' _ _ is_univalent_algebraic_theory_cat is_univalent_HSET).
+  - <span class="bp">exact</span> is_univalent_disp_algebra_data_full_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_algebra_full_disp_cat</span>
+  : is_univalent_disp algebra_full_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, isaprop_full_is_algebra _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_algebra_full_cat</span>
+  : is_univalent algebra_full_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (is_univalent_total_category is_univalent_algebra_data_full_cat).
+  <span class="bp">exact</span> is_univalent_disp_algebra_full_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_algebra_cat</span> (<span class="nv">T</span> : algebraic_theory)
+  : is_univalent (algebra_cat T).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (is_univalent_fiber_cat _ _ _).
+  <span class="nb">unfold</span> algebra_disp_cat.
+  <span class="kp">repeat</span> use is_univalent_sigma_disp.
+  - <span class="nb">apply</span> is_univalent_disp_cartesian'.
+    <span class="nb">apply</span> is_univalent_HSET.
+  - <span class="bp">exact</span> is_univalent_disp_algebra_data_full_disp_cat.
+  - <span class="bp">exact</span> is_univalent_disp_algebra_full_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Algebras are fibered over theories *)</span>
+
+<span class="kn">Section</span> <span class="nf">Cleaving</span>.
+
+  <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+  <span class="kn">Context</span> (<span class="nv">F</span> : algebraic_theory_morphism T' T).
+  <span class="kn">Context</span> (<span class="nv">A</span> : algebra T).
+
+  <span class="kn">Definition</span> <span class="nf">algebra_cleaving_algebra_data</span>
+    : algebra_data T'.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> A.
+    - <span class="nb">intros</span> n f a.
+      <span class="bp">exact</span> (action (F _ f) a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">algebra_cleaving_is_algebra</span>
+    : is_algebra algebra_cleaving_algebra_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="kp">do</span> <span class="mi">5</span> <span class="nb">intro</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x a) (mor_subst F _ _) @ _).
+      <span class="nb">apply</span> (subst_action A).
+    - <span class="nb">intros</span> n i a.
+      <span class="nb">refine</span> (_ @ var_action A _ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, action (A := A) f _)).
+      <span class="nb">apply</span> mor_var.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_cleaving_algebra</span>
+    : algebra T'
+    := make_algebra _ algebra_cleaving_is_algebra.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_cleaving_morphism</span>
+    : (algebra_cleaving_algebra : algebra_disp_cat _) --&gt;[F] A.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (idfun _ ,, _ ,, tt).
+    <span class="kp">abstract</span> <span class="bp">now</span> <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Lift</span>.
+
+    <span class="kn">Context</span> {<span class="nv">T''</span> : algebraic_theory}.
+    <span class="kn">Context</span> {<span class="nv">A''</span> : algebra T''}.
+    <span class="kn">Context</span> (<span class="nv">F'</span> : algebraic_theory_morphism T'' T').
+    <span class="kn">Context</span> (<span class="nv">G'</span> : (A'' : algebra_disp_cat _) --&gt;[(F' : algebraic_theory_cat⟦_, _⟧) · F] A).
+
+    <span class="kn">Definition</span> <span class="nf">algebra_cleaving_induced_morphism</span>
+      : (A'' : algebra_disp_cat _) --&gt;[F'] algebra_cleaving_algebra.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 G' ,, _ ,, tt).
+      <span class="kp">abstract</span> (<span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>; <span class="nb">apply</span> (pr12 G' _)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_lift</span>
+      : ∑ gg, (gg ;; algebra_cleaving_morphism) = G'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> <span class="nv">algebra_cleaving_induced_morphism</span>.
+      <span class="bp">now</span> <span class="nb">apply</span> displayed_algebra_morphism_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">algebra_lift_is_unique</span>
+      : ∏ t : (∑ gg, (gg ;; algebra_cleaving_morphism) = G'), t = algebra_lift.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> t.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homsets_disp.
+      }
+      <span class="nb">apply</span> displayed_algebra_morphism_eq.
+      <span class="bp">exact</span> (maponpaths _ (pr2 t)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Lift</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_cleaving_is_cartesian</span>
+    : is_cartesian algebra_cleaving_morphism
+    := (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">F'</span> <span class="nv">_</span> <span class="nv">G'</span>, algebra_lift F' G' ,, algebra_lift_is_unique F' G').
+
+<span class="kn">End</span> <span class="nf">Cleaving</span>.
+
+<span class="kn">Definition</span> <span class="nf">algebra_cleaving</span>
+  : cleaving algebra_disp_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span> <span class="nv">A</span>,
+    algebra_cleaving_algebra F A ,,
+    algebra_cleaving_morphism F A ,,
+    algebra_cleaving_is_cartesian F A.
+
+<span class="kn">Definition</span> <span class="nf">algebra_fibration</span>
+  : fibration algebraic_theory_cat
+  := _ ,, algebra_cleaving.
+
+
+<span class="sd">(** * 3. A characterization of iso's of algebras *)</span>
+
+<span class="kn">Section</span> <span class="nf">Iso</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">A'</span> : algebra T).
+  <span class="kn">Context</span> (<span class="nv">F</span> : z_iso (C := HSET) (A : hSet) (A' : hSet)).
+  <span class="kn">Context</span> (<span class="nv">Haction</span> : ∏ n f a, mor_action_ax (identity T) (z_iso_mor F) (@action T A) (@action T A') n f a).
+
+  <span class="kn">Definition</span> <span class="nf">make_algebra_z_iso_mor</span>
+    : algebra_morphism A A'
+    := make_algebra_morphism _ Haction.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebra_z_iso_inv_data</span>
+    : A' → A
+    := inv_from_z_iso F.
+
+  <span class="kn">Lemma</span> <span class="nf">make_algebra_z_iso_inv_action_ax</span>
+    : ∏ n f a, mor_action_ax (identity T) make_algebra_z_iso_inv_data (@action T A') (@action T A) n f a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f a.
+    <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (z_iso_inv_after_z_iso F)).
+    <span class="nb">apply</span> (maponpaths (inv_from_z_iso F)).
+    <span class="nb">refine</span> (Haction _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> (eqtohomot (z_iso_after_z_iso_inv F)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebra_z_iso_inv</span>
+    : algebra_morphism A' A
+    := make_algebra_morphism _ make_algebra_z_iso_inv_action_ax.
+
+  <span class="kn">Lemma</span> <span class="nf">make_algebra_z_iso_is_iso</span>
+    : is_inverse_in_precat (C := algebra_cat T)
+      make_algebra_z_iso_mor
+      make_algebra_z_iso_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      <span class="nb">apply</span> algebra_morphism_eq;
+      <span class="nb">refine</span> (algebra_mor_comp _ _ @ _).
+    - <span class="nb">apply</span> (z_iso_inv_after_z_iso F).
+    - <span class="nb">apply</span> (z_iso_after_z_iso_inv F).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebra_z_iso</span>
+    : z_iso (C := algebra_cat T) A A'
+    := make_z_iso (C := algebra_cat T)
+      make_algebra_z_iso_mor
+      make_algebra_z_iso_inv
+      make_algebra_z_iso_is_iso.
+
+<span class="kn">End</span> <span class="nf">Iso</span>.
+
+<span class="sd">(** * 4. Algebra pullback functor along an algebraic theory morphism *)</span>
+
+<span class="kn">Section</span> <span class="nf">Pullback</span>.
+
+  <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+  <span class="kn">Context</span> (<span class="nv">F</span> : algebraic_theory_morphism T T').
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> : algebra T').
+
+    <span class="kn">Definition</span> <span class="nf">algebra_pullback_ob_data</span>
+      : algebra_data T
+      := make_algebra_data
+        A
+        (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">f</span> <span class="nv">a</span>, action (F _ f) a).
+
+    <span class="kn">Lemma</span> <span class="nf">algebra_pullback_ob_is_algebra</span>
+      : is_algebra algebra_pullback_ob_data.
+    <span class="kn">Proof</span>.
+      use make_is_algebra.
+      - <span class="nb">intros</span> m n f g a.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action (A := A) x a) (mor_subst _ _ _) @ _).
+        <span class="nb">apply</span> subst_action.
+      - <span class="nb">intros</span> n i a.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, action (A := A) x a) (mor_var _ _) @ _).
+        <span class="nb">apply</span> var_action.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_pullback_ob</span>
+      : algebra T
+      := make_algebra _ algebra_pullback_ob_is_algebra.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">A'</span> : algebra T'}.
+    <span class="kn">Context</span> (<span class="nv">G</span> : algebra_morphism A A').
+
+    <span class="kn">Definition</span> <span class="nf">algebra_pullback_mor_data</span>
+      : algebra_pullback_ob A → algebra_pullback_ob A'
+      := G.
+
+    <span class="kn">Lemma</span> <span class="nf">algebra_pullback_mor_is_morphism</span>
+      : is_algebra_morphism algebra_pullback_mor_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> (mor_action G).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebra_pullback_mor</span>
+      : algebra_morphism (algebra_pullback_ob A) (algebra_pullback_ob A')
+      := make_algebra_morphism _ algebra_pullback_mor_is_morphism.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_pullback_data</span>
+    : functor_data (algebra_cat T') (algebra_cat T)
+    := make_functor_data
+      algebra_pullback_ob
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, algebra_pullback_mor).
+
+  <span class="kn">Lemma</span> <span class="nf">algebra_pullback_is_functor</span>
+    : is_functor algebra_pullback_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> A.
+      <span class="bp">now</span> <span class="nb">apply</span> algebra_morphism_eq.
+    - <span class="nb">intros</span> A A' A'' f g.
+      <span class="nb">apply</span> algebra_morphism_eq.
+      <span class="nb">refine</span> (_ @ !algebra_mor_comp _ _).
+      <span class="nb">refine</span> (pr1_transportf (B := <span class="k">λ</span> <span class="nv">_</span>, _ → _) _ _ @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z _) (transportf_const _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_pullback</span>
+    : algebra_cat T' ⟶ algebra_cat T
+    := make_functor
+      algebra_pullback_data
+      algebra_pullback_is_functor.
+
+<span class="kn">End</span> <span class="nf">Pullback</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraCategory.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/AlgebraicTheories/AlgebraCategoryCore.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. Algebra pullback functor along an algebraic theory morphism [algebra_pullback]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Export UniMath.AlgebraicTheories.AlgebraCategoryCore.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

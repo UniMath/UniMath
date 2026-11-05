@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ModelCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.Retract.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.WFS.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.WeakEquivalences.
+
+<span class="kn">Section</span> <span class="nf">modelcat</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> retract.
+
+<span class="kn">Definition</span> <span class="nf">is_model_category</span> {<span class="nv">M</span> : category} (<span class="nv">W</span> <span class="nv">C</span> <span class="nv">F</span> : morphism_class M) :=
+    is_weak_equivalences W × is_wfs C (F ∩ W) × is_wfs (C ∩ W) F.
+
+<span class="kn">Definition</span> <span class="nf">make_is_model_category</span> {<span class="nv">M</span> : category} (<span class="nv">W</span> <span class="nv">C</span> <span class="nv">F</span> : morphism_class M) 
+    (<span class="nv">weq</span> : is_weak_equivalences W) (<span class="nv">cfw_wfs</span> : is_wfs C (F ∩ W)) (<span class="nv">cwf_wfs</span> : is_wfs (C ∩ W) F) : is_model_category W C F :=
+  make_dirprod weq (make_dirprod cfw_wfs cwf_wfs).
+
+<span class="kn">Definition</span> <span class="nf">model_category</span> (<span class="nv">M</span> : category) :=
+  ∑ (W C F : morphism_class M), is_model_category W C F.
+
+<span class="kn">Lemma</span> <span class="nf">isprop_is_model_category</span> {<span class="nv">M</span> : category} (<span class="nv">W</span> <span class="nv">C</span> <span class="nv">F</span> : morphism_class M) : isaprop (is_model_category W C F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  <span class="nb">apply</span> isaprop_is_weak_equivalences.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_wfs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_model_category_mk'</span> {<span class="nv">M</span> : category} {<span class="nv">W</span> <span class="nv">C</span> <span class="nv">AF</span> <span class="nv">AC</span> <span class="nv">F</span> : morphism_class M}
+    (<span class="nv">weq</span> : is_weak_equivalences W)
+    (<span class="nv">caf</span> : is_wfs C AF) (<span class="nv">acf</span> : is_wfs AC F)
+    (<span class="nv">hAF</span> : AF = F ∩ W) (<span class="nv">hAC</span> : AC ⊆ W) :
+    is_model_category W C F.
+<span class="kn">Proof</span>.
+  use make_is_model_category.
+  - <span class="bp">assumption</span>. <span class="c">(* W are still the weak equivalences *)</span>
+  - <span class="nb">rewrite</span> hAF <span class="k">in</span> caf. <span class="c">(* C and AF = F ∩ W is a WFS by assumption (caf) *)</span>
+    <span class="bp">assumption</span>.
+  - <span class="c">(* suffices to show C ∩ W ⊆ AC *)</span>
+    <span class="nb">enough</span> (C ∩ W ⊆ AC) <span class="k">as</span> cw_sac.
+    {
+      <span class="c">(* since then C ∩ W = AC *)</span>
+      <span class="nb">assert</span> (C ∩ W = AC) <span class="k">as</span> cw_ac.
+      {
+        <span class="c">(* only need to show other inclusion *)</span>
+        <span class="nb">apply</span> (morphism_class_subset_antisymm cw_sac).
+        <span class="c">(* take f ∈ AC *)</span>
+        <span class="nb">intros</span> a b f hf.
+        <span class="nb">split</span>.
+        - <span class="c">(* AC = llp F *)</span>
+          <span class="nb">rewrite</span> (is_wfs_llp acf) <span class="k">in</span> hf.
+          <span class="c">(* C = llp AF *)</span>
+          <span class="nb">rewrite</span> (is_wfs_llp caf).
+          <span class="c">(* so now goal is llp F ⊆ llp AF *)</span>
+          <span class="nb">revert</span> a b f hf.
+          <span class="c">(* use antisymmetry of llp to convert goal into AF ⊆ F *)</span>
+          <span class="nb">apply</span> llp_anti.
+          <span class="nb">intros</span> x y g hg.
+          <span class="c">(* this is trivial, since AF = F ∩ W, but requires some work in UniMath *)</span>
+          <span class="nb">rewrite</span> hAF <span class="k">in</span> hg.
+          <span class="nb">destruct</span> hg <span class="k">as</span> [hgf ?].
+          <span class="bp">exact</span> hgf.
+        - <span class="c">(* f ∈ AC ⊆ W (by hAC) *)</span>
+          <span class="bp">exact</span> (hAC _ _ _ hf).
+      }
+      <span class="c">(* C ∩ W = AC and F are a WFS by assumption (acf) *)</span>
+      <span class="nb">rewrite</span> cw_ac.
+      <span class="bp">exact</span> acf.
+    }
+    {
+      <span class="c">(* we show that indeed, C ∩ W ⊆ AC *)</span>
+      <span class="nb">intros</span> a b f hf.
+      <span class="nb">destruct</span> hf <span class="k">as</span> [f_c f_w].
+
+      <span class="c">(* factorize f through c, g : a --&gt; c ∈ AC, h : c --&gt; b ∈ F *)</span>
+      use ((is_wfs_fact acf) _ _ f).
+      <span class="nb">intro</span> H.
+      <span class="nb">destruct</span> H <span class="k">as</span> [c [g [h [g_ac [h_f gh]]]]].
+
+      <span class="c">(* h ∈ W by 2 out of 3 property (h ∘ g = f) *)</span>
+      <span class="nb">assert</span> (h_w : (W _ _) h).
+      {
+        <span class="c">(* g ∈ AC ⊆ W *)</span>
+        <span class="nb">specialize</span> (hAC _ _ _ g_ac) <span class="k">as</span> g_w.
+        <span class="nb">apply</span> ((is_weq_cancel_left weq) _ _ _ _ _ g_w).
+        <span class="nb">rewrite</span> gh.
+        <span class="bp">exact</span> f_w.
+      }
+      
+      <span class="c">(* h ∈ AF because AF = F ∩ W and h ∈ F by definition *)</span>
+      <span class="nb">assert</span> (h_af : (AF _ _) h).
+      {
+        <span class="nb">rewrite</span> hAF.
+        <span class="nb">split</span>.
+        - <span class="bp">exact</span> h_f.
+        - <span class="bp">exact</span> h_w.
+      }
+      
+      <span class="c">(* extract lift l from</span>
+<span class="c">            g</span>
+<span class="c">        a ----&gt; c</span>
+<span class="c">        | l   / |</span>
+<span class="c">      f |   /   | h</span>
+<span class="c">        v /     v</span>
+<span class="c">        b ===== b</span>
+<span class="c">      *)</span>
+      use (wfs'lp (make_wfs C AF caf) f_c h_af g (identity b)).
+      {
+        <span class="c">(* commutativity of diagram *)</span>
+        <span class="nb">rewrite</span> id_right.
+        <span class="bp">exact</span> gh.
+      }
+
+      <span class="nb">intros</span> hl.
+      <span class="nb">destruct</span> hl <span class="k">as</span> [l [hl1 hl2]].
+
+      <span class="c">(* this uses the retract argument</span>
+<span class="c">        a ===== a ===== a</span>
+<span class="c">        |       |       |</span>
+<span class="c">      f |       | g     | f</span>
+<span class="c">        v       v       v</span>
+<span class="c">        b ----&gt; c ----&gt; b</span>
+<span class="c">            l       h</span>
+<span class="c">        to show that f is a retract of g</span>
+<span class="c">      *)</span>
+      <span class="nb">assert</span> (r : retract g f).
+      {
+        use (make_retract (identity a) (identity a) l h).
+        use make_is_retract.
+        - <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+        - <span class="bp">assumption</span>.
+        - <span class="nb">rewrite</span> id_left. <span class="bp">now</span> <span class="nb">symmetry</span>.
+        - <span class="nb">rewrite</span> id_left. <span class="bp">now</span> <span class="nb">symmetry</span>.
+      }
+
+      <span class="c">(* so since g ∈ AC in a WFS acf = (AC, F), so must f be *)</span>
+      <span class="bp">exact</span> (wfs_L_retract (make_wfs AC F acf) r g_ac).
+    }
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">modelcat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ModelCategories/ModelCategories.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

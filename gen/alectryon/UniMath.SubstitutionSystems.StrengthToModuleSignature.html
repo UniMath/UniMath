@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StrengthToModuleSignature.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************</span>
+
+<span class="sd">   Strength to module signature</span>
+
+<span class="sd">   In this file, we define a functor from the category of signatures with a</span>
+<span class="sd">   pointed tensorial strength to module signatures, and prove it maps simple</span>
+<span class="sd">   examples of signatures with strength to the expected module signatures.</span>
+<span class="sd">   Finally, we show that models for the obtained module signatures are</span>
+<span class="sd">   equivalent to Sigma monoids.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definitions</span>
+<span class="sd"> 2. Mapping of trivial and product signatures</span>
+<span class="sd"> 3. Models are Sigma monoids</span>
+
+<span class="sd"> ***************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="c">(* Require Import UniMath.Tactics.EnsureStructuredProofs. *)</span>
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.DisplayedSections.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RModules.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.TotalCategoriesOfRModules.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.ModuleSignatures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.ModelsOfModuleSignature.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.CategoryOfSignaturesWithStrength.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SigmaMonoids.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">StrengthToModuleSignature</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Let</span> <span class="nf">V_Mon</span> : monoidal_cat := V ,, Mon_V.
+
+  <span class="kn">Local Definition</span> <span class="nf">PtdV</span> : category := coslice_cat_total V I_{Mon_V}.
+  <span class="kn">Local Definition</span> <span class="nf">Mon_PtdV</span> : monoidal PtdV := monoidal_pointed_objects Mon_V.
+
+  <span class="kn">Local Definition</span> <span class="nf">Mon_V_swapped</span> : monoidal V := monoidal_swapped Mon_V.
+
+  <span class="sd">(** 1. Definitions *)</span>
+
+  <span class="kn">Section</span> <span class="nf">FixAStrength</span>.
+    <span class="kn">Context</span> {<span class="nv">H</span> : V ⟶ V}.
+    <span class="kn">Context</span> (<span class="nv">θ</span> : pointedtensorialstrength Mon_V_swapped H).
+
+    <span class="kn">Local Definition</span> <span class="nf">monoid_to_pointed</span> (<span class="nv">R</span> : MON Mon_V) : PtdV
+      := pr1 R ,, monoid_data_unit _ (pr12 R).
+
+    <span class="kn">Section</span> <span class="nf">FixAMonoid</span>.
+      <span class="kn">Context</span> (<span class="nv">R</span> : MON Mon_V).
+
+      <span class="kn">Let</span> <span class="nf">R_ob</span> : V := monoid_carrier _ R.
+      <span class="kn">Let</span> <span class="nf">η</span> : I_{Mon_V} --&gt; R_ob := monoid_data_unit _ (pr12 R).
+      <span class="kn">Let</span> <span class="nf">μ</span> : R_ob ⊗_{Mon_V} R_ob --&gt; R_ob := monoid_data_multiplication _ (pr12 R).
+
+      <span class="kn">Let</span> <span class="nf">pointed_R</span> : PtdV := monoid_to_pointed R.
+      <span class="kn">Let</span> <span class="nf">pointed_RR</span> : PtdV := pointed_R ⊗_{Mon_PtdV} pointed_R.
+
+      <span class="kn">Local Definition</span> <span class="nf">pointed_monoid_unit</span> : PtdV ⟦ I_{Mon_PtdV}, pointed_R ⟧
+        := η ,, id_left _.
+
+      <span class="kn">Local Lemma</span> <span class="nf">pointed_multiplication_lemma</span>
+        : luinv^{_}_{_} · η ⊗^{Mon_V} η · μ = η.
+      <span class="kn">Proof</span>.
+        etrans.
+        { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _) _); use (bifunctor_equalwhiskers Mon_V). }
+        <span class="nb">unfold</span> functoronmorphisms2.
+        <span class="nb">rewrite</span> assoc, (monoidal_leftunitorinvnat Mon_V), &lt;- id_right, &lt;- assoc, &lt;- assoc.
+        <span class="nb">refine</span> (maponpaths _ _).
+        etrans.
+        { <span class="nb">refine</span> (maponpaths _ _); use monoid_to_unit_left_law. }
+        use (pr2 (monoidal_leftunitorisolaw _ _)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Definition</span> <span class="nf">pointed_multiplication</span> : PtdV ⟦ pointed_RR, pointed_R ⟧
+        := μ ,, pointed_multiplication_lemma.
+
+      <span class="kn">Let</span> <span class="nf">HR_module_subst</span> : H R_ob ⊗_{Mon_V} R_ob --&gt; H R_ob
+        := θ pointed_R R_ob · #H μ.
+
+      <span class="kn">Local Lemma</span> <span class="nf">HR_module_subst_assoc</span>
+        : module_laws_assoc (C := V_Mon) (pr1 R) (pr2 R) HR_module_subst.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> module_laws_assoc, HR_module_subst.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">rewrite</span> (bifunctor_rightcomp Mon_V).
+        <span class="nb">unfold</span> RModules.μ; <span class="nb">fold</span> μ R_ob.
+        <span class="nb">symmetry</span>; etrans.
+        { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          use (lineator_linnatleft _ _ _ _ θ pointed_R). }
+        <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc.
+        etrans.
+        { <span class="nb">rewrite</span> &lt;- assoc, &lt;- functor_comp; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ _).
+          use (!monoid_to_assoc_law _ _). }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp, assoc.
+        <span class="nb">symmetry</span>; etrans.
+        { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+          <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+          use (lineator_linnatright _ _ _ _ θ _ _ _ pointed_multiplication). }
+        <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) _).
+        <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- id_left, assoc, assoc, &lt;- (pr1 (monoidal_associatorisolaw _ _ _ _)); <span class="nb">symmetry</span>.
+        etrans.
+        { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> assoc.
+          <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- id_left, assoc, assoc; <span class="nb">symmetry</span>.
+          etrans; [<span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _ · _) _); use (tensor_id_id (V := V_Mon)) |].
+          <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+          use (!lineator_preservesactor _ _ _ _ θ pointed_R pointed_R _). }
+        <span class="nb">cbn</span>; <span class="nb">unfold</span> reindexed_actor_data; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- assoc, &lt;- assoc; use maponpaths.
+        <span class="nb">rewrite</span> unitorsinv_coincide_on_unit, functor_comp, assoc, assoc.
+        etrans.
+        { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x · _ · _) _).
+          <span class="bp">now</span> <span class="nb">rewrite</span> (tensor_mor_left (V := V_Mon)), (tensor_id_id (V := V_Mon)), functor_id. }
+        <span class="nb">rewrite</span> id_right; etrans.
+        { <span class="nb">rewrite</span> &lt;- assoc, &lt;- functor_comp; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ _).
+          use (pr2 (monoidal_associatorisolaw _ _ _ _)). }
+        <span class="nb">eassert</span> (_ ⊗^{ tensor_swapped Mon_V} _ = _ ⊗^{Mon_V} _) <span class="k">as</span> hyp
+        <span class="bp">by</span> use monoidal_swapped_whiskering.
+        <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_right, hyp.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">HR_module_subst_unit</span>
+        : module_laws_unit (C := V_Mon) (pr1 R) (pr2 R) HR_module_subst.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> module_laws_unit, HR_module_subst, RModules.η; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> assoc; etrans.
+        { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use (lineator_linnatright _ _ _ _ θ _ _ _ pointed_monoid_unit). }
+        <span class="nb">cbn</span>; etrans.
+        { <span class="nb">rewrite</span> &lt;- assoc, &lt;- functor_comp; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths _ _).
+          use monoid_to_unit_right_law. }
+        <span class="nb">rewrite</span> &lt;- id_left; etrans.
+        <span class="mi">2</span>: { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); use (tensor_id_id (V := V_Mon)). }
+        <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+        etrans; [|use (lineator_preservesunitor _ _ _ _ θ)].
+        <span class="nb">cbn</span>; <span class="kp">do</span> <span class="mi">2</span> use maponpaths.
+        <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- id_left.
+        use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _); <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (tensor_mor_left (V := V_Mon)), (tensor_id_id (V := V_Mon)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">strength_to_module</span>
+        : module (C := V_Mon) R_ob (monoid_struct _ R) (H R_ob)
+        := make_module _ _ _ HR_module_subst_unit HR_module_subst_assoc.
+    <span class="kn">End</span> <span class="nf">FixAMonoid</span>.
+
+    <span class="c">(* Functoriality *)</span>
+    <span class="kn">Section</span> <span class="nf">FixAMonoidMorphism</span>.
+      <span class="kn">Context</span> (<span class="nv">R</span> <span class="nv">R'</span> : MON Mon_V) (<span class="nv">r</span> : R --&gt; R').
+
+      <span class="kn">Let</span> <span class="nf">R_ob</span>  : V := monoid_carrier _ R.
+      <span class="kn">Let</span> <span class="nf">R'_ob</span> : V := monoid_carrier _ R'.
+      <span class="kn">Let</span> <span class="nf">r_ob</span> : R_ob --&gt; R'_ob := pr1 r.
+
+      <span class="kn">Local Definition</span> <span class="nf">r_as_pointed_morphism</span>
+        : monoid_to_pointed R --&gt; monoid_to_pointed R'
+        := r_ob ,, pr22 r.
+
+      <span class="kn">Lemma</span> <span class="nf">strength_to_module_morphism</span>
+        : is_module_mor _ _ (strength_to_module R)
+          (pullback_functor_funct _ (strength_to_module R') _ (pr2 r)) (#H r_ob).
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> is_module_mor, pullback_functor_funct; <span class="nb">cbn</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        etrans.
+        <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- assoc, &lt;- functor_comp. <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · #H x ) (pr12 r)). }
+        <span class="nb">rewrite</span> functor_comp, assoc; <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        <span class="nb">fold</span> R'_ob R_ob r_ob.
+        <span class="nb">unfold</span> functoronmorphisms1; <span class="nb">rewrite</span> functor_comp, assoc.
+        etrans.
+        { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ (lineator_linnatright _ _ _ _ θ _ _ _ r_as_pointed_morphism)). }
+        <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+        use (lineator_linnatleft _ _ _ _ θ (monoid_to_pointed R)).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">FixAMonoidMorphism</span>.
+
+    <span class="kn">Definition</span> <span class="nf">strength_to_module_signature_data</span>
+      : @module_signature_data V_Mon.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">R</span>, _ ,, strength_to_module R).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">R</span> <span class="nv">R'</span> <span class="nv">r</span>, _ ,, strength_to_module_morphism _ _ r).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">strength_to_module_signature_axioms</span>
+      : module_signature_axioms strength_to_module_signature_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> MOD_mor_eq.
+      - use functor_id.
+      - use functor_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">strength_to_module_signature</span>
+      : module_signature_cat
+      := strength_to_module_signature_data ,, strength_to_module_signature_axioms.
+  <span class="kn">End</span> <span class="nf">FixAStrength</span>.
+
+  <span class="kn">Section</span> <span class="nf">FixAStrengthMorphism</span>.
+    <span class="kn">Context</span> {<span class="nv">H</span> <span class="nv">H'</span> : V ⟶ V} {<span class="nv">α</span> : H ⟹ H'}.
+    <span class="kn">Context</span> {<span class="nv">θ</span> : pointedtensorialstrength Mon_V_swapped H}.
+    <span class="kn">Context</span> {<span class="nv">θ'</span> : pointedtensorialstrength Mon_V_swapped H'}.
+    <span class="kn">Context</span> (<span class="nv">hyp</span> : is_linear_nat_trans θ θ' α).
+
+    <span class="kn">Lemma</span> <span class="nf">strength_to_module_signature_morphism_lemma</span>
+      (<span class="nv">R</span> : MON Mon_V)
+      : α (monoid_carrier Mon_V R) ⊗^{ Mon_V}_{r} pr1 R
+        · H' (monoid_carrier Mon_V R) ⊗^{ Mon_V}_{l} identity (pr1 R)
+        · θ' (monoid_to_pointed R) (monoid_carrier Mon_V R)
+        · # H' (monoid_data_multiplication Mon_V (pr12 R))
+      = θ (monoid_to_pointed R) (monoid_carrier Mon_V R)
+        · # H (monoid_data_multiplication Mon_V (pr12 R))
+        · α (monoid_carrier Mon_V R).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> (bifunctor_leftid Mon_V), id_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ _); use nat_trans_ax. }
+      <span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; use (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+      use (hyp (monoid_to_pointed R)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">strength_to_module_signature_morphism</span>
+      : strength_to_module_signature θ --&gt; strength_to_module_signature θ'.
+    <span class="kn">Proof</span>.
+      use tpair; <span class="nb">cbn</span>.
+      - <span class="nb">intros</span> R; <span class="k">exists</span> (<span class="nv">α</span> <span class="nv">_</span>); <span class="nb">cbn</span>.
+        <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_module_mor; <span class="nb">cbn</span>;
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc;
+            use strength_to_module_signature_morphism_lemma
+          ).
+      - <span class="nb">intros</span> R R' f; <span class="nb">apply</span> MOD_mor_eq.
+        <span class="kp">abstract</span> (<span class="nb">unfold</span> mor_disp; <span class="nb">cbn</span>;
+             <span class="nb">rewrite</span> transportf_total2; <span class="nb">cbn</span>;
+             <span class="nb">rewrite</span> transportf_const; <span class="nb">cbn</span>;
+             use nat_trans_ax
+          ).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FixAStrengthMorphism</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strength_to_module_signature_functor_data</span>
+    : functor_data (pointedtensorialstrength_cat Mon_V_swapped) (module_signature_cat (C := V_Mon)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> [? θ]; <span class="bp">exact</span> (strength_to_module_signature θ).
+    - <span class="nb">intros</span> ? ? [? hyp]; <span class="bp">exact</span> (strength_to_module_signature_morphism hyp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">strength_to_module_signature_functor_laws</span>
+    : is_functor strength_to_module_signature_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> section_nat_trans_eq; <span class="nb">intro</span>.
+      <span class="nb">apply</span> MOD_mor_eq; <span class="bp">easy</span>.
+    - <span class="nb">intros</span> ? ? ? ? ?. <span class="nb">apply</span> section_nat_trans_eq; <span class="nb">intro</span>.
+      <span class="nb">apply</span> MOD_mor_eq. <span class="nb">cbn</span>; <span class="nb">unfold</span> mor_disp.
+      <span class="nb">cbn</span>; <span class="nb">rewrite</span> transportf_total2.
+      <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> transportf_const.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strength_to_module_signature_functor</span>
+    : pointedtensorialstrength_cat Mon_V_swapped ⟶ module_signature_cat (C := V_Mon)
+    := make_functor _ strength_to_module_signature_functor_laws.
+
+
+  <span class="sd">(** 2. Mapping of trivial and product signatures *)</span>
+
+  <span class="c">(* The functor maps the "trivial" and "product" signatures with strength to *)</span>
+  <span class="c">(* their equivalent as module signatures                                    *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">signature_with_strength_to_module_signatures_trivial</span>
+    : strength_to_module_signature (trivial_signature_with_strength Mon_V_swapped)
+      = trivial_signature.
+  <span class="kn">Proof</span>.
+    use module_signature_equality.
+    - <span class="nb">intro</span>. use total2_paths_f.
+      + use idpath.
+      + <span class="kp">abstract</span> (
+          use subtypePath;
+          [use isaprop_module_laws|use id_left]
+        ).
+    - <span class="nb">intros</span>; etrans.
+      + <span class="nb">refine</span> (maponpaths _ _); use transportf_total2_paths_f.
+      + use (transportf_total2_paths_f (<span class="k">λ</span> <span class="nv">x</span>, x --&gt; _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">signature_with_strength_to_module_signatures_product</span>
+    (<span class="nv">H</span> : V ⟶ V) (<span class="nv">θ</span> : pointedtensorialstrength Mon_V_swapped H) (<span class="nv">D</span> : V)
+    : strength_to_module_signature (product_signature_strength Mon_V_swapped H θ D)
+      = product_signature (strength_to_module_signature θ) D.
+  <span class="kn">Proof</span>.
+    use module_signature_equality.
+    - <span class="nb">intro</span>; use total2_paths_f.
+      + use idpath.
+      + <span class="kp">abstract</span> (
+        use subtypePath;
+        [ use isaprop_module_laws
+        | <span class="nb">cbn</span>; <span class="nb">unfold</span> product_module_subst; <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftcomp Mon_V), assoc ]
+          ).
+    - <span class="nb">intros</span>; etrans.
+      + <span class="nb">refine</span> (maponpaths _ _); use transportf_total2_paths_f.
+      + use (transportf_total2_paths_f (<span class="k">λ</span> <span class="nv">x</span>, x --&gt; _)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** 3. Models are Sigma monoids *)</span>
+  <span class="kn">Section</span> <span class="nf">ModelsAreSigmaMonoids</span>.
+    <span class="kn">Context</span> {<span class="nv">H</span> : V ⟶ V}.
+    <span class="kn">Context</span> (<span class="nv">θ</span> : pointedtensorialstrength Mon_V_swapped H).
+
+    <span class="kn">Definition</span> <span class="nf">sigma_monoid_to_model</span>
+      (<span class="nv">M</span> : SigmaMonoid θ)
+      : models_of_module_signatures_cat (strength_to_module_signature θ).
+    <span class="kn">Proof</span>.
+      use tpair; [|use tpair].
+      - use monoid_swapped_to_monoid_functor; <span class="bp">exact</span> (SigmaMonoid_to_monoid θ M).
+        <span class="c">(* SigmaMonoid_to_monoid gives an element of MON Mon_V_swapped and not MON Mon_V *)</span>
+      - <span class="bp">exact</span> (SigmaMonoid_τ θ M).
+      - <span class="bp">exact</span> (!SigmaMonoid_is_compatible θ M).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">model_to_sigma_monoid</span>
+      (<span class="nv">M</span> : models_of_module_signatures_cat (strength_to_module_signature θ))
+      : SigmaMonoid θ.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> M <span class="k">as</span> [[M M_mon] [τ hyp]].
+      use (_ ,, (_ ,, _) ,, _); <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> M.
+      - <span class="bp">exact</span> τ.
+      - <span class="bp">exact</span> (monoid_to_monoid_swapped_monoid _ M_mon).
+      - <span class="bp">exact</span> (!hyp).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sigma_monoid_to_model_functor_data</span>
+      : functor_data (SigmaMonoid θ) (models_of_module_signatures_cat (strength_to_module_signature θ)).
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> <span class="nv">sigma_monoid_to_model</span>.
+      <span class="nb">intros</span> M M' f.
+      use ((_ ,, _ ,, _) ,, _); <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr1 f).
+      - <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_monoid_mor_mult; <span class="nb">cbn</span>; <span class="nb">rewrite</span> &lt;- (monoidal_swapped_whiskering Mon_V); use (pr1 (pr212 f))
+          ).
+      - <span class="bp">exact</span> (pr2 (pr212 f)).
+      - <span class="bp">exact</span> (pr112 f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">sigma_monoid_to_model_functor_laws</span>
+      : is_functor sigma_monoid_to_model_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span>.
+        use subtypePath.
+        { <span class="nb">intro</span>; use homset_property. }
+        <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+      - <span class="nb">intros</span> ? ? ? ? ?.
+        use subtypePath.
+        { <span class="nb">intro</span>; use homset_property. }
+        <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sigma_monoid_to_model_functor</span>
+      : SigmaMonoid θ ⟶ models_of_module_signatures_cat (strength_to_module_signature θ)
+      := make_functor _ sigma_monoid_to_model_functor_laws.
+
+    <span class="kn">Definition</span> <span class="nf">model_to_sigma_monoid_functor_data</span>
+      : functor_data (models_of_module_signatures_cat (strength_to_module_signature θ)) (SigmaMonoid θ).
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> <span class="nv">model_to_sigma_monoid</span>.
+      <span class="nb">intros</span> M M' f.
+      use (_ ,, (_  ,, _ ,, _) ,, tt); <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr11 f).
+      - <span class="bp">exact</span> (pr2 f).
+      - <span class="kp">abstract</span> (<span class="nb">unfold</span> is_monoid_mor_mult; <span class="nb">rewrite</span> (monoidal_swapped_whiskering Mon_V); <span class="bp">exact</span> (pr121 f)).
+      - <span class="bp">exact</span> (pr221 f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">model_to_sigma_monoid_functor_laws</span>
+      : is_functor model_to_sigma_monoid_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span>.
+        <span class="nb">apply</span> SigmaMonoid_mor_eq; <span class="bp">easy</span>.
+      - <span class="nb">intros</span> ? ? ? ? ?.
+        <span class="nb">apply</span> SigmaMonoid_mor_eq; <span class="bp">easy</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">model_to_sigma_monoid_functor</span>
+      : models_of_module_signatures_cat (strength_to_module_signature θ) ⟶ SigmaMonoid θ
+      := make_functor _ model_to_sigma_monoid_functor_laws.
+
+    <span class="kn">Local Definition</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_unit_data</span>
+      : nat_trans_data (functor_identity (SigmaMonoid θ)) (sigma_monoid_to_model_functor ∙ model_to_sigma_monoid_functor).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> R.
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+      use ((_ ,, _ ,, _) ,, tt); <span class="nb">cbn</span>.
+      - <span class="kp">abstract</span>(<span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_left, id_right).
+      - <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_monoid_mor_mult; <span class="nb">cbn</span>; <span class="nb">unfold</span> functoronmorphisms1;
+            <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid (monoidal_swapped Mon_V)),
+              (bifunctor_rightid (monoidal_swapped Mon_V)),
+              id_left, id_left, id_right
+          ).
+      - <span class="kp">abstract</span> (use id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_unit_law</span>
+      : is_nat_trans _ _ equivalence_models_sigma_monoids_adjuction_unit_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> ? ? ?.
+      <span class="nb">apply</span> SigmaMonoid_mor_eq.
+      <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_unit</span>
+      : functor_identity _ ⟹ sigma_monoid_to_model_functor ∙ model_to_sigma_monoid_functor
+      := make_nat_trans _ _ _ equivalence_models_sigma_monoids_adjuction_unit_law.
+
+    <span class="kn">Local Definition</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_counit_data</span>
+      : nat_trans_data (model_to_sigma_monoid_functor ∙ sigma_monoid_to_model_functor) (functor_identity _).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> R; use ((_ ,, _ ,, _) ,, _); <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (identity _).
+      - <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_monoid_mor_mult, functoronmorphisms1;
+            <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V),
+              id_left, id_left, id_right
+          ).
+      - <span class="kp">abstract</span> (use id_right).
+      - <span class="kp">abstract</span> (
+          <span class="nb">unfold</span> is_model_of_signature_mor; <span class="nb">cbn</span>;
+          <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_left, id_right
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_counit_law</span>
+      : is_nat_trans _ _ equivalence_models_sigma_monoids_adjuction_counit_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> ? ? ?.
+      use subtypePath.
+      { <span class="nb">intro</span>; use homset_property. }
+      <span class="nb">apply</span> MON_mor_eq.
+      <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">equivalence_models_sigma_monoids_adjuction_counit</span>
+      : model_to_sigma_monoid_functor ∙ sigma_monoid_to_model_functor ⟹ functor_identity _
+      := make_nat_trans _ _ _ equivalence_models_sigma_monoids_adjuction_counit_law.
+
+    <span class="kn">Definition</span> <span class="nf">equivalence_models_sigma_monoids_adjuction</span>
+      : adjunction_data (SigmaMonoid θ) (models_of_module_signatures_cat (strength_to_module_signature θ)).
+    <span class="kn">Proof</span>.
+      use make_adjunction_data.
+      - <span class="bp">exact</span> sigma_monoid_to_model_functor.
+      - <span class="bp">exact</span> model_to_sigma_monoid_functor.
+      - <span class="bp">exact</span> equivalence_models_sigma_monoids_adjuction_unit.
+      - <span class="bp">exact</span> equivalence_models_sigma_monoids_adjuction_counit.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">equivalence_models_sigma_monoids_forms_equivalence</span>
+      : forms_equivalence equivalence_models_sigma_monoids_adjuction.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> R; use ((_ ,, (_ ,, _ ,, _) ,, tt) ,, _ ,, _); <span class="nb">cbn</span>.
+        + use identity.
+        + <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_left, id_right).
+        + <span class="kp">abstract</span> (
+              <span class="nb">unfold</span> is_monoid_mor_mult, functoronmorphisms1; <span class="nb">cbn</span>;
+              <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V), id_left, id_left, id_right
+            ).
+        + <span class="kp">abstract</span> (use id_right).
+        + <span class="nb">apply</span> SigmaMonoid_mor_eq.
+          use id_left.
+        + <span class="nb">apply</span> SigmaMonoid_mor_eq.
+          use id_left.
+      - <span class="nb">intro</span> R; use (((_ ,, _ ,, _) ,, _) ,, _ ,, _); <span class="nb">cbn</span>.
+        + use identity.
+        + <span class="kp">abstract</span> (
+              <span class="nb">unfold</span> is_monoid_mor_mult, functoronmorphisms1;
+              <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid Mon_V), (bifunctor_rightid Mon_V),
+                id_right, id_right, id_left
+            ).
+        + <span class="kp">abstract</span> (use id_right).
+        + <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_model_of_signature_mor; <span class="nb">cbn</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> functor_id, id_left, id_right
+          ).
+        + use subtypePath.
+          { <span class="nb">intro</span>; use homset_property. }
+          <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+        + use subtypePath.
+          { <span class="nb">intro</span>; use homset_property. }
+          <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">equivalence_models_sigma_monoids</span>
+      : equivalence_of_cats (SigmaMonoid θ) (models_of_module_signatures_cat (strength_to_module_signature θ)).
+    <span class="kn">Proof</span>.
+      use make_equivalence_of_cats.
+      - <span class="bp">exact</span> equivalence_models_sigma_monoids_adjuction.
+      - <span class="bp">exact</span> equivalence_models_sigma_monoids_forms_equivalence.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ModelsAreSigmaMonoids</span>.
+<span class="kn">End</span> <span class="nf">StrengthToModuleSignature</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/StrengthToModuleSignature.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ***************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

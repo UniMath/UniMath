@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftedMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file we conclude that any monoidal category has a "Monoidal Rezk-completion".  More precisely:</span>
+<span class="c">Let (C,T,I,lu,ru,α) be a monoidal category.</span>
+<span class="c">Then, there is a univalent monoidal category (D,TD,ID,luD,ruD,αD) which is the free univalent monoidal category/replacement of (C,T,I,lu,ru,α), i.e.</span>
+<span class="c">There is a strong monoidal functor H: (C,T,I,lu,ru,α) → (D,TD,ID,luD,ruD,αD)</span>
+<span class="c">such that for any univalent monoidal category (E,TE,IE,luE,ruE,αD), there is an (adjoint) equivalence of categories between (lax-)monoidal functor categories:</span>
+<span class="c">H · (-) : LaxMon(D,E) → LaxMon(C,E).</span>
+
+<span class="c">In order to show this, we assume that the underlying category, i.e. C, has a Rezk-completion.</span>
+<span class="c">However, the specific constructions of the Rezk-completion of (ordinary) categories has some issues:</span>
+<span class="c">1. The copresheaf construction increases the universe level</span>
+<span class="c">2. The inductive definition, as the name suggests, uses inductive types, which is not directly allowed in UniMath.</span>
+<span class="c">In order to solve this issue, we are given a univalent category D and a weak equivalence H:C-&gt;D</span>
+
+<span class="c">Remark:</span>
+<span class="c">That H might be choosen to be a weak equivalence is motivated by the copresheaf construction.</span>
+<span class="c">We explicitely use that H is a weak equivalence (as seen in LiftedTensor.v) because</span>
+<span class="c">in order to show the adjoint equivalence of the corresponding monoidal functor categories,</span>
+<span class="c">we use that the functor categories are univalent and hence it suffices to show</span>
+<span class="c">that precomposition with H is a weak equivalence which reduces to H being an equivalence.</span>
+
+<span class="c">Notice that by the universal property of the Rezk-completion,</span>
+<span class="c">both D and H are unique (at first sight up to isomorphism, but even up to equality since the bicategory of univalent categories is univalent.</span>
+
+<span class="c">Then, using the universal property of D as the Rezk-completion of C (i.e. the free univalent category of C),</span>
+<span class="c">that D can be equipped with a monoidal structure such that H becomes a strong monoidal functor.</span>
+<span class="c">By the universal property of (D,H) we have an (adjoint) equivalence of categories H · (-) : [D,E] → [C,E] (for any univalent category E).</span>
+<span class="c">We show that this equivalence of categories lifts to (lax-)monoidal functors.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecompEquivalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.TotalCategoryFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedTensorUnit.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedUnitors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedAssociator.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">RezkMonoidal</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">H</span> : functor C D}
+          (<span class="nv">Duniv</span> : is_univalent D)
+          (<span class="nv">H_eso</span> : essentially_surjective H)
+          (<span class="nv">H_ff</span> : fully_faithful H).
+
+  <span class="kn">Context</span> (<span class="nv">TC</span> : functor (C ⊠ C) C) (<span class="nv">I</span> : C)
+          (<span class="nv">lu</span> : left_unitor TC I)
+          (<span class="nv">ru</span> : right_unitor TC I)
+          (<span class="nv">α</span> : associator TC)
+          (<span class="nv">tri</span> : triangle_eq TC I lu ru α)
+          (<span class="nv">pent</span> : pentagon_eq TC α).
+
+  <span class="kn">Let</span> <span class="nf">TD</span> := TransportedTensor Duniv H_eso H_ff TC.
+  <span class="kn">Let</span> <span class="nf">ID</span> := (H I).
+  <span class="kn">Let</span> <span class="nf">luD</span> := TransportedLeftUnitor Duniv H_eso H_ff _ _ lu.
+  <span class="kn">Let</span> <span class="nf">ruD</span> := TransportedRightUnitor Duniv H_eso H_ff _ _ ru.
+  <span class="kn">Let</span> <span class="nf">αD</span> := TransportedAssociator Duniv H_eso H_ff _ α.
+
+  <span class="kn">Lemma</span> <span class="nf">TransportedTriangleEq</span>
+    :  triangle_eq TD (H I) luD ruD αD.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y1 y2.
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y1). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y1).
+    <span class="nb">intros</span> [x1 xx1].
+    <span class="nb">induction</span> (isotoid _ Duniv xx1).
+    <span class="nb">clear</span> xx1.
+
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y2). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y2).
+    <span class="nb">intros</span> [x2 xx2].
+    <span class="nb">induction</span> (isotoid _ Duniv xx2).
+    <span class="nb">clear</span> xx2.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (TransportedRightUnitorOnOb Duniv H_eso H_ff TC I ru x1).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! TransportedLeftUnitorOnOb Duniv H_eso H_ff TC I lu x2).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! TransportedAssociatorOnOb Duniv H_eso H_ff TC α ((x1,I),x2)).
+    }
+
+    <span class="nb">rewrite</span> (! id_right (id H x2)).
+    <span class="nb">rewrite</span> (! id_right (id H x1)).
+
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> binprod_comp.
+    <span class="nb">rewrite</span> (functor_comp TD).
+    <span class="nb">rewrite</span> &lt;- functor_id.
+
+    <span class="nb">assert</span> (p0 : #TD (#H (ru x1) #, #H (id x2))
+                 =
+                   (pr11 (TransportedTensorComm Duniv H_eso H_ff TC))
+                     (I_posttensor TC I x1, x2)
+                     · # (TC ∙ H) (ru x1 #, id x2)
+                     · (pr1 (pr2 (TransportedTensorComm Duniv H_eso H_ff TC) (x1, x2)))).
+    {
+      <span class="nb">apply</span> pathsinv0.
+      use (z_iso_inv_to_right _ _ _ _ (_,,(pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, x2)))).
+      <span class="bp">exact</span> (! pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ (ru x1 #, id x2)).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p0.
+    }
+    <span class="nb">clear</span> p0.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths #H (tri x1 x2)).
+    }
+    <span class="nb">rewrite</span> (functor_comp H).
+
+    <span class="nb">assert</span> (p0 : # TD (LiftPreservesPostTensor Duniv H_eso H_ff TC I x1 #, # H (id x2))
+               · ((pr11 (TransportedTensorComm Duniv H_eso H_ff TC)) (I_posttensor TC I x1, x2))
+             =  TransportedAssocLeft Duniv H_eso H_ff TC ((x1, I), x2)).
+    {
+      <span class="nb">symmetry</span>.
+      <span class="nb">refine</span> (TransportedAssocLeftOnOb Duniv H_eso H_ff TC x1 I x2 @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> LiftPreservesPostTensor.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> TransportedTensorComm.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">rewrite</span> (functor_id (lift_functor_along (D,, Duniv) (pair_functor H H) (pair_functor_eso H H H_eso H_eso) (pair_functor_ff H H H_ff H_ff) (TC ∙ H))).
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (! id_left _).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> p0.
+    }
+    <span class="nb">clear</span> p0.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">rewrite</span> functor_comp.
+
+    etrans. {
+      <span class="nb">apply</span> (pr21 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC))).
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- functor_id.
+    <span class="nb">apply</span> maponpaths_2.
+
+    <span class="nb">assert</span> (p0 : LiftPreservesPretensor Duniv H_eso H_ff TC I x2 = (TransportedTensorComm Duniv H_eso H_ff TC) (I,x2)). {
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> ! functor_id.
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> ! id_right.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_id.
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> p0.
+    <span class="nb">clear</span> p0.
+
+    <span class="nb">set</span> (i := pr2 (nat_z_iso_inv ((TransportedAssocRight Duniv H_eso H_ff TC))) ((x1, I), x2)).
+    use (z_iso_inv_to_left _ _ _ (_,,i)).
+    <span class="nb">set</span> (j := pr2 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (x1, I_pretensor TC I x2)).
+    use (z_iso_inv_to_right _ _ _ _ (_,,j)).
+
+    <span class="bp">exact</span> (TransportedAssocRightOnOb Duniv H_eso H_ff TC x1 I x2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">TransportedPentagonEq</span>
+    : pentagon_eq TD αD.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y1 y2 y3 y4.
+
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y1). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y1).
+    <span class="nb">intros</span> [x1 xx1].
+    <span class="nb">induction</span> (isotoid _ Duniv xx1).
+    <span class="nb">clear</span> xx1.
+
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y2). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y2).
+    <span class="nb">intros</span> [x2 xx2].
+    <span class="nb">induction</span> (isotoid _ Duniv xx2).
+    <span class="nb">clear</span> xx2.
+
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y3). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y3).
+    <span class="nb">intros</span> [x3 xx3].
+    <span class="nb">induction</span> (isotoid _ Duniv xx3).
+    <span class="nb">clear</span> xx3.
+
+    use factor_through_squash.
+    { <span class="bp">exact</span> (∑ a : C, z_iso (H a) y4). }
+    { <span class="nb">apply</span> homset_property. }
+    <span class="mi">2</span>: <span class="bp">exact</span> (H_eso y4).
+    <span class="nb">intros</span> [x4 xx4].
+    <span class="nb">induction</span> (isotoid _ Duniv xx4).
+    <span class="nb">clear</span> xx4.
+
+    <span class="nb">set</span> (pentH := maponpaths #H (pent x1 x2 x3 x4)).
+    <span class="nb">rewrite</span> ! functor_comp <span class="k">in</span> pentH.
+
+    <span class="nb">set</span> (tαD := TransportedAssociatorOnOb Duniv H_eso H_ff TC α).
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> TransportedAssociator_tensor_r_on_ob.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TransportedAssociator_tensor_l_on_ob.
+    }
+
+    <span class="nb">assert</span> (p0 :
+             assoc_right_tensor_l Duniv H_eso H_ff TC x1 x2 x3 x4
+                                  · assoc_left_tensor_r Duniv H_eso H_ff TC x1 x2 x3 x4
+           = identity _).
+    {
+      <span class="nb">unfold</span> assoc_right_tensor_l, assoc_left_tensor_r.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (! functor_comp TD _ _).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (TransportedAssocRightInvOnOb Duniv H_eso H_ff TC (TC (x1,x2)) x3 x4).
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (TransportedAssocLeftOnOb Duniv H_eso H_ff TC x1 x2 (TC (x3,x4))).
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. <span class="nb">apply</span> (! functor_comp TD _ _).
+        <span class="nb">apply</span> maponpaths.
+
+        etrans. <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+      }
+
+      etrans. {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. <span class="nb">apply</span> (! functor_comp TD _ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans. <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+      }
+      <span class="nb">rewrite</span> binprod_id.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> p0.
+    }
+
+    <span class="nb">clear</span> p0.
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> pentH.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! tαD ((x1,x2),x3)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! tαD ((x2,x3),x4)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! TransportedAssociator_tensor_m_on_ob _ _ _ _ _ x1 x2 x3 x4).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (id_right (id H x4)).
+      <span class="nb">rewrite</span> binprod_comp.
+      <span class="nb">rewrite</span> (functor_comp TD).
+      <span class="nb">rewrite</span> &lt;- (id_right (id H x4)).
+      <span class="nb">rewrite</span> binprod_comp.
+      <span class="nb">rewrite</span> (functor_comp TD).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+
+      <span class="nb">assert</span> (p :   # TD (nat_z_iso_inv (TransportedAssocRight Duniv H_eso H_ff TC) ((x1, x2), x3) #, id H x4) · assoc_left_tensor_m Duniv H_eso H_ff TC x1 x2 x3 x4 = TransportedTensorComm Duniv H_eso H_ff TC (TC (x1,(TC (x2,x3))),x4)).
+      {
+        <span class="nb">rewrite</span> TransportedAssocRightInvOnOb.
+        <span class="nb">unfold</span> assoc_left_tensor_m.
+        <span class="nb">rewrite</span> assoc.
+        etrans. <span class="nb">apply</span> maponpaths_2, (! functor_comp TD _ _).
+        <span class="nb">unfold</span> TransportedAssocLeft.
+
+        <span class="nb">simpl</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> ! assoc.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> id_left.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">fold</span> TD.
+        <span class="nb">set</span> (ptH :=  (TransportedTensorComm Duniv H_eso H_ff TC)).
+        etrans. <span class="nb">apply</span> (! functor_comp TD _ _).
+        <span class="nb">rewrite</span> &lt;- (functor_id TD).
+        <span class="nb">apply</span> maponpaths.
+
+        <span class="nb">rewrite</span> (id_left (C := D ⊠ D)).
+        <span class="nb">rewrite</span> (id_right (C := D ⊠ D)).
+
+        etrans. {
+          <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> binprod_comp.
+        }
+
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- (id_left (id H x4)).
+          <span class="nb">apply</span> binprod_comp.
+        }
+
+        <span class="nb">rewrite</span> assoc.
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- binprod_comp.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">simpl</span>.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- (functor_comp TD).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- binprod_comp.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> functor_id.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        <span class="nb">rewrite</span> binprod_id.
+        <span class="nb">rewrite</span> (functor_id TD).
+        <span class="nb">rewrite</span> binprod_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">simpl</span>.
+        etrans. <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+        <span class="nb">rewrite</span> id_right.
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        <span class="nb">apply</span> binprod_id.
+      }
+
+      <span class="bp">exact</span> (! p).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- (id_left (id H x1)).
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> binprod_comp.
+        <span class="nb">apply</span> (! functor_comp TD _ _).
+      }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (id_left (id H x1)).
+      <span class="nb">rewrite</span> binprod_comp.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+
+      <span class="nb">assert</span> (p :  assoc_right_tensor_m Duniv H_eso H_ff TC x1 x2 x3 x4
+                                        · # TD (id H x1 #, TransportedAssocLeft Duniv H_eso H_ff TC ((x2, x3), x4))
+                   = nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC) (x1 , TC (TC (x2,x3), x4))).
+      {
+        <span class="nb">rewrite</span> TransportedAssocLeftOnOb.
+        <span class="nb">unfold</span> assoc_right_tensor_m.
+        <span class="nb">rewrite</span> TransportedAssocRightInvOnOb.
+        <span class="nb">rewrite</span> ! assoc'.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> maponpaths.
+
+
+        <span class="nb">simpl</span>.
+
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- (functor_comp TD).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- binprod_comp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- (functor_comp TD).
+          <span class="nb">apply</span> maponpaths.
+          etrans. <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        }
+        <span class="nb">rewrite</span> ! id_left.
+        <span class="nb">rewrite</span> binprod_id.
+        <span class="nb">rewrite</span> (functor_id TD).
+        <span class="nb">rewrite</span> &lt;- (id_left (id H x1)).
+        <span class="nb">rewrite</span> binprod_comp.
+        <span class="nb">rewrite</span> (functor_comp TD).
+        <span class="nb">rewrite</span> binprod_id.
+        <span class="nb">rewrite</span> (functor_id TD).
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> &lt;- (functor_comp TD).
+        <span class="nb">rewrite</span> &lt;- (functor_id TD).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- binprod_comp.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> functor_id.
+        etrans. <span class="nb">apply</span> maponpaths, (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+        <span class="nb">apply</span> binprod_id.
+      }
+      <span class="bp">exact</span> (! p).
+    }
+
+    <span class="nb">unfold</span> assoc_left_tensor_l.
+    <span class="nb">rewrite</span> TransportedAssocLeftOnOb.
+    <span class="nb">rewrite</span> ! assoc'.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (id_right (id H x4)).
+      <span class="nb">rewrite</span> binprod_comp.
+      <span class="nb">apply</span> (! functor_comp TD _ _).
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (TransportedAssocLeftOnOb Duniv H_eso H_ff TC (TC (x1,x2)) x3 x4).
+    }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr21 (TransportedTensorComm Duniv H_eso H_ff TC) _ _ (α ((x1,x2),x3) #, id x4)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">rewrite</span> &lt;- functor_id.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> assoc_right_tensor_r.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (functor_id H).
+      <span class="bp">exact</span> (pr21 (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) _ _ (id x1 #, α ((x2,x3),x4))).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (TransportedAssocRightInvOnOb Duniv H_eso H_ff TC).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> (! functor_comp TD _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> functor_id.
+    etrans. <span class="nb">apply</span> (! binprod_comp _ _ _ _ _ _ _ _ _ _).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">refine</span> (_ @ ! TransportedAssocRightInvOnOb Duniv H_eso H_ff TC _ _ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (! functor_id _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">TransportedMonoidal</span>
+    : monoidal_cat
+    := D ,, TD ,, H I ,, luD ,, ruD ,, αD ,, TransportedTriangleEq ,, TransportedPentagonEq.
+
+  <span class="kn">Definition</span> <span class="nf">H_monoidal</span>
+    : functor_monoidal_cat lu luD ru ruD α αD.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span>  (<span class="nv">H</span>,, <span class="nv">pr1</span> (TransportedTensorComm Duniv H_eso H_ff TC),, id H I).
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (H_plu Duniv H_eso H_ff TC I lu).
+      + <span class="bp">exact</span> (H_pru Duniv H_eso H_ff TC I ru).
+    - <span class="bp">exact</span> (H_pα Duniv H_eso H_ff TC α I).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">H_strong_monoidal</span>
+    : strong_functor_monoidal_cat lu luD ru ruD α αD.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">H_monoidal</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (TransportedTensorComm Duniv H_eso H_ff TC).
+    - <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">E</span> : category}
+          (<span class="nv">Euniv</span> : is_univalent E)
+          (<span class="nv">TE</span> : functor (E ⊠ E) E) (<span class="nv">IE</span> : E)
+          (<span class="nv">luE</span> : left_unitor TE IE)
+          (<span class="nv">ruE</span> : right_unitor TE IE)
+          (<span class="nv">αE</span> : associator TE).
+
+  <span class="kn">Definition</span> <span class="nf">precompMonoidal</span>
+    : disp_functor (precomp_tensorunit_functor Duniv H_eso H_ff TC I TE IE)
+                   (functor_monoidal_disp_cat luD luE ruD ruE αD αE)
+                   (functor_monoidal_disp_cat lu luE ru ruE α αE).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_prod_functor_over_fixed_base.
+    - <span class="nb">apply</span> disp_prod_functor_over_fixed_base.
+      + <span class="nb">apply</span> precompLU.
+      + <span class="nb">apply</span> precompRU.
+    - <span class="nb">apply</span> precompA.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precompStrongMonoidal</span>
+    : disp_functor (total_functor precompMonoidal)
+                   (functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE)
+                   (functor_strong_monoidal_disp_cat lu luE ru ruE α αE).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">F</span> <span class="nv">pFi</span>, <span class="nv">strong_functor_composition</span> (pr2 H_strong_monoidal) pFi).
+      <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> tt.
+    - <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isapropunit).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precompMonoidal_ff</span>
+    : disp_functor_ff precompMonoidal.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_prod_functor_over_fixed_base_ff.
+    - <span class="nb">apply</span> disp_prod_functor_over_fixed_base_ff.
+      + <span class="nb">apply</span> precompLU_ff.
+      + <span class="nb">apply</span> precompRU_ff.
+    - <span class="nb">apply</span> precompA_ff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precompStrongMonoidal_ff</span>
+    : disp_functor_ff precompStrongMonoidal.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isweqcontrtounit.
+    <span class="nb">apply</span> iscontrunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precompMonoidal_eso</span>
+    :  disp_functor_disp_ess_split_surj precompMonoidal.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_prod_functor_over_fixed_base_eso.
+    - <span class="nb">apply</span> disp_prod_functor_over_fixed_base_eso.
+      + <span class="nb">apply</span> precompLU_eso.
+      + <span class="nb">apply</span> precompRU_eso.
+    - <span class="nb">apply</span> precompA_eso.
+      <span class="c">(* exact Euniv. *)</span>
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precompStrongMonoidal_eso</span>
+    :  disp_functor_disp_ess_split_surj precompStrongMonoidal.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use tpair.
+    - use tpair.
+      + transparent <span class="nb">assert</span> (i : (nat_z_iso (functor_tensor_map_dom TE (pr11 x))
+                              (functor_tensor_map_codom (TransportedTensor Duniv H_eso H_ff TC) (pr11 x)))).
+        {
+
+          use (lift_nat_z_iso_along (_,,Euniv) _ (pair_functor_eso _ _ H_eso H_eso)
+                                    (pair_functor_ff _ _ H_ff H_ff)).
+
+          use (nat_z_iso_comp (make_nat_z_iso _ _ _ (pr1 xx)) _).
+          <span class="bp">exact</span> (post_whisker_nat_z_iso (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x)).
+        }
+
+        <span class="nb">assert</span> (p : pr1 i = pr121 x).
+        {
+          use (lift_nat_trans_eq_along (_,,Euniv) _
+                                       (pair_functor_eso _ _ H_eso H_eso)
+                                       (pair_functor_ff _ _ H_ff H_ff)).
+          etrans. { <span class="nb">apply</span> lift_nat_trans_along_comm. }
+          <span class="nb">refine</span> (idpath (nat_trans_comp _ _ _
+                                  (pr121 (total_functor precompMonoidal x))
+                                  (post_whisker (nat_z_iso_inv (TransportedTensorComm Duniv H_eso H_ff TC)) (pr11 x))) @ _).
+
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span> cc.
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> assoc'.
+          <span class="nb">rewrite</span> &lt;- (functor_comp (pr11 x)).
+          etrans. {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (pr2 (TransportedTensorComm Duniv H_eso H_ff TC)).
+          }
+          <span class="nb">rewrite</span> (functor_id (pr11 x)).
+          <span class="nb">apply</span> id_right.
+        }
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="bp">exact</span> (pr2 i).
+      + <span class="nb">set</span> (a := pr2 xx).
+        <span class="nb">simpl</span> <span class="k">in</span> a.
+        <span class="nb">rewrite</span> (functor_id (pr11 x)) <span class="k">in</span> a.
+        <span class="nb">rewrite</span> id_right <span class="k">in</span> a.
+        <span class="bp">exact</span> a.
+    - <span class="nb">refine</span> (tt ,, tt ,, _).
+      <span class="nb">split</span> ; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_monoidal_is_ff</span>
+    : fully_faithful (total_functor precompMonoidal).
+  <span class="kn">Proof</span>.
+    use disp_functor_ff_to_total_ff.
+    - <span class="nb">apply</span> (precomp_tensorunit_is_ff Duniv Euniv).
+    - <span class="bp">exact</span> precompMonoidal_ff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_strongmonoidal_is_ff</span>
+    : fully_faithful (total_functor precompStrongMonoidal).
+  <span class="kn">Proof</span>.
+    use disp_functor_ff_to_total_ff.
+    - <span class="nb">apply</span> precomp_monoidal_is_ff.
+    - <span class="bp">exact</span> precompStrongMonoidal_ff.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_LaxMonoidalFunctorCategory</span>
+    : is_univalent (total_category (functor_monoidal_disp_cat luD luE ruD ruE αD αE)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_total_category.
+    - <span class="nb">apply</span> is_univalent_total_category.
+      + <span class="nb">apply</span> (is_univalent_functor_category _ _ Euniv).
+      + <span class="nb">apply</span> is_disp_univalent_functor_tensorunit_disp_cat.
+    - <span class="nb">apply</span> dirprod_disp_cat_is_univalent.
+      {
+        <span class="nb">apply</span> dirprod_disp_cat_is_univalent.
+        <span class="nb">apply</span> functor_lu_disp_cat_is_univalent.
+        <span class="nb">apply</span> functor_ru_disp_cat_is_univalent.
+      }
+      <span class="nb">apply</span> functor_ass_disp_cat_is_univalent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_LaxMonoidalFunctorCategory'</span>
+    : is_univalent (total_category (functor_monoidal_disp_cat lu luE ru ruE α αE)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_total_category.
+    - <span class="nb">apply</span> is_univalent_total_category.
+      + <span class="nb">apply</span> (is_univalent_functor_category _ _ Euniv).
+      + <span class="nb">apply</span> functor_tensorunit_disp_cat_is_univalent.
+    - <span class="nb">apply</span> dirprod_disp_cat_is_univalent.
+      {
+        <span class="nb">apply</span> dirprod_disp_cat_is_univalent.
+        <span class="nb">apply</span> functor_lu_disp_cat_is_univalent.
+        <span class="nb">apply</span> functor_ru_disp_cat_is_univalent.
+      }
+      <span class="nb">apply</span> functor_ass_disp_cat_is_univalent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_StrongMonoidalFunctorCategory</span>
+    : is_univalent (total_category (functor_strong_monoidal_disp_cat luD luE ruD ruE αD αE)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_total_category.
+    - <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory.
+    - <span class="nb">apply</span> disp_full_sub_univalent.
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod.
+      <span class="nb">apply</span> isaprop_is_nat_z_iso.
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_monoidal_is_eso</span>
+    : essentially_surjective (total_functor precompMonoidal).
+  <span class="kn">Proof</span>.
+    use disp_functor_eso_to_total_eso.
+    - <span class="nb">apply</span> (precomp_tensorunit_is_eso Duniv Euniv).
+    - <span class="bp">exact</span> precompMonoidal_eso.
+    - use Fibrations.iso_cleaving_category.
+      <span class="nb">apply</span> is_univalent_total_category.
+      + <span class="nb">apply</span> is_univalent_functor_category.
+        <span class="bp">exact</span> Euniv.
+      + <span class="nb">apply</span> functor_tensorunit_disp_cat_is_univalent.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_strongmonoidal_is_eso</span>
+    : essentially_surjective (total_functor precompStrongMonoidal).
+  <span class="kn">Proof</span>.
+    use disp_functor_eso_to_total_eso.
+    - <span class="nb">apply</span> precomp_monoidal_is_eso.
+    - <span class="bp">exact</span> precompStrongMonoidal_eso.
+    - use Fibrations.iso_cleaving_category.
+      <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_monoidal_adj_equiv</span>
+    : adj_equivalence_of_cats (total_functor precompMonoidal).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory.
+    - <span class="bp">exact</span> precomp_monoidal_is_ff.
+    - <span class="bp">exact</span> precomp_monoidal_is_eso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_monoidal_catiso</span>
+    : catiso (total_category (functor_monoidal_disp_cat
+                                (TransportedLeftUnitor Duniv H_eso H_ff TC I lu) luE
+                                (TransportedRightUnitor Duniv H_eso H_ff TC I ru) ruE
+                                (TransportedAssociator Duniv H_eso H_ff TC α) αE
+             ))
+             (total_category (functor_monoidal_disp_cat
+                                lu luE ru ruE α αE
+             )).
+  <span class="kn">Proof</span>.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_monoidal_adj_equiv _ _).
+    - <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory.
+    - <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_strongmonoidal_adj_equiv</span>
+    : adj_equivalence_of_cats (total_functor precompStrongMonoidal).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univalent_StrongMonoidalFunctorCategory.
+    - <span class="bp">exact</span> precomp_strongmonoidal_is_ff.
+    - <span class="bp">exact</span> precomp_strongmonoidal_is_eso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">precomp_strongmonoidal_catiso</span>
+    : catiso (total_category (functor_strong_monoidal_disp_cat
+                                (TransportedLeftUnitor Duniv H_eso H_ff TC I lu) luE
+                                (TransportedRightUnitor Duniv H_eso H_ff TC I ru) ruE
+                                (TransportedAssociator Duniv H_eso H_ff TC α) αE
+             ))
+             (total_category (functor_strong_monoidal_disp_cat
+                                lu luE ru ruE α αE
+             )).
+  <span class="kn">Proof</span>.
+    use (adj_equivalence_of_cats_to_cat_iso precomp_strongmonoidal_adj_equiv _ _).
+    - <span class="nb">apply</span> is_univalent_StrongMonoidalFunctorCategory.
+    - <span class="nb">apply</span> is_univalent_total_category.
+      + <span class="nb">apply</span> is_univalent_LaxMonoidalFunctorCategory'.
+      + <span class="nb">apply</span> disp_full_sub_univalent.
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod.
+        * <span class="nb">apply</span> NaturalTransformations.isaprop_is_nat_z_iso.
+        * <span class="nb">apply</span> Isos.isaprop_is_z_isomorphism.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RezkMonoidal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/RezkCompletion/LiftedMonoidal.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; We show that this equivalence of categories lifts to (lax-)monoidal functors.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

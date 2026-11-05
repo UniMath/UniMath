@@ -1,0 +1,680 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RepresentationTheorem.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"> <span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Scott's representation theorem</span>
+
+<span class="sd">  A proof of the representation theorem for the λ-calculus, first proven by Dana Scott in 1980.</span>
+<span class="sd">  It shows that any model for the λ-calculus can be viewed as the set of endomorphisms of some</span>
+<span class="sd">  (reflexive) object in some category. Because of univalence, we can frame this as "the endomorphism</span>
+<span class="sd">  theory construction has a right inverse".</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. A proof that the object (theory_presheaf) can be exponentiated [theory_presheaf_exponentiable]</span>
+<span class="sd">  2. A construction of the lambda endomorphism theory of theory_presheaf [presheaf_lambda_theory]</span>
+<span class="sd">  3. An isomorphism between the two λ-theories [presheaf_lambda_theory_iso]</span>
+<span class="sd">  4. The right inverse [endomorphism_theory_right_inverse]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Examples.EndomorphismTheory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Examples.Plus1Presheaf.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Presheaves.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.ReflexiveObjects.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** * 1. A proof that the object (theory_presheaf) can be exponentiated *)</span>
+
+<span class="kn">Section</span> <span class="nf">RepresentationTheorem</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : β_lambda_theory).
+
+  <span class="kn">Let</span> <span class="nf">pow</span>
+    (<span class="nv">n</span> : nat)
+    : Product (stn n) (presheaf_cat L) (<span class="k">λ</span> <span class="nv">_</span>, theory_presheaf L)
+    := bin_product_power (presheaf_cat L) (theory_presheaf L) (terminal_presheaf_cat _) (bin_products_presheaf_cat _) n.
+
+  <span class="kn">Let</span> <span class="nf">PO</span>
+    (<span class="nv">n</span> : nat)
+    : presheaf L
+    := ProductObject _ _ (pow n).
+
+  <span class="kn">Let</span> <span class="nf">pow'</span>
+    (<span class="nv">n</span> : nat)
+    : Product (stn n) (presheaf_cat L) (<span class="k">λ</span> <span class="nv">_</span>, theory_presheaf L)
+    := products_presheaf_cat L (stn n) (<span class="k">λ</span> <span class="nv">_</span>, (theory_presheaf L)).
+
+  <span class="kn">Let</span> <span class="nf">PO'</span>
+    (<span class="nv">n</span> : nat)
+    : presheaf L
+    := ProductObject _ _ (pow' n).
+
+  <span class="kn">Let</span> <span class="nf">pow_iso</span>
+    (<span class="nv">n</span> : nat)
+    : z_iso (pow n) (pow' n)
+    := z_iso_between_Product (pow n) (pow' n).
+
+  <span class="kn">Let</span> <span class="nf">pow_f</span>
+    (<span class="nv">n</span> : nat)
+    : presheaf_morphism (PO n) (PO' n)
+    := morphism_from_z_iso _ _ (pow_iso n).
+
+  <span class="kn">Let</span> <span class="nf">pow_f_inv</span>
+    (<span class="nv">n</span> : nat)
+    : presheaf_morphism (PO' n) (PO n)
+    := inv_from_z_iso (pow_iso n).
+
+  <span class="kn">Local Definition</span> <span class="nf">BPO</span>
+    (<span class="nv">P</span> <span class="nv">P'</span> : presheaf L)
+    : presheaf L
+    := BinProductObject _ (bin_products_presheaf_cat _ P P').
+
+  <span class="kn">Section</span> <span class="nf">Exponentiable</span>.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_exponent_morphism_data</span>
+      (<span class="nv">P</span> : presheaf L)
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">t</span> : (BPO (plus_1_presheaf P) (theory_presheaf L)  n : hSet))
+      : (P n : hSet).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (op (P := P) (pr1 t) _).
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="bp">exact</span> (var i').
+      - <span class="bp">exact</span> (pr2 t).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_exponent_is_morphism</span>
+      (<span class="nv">P</span> : presheaf L)
+      (<span class="nv">m</span> <span class="nv">n</span> : nat)
+      (<span class="nv">a</span> : (BPO (plus_1_presheaf P) (theory_presheaf L) m : hSet))
+      (<span class="nv">f</span> : stn m → L n)
+      : presheaf_exponent_morphism_data P n (op a f)
+      = op (presheaf_exponent_morphism_data P m a) f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (op_op P (pr1 a) _ _ @ !_).
+      <span class="nb">refine</span> (op_op P (l := S m) (m := m) _ _ _ @ !_).
+      <span class="nb">apply</span> (maponpaths (op (pr1 a : (P _ : hSet)))).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> (subst_subst _ (f i') _ _ @ !_).
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="nb">refine</span> (!subst_var _ _ @ !_).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> j.
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).
+      - <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_exponent_morphism</span>
+      (<span class="nv">P</span> : presheaf L)
+      : presheaf_morphism (BPO (plus_1_presheaf P) (theory_presheaf L)) P
+      := make_presheaf_morphism _ (presheaf_exponent_is_morphism P).
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_exponent_induced_morphism_data</span>
+      {<span class="nv">P</span> <span class="nv">P'</span> : presheaf L}
+      (<span class="nv">F</span> : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">t</span> : (P' n : hSet))
+      : plus_1_presheaf P n : hSet.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (F (<span class="mi">1</span> + n) _).
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> (op t).
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (var (stnweq (inl i))).
+      - <span class="bp">exact</span> (var (stnweq (inr tt))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_exponent_induced_is_morphism</span>
+      {<span class="nv">P</span> <span class="nv">P'</span> : presheaf L}
+      (<span class="nv">F</span> : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      (<span class="nv">m</span> <span class="nv">n</span> : nat)
+      (<span class="nv">a</span> : P' m : hSet)
+      (<span class="nv">f</span> : (⟦ m ⟧)%stn → L n : hSet)
+      : presheaf_exponent_induced_morphism_data F n (op a f)
+      = op (presheaf_exponent_induced_morphism_data F m a) f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_ @ mor_op (P := BPO P' (theory_presheaf L)) F _ _).
+      <span class="nb">refine</span> (maponpaths (F (<span class="mi">1</span> + n)) _).
+      <span class="nb">apply</span> pathsdirprod.
+      - <span class="nb">refine</span> (op_op P' a _ _ @ !_).
+        <span class="nb">refine</span> (op_op P' a f _ @ !_).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq (inl i))).
+      - <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq (inr tt))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_exponent_induced_morphism</span>
+      {<span class="nv">P</span> <span class="nv">P'</span> : presheaf L}
+      (<span class="nv">F</span> : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      : presheaf_morphism P' (plus_1_presheaf P)
+      := make_presheaf_morphism _ (presheaf_exponent_induced_is_morphism F).
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_exponent_induced_morphism_commutes</span>
+      {<span class="nv">P</span> <span class="nv">P'</span> : presheaf L}
+      (<span class="nv">F</span> : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      : F
+      = # (constprod_functor2 (bin_products_presheaf_cat L) (theory_presheaf L))
+        (presheaf_exponent_induced_morphism F) · presheaf_exponent_morphism P.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq F _).
+      <span class="nb">intro</span> n.
+      <span class="nb">refine</span> (!(presheaf_mor_comp (P := BPO _ _) _ _ _ @ _)).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> t.
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, op (P := P) (x t) _)
+        (presheaf_mor_comp (P := BPO _ _) (P'' := plus_1_presheaf P) _ _ _)
+      @ _).
+      <span class="nb">refine</span> (!mor_op F _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsdirprod.
+      - <span class="nb">refine</span> (op_op P' (pr1 t) _ _ @ _).
+        <span class="nb">refine</span> (_ @ op_var _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).
+      - <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (homotinvweqweq stnweq _) @ _).
+        <span class="bp">exact</span> (maponpaths
+          (<span class="k">λ</span> <span class="nv">x</span>, pr1 x n t)
+          (id_right (BinProductPr2 _ ((bin_products_presheaf_cat L) _ _)))
+        ).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_exponent_induced_morphism_unique</span>
+      {<span class="nv">P</span> <span class="nv">P'</span> : presheaf L}
+      (<span class="nv">f</span> : presheaf_morphism (BPO P' (theory_presheaf L)) P)
+      (<span class="nv">f'</span> : presheaf_morphism P' (plus_1_presheaf P))
+      (<span class="nv">Hf'</span> : f
+        = # (constprod_functor2 (bin_products_presheaf_cat _) (theory_presheaf L))
+        (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧)
+        · presheaf_exponent_morphism P
+      )
+      : f' = presheaf_exponent_induced_morphism f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq f' _).
+      <span class="nb">intro</span> n.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> t.
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (!Hf')).
+      <span class="nb">refine</span> (!(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp (P := BPO _ _) _ _ _) @ _)).
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, op (x _ : P _ : hSet) _)
+        (presheaf_mor_comp _ (f' : presheaf_cat L ⟦P', plus_1_presheaf P⟧) _)
+      @ _).
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, (pr12 P) _ _ (x : P _ : hSet) _)
+        (mor_op f' _ _)
+      @ _).
+      <span class="nb">refine</span> (op_op P (f' n t) _ _ @ _).
+      <span class="nb">refine</span> (_ @ op_var _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (_ @ maponpaths var (homotweqinvweq stnweq i)).
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> (subst_subst L (var _) _ _ @ _).
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="nb">refine</span> (var_subst L (stnweq (inl (dni lastelement i'))) _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq stnweq _)).
+      - <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="nb">refine</span> (maponpaths _ (homotinvweqweq stnweq _) @ _).
+        <span class="nb">refine</span> (maponpaths
+          (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _)
+          (id_right (BinProductPr2 _ ((bin_products_presheaf_cat _) P' (theory_presheaf L))))
+        @ _).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (var (stnweq (inr x))))).
+        <span class="bp">exact</span> (!pr2 iscontrunit i').
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">theory_presheaf_exponentiable</span>
+      : is_exponentiable (bin_products_presheaf_cat _) (theory_presheaf L).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> is_exponentiable'_to_is_exponentiable.
+      <span class="nb">apply</span> coreflections_to_is_left_adjoint.
+      <span class="nb">intro</span> T.
+      use make_coreflection'.
+      - <span class="nb">apply</span> plus_1_presheaf.
+        <span class="bp">exact</span> T.
+      - <span class="bp">exact</span> (presheaf_exponent_morphism T).
+      - <span class="nb">intro</span> f.
+        use make_coreflection_arrow.
+        + <span class="nb">apply</span> presheaf_exponent_induced_morphism.
+          <span class="bp">exact</span> (f : _ --&gt; _).
+        + <span class="nb">apply</span> presheaf_exponent_induced_morphism_commutes.
+        + <span class="nb">apply</span> presheaf_exponent_induced_morphism_unique.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">invmap_hom_weq_eq</span>
+      {<span class="nv">m</span> <span class="nv">n</span> : nat}
+      (<span class="nv">G</span> : presheaf_cat L ⟦pow n, pr1 theory_presheaf_exponentiable (theory_presheaf L)⟧)
+      (<span class="nv">l</span> : ((PO (S n)) m : hSet))
+      : (exp_app_alt theory_presheaf_exponentiable G : presheaf_morphism _ _) m l
+      = (G : presheaf_morphism _ _) m (pr1 l) • (extend_tuple var (pr2 l)).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : presheaf_morphism _ _), x m l)
+        (is_exponentiable'_to_is_exponentiable'_app _ _ ) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) _ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (pr1 G) m (pr1 l) • x) _).
+      - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ G _)).
+      - <span class="nb">refine</span> (!extend_tuple_eq _ _).
+        + <span class="nb">intro</span> i.
+          <span class="bp">exact</span> (!maponpaths _ (homotinvweqweq _ (inl i))).
+        + <span class="nb">refine</span> (!_ @ !maponpaths _ (homotinvweqweq _ (inr tt))).
+          <span class="bp">exact</span> (maponpaths
+            (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _)
+            (id_right (BinProductPr2 _ (bin_products_presheaf_cat _ _ (theory_presheaf L))))
+          ).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">hom_weq_eq</span>
+      {<span class="nv">m</span> <span class="nv">n</span> : nat}
+      (<span class="nv">G</span> : presheaf_cat L ⟦pow (S n), theory_presheaf L⟧)
+      (<span class="nv">l</span> : ((PO n) m : hSet))
+      : (exp_lam_alt theory_presheaf_exponentiable G : presheaf_morphism _ _) m l
+      = (G : presheaf_morphism _ _) (S m) (op l (<span class="k">λ</span> <span class="nv">i</span>, var (stnweq (inl i))) ,, var (stnweq (n := m) (inr tt))).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : presheaf_morphism (PO n) _), x m l)
+        (is_exponentiable'_to_is_exponentiable'_lam _ _ ) @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : presheaf_morphism (PO n) _), x _ _) (coreflections_to_are_adjoints_φ_adj _ _)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Exponentiable</span>.
+
+  <span class="sd">(** * 2. A construction of the lambda endomorphism theory of theory_presheaf *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">presheaf_lambda_theory_aux</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : stn m → (L _ : hSet))
+    : extend_tuple (<span class="k">λ</span> <span class="nv">i</span> : stn m, f i • (<span class="k">λ</span> <span class="nv">j</span>, var (dni lastelement j))) (var lastelement)
+    = (<span class="k">λ</span> <span class="nv">i</span>, <span class="k">let</span> <span class="nv">c</span> := invmap (stnweq) i <span class="k">in</span>
+        coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, (L (<span class="mi">1</span> + n) : hSet))
+          (<span class="k">λ</span> <span class="nv">i'</span>, f i' • (<span class="k">λ</span> <span class="nv">j</span>, var (stnweq (inl j))))
+          (<span class="k">λ</span> <span class="nv">i'</span>, var (stnweq (inr i'))) c).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> extend_tuple_eq.
+    - <span class="nb">intro</span> i.
+      <span class="nb">symmetry</span>.
+      <span class="bp">exact</span> (maponpaths _ (homotinvweqweq _ _)).
+    - <span class="bp">exact</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, <span class="k">let</span> <span class="nv">c</span> := x <span class="k">in</span> _) (homotinvweqweq _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflexive_presheaf_abs</span>
+    : presheaf_morphism
+      (exp theory_presheaf_exponentiable (theory_presheaf L))
+      (theory_presheaf L).
+  <span class="kn">Proof</span>.
+    use make_presheaf_morphism.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> abs.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> m n a f;
+        <span class="nb">refine</span> (_ @ abs_subst _ _ _);
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (a • x)));
+        <span class="nb">symmetry</span>;
+        <span class="nb">apply</span> presheaf_lambda_theory_aux
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reflexive_presheaf_app</span>
+    : presheaf_morphism
+      (theory_presheaf L)
+      (exp theory_presheaf_exponentiable (theory_presheaf L)).
+  <span class="kn">Proof</span>.
+    use make_presheaf_morphism.
+    - <span class="nb">intros</span> n.
+      <span class="nb">apply</span> appx.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> m n a f;
+        <span class="nb">refine</span> (app_subst _ _ _ @ _);
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, appx a • x));
+        <span class="nb">apply</span> presheaf_lambda_theory_aux
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reflexive_presheaf_is_reflexive</span>
+    : is_retraction
+      reflexive_presheaf_abs
+      reflexive_presheaf_app.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> presheaf_morphism_eq.
+    <span class="nb">intro</span> n.
+    <span class="nb">refine</span> (presheaf_mor_comp _ _ _ @ _).
+    <span class="nb">apply</span> funextfun.
+    <span class="bp">exact</span> (β_lambda_theory_has_β L n).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_reflexive_object</span>
+    : reflexive_object.
+  <span class="kn">Proof</span>.
+    use make_reflexive_object.
+    - <span class="bp">exact</span> (presheaf_cat L).
+    - <span class="bp">exact</span> (terminal_presheaf_cat L).
+    - <span class="bp">exact</span> (bin_products_presheaf_cat L).
+    - <span class="bp">exact</span> (theory_presheaf L).
+    - <span class="bp">exact</span> theory_presheaf_exponentiable.
+    - <span class="bp">exact</span> reflexive_presheaf_abs.
+    - <span class="bp">exact</span> reflexive_presheaf_app.
+    - <span class="bp">exact</span> reflexive_presheaf_is_reflexive.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. An isomorphism between the two λ-theories *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Iso</span>.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_lambda_theory</span>
+      : β_lambda_theory
+      := reflexive_object_to_lambda_theory lambda_theory_to_reflexive_object.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_to_L</span>
+      : algebraic_theory_morphism_data presheaf_lambda_theory L.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> n f.
+      <span class="nb">refine</span> ((f : presheaf_morphism (PO n) (theory_presheaf L)) n _).
+      <span class="nb">refine</span> (pow_f_inv n n _).
+      <span class="bp">exact</span> var.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">L_to_presheaf</span>
+      : algebraic_theory_morphism_data L presheaf_lambda_theory.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> n s.
+      <span class="nb">unfold</span> presheaf_lambda_theory.
+      use (make_presheaf_morphism (P := PO n) (P' := (theory_presheaf L))).
+      - <span class="nb">intros</span> n' t.
+        <span class="nb">refine</span> (s • _).
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (pow_f n n' t i).
+      - <span class="kp">abstract</span> (
+          <span class="nb">intros</span>;
+          <span class="nb">refine</span> (_ @ !subst_subst _ s _ _);
+          <span class="nb">apply</span> maponpaths;
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span>;
+          <span class="bp">now</span> <span class="nb">rewrite</span> mor_op
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">L_to_presheaf_to_L</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">l</span> : (L n : hSet))
+      : presheaf_to_L n (L_to_presheaf n l) = l.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ subst_var _ _).
+      <span class="nb">apply</span> (maponpaths (<span class="nb">subst</span> l)).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, x _ _)
+        (!presheaf_mor_comp _ (pow_f n : presheaf_cat L⟦PO n, PO' n⟧) _)
+      @ _).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _ _) (z_iso_after_z_iso_inv (pow_iso n))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_to_L_to_presheaf</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">l</span> : (presheaf_lambda_theory n : hSet))
+      : L_to_presheaf n (presheaf_to_L n l) = l.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq _ (l : presheaf_morphism (PO n) ((theory_presheaf L)))).
+      <span class="nb">intro</span> m.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!mor_op _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!mor_op _ _ _ @ _).
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (z_iso_inv_after_z_iso (pow_iso n))).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ _ _) @ _).
+      <span class="nb">apply</span> (maponpaths (pow_f_inv n _)).
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="bp">exact</span> (!var_subst _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">L_to_presheaf_preserves_var</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">i</span> : stn n)
+      : mor_var_ax L_to_presheaf n i.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq (P := PO n) (P' := theory_presheaf L)).
+      <span class="nb">intro</span> m.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> t.
+      <span class="nb">apply</span> var_subst.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">L_to_presheaf_preserves_subst</span>
+      (<span class="nv">m</span> <span class="nv">n</span> : nat)
+      (<span class="nv">f</span> : (L m : hSet))
+      (<span class="nv">g</span> : stn m → (L n : hSet))
+      : mor_subst_ax L_to_presheaf m n f g.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq (P := PO n) (P' := theory_presheaf L)).
+      <span class="nb">intro</span> l.
+      <span class="nb">refine</span> (_ @ !presheaf_mor_comp (P'' := theory_presheaf L) _ _ _).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> t.
+      <span class="nb">refine</span> (subst_subst _ f g _ @ !_).
+      <span class="nb">apply</span> (maponpaths (<span class="nb">subst</span> f)).
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x t) (!presheaf_mor_comp _ _ _) @
+          maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x l t) (ProductPrCommutes _ _ _ (pow m) _ _ i)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">aux2</span>
+      (<span class="nv">n</span> : nat)
+      : pr1 (pow_f_inv (S n) (S n) var)
+      = op (P := PO n) (pow_f_inv n n var) (<span class="k">λ</span> <span class="nv">i</span>, var (stnweq (inl i))).
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (!z_iso_inv_after_z_iso (pow_iso n)) @ !_).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ _ _) @ !_).
+      <span class="nb">apply</span> (maponpaths (pr11 _ (S n))).
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, x var)
+        (!presheaf_mor_comp (P := PO' (S n)) (P'' := theory_presheaf L) _ _ _)
+      @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (ProductPrCommutes _ _ _ (pow n) (pow' (S n)) _ i) @ !_).
+      <span class="nb">refine</span> (eqtohomot (mor_op (pow_f n) _ _) i @ _).
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, op (P := PO' n) (x var) _ _)
+        (!presheaf_mor_comp (P := PO' n) (P'' := PO' n) _ (pow_f _) _)
+      @ _).
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> (<span class="nv">x</span> : presheaf_morphism (PO' n : presheaf L) (PO' n : presheaf L)), op (P := PO' n) (pr1 x n var) _ _)
+        (z_iso_after_z_iso_inv (pow_iso n))
+      @ _).
+      <span class="bp">exact</span> (var_subst _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_to_L_preserves_app</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">s</span> : (presheaf_lambda_theory n : hSet))
+      : presheaf_to_L (S n) (appx s) = appx (presheaf_to_L n s).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (invmap_hom_weq_eq _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 (s · make_presheaf_morphism
+        (P := theory_presheaf L)
+        (P' := plus_1_presheaf (theory_presheaf L))
+        (@appx L) _) _ x • _) (aux2 n) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (mor_op
+        (s · make_presheaf_morphism
+        (P := theory_presheaf L)
+        (P' := plus_1_presheaf (theory_presheaf L))
+        (@appx L) _)
+      _ _) @ _).
+      <span class="nb">refine</span> (subst_subst L (l := S n) (m := S (S n)) _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths
+        (<span class="k">λ</span> <span class="nv">x</span>, x _ • _)
+        (presheaf_mor_comp (P'' := plus_1_presheaf (theory_presheaf L)) _ _ _)
+      @ _).
+      <span class="nb">refine</span> (_ @ subst_var _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (_ @ maponpaths _ (homotweqinvweq stnweq i)).
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (var_subst _ _ _) @ _).
+        <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="nb">refine</span> (extend_tuple_i _ _ _ _ (dni_last_lt _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> stn_eq.
+        <span class="nb">apply</span> di_eq1.
+        <span class="bp">exact</span> (stnlt (dni lastelement i')).
+      - <span class="nb">refine</span> (var_subst _ _ _ @ _).
+        <span class="bp">exact</span> (maponpaths _ (homotinvweqweq _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">presheaf_to_L_preserves_abs</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">s</span> : (presheaf_lambda_theory (S n) : hSet))
+      : presheaf_to_L n (abs s) = abs (presheaf_to_L (S n) s).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
+      <span class="nb">apply</span> (maponpaths abs).
+      <span class="nb">refine</span> (hom_weq_eq _ _ @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 s _ x)).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (!z_iso_inv_after_z_iso (pow_iso _)) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp (P'' := PO (S n)) _ _ _) @ _).
+      <span class="nb">apply</span> (maponpaths (pow_f_inv (S n) _)).
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> i.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (!_ @ maponpaths _ (homotweqinvweq stnweq i)).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (_ x : presheaf_morphism _ _) _ _) (homotinvweqweq stnweq _) @ _).
+      <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+      - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp (P'' := theory_presheaf L) _ _ _) @ _).
+        <span class="nb">refine</span> (mor_op
+          (ProductPr _ _ (pow n) _ : presheaf_morphism (PO _) (theory_presheaf L))
+        _ _ @ _).
+        <span class="nb">refine</span> (maponpaths
+          (<span class="k">λ</span> <span class="nv">x</span>, x _ • _)
+          (!presheaf_mor_comp (P'' := theory_presheaf L) _ _ _)
+        @ _).
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _ • _) (ProductPrCommutes _ _ _ (pow _) _ _ _) @ _).
+        <span class="nb">apply</span> var_subst.
+      - <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">presheaf_lambda_theory_iso</span>
+      : z_iso (C := β_lambda_theory_cat) presheaf_lambda_theory L.
+    <span class="kn">Proof</span>.
+      use make_β_lambda_theory_z_iso.
+      use make_lambda_theory_z_iso.
+      - <span class="nb">apply</span> z_iso_inv.
+        use make_algebraic_theory_z_iso.
+        + <span class="nb">intro</span> n.
+          use make_z_iso.
+          * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">l</span>, L_to_presheaf n l).
+          * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">l</span>, presheaf_to_L n l).
+          * <span class="kp">abstract</span> (
+              <span class="nb">split</span>;
+              <span class="nb">apply</span> funextfun;
+              <span class="nb">intro</span> l;
+              [ <span class="bp">exact</span> (L_to_presheaf_to_L n l)
+              | <span class="bp">exact</span> (presheaf_to_L_to_presheaf n l) ]
+            ).
+        + <span class="bp">exact</span> L_to_presheaf_preserves_var.
+        + <span class="bp">exact</span> L_to_presheaf_preserves_subst.
+      - <span class="bp">exact</span> presheaf_to_L_preserves_app.
+      - <span class="bp">exact</span> presheaf_to_L_preserves_abs.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Iso</span>.
+
+<span class="kn">End</span> <span class="nf">RepresentationTheorem</span>.
+
+<span class="sd">(** * 4. The right inverse *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">endomorphism_theory_right_inverse</span>
+  : funcomp
+    lambda_theory_to_reflexive_object
+    reflexive_object_to_lambda_theory
+  = idfun β_lambda_theory.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> L.
+  <span class="nb">apply</span> (isotoid _ is_univalent_β_lambda_theory_cat).
+  <span class="nb">apply</span> presheaf_lambda_theory_iso.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/RepresentationTheorem.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. The right inverse [endomorphism_theory_right_inverse]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

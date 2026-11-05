@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Base.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** We construct the bicategory of pseudofunctors as a displayed bicategory.</span>
+<span class="sd">    This is the first layer and it just consists of plain functions mapping objects to objects.</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">BasePseudoFunctor</span>.
+  <span class="kn">Variable</span> (<span class="nv">C</span> <span class="nv">D</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_data</span> : prebicat_data.
+  <span class="kn">Proof</span>.
+    use build_prebicat_data.
+    - <span class="bp">exact</span> (ob C → ob D).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, ∏ (x : C), f x --&gt; g x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">β</span>, ∏ (x : C), α x ==&gt; β x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">x</span>, id₁ (f x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">x</span>, α x · β x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">x</span>, id₂ (α x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">γ</span> <span class="nv">m₁</span> <span class="nv">m₂</span> <span class="nv">x</span>, m₁ x • m₂ x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">γ</span> <span class="nv">m</span> <span class="nv">x</span>, α x ◃ m x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">γ</span> <span class="nv">m</span> <span class="nv">x</span>, m x ▹ γ x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">x</span>, lunitor (α x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">x</span>, linvunitor (α x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">x</span>, runitor (α x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">x</span>, rinvunitor (α x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₃</span> <span class="nv">f₄</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">γ</span> <span class="nv">x</span>, lassociator (α x) (β x) (γ x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₃</span> <span class="nv">f₄</span> <span class="nv">α</span> <span class="nv">β</span> <span class="nv">γ</span> <span class="nv">x</span>, rassociator (α x) (β x) (γ x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_laws</span>
+    : prebicat_laws ps_base_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+    - <span class="nb">apply</span> id2_left.
+    - <span class="nb">apply</span> id2_right.
+    - <span class="nb">apply</span> vassocr.
+    - <span class="nb">apply</span> lwhisker_id2.
+    - <span class="nb">apply</span> id2_rwhisker.
+    - <span class="nb">apply</span> lwhisker_vcomp.
+    - <span class="nb">apply</span> rwhisker_vcomp.
+    - <span class="nb">apply</span> vcomp_lunitor.
+    - <span class="nb">apply</span> vcomp_runitor.
+    - <span class="nb">apply</span> lwhisker_lwhisker.
+    - <span class="nb">apply</span> rwhisker_lwhisker.
+    - <span class="nb">apply</span> rwhisker_rwhisker.
+    - <span class="nb">apply</span> vcomp_whisker.
+    - <span class="nb">apply</span> lunitor_linvunitor.
+    - <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">apply</span> runitor_rinvunitor.
+    - <span class="nb">apply</span> rinvunitor_runitor.
+    - <span class="nb">apply</span> lassociator_rassociator.
+    - <span class="nb">apply</span> rassociator_lassociator.
+    - <span class="nb">apply</span> runitor_rwhisker.
+    - <span class="nb">apply</span> lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base</span>
+    : bicat.
+  <span class="kn">Proof</span>.
+    use build_bicategory.
+    - <span class="bp">exact</span> ps_base_data.
+    - <span class="bp">exact</span> ps_base_laws.
+    - <span class="nb">intros</span> ? ? ? ?.
+      use impred_isaset ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> D.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_is_invertible_to_is_invertible_2cell</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             {<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G}
+             (<span class="nv">α</span> : η ==&gt; ε)
+    : (∏ (X : C), is_invertible_2cell (α X)) → is_invertible_2cell α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hα.
+    use tpair ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, (Hα x)^-<span class="mi">1</span>).
+    - <span class="nb">split</span> ; <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> vcomp_rinv.
+      + <span class="nb">apply</span> vcomp_linv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_to_all_is_invertible</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             {<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G}
+             (<span class="nv">α</span> : η ==&gt; ε)
+    : is_invertible_2cell α → (∏ (X : C), is_invertible_2cell (α X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hα X.
+    use tpair.
+    - <span class="bp">exact</span> (Hα^-<span class="mi">1</span> X).
+    - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">φ</span>, φ X) (vcomp_rinv Hα)).
+      + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">φ</span>, φ X) (vcomp_linv Hα)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_is_invertible_is_is_invertible_2cell</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             {<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G}
+             (<span class="nv">α</span> : η ==&gt; ε)
+    : (∏ (X : C), is_invertible_2cell (α X)) ≃ is_invertible_2cell α.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (all_is_invertible_to_is_invertible_2cell α).
+    - <span class="bp">exact</span> (is_invertible_2cell_to_all_is_invertible α).
+    - <span class="nb">apply</span> impred ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invertible_2cell_ps_base</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G)
+    : (∏ (X : C), invertible_2cell (η X) (ε X))
+      →
+      invertible_2cell η ε.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α.
+    use tpair.
+    - <span class="nb">intros</span> X.
+      <span class="bp">exact</span> (α X).
+    - <span class="nb">apply</span> all_is_invertible_is_is_invertible_2cell.
+      <span class="nb">apply</span> α.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invertible_2cell_ps_base_inv</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G)
+    : invertible_2cell η ε
+      →
+      (∏ (X : C), invertible_2cell (η X) (ε X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α X.
+    use tpair.
+    - <span class="bp">exact</span> (cell_from_invertible_2cell α X).
+    - <span class="nb">apply</span> is_invertible_2cell_to_all_is_invertible.
+      <span class="nb">apply</span> α.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invertible_2cell_ps_base_weq</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> <span class="nv">ε</span> : F --&gt; G)
+    : (∏ (X : C), invertible_2cell (η X) (ε X))
+        ≃
+        invertible_2cell η ε.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (make_weq (invertible_2cell_ps_base η ε) _).
+    use isweq_iso.
+    - <span class="bp">exact</span> (invertible_2cell_ps_base_inv η ε).
+    - <span class="nb">intros</span> α.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> α.
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_is_univalent_2_1</span>
+             (<span class="nv">HD_2_1</span> : is_univalent_2_1 D)
+    : is_univalent_2_1 ps_base.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G η ε.
+    use weqhomot.
+    - <span class="nb">simple refine</span> (invertible_2cell_ps_base_weq η ε ∘ _)%weq.
+      <span class="nb">simple refine</span> (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
+      <span class="nb">simple refine</span> (weqonsecfibers _ _ _).
+      <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (make_weq (idtoiso_2_1 (η X) (ε X)) (HD_2_1 _ _ _ _)).
+    - <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_is_adjequiv_to_is_adjequiv</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> : F --&gt; G)
+    : (∏ (X : C), left_adjoint_equivalence (η X)) → left_adjoint_equivalence η.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hη.
+    use tpair.
+    - use tpair.
+      + <span class="nb">intros</span> X.
+        <span class="bp">exact</span> (pr11 (Hη X)).
+      + <span class="nb">split</span> ; <span class="nb">intros</span> X ; <span class="nb">cbn</span>.
+        * <span class="bp">exact</span> (pr121 (Hη X)).
+        * <span class="bp">exact</span> (pr221 (Hη X)).
+    - <span class="nb">split</span> ; <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+        <span class="bp">exact</span> (pr112 (Hη X)).
+      + <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+        <span class="bp">exact</span> (pr212 (Hη X)).
+      + <span class="nb">apply</span> all_is_invertible_is_is_invertible_2cell.
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, pr122 (Hη X)).
+      + <span class="nb">apply</span> all_is_invertible_is_is_invertible_2cell.
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, pr222 (Hη X)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_adjequiv_to_all_is_adjequiv</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> : F --&gt; G)
+    : left_adjoint_equivalence η → (∏ (X : C), left_adjoint_equivalence (η X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hη X.
+    use tpair.
+    - use tpair.
+      + <span class="bp">exact</span> (pr11 Hη X).
+      + <span class="nb">split</span> ; <span class="nb">cbn</span>.
+        * <span class="bp">exact</span> (pr121 Hη X).
+        * <span class="bp">exact</span> (pr221 Hη X).
+    - <span class="nb">split</span> ; <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">φ</span>, φ X) (pr112 Hη)).
+      + <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">φ</span>, φ X) (pr212 Hη)).
+      + <span class="bp">exact</span> (is_invertible_2cell_to_all_is_invertible (pr121 Hη) (pr122 Hη) X).
+      + <span class="bp">exact</span> (is_invertible_2cell_to_all_is_invertible (pr221 Hη) (pr222 Hη) X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_is_adjequiv_is_is_adjequiv</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : ps_base}
+             (<span class="nv">η</span> : F --&gt; G)
+    : (∏ (X : C), left_adjoint_equivalence (η X)) ≃ left_adjoint_equivalence η.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (make_weq (all_is_adjequiv_to_is_adjequiv η) _).
+    use isweq_iso.
+    - <span class="bp">exact</span> (is_adjequiv_to_all_is_adjequiv η).
+    - <span class="nb">intros</span> Hη.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> D)
+        ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> Hη.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> ps_base)
+        ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_ps_base</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : ps_base)
+    : (∏ (X : C), adjoint_equivalence (F X) (G X))
+      →
+      adjoint_equivalence F G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> η.
+    use tpair.
+    - <span class="nb">intros</span> X.
+      <span class="bp">exact</span> (η X).
+    - <span class="nb">apply</span> all_is_adjequiv_is_is_adjequiv.
+      <span class="nb">apply</span> η.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_ps_base_inv</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : ps_base)
+    : adjoint_equivalence F G
+      →
+      (∏ (X : C), adjoint_equivalence (F X) (G X)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> η X.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 η X).
+    - <span class="nb">apply</span> is_adjequiv_to_all_is_adjequiv.
+      <span class="nb">apply</span> η.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjequiv_ps_base_weq</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : ps_base)
+    : (∏ (X : C), adjoint_equivalence (F X) (G X))
+      ≃
+      adjoint_equivalence F G.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (make_weq (adjequiv_ps_base F G) _).
+    use isweq_iso.
+    - <span class="bp">exact</span> (adjequiv_ps_base_inv F G).
+    - <span class="nb">intros</span> η.
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> X.
+      use total2_paths_b.
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">cbn</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> D)
+          ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+        }
+        <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> η.
+      use total2_paths_b.
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">cbn</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> isapropdirprod ; <span class="kp">try</span> (<span class="nb">apply</span> ps_base)
+          ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+        }
+        <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_is_univalent_2_0</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2_0 ps_base.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G.
+    use weqhomot.
+    - <span class="nb">simple refine</span> (adjequiv_ps_base_weq F G ∘ _)%weq.
+      <span class="nb">simple refine</span> (_ ∘ make_weq _ (isweqtoforallpaths _ _ _))%weq.
+      <span class="nb">simple refine</span> (weqonsecfibers _ _ _).
+      <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (make_weq (idtoiso_2_0 (F X) (G X)) (pr1 HD _ _)).
+    - <span class="nb">intros</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+        <span class="bp">exact</span> (ps_base_is_univalent_2_1 (pr2 HD)).
+      }
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_is_univalent_2</span>
+             (<span class="nv">HD</span> : is_univalent_2 D)
+    : is_univalent_2 ps_base.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> ps_base_is_univalent_2_0; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ps_base_is_univalent_2_1.
+      <span class="bp">exact</span> (pr2 HD).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BasePseudoFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Display/Base.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** We construct the bicategory of pseudofunctors as a displayed bicategory.
+  &gt;     This is the first layer and it just consists of plain functions mapping objects to objects.
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

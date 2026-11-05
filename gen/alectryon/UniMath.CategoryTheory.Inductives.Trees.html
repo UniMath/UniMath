@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Trees.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Definition of binary trees ([Tree]) implemented similarily to lists as the initial algebra of the</span>
+<span class="sd">tree functor.</span>
+
+<span class="sd">Written by: Anders Mörtberg (2016)</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Inductives.Lists.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Binary trees *)</span>
+<span class="kn">Section</span> <span class="nf">bintrees</span>.
+
+<span class="kn">Variable</span> <span class="nv">A</span> : HSET.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cocont_functor_hset_scope.
+
+<span class="sd">(** The tree functor: F(X) = 1 + A * X * X *)</span>
+<span class="kn">Definition</span> <span class="nf">treeOmegaFunctor</span> : omega_cocont_functor HSET HSET := '<span class="mi">1</span> + 'A * (Id * Id).
+
+<span class="kn">Let</span> <span class="nf">treeFunctor</span> : functor HSET HSET := pr1 treeOmegaFunctor.
+<span class="kn">Let</span> <span class="nf">is_omega_cocont_treeFunctor</span> : is_omega_cocont treeFunctor := pr2 treeOmegaFunctor.
+
+<span class="kn">Lemma</span> <span class="nf">treeFunctor_Initial</span> :
+  Initial (category_FunctorAlg treeFunctor).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (colimAlgInitial InitialHSET is_omega_cocont_treeFunctor (ColimCoconeHSET _ _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The type of binary trees *)</span>
+<span class="kn">Definition</span> <span class="nf">Tree</span> : HSET :=
+  alg_carrier _ (InitialObject treeFunctor_Initial).
+
+<span class="kn">Let</span> <span class="nf">Tree_mor</span> : HSET⟦treeFunctor Tree,Tree⟧ :=
+  alg_map _ (InitialObject treeFunctor_Initial).
+
+<span class="kn">Let</span> <span class="nf">Tree_alg</span> : algebra_ob treeFunctor :=
+  InitialObject treeFunctor_Initial.
+
+<span class="kn">Definition</span> <span class="nf">leaf_map</span> : HSET⟦unitHSET,Tree⟧.
+<span class="kn">Proof</span>.
+<span class="nb">simpl</span>; <span class="nb">intro</span> x.
+use Tree_mor.
+<span class="nb">apply</span> inl, x.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">leaf</span> : pr1 Tree := leaf_map tt.
+
+<span class="kn">Definition</span> <span class="nf">node_map</span> : HSET⟦(A × (Tree × Tree))%<span class="nb">set</span>,Tree⟧.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> xs.
+use Tree_mor.
+<span class="bp">exact</span> (inr xs).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">node</span> : pr1 A × (pr1 Tree × pr1 Tree) -&gt; pr1 Tree := node_map.
+
+<span class="sd">(** Get recursion/iteration scheme:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">     x : X           f : A × X × X -&gt; X</span>
+<span class="sd">  ------------------------------------</span>
+<span class="sd">        foldr x f : Tree A -&gt; X</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">make_treeAlgebra</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X)
+  (<span class="nv">f</span> : HSET⟦(A × X × X)%<span class="nb">set</span>,X⟧) : algebra_ob treeFunctor.
+<span class="kn">Proof</span>.
+<span class="nb">set</span> (x' := <span class="k">λ</span> (<span class="nv">_</span> : unit), x).
+<span class="nb">apply</span> (tpair _ X (sumofmaps x' f) : algebra_ob treeFunctor).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr_map</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X) (<span class="nv">f</span> : HSET⟦(A × X × X)%<span class="nb">set</span>,X⟧) :
+  algebra_mor _ Tree_alg (make_treeAlgebra X x f).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (InitialArrow treeFunctor_Initial (make_treeAlgebra X x f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">foldr</span> (<span class="nv">X</span> : HSET) (<span class="nv">x</span> : pr1 X)
+  (<span class="nv">f</span> : pr1 A × pr1 X × pr1 X -&gt; pr1 X) : pr1 Tree -&gt; pr1 X.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (foldr_map _ x f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Maybe quantify over "λ _ : unit, x" instead of nil? *)</span>
+<span class="kn">Lemma</span> <span class="nf">foldr_leaf</span> (<span class="nv">X</span> : hSet) (<span class="nv">x</span> : X) (<span class="nv">f</span> : pr1 A × X × X -&gt; X) : foldr X x f leaf = x.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (F := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn1 (BinCoproductsHSET _ _) · x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).
+<span class="nb">apply</span> (toforallpaths _ _ _ F tt).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">foldr_node</span> (<span class="nv">X</span> : hSet) (<span class="nv">x</span> : X) (<span class="nv">f</span> : pr1 A × X × X -&gt; X)
+                 (<span class="nv">a</span> : pr1 A) (<span class="nv">l1</span> <span class="nv">l2</span> : pr1 Tree) :
+  foldr X x f (node (a,,l1,,l2)) = f (a,,foldr X x f l1,,foldr X x f l2).
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (F := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, BinCoproductIn2 (BinCoproductsHSET _ _)· x)
+                        (algebra_mor_commutes _ _ _ (foldr_map X x f))).
+<span class="nb">assert</span> (Fal := toforallpaths _ _ _ F (a,,l1,,l2)).
+<span class="nb">clear</span> F.
+<span class="c">(* apply Fal. *)</span> <span class="c">(* This doesn't work here. why? *)</span>
+<span class="nb">unfold</span> compose <span class="k">in</span> Fal.
+<span class="nb">simpl</span> <span class="k">in</span> Fal.
+<span class="nb">apply</span> Fal.
+<span class="kn">Opaque</span> foldr_map.
+<span class="kn">Qed</span>. <span class="c">(* This Qed is slow unless foldr_map is Opaque *)</span>
+<span class="kn">Transparent</span> foldr_map.
+
+<span class="sd">(** This defines the induction principle for trees using foldr *)</span>
+<span class="kn">Section</span> <span class="nf">tree_induction</span>.
+
+<span class="kn">Variables</span> (<span class="nv">P</span> : pr1 Tree -&gt; UU) (<span class="nv">PhSet</span> : ∏ l, isaset (P l)).
+<span class="kn">Variables</span> (<span class="nv">P0</span> : P leaf)
+          (<span class="nv">Pc</span> : ∏ (a : pr1 A) (l1 l2 : pr1 Tree), P l1 -&gt; P l2 -&gt; P (node (a,,l1,,l2))).
+
+<span class="kn">Let</span> <span class="nf">P'</span> : UU := ∑ l, P l.
+<span class="kn">Let</span> <span class="nf">P0'</span> : P' := (leaf,, P0).
+<span class="kn">Let</span> <span class="nf">Pc'</span> : pr1 A × P' × P' -&gt; P'.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> ap.
+<span class="nb">apply</span> (tpair _ (node (pr1 ap,,pr1 (pr1 (pr2 ap)),,pr1 (pr2 (pr2 ap))))).
+<span class="nb">apply</span> (Pc _ _ _ (pr2 (pr1 (pr2 ap))) (pr2 (pr2 (pr2 ap)))).
+  <span class="c">(* λ ap : pr1 A × P' × P', node (pr1 ap,, pr1 (pr2 ap)),,Pc (pr1 ap) (pr1 (pr2 ap)) (pr2 (pr2 ap)). *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">P'HSET</span> : HSET.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> (tpair _ P').
+<span class="kp">abstract</span> (<span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>); [ <span class="nb">apply</span> setproperty | <span class="nb">intro</span> x; <span class="nb">apply</span> PhSet ]).
+<span class="kn">Defined</span>.
+
+<span class="c">(* This line is crucial for isalghom_pr1foldr to typecheck *)</span>
+<span class="kn">Opaque</span> is_omega_cocont_treeFunctor.
+
+<span class="kn">Lemma</span> <span class="nf">isalghom_pr1foldr</span> :
+  is_algebra_mor _ Tree_alg Tree_alg (<span class="k">λ</span> <span class="nv">l</span>, pr1 (foldr P'HSET P0' Pc' l)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> BinCoproductArrow_eq_cor.
+- <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">destruct</span> x.
+  <span class="nb">apply</span> (maponpaths pr1 (foldr_leaf P'HSET P0' Pc')).
+- <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">destruct</span> x <span class="k">as</span> [a [l1 l2]].
+  <span class="nb">apply</span> (maponpaths pr1 (foldr_node P'HSET P0' Pc' a l1 l2)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1foldr_algmor</span> : algebra_mor _ Tree_alg Tree_alg :=
+  tpair _ _ isalghom_pr1foldr.
+
+<span class="kn">Lemma</span> <span class="nf">pr1foldr_algmor_identity</span> : identity _ = pr1foldr_algmor.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">rewrite</span> (@InitialEndo_is_identity _ treeFunctor_Initial pr1foldr_algmor).
+<span class="kn">Qed</span>.
+
+<span class="kn">Transparent</span> is_omega_cocont_treeFunctor.
+
+<span class="kn">Lemma</span> <span class="nf">treeInd</span> <span class="nv">l</span> : P l.
+<span class="kn">Proof</span>.
+<span class="nb">assert</span> (H : pr1 (foldr P'HSET P0' Pc' l) = l).
+  <span class="nb">apply</span> (toforallpaths _ _ _ (maponpaths pr1 (!pr1foldr_algmor_identity)) l).
+<span class="nb">rewrite</span> &lt;- H.
+<span class="nb">apply</span> (pr2 (foldr P'HSET P0' Pc' l)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">tree_induction</span>.
+
+<span class="kn">Lemma</span> <span class="nf">treeIndProp</span> (<span class="nv">P</span> : pr1 Tree -&gt; UU) (<span class="nv">HP</span> : ∏ l, isaprop (P l)) :
+  P leaf -&gt; (∏ a l1 l2, P l1 → P l2 → P (node (a,,l1,,l2))) -&gt; ∏ l, P l.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> Pnil Pcons.
+<span class="nb">apply</span> treeInd; <span class="kp">try</span> <span class="bp">assumption</span>.
+<span class="nb">intro</span> l; <span class="nb">apply</span> isasetaprop, HP.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">bintrees</span>.
+
+<span class="sd">(** Some tests *)</span>
+<span class="kn">Section</span> <span class="nf">nat_examples</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> nat_scope.
+
+<span class="kn">Definition</span> <span class="nf">size</span> : pr1 (Tree natHSET) -&gt; nat :=
+  foldr natHSET natHSET <span class="mi">0</span> (<span class="k">λ</span> <span class="nv">x</span>, S (pr1 (pr2 x) + pr2 (pr2 x))).
+
+<span class="kn">Lemma</span> <span class="nf">size_node</span> <span class="nv">a</span> <span class="nv">l1</span> <span class="nv">l2</span> : size (node natHSET (a,,l1,,l2)) = <span class="mi">1</span> + size l1 + size l2.
+<span class="kn">Proof</span>.
+<span class="nb">unfold</span> size.
+<span class="bp">now</span> <span class="nb">rewrite</span> foldr_node.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">map</span> (<span class="nv">f</span> : nat -&gt; nat) (<span class="nv">l</span> : pr1 (Tree natHSET)) : pr1 (Tree natHSET) :=
+  foldr natHSET (Tree natHSET) (leaf natHSET)
+      (<span class="k">λ</span> <span class="nv">a</span>, node natHSET (f (pr1 a),, pr1 (pr2 a),, pr2 (pr2 a))) l.
+
+<span class="kn">Lemma</span> <span class="nf">size_map</span> (<span class="nv">f</span> : nat -&gt; nat) : ∏ l, size (map f l) = size l.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> treeIndProp.
+- <span class="nb">intros</span> l. <span class="nb">apply</span> isasetnat.
+- <span class="bp">now</span> <span class="nb">unfold</span> map; <span class="nb">rewrite</span> foldr_leaf.
+- <span class="nb">intros</span> a l1 l2 ih1 ih2; <span class="nb">unfold</span> map.
+  <span class="bp">now</span> <span class="nb">rewrite</span> foldr_node, !size_node, &lt;- ih1, &lt;- ih2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sum</span> : pr1 (Tree natHSET) -&gt; nat :=
+  foldr natHSET natHSET <span class="mi">0</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x + pr1 (pr2 x) + pr2 (pr2 x)).
+
+<span class="kn">Definition</span> <span class="nf">testtree</span> : pr1 (Tree natHSET).
+<span class="kn">Proof</span>.
+  use node_map; <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> <span class="mi">5</span>.
+  - use node_map; <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">apply</span> <span class="mi">6</span>.
+    + <span class="bp">exact</span> (leaf_map _ tt).
+    + <span class="bp">exact</span> (leaf_map _ tt).
+  - <span class="bp">exact</span> (leaf_map _ tt).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">nat_examples</span>.
+
+<span class="sd">(** ** Flattening of a tree into a list *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a :: b"</span> := (cons _ a b).
+<span class="c">(* Check concatenate. *)</span>
+<span class="kn">Definition</span> <span class="nf">flatten</span> (<span class="nv">A</span> : HSET) : pr1 (Tree A) -&gt; List A.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  use (foldr A).
+  - <span class="nb">apply</span> nil.
+  - <span class="nb">intro</span> all'.
+    <span class="nb">set</span> (a := pr1 all').
+    <span class="nb">set</span> (l := pr1 (pr2 all')).
+    <span class="nb">set</span> (l' := pr2 (pr2 all')). <span class="nb">cbn</span> beta <span class="k">in</span> l'.
+    <span class="bp">exact</span> (concatenate _ l (concatenate _ (a :: nil _ ) l')).
+  - <span class="bp">exact</span> t.
+<span class="kn">Defined</span>.
+
+<span class="kn">Goal</span> Lists.sum (flatten _ testtree) = sum testtree. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Inductives/Trees.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

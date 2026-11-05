@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PreservesCleaving.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************************</span>
+
+<span class="sd"> Preservation of cleavings</span>
+
+<span class="sd"> Suppose that we have a displayed functor `FF` over `F` between two cleavings `D₁` and `D₂`.</span>
+<span class="sd"> We have two ways to state that `FF` preserves Cartesian lifts.</span>
+
+<span class="sd"> The first way is by saying that `FF` is Cartesian, i.e., that it maps Cartesian morphisms in</span>
+<span class="sd"> `D₁` to Cartesian morphisms in `D₂`. This is a weak way to say that `FF` preserves Cartesian</span>
+<span class="sd"> lifts, because Cartesian lifts only are preserved up to isomorphism. Note that if we work</span>
+<span class="sd"> with univalent categories, then this implies that Cartesian lifts are preserevd up to identity.</span>
+
+<span class="sd"> The second way is strict in nature. More specifically, we say that the Cartesian lift of `yy`</span>
+<span class="sd"> along some `f` is mapped by `FF` to the Cartesian lift of `FF yy` along `#F f`. Here we use</span>
+<span class="sd"> strict equality of objects and morphisms, and thus this notion only makes sense if we are</span>
+<span class="sd"> looking at setcategories.</span>
+
+<span class="sd"> In this file, we define the second version, and we give some examples of functors that</span>
+<span class="sd"> preserve cleavings.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Preservation of cleavings</span>
+<span class="sd"> 2. Examples of functors that preserve cleavings</span>
+
+<span class="sd"> *********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preservation of cleavings *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_cleaving</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           (<span class="nv">I₁</span> : cleaving D₁)
+           (<span class="nv">I₂</span> : cleaving D₂)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f : x --&gt; y)
+       (yy : D₁ y),
+     ∑ (p : FF x (cleaving_ob I₁ f yy)
+            =
+            cleaving_ob I₂ (#F f) (FF y yy)),
+     (transportb
+        _
+        (id_left _)
+        (♯ FF (cleaving_mor I₁ f yy))
+      =
+      idtoiso_disp (idpath _) p
+      ;;
+      cleaving_mor I₂ (functor_on_morphisms F f) (FF y yy))%mor_disp.
+
+<span class="kn">Definition</span> <span class="nf">make_preserves_cleaving</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           (<span class="nv">I₁</span> : cleaving D₁)
+           (<span class="nv">I₂</span> : cleaving D₂)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+           (<span class="nv">p</span> : ∏ (x y : C₁)
+                  (f : x --&gt; y)
+                  (yy : D₁ y),
+                FF x (cleaving_ob I₁ f yy)
+                =
+                cleaving_ob I₂ (#F f) (FF y yy))
+           (<span class="nv">q</span> : ∏ (x y : C₁)
+                  (f : x --&gt; y)
+                  (yy : D₁ y),
+                (transportb
+                   _
+                   (id_left _)
+                   (♯ FF (cleaving_mor I₁ f yy))
+                 =
+                 idtoiso_disp (idpath _) (p x y f yy)
+                 ;;
+                 cleaving_mor I₂ (functor_on_morphisms F f) (FF y yy))%mor_disp)
+  : preserves_cleaving I₁ I₂ FF.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">yy</span>, p x y f yy ,, q x y f yy).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_cleaving_ob</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            {<span class="nv">I₁</span> : cleaving D₁}
+            {<span class="nv">I₂</span> : cleaving D₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+            (<span class="nv">HFF</span> : preserves_cleaving I₁ I₂ FF)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">yy</span> : D₁ y)
+  : FF x (cleaving_ob I₁ f yy)
+    =
+    cleaving_ob I₂ (#F f) (FF y yy).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (HFF x y f yy)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_cleaving_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            {<span class="nv">I₁</span> : cleaving D₁}
+            {<span class="nv">I₂</span> : cleaving D₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+            (<span class="nv">HFF</span> : preserves_cleaving I₁ I₂ FF)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">yy</span> : D₁ y)
+  : (transportb
+       _
+       (id_left _)
+       (♯ FF (cleaving_mor I₁ f yy))
+     =
+     idtoiso_disp (idpath _) (preserves_cleaving_ob HFF f yy)
+     ;;
+     cleaving_mor I₂ (functor_on_morphisms F f) (FF y yy))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (HFF x y f yy)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_cleaving_mor_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            {<span class="nv">I₁</span> : cleaving D₁}
+            {<span class="nv">I₂</span> : cleaving D₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+            (<span class="nv">HFF</span> : preserves_cleaving I₁ I₂ FF)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">yy</span> : D₁ y)
+  : (♯ FF (cleaving_mor I₁ f yy)
+     =
+     transportf
+       _
+       (id_left _)
+       (idtoiso_disp (idpath _) (preserves_cleaving_ob HFF f yy)
+        ;;
+        cleaving_mor I₂ (functor_on_morphisms F f) (FF y yy)))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- preserves_cleaving_mor.
+  <span class="nb">rewrite</span> transportfbinv.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_cleaving</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            (<span class="nv">I₁</span> : cleaving D₁)
+            (<span class="nv">I₂</span> : cleaving D₂)
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+            (<span class="nv">H</span> : ∏ (x : C₂), isaset (D₂ x))
+  : isaprop (preserves_cleaving I₁ I₂ FF).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span> x.
+  use impred ; <span class="nb">intro</span> y.
+  use impred ; <span class="nb">intro</span> f.
+  use impred ; <span class="nb">intro</span> yy.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> homsets_disp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Examples of functors that preserve cleavings *)</span>
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_cleaving</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : disp_cat C}
+            (<span class="nv">I</span> : cleaving D)
+  : preserves_cleaving I I (disp_functor_identity D).
+<span class="kn">Proof</span>.
+  use make_preserves_cleaving.
+  - <span class="nb">intros</span> x y f yy.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y f yy ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">composition_preserves_cleaving</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            {<span class="nv">D₃</span> : disp_cat C₃}
+            {<span class="nv">I₁</span> : cleaving D₁}
+            {<span class="nv">I₂</span> : cleaving D₂}
+            {<span class="nv">I₃</span> : cleaving D₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+            (<span class="nv">HFF</span> : preserves_cleaving I₁ I₂ FF)
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">GG</span> : disp_functor G D₂ D₃}
+            (<span class="nv">HGG</span> : preserves_cleaving I₂ I₃ GG)
+  : preserves_cleaving I₁ I₃ (disp_functor_composite FF GG).
+<span class="kn">Proof</span>.
+  use make_preserves_cleaving.
+  - <span class="nb">intros</span> x y f yy ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (preserves_cleaving_ob HFF f yy) <span class="k">as</span> p.
+    <span class="nb">pose</span> (preserves_cleaving_ob HGG (#F f) (FF y yy)) <span class="k">as</span> q.
+    <span class="bp">exact</span> (maponpaths (GG (F x)) p @ q).
+  - <span class="nb">intros</span> x y f yy.
+    <span class="nb">cbn</span> -[idtoiso_disp].
+    <span class="nb">rewrite</span> (preserves_cleaving_mor_alt HFF f yy).
+    <span class="nb">rewrite</span> disp_functor_transportf.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> disp_functor_comp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> (preserves_cleaving_mor_alt HGG).
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> disp_functor_idtoiso_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_disp_comp.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    use transportf_set.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_cleaving_reindex</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            (<span class="nv">F</span> : C₁ ⟶ C₂)
+            (<span class="nv">D</span> : disp_cat C₂)
+            (<span class="nv">I</span> : cleaving D)
+  : preserves_cleaving
+      (cleaving_reindex_disp_cat F D I)
+      I
+      (reindex_disp_cat_disp_functor F D).
+<span class="kn">Proof</span>.
+  use make_preserves_cleaving.
+  - <span class="nb">intros</span> x y f yy.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y f yy ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_cleaving_lift_reindex</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">F</span> : C₂ ⟶ C₁}
+            {<span class="nv">F'</span> : C₃ ⟶ C₂}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">I₁</span> : cleaving D₁}
+            {<span class="nv">D₃</span> : disp_cat C₃}
+            {<span class="nv">I₃</span> : cleaving D₃}
+            (<span class="nv">FF</span> : disp_functor (F' ∙ F) D₃ D₁)
+            (<span class="nv">HFF</span> : preserves_cleaving I₃ I₁ FF)
+  : preserves_cleaving
+      I₃
+      (cleaving_reindex_disp_cat F D₁ I₁)
+      (lift_functor_into_reindex FF).
+<span class="kn">Proof</span>.
+  use make_preserves_cleaving.
+  - <span class="nb">intros</span> x y f yy ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (preserves_cleaving_ob HFF f yy).
+  - <span class="nb">intros</span> x y f yy ; <span class="nb">cbn</span> -[idtoiso_disp].
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_reindex.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (preserves_cleaving_mor_alt HFF f yy).
+    }
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">cbn</span> -[idtoiso_disp].
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_reindex_disp_cat.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/PreservesCleaving.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Examples of functors that preserve cleavings
+  &gt;
+  &gt;  *********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

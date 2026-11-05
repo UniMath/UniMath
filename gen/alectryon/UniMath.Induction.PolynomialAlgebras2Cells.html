@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PolynomialAlgebras2Cells.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * 2-cells of algebras over a polynomial functor. *)</span>
+<span class="sd">(**</span>
+<span class="sd">Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021.</span>
+
+<span class="sd">Derived from the code in the GitHub repository #&lt;a href="https://github.com/HoTT/Archive/tree/master/LICS2012"&gt;#</span>
+<span class="sd">https://github.com/HoTT/Archive/tree/master/LICS2012 #&lt;/a&gt;#, which accompanies the paper</span>
+<span class="sd">"_Inductive Types in Homotopy Type Theory_", by S. Awodey, N. Gambino and K. Sojakova.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorAlgebras_legacy.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ;; b"</span> := (funcomp a b).
+
+<span class="kn">Section</span> <span class="nf">Misc</span>.
+
+<span class="sd">(** Horizontal composition of a path with a function  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comppathwithfun</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} {<span class="nv">f_1</span> <span class="nv">f_2</span> : X → Y} (<span class="nv">e</span>: f_1 = f_2) (<span class="nv">g</span>: Y → Z)
+ : f_1 ;; g = f_2 ;; g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Horizontal composition of a function with a path *)</span>
+
+<span class="kn">Definition</span> <span class="nf">compfunwithpath</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X → Y) {<span class="nv">g_1</span> <span class="nv">g_2</span> : Y → Z} (<span class="nv">e</span> : g_1 = g_2) :
+  f ;; g_1 = f ;; g_2.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Paths and homotopies</span>
+<span class="sd">We relate operations on paths and on homotopies using function extensionality. *)</span>
+
+<span class="sd">(** Result of applying toforallpaths to a vertical composition of paths.</span>
+<span class="sd">First done pointwise then globally. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comppathcomphom</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : X → Y} (<span class="nv">p</span> : f = g) (<span class="nv">q</span> : g = h)
+  : ∏ x : X, (homotcomp (toforallpaths _ f g  p) (toforallpaths _ g h q)) x
+             = toforallpaths _ f h (pathscomp0 p q) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comppathcomphom2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : X → Y} (<span class="nv">p</span> : f = g) (<span class="nv">q</span> : g = h)
+  : homotcomp (toforallpaths _ f g  p) (toforallpaths _ g h q)
+    = <span class="k">λ</span> <span class="nv">x</span> : X,  toforallpaths _ f h (p @ q) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> comppathcomphom.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Result of applying funextfun on vertical composition of homotopies. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">compcomphomcomppath</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : X → Y} (<span class="nv">phi</span> : f ~ g) (<span class="nv">psi</span> : g ~ h)
+  : funextfun _ _ (homotcomp phi psi) = (funextfun _  _ phi) @ (funextfun  _ _ psi).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (p := funextfun _ _ phi).
+  <span class="nb">set</span> (q := funextfun _ _ psi).
+  <span class="nb">set</span> (p_flat := toforallpaths _ _ _ p).
+  <span class="nb">set</span> (q_flat := toforallpaths _ _ _ q).
+  <span class="nb">assert</span> (e_1 : p_flat = phi) <span class="bp">by</span> (<span class="nb">apply</span> (homotweqinvweq (weqtoforallpaths _ f g) phi)).
+  <span class="nb">assert</span> (e_2 : q_flat = psi) <span class="bp">by</span> (<span class="nb">apply</span> (homotweqinvweq (weqtoforallpaths _ g h) psi)).
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, funextfun f h (homotcomp u psi) = p @ q) e_1).
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">v</span>, funextfun f h (homotcomp p_flat v) = p @ q) e_2).
+  <span class="nb">assert</span> (e_3 : homotcomp p_flat q_flat = <span class="k">λ</span> <span class="nv">x</span> : X, toforallpaths _ f h (p @ q) x)
+    <span class="bp">by</span> <span class="nb">apply</span> (comppathcomphom2 p q).
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span> : f ~ h, funextfun f h u = p @ q) e_3).
+  <span class="nb">apply</span> (pathsinv0 (homotinvweqweq0 (weqtoforallpaths _ f h) (p @ q))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Result of applying toforallpaths to horizontal composition of path with a function. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comparefuncompwithpathwithfuncompwithhomot</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} {<span class="nv">f_1</span> <span class="nv">f_2</span> : X → Y} (<span class="nv">g</span> : Y → Z) (<span class="nv">e</span> : f_1 = f_2)
+  : toforallpaths _ _ _ (comppathwithfun e g) = homotfun (toforallpaths _ _ _ e) g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Result of applying funextfun to horizontal composition of homotopy with a function. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comparefuncompwithpathwithfuncompwithhomot2</span>  {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} {<span class="nv">f_1</span> <span class="nv">f_2</span> : X → Y} (<span class="nv">g</span> : Y → Z) (<span class="nv">alpha</span> : f_1 ~ f_2)
+  : funextfun _ _ (homotfun alpha g) = comppathwithfun (funextfun _ _  alpha) g.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (e := funextfun _ _ alpha).
+  <span class="nb">assert</span> (p_1 : toforallpaths _ _ _ e = alpha)
+    <span class="bp">by</span> <span class="nb">apply</span> (homotweqinvweq (weqtoforallpaths _ f_1 f_2) alpha).
+  <span class="nb">assert</span> (p_2 : paths (comppathwithfun e g) (funextfun _ _ (toforallpaths _ _ _ (comppathwithfun e g))))
+    <span class="bp">by</span> <span class="nb">apply</span> (homotinvweqweq0 (weqtoforallpaths _ (f_1 ;; g)(f_2 ;; g)) (comppathwithfun e g)).
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">v</span>, funextfun (f_1 ;; g) (f_2 ;; g) (homotfun alpha g)
+                          = v) p_2).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">v</span>, homotfun v g
+                          = toforallpaths _ (f_1 ;; g) (f_2 ;; g) (comppathwithfun e g)) p_1).
+  <span class="nb">apply</span> (pathsinv0 (comparefuncompwithpathwithfuncompwithhomot g e)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Result of applying toforallpaths to horizontal composition of a function with a path *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comparepathcompwithfunwithhomotcompwithfun</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X → Y) {<span class="nv">g_1</span> <span class="nv">g_2</span> : Y → Z} (<span class="nv">e</span> : g_1 = g_2)
+  : toforallpaths _ _ _ (compfunwithpath f e) = funhomot f (toforallpaths _ _ _ e).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Result of applying funextfun to horizontal composition of a function with a homotopy *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comparehomotopycompwithfunwithpathcompwithfun</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">f</span> : X → Y) {<span class="nv">g_1</span> <span class="nv">g_2</span> : Y → Z} (<span class="nv">alpha</span> : g_1 ~ g_2)
+  : funextfun _ _  (funhomot f alpha) = compfunwithpath f (funextfun _ _  alpha).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (e := funextfun _ _ alpha).
+  <span class="nb">set</span> (e_flat := toforallpaths _ _ _ e).
+  <span class="nb">assert</span> (p : e_flat = alpha)
+    <span class="bp">by</span> <span class="nb">apply</span> (homotweqinvweq (weqtoforallpaths _ g_1 g_2) alpha).
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, funextfun _ _ (funhomot f u) = compfunwithpath f e) p).
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span>, funextfun (f ;; g_1) (f ;; g_2) u  = compfunwithpath f e)
+                    (! (comparepathcompwithfunwithhomotcompwithfun f e))).
+  <span class="nb">apply</span> (! (homotinvweqweq0 (weqtoforallpaths _ (f ;; g_1) (f ;; g_2)) (compfunwithpath f e))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Sigma-types and identity types *)</span>
+
+<span class="kn">Definition</span> <span class="nf">sigmaidtoidsigma</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span>: total2 B)
+  : total2 (<span class="k">λ</span> <span class="nv">v</span> : pr1 c_1 = pr1 c_2, transportf B v (pr2 c_1) = pr2 c_2) → c_1 = c_2.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> c_1 <span class="k">as</span> [a_1 b_1].
+  <span class="nb">induction</span> c_2 <span class="k">as</span> [a_2 b_2].
+  <span class="nb">intro</span> e.
+  <span class="nb">induction</span> e <span class="k">as</span> [u v].
+  <span class="nb">apply</span> (total2_paths2_f u v).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">idsigmatosigmaid</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span> : total2 B)
+  : c_1 = c_2 → total2 (<span class="k">λ</span> <span class="nv">v</span> : pr1 c_1 = pr1 c_2, transportf B v (pr2 c_1) = pr2 c_2).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> u.
+  <span class="nb">induction</span> u.
+  <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">idsigmaidsigma</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span>: total2 B) (<span class="nv">e</span> : c_1 = c_2)
+   : sigmaidtoidsigma c_1 c_2 (idsigmatosigmaid c_1 c_2 e) = e.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sigmaidsigmaid</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span>: total2 B)
+                          (<span class="nv">e</span> : total2 (<span class="k">λ</span> <span class="nv">v</span> : pr1 c_1 = pr1 c_2, transportf B v (pr2 c_1) = pr2 c_2))
+  : idsigmatosigmaid _ _ (sigmaidtoidsigma c_1 c_2 e) = e.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> c_1 <span class="k">as</span> [a_1 b_1].
+  <span class="nb">induction</span> c_2 <span class="k">as</span> [a_2 b_2].
+  <span class="nb">induction</span> e <span class="k">as</span> [u v].
+  <span class="nb">simpl</span> <span class="k">in</span> u, v.
+  <span class="nb">induction</span> u, v.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isweqsigmaidtoidsigma</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span> : total2 B)
+  : isweq (sigmaidtoidsigma c_1 c_2).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso (sigmaidtoidsigma c_1 c_2) (idsigmatosigmaid c_1 c_2)).
+  <span class="nb">apply</span> (sigmaidsigmaid c_1 c_2).
+  <span class="nb">apply</span> (idsigmaidsigma c_1 c_2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqsigmaidtoidsigma</span> {<span class="nv">A</span> : UU} {<span class="nv">B</span> : A → UU} (<span class="nv">c_1</span> <span class="nv">c_2</span> : total2 B)
+  : total2 (<span class="k">λ</span> <span class="nv">v</span> : pr1 c_1 = pr1 c_2, transportf B v (pr2 c_1) = pr2 c_2) ≃ (c_1 = c_2).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> weq.
+  <span class="k">exists</span> (<span class="nv">sigmaidtoidsigma</span> <span class="nv">c_1</span> <span class="nv">c_2</span>).
+  <span class="nb">apply</span> isweqsigmaidtoidsigma.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Misc</span>.
+
+<span class="kn">Section</span> <span class="nf">PolynomialFunctor</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span>: UU} (<span class="nv">B</span>: A → UU).
+
+<span class="kn">Notation</span> <span class="nf">P</span> := (polynomial_functor A B).
+
+<span class="sd">(** Action of P on paths *)</span>
+
+<span class="kn">Let</span> <span class="nf">P_2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X → Y} (<span class="nv">p</span>: f = g): # P f = # P g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** We define an action of P on homotopies. For this we need an auxiliary map. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tau</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X → Y} (<span class="nv">x</span> : A) (<span class="nv">u</span> : B x → X) (<span class="nv">v</span> : ∏ (y : B x), f (u y) = g (u y))
+  : x,, u ;; f = tpair (<span class="k">λ</span> <span class="nv">a</span> : A, B a → Y) x (u ;; g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> v.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** We record the effect of the computation rules on tau. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tau_comp</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> : X → Y} (<span class="nv">x</span> : A) (<span class="nv">u</span> : B x → X)
+  : tau x u (<span class="k">λ</span> <span class="nv">y</span> : B x, idpath (f (u y))) = idpath (x ,, u ;; f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> tau.
+  <span class="nb">assert</span> (e : idpath (u ;; f) = funextfun _ _ (<span class="k">λ</span> <span class="nv">y</span> : B x, idpath (f (u y)))).
+  {
+    <span class="nb">apply</span> homotinvweqweq0.
+  }
+  <span class="nb">set</span> (C := <span class="k">λ</span> (<span class="nv">p</span> : u ;; f = u ;; f)
+              , pair_path_in2 (<span class="k">λ</span> <span class="nv">a</span> : A, B a → Y) p = idpath _).
+  <span class="nb">apply</span> (transportf C e).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Action of P on homotopies *)</span>
+
+<span class="kn">Definition</span> <span class="nf">P_2_h</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X → Y} (<span class="nv">h</span>: f ~ g): # P f ~ # P g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">induction</span> c <span class="k">as</span> [x u].
+  <span class="nb">apply</span> (tau x u (<span class="k">λ</span> <span class="nv">y</span> : B x, h (u y))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The result of applying toforallpaths to P(e), where e is a path *)</span>
+
+<span class="kn">Definition</span> <span class="nf">compareP2withP2h</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X → Y} (<span class="nv">e</span> : f = g) :
+ toforallpaths _ _ _ (P_2 e) = P_2_h (toforallpaths _ _ _ e).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e.
+  <span class="nb">cbn</span> - [P].
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> c.
+  <span class="nb">induction</span> c <span class="k">as</span> [x u].
+  <span class="nb">unfold</span> P_2_h.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">e</span>, idpath (# P f (x ,, u)) = e) (tau_comp x u)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The result of applying P_h(alpha), where alpha is a homotopy *)</span>
+
+<span class="kn">Definition</span> <span class="nf">compareP2withP2h2</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">f</span> <span class="nv">g</span> : X → Y} (<span class="nv">alpha</span> : f ~ g) :
+  P_2 (funextfun _ _ alpha) = funextfun _ _ (P_2_h alpha).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (e := funextfun _ _ alpha).
+  <span class="nb">set</span> (e_flat := toforallpaths _ _ _ e).
+  <span class="nb">assert</span> (p_1 : e_flat = alpha).
+  {
+  <span class="nb">apply</span> (homotweqinvweq (weqtoforallpaths _ f g) alpha).
+  }
+  <span class="nb">assert</span> (p_2 : funextfun _  _ (P_2_h alpha) = funextfun _  _ (P_2_h e_flat)).
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pathsinv0 p_1).
+  }
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span>, P_2 e = u) p_2).
+  <span class="nb">assert</span> (p_3 : funextfun _ _ (P_2_h e_flat) = (funextfun _ _ (toforallpaths _ _ _ (P_2 e)))).
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pathsinv0 (compareP2withP2h e)).
+  }
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span>, P_2 e = u) p_3).
+  <span class="nb">apply</span> homotinvweqweq0.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The type of algebra 2-cells between two algebra maps. An algebra 2-cell is a pair</span>
+<span class="sd"> consisting of a path between the underlying functions and a path witnessing a coherence</span>
+<span class="sd">condition *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isalg2cell</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY) (<span class="nv">e</span>: pr1 ff = pr1 gg)
+  : UU := pr2 ff @ (comppathwithfun (maponpaths (# P) e) (pr2 YY))
+          = compfunwithpath (alg_map P XX) e @ (pr2 gg).
+
+<span class="kn">Definition</span> <span class="nf">algebra_2cell</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : UU := ∑ (e: pr1 ff = pr1 gg), isalg2cell _ _  e.
+
+<span class="sd">(** Analysis of algebra 2-cells</span>
+<span class="sd">We compare</span>
+<span class="sd"> - Paths between algebra maps</span>
+<span class="sd"> - Pairs of paths involving transport</span>
+<span class="sd"> - Algebra 2-cells</span>
+
+<span class="sd"> Using this one shows that two algebra maps are equal iff</span>
+<span class="sd"> there is an algebra 2-cell between them. *)</span>
+
+<span class="sd">(** Alternative definition of algebra 2-cell. An alternative</span>
+<span class="sd"> algebra 2-cell from (f,s_f) to (g,s_g) is a pair (e,s_e)</span>
+<span class="sd"> where e : f = g and s_e : e_!(s_f) = s_g. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isalg2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY) (<span class="nv">e</span> : pr1 ff = pr1 gg)
+  : UU := transportf (is_algebra_mor P XX YY) e (pr2 ff) = pr2 gg.
+
+<span class="kn">Definition</span> <span class="nf">algebra_2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P}(<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : UU := ∑ (e: pr1 ff = pr1 gg), isalg2cellalt ff gg e.
+
+<span class="sd">(** For each e : f = g, the map isalg2cell(e) -→ e_!(s_f) = s_g *)</span>
+
+<span class="kn">Definition</span> <span class="nf">fiberwise2cellto2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span>: algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY) (<span class="nv">e</span>: pr1 ff = pr1 gg)
+ : isalg2cell ff gg e → isalg2cellalt ff gg e.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> ff <span class="k">as</span> [f s_f].
+  <span class="nb">induction</span> gg <span class="k">as</span> [g s_g].
+  <span class="nb">simpl</span> <span class="k">in</span> e.
+  <span class="nb">unfold</span> isalg2cellalt.
+  <span class="nb">induction</span> e.
+  <span class="nb">intro</span> p.
+  <span class="nb">change</span> (s_f = s_g).
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, u = s_g) (pathscomp0rid s_f)).
+  <span class="nb">apply</span> p.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** For each e, the map constructed above is a weak equivalence. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isweqfiberwise2cellto2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY) (<span class="nv">e</span> : pr1 ff = pr1 gg)
+  : isweq (fiberwise2cellto2cellalt ff gg e).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> ff <span class="k">as</span> [f s_f].
+  <span class="nb">induction</span> gg <span class="k">as</span> [g s_g].
+  <span class="nb">simpl</span> <span class="k">in</span> e.
+  <span class="nb">unfold</span> fiberwise2cellto2cellalt.
+  <span class="nb">induction</span> e.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (isweqtransportf (<span class="k">λ</span> <span class="nv">u</span>, u = s_g) (pathscomp0rid s_f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfiberwise2cellto2cellalt</span>  {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY) (<span class="nv">e</span> : pr1 ff = pr1 gg)
+  : isalg2cell ff gg e ≃ isalg2cellalt ff gg e.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fiberwise2cellto2cellalt</span> <span class="nv">ff</span> <span class="nv">gg</span> <span class="nv">e</span>).
+  <span class="nb">apply</span> isweqfiberwise2cellto2cellalt.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The map from standard to alternative 2-cells, taking total spaces. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">from2cellto2cellalt</span>  {<span class="nv">XX</span> <span class="nv">YY</span>: algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : algebra_2cell ff gg → algebra_2cellalt ff gg.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ee.
+  <span class="nb">apply</span> (totalfun _ _ (fiberwise2cellto2cellalt ff gg) ee).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This map is a weak equivalence because it is fiberwise a weak equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isweqfrom2cellto2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : isweq (from2cellto2cellalt ff gg).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweqfibtototal _ _ (weqfiberwise2cellto2cellalt ff gg)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfrom2cellto2cellalt</span> {<span class="nv">XX</span> <span class="nv">YY</span>: algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+ : algebra_2cell ff gg ≃ algebra_2cellalt ff gg.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">from2cellto2cellalt</span> <span class="nv">ff</span> <span class="nv">gg</span>).
+  <span class="nb">apply</span> isweqfrom2cellto2cellalt.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** As a special case of the general results obtained before for Id/Sigma we get</span>
+<span class="sd"> that there is a weak equivalence between alternative algebra 2-cells and paths</span>
+<span class="sd"> between algebra maps. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqfrom2cellalttoidalgmap</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : algebra_2cellalt ff gg ≃ ff = gg.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqsigmaidtoidsigma.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Composing with the previous weak equivalence, we obtain that there is a weak</span>
+<span class="c"> equivalence between algebra 2-cells and paths between algebra maps. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqfromalg2celltoidalgmap</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : algebra_2cell ff gg ≃ ff = gg.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (weqcomp (weqfrom2cellto2cellalt ff gg) (weqfrom2cellalttoidalgmap ff gg)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfromaidalgmaptoalg2cell</span> {<span class="nv">XX</span> <span class="nv">YY</span> : algebra_ob P} (<span class="nv">ff</span> <span class="nv">gg</span> : algebra_mor P XX YY)
+  : weq (ff = gg) (algebra_2cell ff gg).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (invweq (weqfromalg2celltoidalgmap ff gg)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The type of algebra map homotopies *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isalgmaphomotopy</span> {<span class="nv">X</span> : UU} {<span class="nv">s_X</span> : P X → X} {<span class="nv">Y</span> : UU} {<span class="nv">s_Y</span> : P Y → Y}
+                            (<span class="nv">f</span> : X → Y) (<span class="nv">sigma_f</span> : s_X ;; f ~ # P f ;; s_Y)
+                            (<span class="nv">g</span> : X → Y) (<span class="nv">sigma_g</span> : s_X ;; g ~ # P g ;; s_Y)
+                            (<span class="nv">alpha</span> : f ~ g) : UU
+ := homotcomp (funhomot s_X alpha) (sigma_g) ~ homotcomp (sigma_f) (homotfun (P_2_h alpha) s_Y).
+
+<span class="kn">Definition</span> <span class="nf">immisalghomotopy</span> {<span class="nv">X</span> : UU} {<span class="nv">s_X</span> : P X → X} {<span class="nv">Y</span> : UU} {<span class="nv">s_Y</span> : P Y → Y}
+                            (<span class="nv">f</span> : X → Y) (<span class="nv">sigma_f</span> : s_X ;; f ~ # P f ;; s_Y)
+                            (<span class="nv">g</span> : X → Y) (<span class="nv">sigma_g</span> : s_X ;; g ~ # P g ;; s_Y)
+                            (<span class="nv">alpha</span> : f ~ g)
+  : isalgmaphomotopy f sigma_f g sigma_g alpha
+    → homotcomp (funhomot s_X alpha) (sigma_g) = (homotcomp (sigma_f) (homotfun (P_2_h alpha) s_Y)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> isc.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> (isc c).
+<span class="kn">Defined</span>.
+
+<span class="c">(* We show that if we have an algebra map homotopy we can construct an algebra 2-cell</span>
+<span class="c"> This is a long equational reasoning, which uses what has been done on relating paths</span>
+<span class="c">and homotopies. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">alghomotopytoalg2cell</span> {<span class="nv">X</span> : UU} {<span class="nv">s_X</span> : P X → X} {<span class="nv">Y</span> : UU} {<span class="nv">s_Y</span> : P Y → Y}
+                                 (<span class="nv">f</span> : X → Y) (<span class="nv">sigma_f</span> : s_X ;; f ~ # P f ;; s_Y)
+                                 (<span class="nv">g</span> : X → Y) (<span class="nv">sigma_g</span> : s_X ;; g ~ # P g ;; s_Y)
+                                 (<span class="nv">alpha</span> : f ~ g)
+  : isalgmaphomotopy f sigma_f g sigma_g alpha →
+       isalg2cell (tpair (is_algebra_mor P (X ,, s_X) (tpair _ Y s_Y)) f (funextfun _ _ sigma_f))
+                  (g ,, (funextfun _ _ sigma_g)) (funextfun f g alpha).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> isc.
+  <span class="nb">set</span> (s_alpha := immisalghomotopy f sigma_f g sigma_g alpha isc).
+  <span class="nb">set</span> (XX := X ,, s_X : algebra_ob P).
+  <span class="nb">set</span> (YY := Y ,, s_Y : algebra_ob P).
+  <span class="nb">set</span> (sigma_f_sharp := (funextfun (s_X ;; f) (# P f ;; s_Y) sigma_f)).
+  <span class="nb">set</span> (sigma_g_sharp := (funextfun (s_X ;; g) (# P g ;; s_Y) sigma_g)).
+  <span class="nb">set</span> (alpha_sharp := (funextfun f g alpha)).
+  <span class="nb">unfold</span> isalg2cell.
+  <span class="nb">simpl</span>.
+  <span class="nb">assert</span> (e_1 : P_2 alpha_sharp = funextfun _ _ (P_2_h alpha)).
+  {
+    <span class="nb">apply</span> compareP2withP2h2.
+  }
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span>, sigma_f_sharp @ (comppathwithfun u s_Y)
+                       = compfunwithpath s_X alpha_sharp @ sigma_g_sharp) e_1).
+  <span class="nb">assert</span> (e_2 : funextfun _ _  (funhomot s_X alpha) = compfunwithpath s_X alpha_sharp).
+  {
+     <span class="nb">apply</span> comparehomotopycompwithfunwithpathcompwithfun.
+  }
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, sigma_f_sharp @ (comppathwithfun (funextfun (# P f) (# P g) (P_2_h alpha)) s_Y)
+                                          = u @ sigma_g_sharp) e_2).
+  <span class="nb">unfold</span> sigma_g_sharp.
+  <span class="nb">assert</span> (e_3 : funextfun _ _ (homotcomp (funhomot s_X alpha) sigma_g)
+                = (funextfun _ _ (funhomot s_X alpha)) @ (funextfun _ _ sigma_g)).
+  {
+    <span class="nb">apply</span> (compcomphomcomppath (funhomot s_X alpha) sigma_g).
+  }
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, sigma_f_sharp @ (comppathwithfun (funextfun (# P f) (# P g) (P_2_h alpha)) s_Y) = u) e_3).
+  <span class="nb">assert</span> (e_4 : funextfun _ _ (homotfun (P_2_h alpha) s_Y) = comppathwithfun (funextfun _ _ (P_2_h alpha)) s_Y).
+  {
+    <span class="nb">apply</span> (comparefuncompwithpathwithfuncompwithhomot2 s_Y (P_2_h alpha)).
+  }
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">u</span>, sigma_f_sharp @ u
+                          = (funextfun (s_X ;; f) (# P g ;; s_Y) (homotcomp (funhomot s_X alpha) sigma_g))) e_4).
+  <span class="nb">assert</span> (e_5 : sigma_f_sharp @ funextfun _ _ (homotfun (P_2_h alpha) s_Y)
+                = funextfun _ _ (homotcomp sigma_f (homotfun (P_2_h alpha) s_Y))).
+  {
+    <span class="nb">apply</span> (pathsinv0 (compcomphomcomppath sigma_f (homotfun (P_2_h alpha) s_Y))).
+  }
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">u</span>, u = (funextfun (s_X ;; f) (# P g ;; s_Y)
+                    (homotcomp (funhomot s_X alpha) sigma_g))) e_5).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (pathsinv0 s_alpha).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PolynomialFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/PolynomialAlgebras2Cells.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &quot;_Inductive Types in Homotopy Type Theory_&quot;, by S. Awodey, N. Gambino and K. Sojakova.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Induction.PolynomialFunctors.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

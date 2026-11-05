@@ -1,0 +1,1125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RegularEpiFacts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> Properties of regular epimorphisms</span>
+
+<span class="sd"> In this file, we establish several properties of regular epimorphisms. More specifically, we</span>
+<span class="sd"> compare the notion of regular epimorphisms with the following notions:</span>
+<span class="sd"> - Effective epimorphisms (morphisms that are the coequalizer of their kernel pair)</span>
+<span class="sd"> - Strong epimorphisms (morphisms with the left lifting property with respect to all</span>
+<span class="sd">   monomorphisms).</span>
+<span class="sd"> - Extremal epimorphisms (`f : x --&gt; y` is an extremal epimorphism if for all factorizations</span>
+<span class="sd">   `f = g · m` with `m` a monomorphism, we have that `m` is an isomorphism).</span>
+<span class="sd"> We prove these properties under suitable assumptions for the category `C`. More specifically,</span>
+<span class="sd"> regular epimorphisms coincide with effective epimorphisms if `C` is univalent and has</span>
+<span class="sd"> pullbacks, and regular epimorphisms coincide with strong and extremal epimorphisms if `C` is</span>
+<span class="sd"> regular. Note that in order to prove that regular epimorphisms are effective, we need that</span>
+<span class="sd"> being an effective epimorphism is a proposition. This would be the case if `C` is univalent,</span>
+<span class="sd"> because that guarantees that the kernel pair is unique.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Isomorphisms are regular epimorphisms</span>
+<span class="sd"> 2. Regular epimorphisms versus effective epimorphisms</span>
+<span class="sd"> 3. Regular epimorphisms versus strong epimorphisms</span>
+<span class="sd"> 4. Strong epimorphisms versus extremal epimorphisms</span>
+<span class="sd"> 5. Regular epimorphisms versus extremal epimorphisms</span>
+<span class="sd"> 6. Functoriality of the image</span>
+<span class="sd"> 7. Preservation of the image by functors</span>
+<span class="sd"> 8. Regular epis are the coequalizer of their kernel pair</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Isomorphisms are regular epimorphisms *)</span>
+<span class="kn">Proposition</span> <span class="nf">z_iso_is_regular_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : z_iso x y)
+  : is_regular_epi f.
+<span class="kn">Proof</span>.
+  use hinhpr.
+  <span class="nb">refine</span> (y ,, inv_from_z_iso f ,, inv_from_z_iso f ,, idpath _ ,, _).
+  <span class="nb">intros</span> z h q.
+  use iscontraprop1.
+  - use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use (cancel_z_iso' f).
+    <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (inv_from_z_iso f · h).
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_z_isomorphism_is_regular_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">Hf</span> : is_z_isomorphism f)
+  : is_regular_epi f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (z_iso_is_regular_epi (f ,, Hf)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Regular epimorphisms versus effective epimorphisms *)</span>
+<span class="kn">Section</span> <span class="nf">RegularVersusEffective</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y)
+          (<span class="nv">PB</span> : Pullbacks C).
+
+  <span class="kn">Let</span> <span class="nf">K</span> : Pullback f f := PB y x x f f.
+
+  <span class="kn">Section</span> <span class="nf">CoeqKernelPair</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> : C}
+            {<span class="nv">g₁</span> <span class="nv">g₂</span> : w --&gt; x}
+            (<span class="nv">p</span> : g₁ · f = g₂ · f)
+            (<span class="nv">H</span> : isCoequalizer g₁ g₂ f p)
+            (<span class="nv">Coeq</span> := make_Coequalizer g₁ g₂ f p H)
+            {<span class="nv">a</span> : C}
+            {<span class="nv">h</span> : x --&gt; a}
+            (<span class="nv">q</span> : PullbackPr1 K · h = PullbackPr2 K· h).
+
+    <span class="kn">Let</span> <span class="nf">φ</span> : w --&gt; K := PullbackArrow K _ g₁ g₂ p.
+    <span class="kn">Let</span> <span class="nf">pg₁</span> : φ · PullbackPr1 K = g₁
+      := PullbackArrow_PullbackPr1 K _ g₁ g₂ p.
+    <span class="kn">Let</span> <span class="nf">pg₂</span> : φ · PullbackPr2 K = g₂
+      := PullbackArrow_PullbackPr2 K _ g₁ g₂ p.
+
+    <span class="kn">Lemma</span> <span class="nf">is_regular_to_isEffective_mor_eq</span>
+      : g₁ · h = g₂ · h.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- pg₁, &lt;- pg₂.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_regular_to_isEffective_unique</span>
+      : isaprop (∑ ζ, f · ζ = h).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> ζ₁ ζ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (CoequalizerOutsEq Coeq).
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr2 ζ₁ @ !(pr2 ζ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_regular_to_isEffective_mor</span>
+      : y --&gt; a.
+    <span class="kn">Proof</span>.
+      use (CoequalizerOut Coeq _ h).
+      <span class="bp">exact</span> is_regular_to_isEffective_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_regular_to_isEffective_comm</span>
+      : f · is_regular_to_isEffective_mor = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (CoequalizerCommutes Coeq).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">CoeqKernelPair</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_regular_to_isEffective</span>
+             (<span class="nv">HC</span> : is_univalent C)
+             (<span class="nv">H</span> : is_regular_epi f)
+    : isEffective f.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isaprop_isEffective.
+      <span class="bp">exact</span> HC.
+    }
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> ( w &amp; g₁ &amp; g₂ &amp; p &amp; H ).
+    <span class="nb">pose</span> (Coeq := make_Coequalizer _ _ _ _ H).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (PB _ _ _ f f).
+    - <span class="nb">intros</span> a h q.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (is_regular_to_isEffective_unique p H).
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="bp">exact</span> (is_regular_to_isEffective_mor p H q).
+        * <span class="nb">apply</span> is_regular_to_isEffective_comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEffective_to_is_regular</span>
+             (<span class="nv">H</span> : isEffective f)
+    : is_regular_epi f.
+  <span class="kn">Proof</span>.
+    use hinhpr.
+    <span class="nb">pose</span> (P := pr1 H : Pullback f f).
+    <span class="nb">refine</span> (_ ,, _ ,, _ ,, PullbackSqrCommutes P ,, _).
+    <span class="bp">exact</span> (pr2 H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEffective_weq_is_regular</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : isEffective f ≃ is_regular_epi f.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> isEffective_to_is_regular.
+    - <span class="bp">exact</span> (is_regular_to_isEffective HC).
+    - <span class="nb">apply</span> isaprop_isEffective.
+      <span class="bp">exact</span> HC.
+    - <span class="nb">apply</span> isaprop_is_regular_epi.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">RegularVersusEffective</span>.
+
+<span class="sd">(** * 3. Regular epimorphisms versus strong epimorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">is_strong_epi</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">w</span> <span class="nv">x</span> : C}
+           (<span class="nv">e</span> : w --&gt; x)
+  : UU
+  := ∏ (y z : C)
+       (m : y --&gt; z)
+       (f : w --&gt; y)
+       (g : x --&gt; z)
+       (p : e · g = f · m)
+       (Hm : isMonic m),
+     <span class="k">∃</span>! (l : x --&gt; y),
+     (l · m = g)
+     ×
+     (e · l = f).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_strong_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">w</span> <span class="nv">x</span> : C}
+            (<span class="nv">e</span> : w --&gt; x)
+  : isaprop (is_strong_epi e).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">7</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_epi_regular_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">e</span> : x --&gt; y}
+  : is_regular_epi e → is_strong_epi e.
+<span class="kn">Proof</span>.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> isaprop_is_strong_epi.
+  }
+  <span class="nb">intros</span> (w &amp; p₁ &amp; p₂ &amp; p &amp; H) a b m f g q Hm.
+  <span class="nb">pose</span> (Coeq := make_Coequalizer _ _ _ _ H).
+  use iscontraprop1.
+  - use invproofirrelevance.
+    <span class="nb">intros</span> l₁ l₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    use Hm.
+    <span class="bp">exact</span> (pr12 l₁ @ !(pr12 l₂)).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + use (CoequalizerOut Coeq).
+      * <span class="bp">exact</span> f.
+      * use Hm.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- !q.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> p.
+        <span class="nb">apply</span> idpath.
+    + use (CoequalizerOutsEq Coeq).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">rewrite</span> CoequalizerCommutes ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (!q).
+    + <span class="nb">cbn</span>.
+      use Hm.
+      <span class="nb">refine</span> (_ @ q).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      use (CoequalizerOutsEq Coeq).
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">rewrite</span> CoequalizerCommutes ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (!q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_strong_epi_regular_epi_lift</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">e</span> : x --&gt; y}
+           (<span class="nv">He</span> : is_regular_epi e)
+           {<span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+           (<span class="nv">m</span> : z₁ --&gt; z₂)
+           (<span class="nv">f</span> : x --&gt; z₁)
+           (<span class="nv">g</span> : y --&gt; z₂)
+           (<span class="nv">p</span> : e · g = f · m)
+           (<span class="nv">Hm</span> : isMonic m)
+  : y --&gt; z₁
+  := pr11 (is_strong_epi_regular_epi He z₁ z₂ m f g p Hm).
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_epi_regular_epi_comm_left</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">e</span> : x --&gt; y}
+            (<span class="nv">He</span> : is_regular_epi e)
+            {<span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            (<span class="nv">m</span> : z₁ --&gt; z₂)
+            (<span class="nv">f</span> : x --&gt; z₁)
+            (<span class="nv">g</span> : y --&gt; z₂)
+            (<span class="nv">p</span> : e · g = f · m)
+            (<span class="nv">Hm</span> : isMonic m)
+  : is_strong_epi_regular_epi_lift He m f g p Hm · m = g.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr121 (is_strong_epi_regular_epi He z₁ z₂ m f g p Hm)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_epi_regular_epi_comm_right</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">e</span> : x --&gt; y}
+            (<span class="nv">He</span> : is_regular_epi e)
+            {<span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            (<span class="nv">m</span> : z₁ --&gt; z₂)
+            (<span class="nv">f</span> : x --&gt; z₁)
+            (<span class="nv">g</span> : y --&gt; z₂)
+            (<span class="nv">p</span> : e · g = f · m)
+            (<span class="nv">Hm</span> : isMonic m)
+  : e · is_strong_epi_regular_epi_lift He m f g p Hm = f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr221 (is_strong_epi_regular_epi He z₁ z₂ m f g p Hm)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_epi_regular_epi_unique</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">e</span> : x --&gt; y}
+            (<span class="nv">He</span> : is_regular_epi e)
+            {<span class="nv">z₁</span> <span class="nv">z₂</span> : C}
+            (<span class="nv">m</span> : z₁ --&gt; z₂)
+            (<span class="nv">f</span> : x --&gt; z₁)
+            (<span class="nv">g</span> : y --&gt; z₂)
+            (<span class="nv">p</span> : e · g = f · m)
+            (<span class="nv">Hm</span> : isMonic m)
+            {<span class="nv">l₁</span> <span class="nv">l₂</span> : y --&gt; z₁}
+            (<span class="nv">q₁</span> : l₁ · m = g)
+            (<span class="nv">q₂</span> : e · l₁ = f)
+            (<span class="nv">q₃</span> : l₂ · m = g)
+            (<span class="nv">q₄</span> : e · l₂ = f)
+  : l₁ = l₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (maponpaths
+           pr1
+           (proofirrelevance
+              _
+              (isapropifcontr (is_strong_epi_regular_epi He z₁ z₂ m f g p Hm))
+              (l₁ ,, q₁ ,, q₂)
+              (l₂ ,, q₃ ,, q₄))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">RegularAndStrong</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+          (<span class="nv">HC</span> : regular_epi_pb_stable C)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          {<span class="nv">e</span> : x --&gt; y}
+          (<span class="nv">He</span> : is_strong_epi e).
+
+  <span class="kn">Let</span> <span class="nf">fact</span> := regular_epi_mono_factorization PB EC HC e.
+  <span class="kn">Let</span> <span class="nf">im</span> : C := pr1 fact.
+  <span class="kn">Let</span> <span class="nf">e'</span> : x --&gt; im := pr12 fact.
+  <span class="kn">Let</span> <span class="nf">m</span> : im --&gt; y := pr122 fact.
+  <span class="kn">Let</span> <span class="nf">He'</span> : is_regular_epi e' := pr1 (pr222 fact).
+  <span class="kn">Let</span> <span class="nf">Hm</span> : isMonic m := pr12 (pr222 fact).
+  <span class="kn">Let</span> <span class="nf">p</span> : e = e' · m := pr22 (pr222 fact).
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_regular_epi_strong_epi_eq</span>
+    : e · identity y = e' · m.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">l</span> : y --&gt; im
+    := pr11 (He _ _ m e' (identity _) is_regular_epi_strong_epi_eq Hm).
+  <span class="kn">Let</span> <span class="nf">ql</span> : l · m = identity _
+    := pr121 (He _ _ m e' (identity _) is_regular_epi_strong_epi_eq Hm).
+  <span class="kn">Let</span> <span class="nf">rl</span> : e · l = e'
+    := pr221 (He _ _ m e' (identity _) is_regular_epi_strong_epi_eq Hm).
+
+  <span class="kn">Proposition</span> <span class="nf">is_regular_epi_strong_epi</span>
+    : is_regular_epi e.
+  <span class="kn">Proof</span>.
+    use (is_regular_epi_arrow_z_iso_f _ _ _ _ _ He').
+    - <span class="nb">apply</span> identity_z_iso.
+    - use make_z_iso.
+      + <span class="bp">exact</span> m.
+      + <span class="bp">exact</span> l.
+      + <span class="nb">split</span>.
+        * use Hm.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> ql.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="nb">apply</span> idpath.
+        * <span class="bp">exact</span> ql.
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">exact</span> (!p).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">RegularAndStrong</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_epi_weq_strong_epi</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+           (<span class="nv">HC</span> : regular_epi_pb_stable C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">e</span> : x --&gt; y)
+  : is_strong_epi e ≃ is_regular_epi e.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> (is_regular_epi_strong_epi PB EC HC).
+  - <span class="nb">apply</span> is_strong_epi_regular_epi.
+  - <span class="nb">apply</span> isaprop_is_strong_epi.
+  - <span class="nb">apply</span> isaprop_is_regular_epi.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Strong epimorphisms versus extremal epimorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">is_extremal_epi</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">e</span> : x --&gt; y)
+  : UU
+  := ∏ (z : C)
+       (f : x --&gt; z)
+       (g : z --&gt; y),
+     e = f · g
+     →
+     isMonic g
+     →
+     is_z_isomorphism g.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_extremal_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">e</span> : x --&gt; y)
+  : isaprop (is_extremal_epi e).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">5</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_extremal_epi_strong_epi</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            {<span class="nv">e</span> : x --&gt; y}
+            (<span class="nv">He</span> : is_strong_epi e)
+  : is_extremal_epi e.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z f g p Hg.
+  <span class="nb">assert</span> (e · identity y = f · g) <span class="k">as</span> q.
+  {
+    <span class="nb">rewrite</span> id_right.
+    <span class="bp">exact</span> p.
+  }
+  <span class="nb">pose</span> (fact := He _ _ g f (identity _) q Hg).
+  <span class="nb">pose</span> (l := pr11 fact).
+  <span class="nb">pose</span> (r := pr121 fact : l · g = identity _).
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> l.
+  - <span class="nb">split</span>.
+    + use Hg.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> r.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    + <span class="bp">exact</span> r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongToExtremal</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+          (<span class="nv">e</span> : w --&gt; x)
+          (<span class="nv">m</span> : y --&gt; z)
+          (<span class="nv">f</span> : w --&gt; y)
+          (<span class="nv">g</span> : x --&gt; z)
+          (<span class="nv">p</span> : e · g = f · m)
+          (<span class="nv">He</span> : is_extremal_epi e)
+          (<span class="nv">Hm</span> : isMonic m).
+
+  <span class="kn">Let</span> <span class="nf">P</span> : Pullback g m := PB _ _ _ g m.
+  <span class="kn">Let</span> <span class="nf">H</span> : isMonic (PullbackPr1 P) := MonicPullbackisMonic' _ _ (m ,, Hm) P.
+
+  <span class="kn">Definition</span> <span class="nf">is_strong_epi_extremal_epi_pb_mor</span>
+    : w --&gt; P.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> e.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_strong_epi_extremal_epi_pb_eq</span>
+    : e = is_strong_epi_extremal_epi_pb_mor · PullbackPr1 P.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">π</span> : z_iso P x
+    := PullbackPr1 P ,, He _ _ _ is_strong_epi_extremal_epi_pb_eq H.
+
+  <span class="kn">Definition</span> <span class="nf">is_strong_epi_extremal_epi_lift</span>
+    : x --&gt; y
+    := inv_from_z_iso π · PullbackPr2 P.
+
+  <span class="kn">Proposition</span> <span class="nf">is_strong_epi_extremal_epi_comm₁</span>
+    : is_strong_epi_extremal_epi_lift · m = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_strong_epi_extremal_epi_lift.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(PullbackSqrCommutes P)).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_strong_epi_extremal_epi_comm₂</span>
+    : e · is_strong_epi_extremal_epi_lift = f.
+  <span class="kn">Proof</span>.
+    use Hm.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> is_strong_epi_extremal_epi_comm₁.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_strong_epi_extremal_epi_unique</span>
+    : isaprop (∑ l, l · m = g × e · l = f).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> l₁ l₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    use Hm.
+    <span class="bp">exact</span> (pr12 l₁ @ !(pr12 l₂)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">StrongToExtremal</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_epi_extremal_epi</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">PB</span> : Pullbacks C)
+            {<span class="nv">w</span> <span class="nv">x</span> : C}
+            {<span class="nv">e</span> : w --&gt; x}
+            (<span class="nv">He</span> : is_extremal_epi e)
+  : is_strong_epi e.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y z m f g p Hm.
+  use iscontraprop1.
+  - <span class="nb">apply</span> is_strong_epi_extremal_epi_unique.
+    <span class="bp">exact</span> Hm.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (is_strong_epi_extremal_epi_lift PB e m f g p He Hm).
+    + <span class="nb">apply</span> is_strong_epi_extremal_epi_comm₁.
+    + <span class="nb">apply</span> is_strong_epi_extremal_epi_comm₂.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">extremal_epi_weq_strong_epi</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">e</span> : x --&gt; y)
+  : is_extremal_epi e ≃ is_strong_epi e.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> (is_strong_epi_extremal_epi PB).
+  - <span class="nb">apply</span> is_extremal_epi_strong_epi.
+  - <span class="nb">apply</span> isaprop_is_extremal_epi.
+  - <span class="nb">apply</span> isaprop_is_strong_epi.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Regular epimorphisms versus extremal epimorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">regular_epi_weq_extremal_epi</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           (<span class="nv">EC</span> : coeqs_of_kernel_pair C)
+           (<span class="nv">HC</span> : regular_epi_pb_stable C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">e</span> : x --&gt; y)
+  : is_extremal_epi e ≃ is_regular_epi e
+  := (regular_epi_weq_strong_epi PB EC HC e ∘ extremal_epi_weq_strong_epi PB e)%weq.
+
+<span class="sd">(** * 6. Functoriality of the image *)</span>
+<span class="kn">Proposition</span> <span class="nf">regular_category_im_map_eq</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+            (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+            (<span class="nv">gx</span> : x₁ --&gt; x₂)
+            (<span class="nv">gy</span> : y₁ --&gt; y₂)
+            (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+  : regular_category_to_im HC f₁ · (regular_category_im_Monic HC f₁ · gy)
+    =
+    gx · regular_category_to_im HC f₂ · regular_category_im_Monic HC f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- regular_category_im_commutes.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- regular_category_im_commutes.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_category_im_map</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+           (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+           (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+           (<span class="nv">gx</span> : x₁ --&gt; x₂)
+           (<span class="nv">gy</span> : y₁ --&gt; y₂)
+           (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+  : regular_category_im HC f₁ --&gt; regular_category_im HC f₂
+  := is_strong_epi_regular_epi_lift
+       (is_regular_epi_regular_category_to_im HC f₁)
+       (regular_category_im_Monic HC f₂)
+       (gx · regular_category_to_im _ _)
+       (regular_category_im_Monic _ _ · gy)
+       (regular_category_im_map_eq HC _ _ _ _ p)
+       (MonicisMonic _ _).
+
+<span class="kn">Proposition</span> <span class="nf">regular_category_im_map_left</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+            (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+            (<span class="nv">gx</span> : x₁ --&gt; x₂)
+            (<span class="nv">gy</span> : y₁ --&gt; y₂)
+            (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+  : regular_category_im_map HC f₁ f₂ gx gy p · regular_category_im_Monic HC f₂
+    =
+    regular_category_im_Monic HC f₁ · gy.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_left
+           (is_regular_epi_regular_category_to_im HC f₁)
+           (regular_category_im_Monic HC f₂)
+           (gx · regular_category_to_im _ _)
+           (regular_category_im_Monic _ _ · gy)
+           (regular_category_im_map_eq HC _ _ _ _ p)
+           (MonicisMonic _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_category_im_map_right</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+            (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+            (<span class="nv">gx</span> : x₁ --&gt; x₂)
+            (<span class="nv">gy</span> : y₁ --&gt; y₂)
+            (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+  : regular_category_to_im HC f₁ · regular_category_im_map HC f₁ f₂ gx gy p
+    =
+    gx · regular_category_to_im HC f₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_right
+           (is_regular_epi_regular_category_to_im HC f₁)
+           (regular_category_im_Monic HC f₂)
+           (gx · regular_category_to_im _ _)
+           (regular_category_im_Monic _ _ · gy)
+           (regular_category_im_map_eq HC _ _ _ _ p)
+           (MonicisMonic _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_category_mor_to_im_eq</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+            (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+            (<span class="nv">gx</span> : x₁ --&gt; x₂)
+            (<span class="nv">gy</span> : y₁ --&gt; y₂)
+            (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+            {<span class="nv">l₁</span> <span class="nv">l₂</span> : regular_category_im HC f₁
+                     --&gt;
+                     regular_category_im HC f₂}
+            (<span class="nv">q₁</span> : l₁ · regular_category_im_Monic HC f₂
+                  =
+                  regular_category_im_Monic HC f₁ · gy)
+            (<span class="nv">q₂</span> : l₂ · regular_category_im_Monic HC f₂
+                  =
+                  regular_category_im_Monic HC f₁ · gy)
+            (<span class="nv">r₁</span> : regular_category_to_im HC f₁ · l₁
+                  =
+                  gx · regular_category_to_im HC f₂)
+            (<span class="nv">r₂</span> : regular_category_to_im HC f₁ · l₂
+                  =
+                  gx · regular_category_to_im HC f₂)
+  : l₁ = l₂.
+<span class="kn">Proof</span>.
+  use (is_strong_epi_regular_epi_unique
+         (is_regular_epi_regular_category_to_im HC f₁)
+         (regular_category_im_Monic HC f₂)
+         (gx · regular_category_to_im _ _)
+         (regular_category_im_Monic _ _ · gy)
+         (regular_category_im_map_eq HC _ _ _ _ p)
+         (MonicisMonic _ _)).
+  - <span class="bp">exact</span> q₁.
+  - <span class="bp">exact</span> r₁.
+  - <span class="bp">exact</span> q₂.
+  - <span class="bp">exact</span> r₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_category_im_map_on_id</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">p</span> : f · identity y = identity x · f)
+  : regular_category_im_map HC f f (identity _) (identity _) p
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  use (regular_category_mor_to_im_eq HC).
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> regular_category_im_map_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_category_im_map_on_comp</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C}
+           (<span class="nv">f₁</span> : x₁ --&gt; y₁)
+           (<span class="nv">f₂</span> : x₂ --&gt; y₂)
+           (<span class="nv">f₃</span> : x₃ --&gt; y₃)
+           (<span class="nv">gx</span> : x₁ --&gt; x₂)
+           (<span class="nv">gy</span> : y₁ --&gt; y₂)
+           (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+           (<span class="nv">hx</span> : x₂ --&gt; x₃)
+           (<span class="nv">hy</span> : y₂ --&gt; y₃)
+           (<span class="nv">q</span> : f₂ · hy = hx · f₃)
+           (<span class="nv">r</span> : f₁ · (gy · hy) = gx · hx · f₃)
+  : regular_category_im_map HC f₁ f₂ gx gy p
+    · regular_category_im_map HC f₂ f₃ hx hy q
+    =
+    regular_category_im_map HC f₁ f₃ (gx · hx) (gy · hy) r.
+<span class="kn">Proof</span>.
+  use (regular_category_mor_to_im_eq HC).
+  - <span class="bp">exact</span> (gx · hx).
+  - <span class="bp">exact</span> (gy · hy).
+  - <span class="bp">exact</span> r.
+  - <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> regular_category_im_map_left.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> regular_category_im_map_left.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> regular_category_im_map_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_category_im_map_mors_eq</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_regular_category C)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">f₁</span> : x₁ --&gt; y₁}
+            {<span class="nv">f₂</span> : x₂ --&gt; y₂}
+            {<span class="nv">gx</span> <span class="nv">gx'</span> : x₁ --&gt; x₂}
+            {<span class="nv">gy</span> <span class="nv">gy'</span> : y₁ --&gt; y₂}
+            (<span class="nv">p</span> : f₁ · gy = gx · f₂)
+            (<span class="nv">q₁</span> : gx = gx')
+            (<span class="nv">q₂</span> : gy = gy')
+            (<span class="nv">r</span> : f₁ · gy' = gx' · f₂)
+  : regular_category_im_map HC f₁ f₂ gx gy p
+    =
+    regular_category_im_map HC f₁ f₂ gx' gy' r.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q₁, q₂.
+  <span class="nb">assert</span> (p = r) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">TriangleIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : is_regular_category C)
+          {<span class="nv">x</span> <span class="nv">x'</span> <span class="nv">y</span> : C}
+          {<span class="nv">f</span> : x --&gt; y}
+          {<span class="nv">g</span> : x' --&gt; y}
+          {<span class="nv">h</span> : z_iso x x'}
+          (<span class="nv">p</span> : f = h · g).
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_im_eq_triangle_mor</span>
+    : regular_category_im HC f --&gt; regular_category_im HC g.
+  <span class="kn">Proof</span>.
+    use regular_category_im_map.
+    - <span class="bp">exact</span> h.
+    - <span class="bp">exact</span> (identity _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> id_right ;
+         <span class="bp">exact</span> p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_im_eq_triangle_inv</span>
+    : regular_category_im HC g --&gt; regular_category_im HC f.
+  <span class="kn">Proof</span>.
+    use regular_category_im_map.
+    - <span class="bp">exact</span> (inv_from_z_iso h).
+    - <span class="bp">exact</span> (identity _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!_) ;
+         use z_iso_inv_on_right ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="bp">exact</span> p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_category_im_eq_triangle_z_iso_inv</span>
+    : is_inverse_in_precat
+        regular_category_im_eq_triangle_mor
+        regular_category_im_eq_triangle_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> (regular_category_im_map_on_comp _ _ _ _ _ _ _ _ _ _ _
+              @ regular_category_im_map_mors_eq _ _ _ _ _
+              @ regular_category_im_map_on_id _ _ _).
+      + <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">rewrite</span> !id_right, id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> id_left.
+      + <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (regular_category_im_map_on_comp _ _ _ _ _ _ _ _ _ _ _
+              @ regular_category_im_map_mors_eq _ _ _ _ _
+              @ regular_category_im_map_on_id _ _ _).
+      + <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> !id_right, id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> id_left.
+      + <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_im_eq_triangle_z_iso</span>
+    : z_iso (regular_category_im HC f) (regular_category_im HC g).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> regular_category_im_eq_triangle_mor.
+    - <span class="bp">exact</span> regular_category_im_eq_triangle_inv.
+    - <span class="bp">exact</span> regular_category_im_eq_triangle_z_iso_inv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TriangleIso</span>.
+
+<span class="sd">(** * 7. Preservation of the image by functors *)</span>
+<span class="kn">Section</span> <span class="nf">PreservesImage</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">HC₁</span> : is_regular_category C₁)
+          (<span class="nv">HC₂</span> : is_regular_category C₂)
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          (<span class="nv">HF</span> : preserves_regular_epi F)
+          (<span class="nv">HF'</span> : preserves_pullback F)
+          {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_z_iso_eq</span>
+    : #F (regular_category_to_im HC₁ f)
+      · #F (regular_category_im_Monic HC₁ f)
+      =
+      regular_category_to_im HC₂ (#F f)
+      · regular_category_im_Monic HC₂ (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> &lt;- !regular_category_im_commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_functor_preserves_im_mor</span>
+    : F (regular_category_im HC₁ f)
+      --&gt;
+      regular_category_im HC₂ (#F f)
+    := pr11 (is_strong_epi_regular_epi
+               (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+               _ _
+               (regular_category_im_Monic HC₂ (#F f))
+               (regular_category_to_im HC₂ (#F f))
+               (#F (regular_category_im_Monic HC₁ f))
+               regular_functor_preserves_im_z_iso_eq
+               (MonicisMonic _ _)).
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_mor_left</span>
+    : regular_functor_preserves_im_mor
+      · regular_category_im_Monic HC₂ (#F f)
+      =
+      #F (regular_category_im_Monic HC₁ f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_left
+             (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+             (regular_category_im_Monic HC₂ (#F f))
+             (regular_category_to_im HC₂ (#F f))
+             (#F (regular_category_im_Monic HC₁ f))
+             regular_functor_preserves_im_z_iso_eq
+             (MonicisMonic _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_mor_right</span>
+    : #F (regular_category_to_im HC₁ f)
+      · regular_functor_preserves_im_mor
+      =
+      regular_category_to_im HC₂ (#F f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_right
+             (HF _ _ _ (is_regular_epi_regular_category_to_im HC₁ f))
+             (regular_category_im_Monic HC₂ (#F f))
+             (regular_category_to_im HC₂ (#F f))
+             (#F (regular_category_im_Monic HC₁ f))
+             regular_functor_preserves_im_z_iso_eq
+             (MonicisMonic _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_inv_eq</span>
+    : regular_category_to_im HC₂ (#F f)
+      · regular_category_im_Monic HC₂ (#F f)
+      =
+      #F (regular_category_to_im HC₁ f)
+      · functor_preserves_pb_on_monic HF' (regular_category_im_Monic HC₁ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ functor_comp F _ _).
+    <span class="nb">rewrite</span> &lt;- !regular_category_im_commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_functor_preserves_im_inv</span>
+    : regular_category_im HC₂ (#F f)
+      --&gt;
+      F (regular_category_im HC₁ f)
+    := pr11 (is_strong_epi_regular_epi
+               (is_regular_epi_regular_category_to_im HC₂ (#F f))
+               _ _
+               (functor_preserves_pb_on_monic
+                  HF'
+                  (regular_category_im_Monic HC₁ f))
+               (#F(regular_category_to_im HC₁ f))
+               (regular_category_im_Monic HC₂ (#F f))
+               regular_functor_preserves_im_inv_eq
+               (MonicisMonic _ _)).
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_inv_left</span>
+    : regular_functor_preserves_im_inv
+      · #F (regular_category_im_Monic HC₁ f)
+      =
+      regular_category_im_Monic HC₂ (# F f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_left
+             (is_regular_epi_regular_category_to_im HC₂ (#F f))
+             (functor_preserves_pb_on_monic
+                HF'
+                (regular_category_im_Monic HC₁ f))
+             (#F(regular_category_to_im HC₁ f))
+             (regular_category_im_Monic HC₂ (#F f))
+             regular_functor_preserves_im_inv_eq
+             (MonicisMonic _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_inv_right</span>
+    : regular_category_to_im HC₂ (#F f)
+      · regular_functor_preserves_im_inv
+      =
+      #F (regular_category_to_im HC₁ f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_strong_epi_regular_epi_comm_right
+             (is_regular_epi_regular_category_to_im HC₂ (#F f))
+             (functor_preserves_pb_on_monic
+                HF'
+                (regular_category_im_Monic HC₁ f))
+             (#F(regular_category_to_im HC₁ f))
+             (regular_category_im_Monic HC₂ (#F f))
+             regular_functor_preserves_im_inv_eq
+             (MonicisMonic _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_functor_preserves_im_z_iso_inv_eqs</span>
+    : is_inverse_in_precat
+        regular_functor_preserves_im_mor
+        regular_functor_preserves_im_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use (pr2 (functor_preserves_pb_on_monic HF' (regular_category_im_Monic HC₁ f)) _).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> regular_functor_preserves_im_inv_left.
+      }
+      <span class="nb">rewrite</span> regular_functor_preserves_im_mor_left.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - use (regular_category_mor_to_im_eq HC₂).
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">apply</span> identity.
+      + <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> regular_functor_preserves_im_mor_left.
+        <span class="nb">rewrite</span> regular_functor_preserves_im_inv_left.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> regular_functor_preserves_im_inv_right.
+        <span class="nb">rewrite</span> regular_functor_preserves_im_mor_right.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_functor_preserves_im_z_iso</span>
+    : z_iso (F(regular_category_im HC₁ f)) (regular_category_im HC₂ (#F f)).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> regular_functor_preserves_im_mor.
+    - <span class="bp">exact</span> regular_functor_preserves_im_inv.
+    - <span class="bp">exact</span> regular_functor_preserves_im_z_iso_inv_eqs.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PreservesImage</span>.
+
+<span class="sd">(** * 8. Regular epis are the coequalizer of their kernel pair *)</span>
+<span class="kn">Definition</span> <span class="nf">regular_epi_coeq_kernel_pair</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : is_regular_epi f)
+  : isCoequalizer
+      (PullbackPr1 (PB _ _ _ f f))
+      (PullbackPr2 (PB _ _ _ f f))
+      f
+      (PullbackSqrCommutes _).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> Hf.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> isaprop_isCoequalizer.
+  }
+  <span class="nb">intros</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ z [ g₁ [ g₂ [ p isCoeq ]]]].
+  <span class="nb">pose</span> (Coeq := make_Coequalizer _ _ _ _ isCoeq).
+  <span class="nb">intros</span> w h q.
+  use iscontraprop1.
+  {
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use (CoequalizerOutsEq Coeq).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+  }
+  <span class="nb">pose</span> (ζ := PullbackArrow (PB _ _ _ f f) z g₁ g₂ p).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - use (CoequalizerOut Coeq w h).
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ζ · z) q @ _).
+    + <span class="nb">unfold</span> ζ.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">unfold</span> ζ.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> (CoequalizerCommutes Coeq).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/RegularAndExact/RegularEpiFacts.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Regular epis are the coequalizer of their kernel pair
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

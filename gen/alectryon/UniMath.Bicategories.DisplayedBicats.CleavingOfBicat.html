@@ -1,0 +1,1600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CleavingOfBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Cleavings of bicategories</span>
+
+<span class="sd"> In this file, we define cleaving of bicategories</span>
+
+<span class="sd"> Content:</span>
+<span class="sd"> 1. Definition of cleaving</span>
+<span class="sd"> 2. Properties of cartesian 2-cells</span>
+<span class="sd"> 3. Local opcleavings</span>
+<span class="sd"> 4. Properties of opcartesian 2-cells</span>
+<span class="sd"> 5. Local isocleavings</span>
+<span class="sd"> 6. Local isocleavings from local (op)cleavings</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.TransportLaws.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** 1. Definition of cleaving *)</span>
+
+<span class="kn">Section</span> <span class="nf">BicatCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : disp_bicat B).
+
+  <span class="kn">Section</span> <span class="nf">Cartesian1cell</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : B}
+            {<span class="nv">f</span> : a --&gt; b}
+            {<span class="nv">aa</span> : D a}
+            {<span class="nv">bb</span> : D b}
+            (<span class="nv">ff</span> : aa --&gt;[ f ] bb).
+
+    <span class="kn">Definition</span> <span class="nf">lift_1cell_factor</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> : c --&gt; a}
+               (<span class="nv">gg</span> : cc --&gt;[ h · f ] bb)
+      : UU
+      := ∑ (hh : cc --&gt;[ h ] aa),
+         disp_invertible_2cell
+           (id2_invertible_2cell _)
+           (hh ;; ff)
+           gg.
+
+    <span class="kn">Coercion</span> <span class="nf">disp_mor_lift_1cell_factor</span>
+             {c : B}
+             {cc : D c}
+             {h : c --&gt; a}
+             {gg : cc --&gt;[ h · f ] bb}
+             (Lh : lift_1cell_factor gg)
+      : cc --&gt;[ h ] aa
+      := pr1 Lh.
+
+    <span class="kn">Definition</span> <span class="nf">disp_cell_lift_1cell_factor</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[ h · f ] bb}
+               (<span class="nv">Lh</span> : lift_1cell_factor gg)
+      : disp_invertible_2cell _ (Lh ;; ff) gg
+      := pr2 Lh.
+
+    <span class="kn">Definition</span> <span class="nf">lift_2cell_factor_type</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[ h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[ h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               (<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg')
+               (<span class="nv">Lh</span> : lift_1cell_factor gg)
+               (<span class="nv">Lh'</span> : lift_1cell_factor gg')
+      : UU
+      := ∑ (δδ : Lh ==&gt;[ δ ] Lh'),
+         transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+           (id2_right _ @ ! id2_left _ )
+           (δδ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
+         =
+         disp_cell_lift_1cell_factor Lh •• σσ.
+
+    <span class="kn">Definition</span> <span class="nf">lift_2cell_factor</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               (<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg')
+               (<span class="nv">Lh</span> : lift_1cell_factor gg)
+               (<span class="nv">Lh'</span> : lift_1cell_factor gg')
+      : UU
+      := iscontr (lift_2cell_factor_type σσ Lh Lh').
+
+    <span class="kn">Coercion</span> <span class="nf">disp_cell_lift_2cell_factor</span>
+             {c : B}
+             {cc : D c}
+             {h h' : c --&gt; a}
+             {gg : cc --&gt;[h · f ] bb}
+             {gg' : cc --&gt;[h' · f ] bb}
+             {δ : h ==&gt; h'}
+             {σσ : gg ==&gt;[ δ ▹ f] gg'}
+             {Lh : lift_1cell_factor gg}
+             {Lh' : lift_1cell_factor gg'}
+             (Hσσ : lift_2cell_factor σσ Lh Lh')
+      : Lh ==&gt;[ δ ] Lh'
+      := pr11 Hσσ.
+
+    <span class="kn">Definition</span> <span class="nf">eq_lift_2cell</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               {<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg'}
+               {<span class="nv">Lh</span> : lift_1cell_factor gg}
+               {<span class="nv">Lh'</span> : lift_1cell_factor gg'}
+               (<span class="nv">Hσσ</span> : lift_2cell_factor σσ Lh Lh')
+      : transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+          (id2_right _ @ ! id2_left _ )
+          (Hσσ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
+        =
+        disp_cell_lift_1cell_factor Lh •• σσ
+      := pr21 Hσσ.
+
+    <span class="kn">Definition</span> <span class="nf">eq_lift_2cell_alt</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               {<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg'}
+               {<span class="nv">Lh</span> : lift_1cell_factor gg}
+               {<span class="nv">Lh'</span> : lift_1cell_factor gg'}
+               (<span class="nv">Hσσ</span> : lift_2cell_factor σσ Lh Lh')
+      : Hσσ ▹▹ ff •• disp_cell_lift_1cell_factor Lh'
+        =
+        transportb
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+          (id2_right _ @ ! id2_left _ )
+          (disp_cell_lift_1cell_factor Lh •• σσ).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- (eq_lift_2cell Hσσ).
+      <span class="nb">rewrite</span> transportbfinv.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">isaprop_lift_of_lift_2cell</span>
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               {<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg'}
+               {<span class="nv">Lh</span> : lift_1cell_factor gg}
+               {<span class="nv">Lh'</span> : lift_1cell_factor gg'}
+               (<span class="nv">Hσσ</span> : lift_2cell_factor σσ Lh Lh')
+               (<span class="nv">δδ₁</span> : Lh ==&gt;[ δ ] Lh')
+               (<span class="nv">δδ₂</span> : Lh ==&gt;[ δ ] Lh')
+               (<span class="nv">Pδδ₁</span> : transportf
+                         (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                         (id2_right _ @ ! id2_left _ )
+                         (δδ₁ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
+                       =
+                       disp_cell_lift_1cell_factor Lh •• σσ)
+               (<span class="nv">Pδδ₂</span> : transportf
+                         (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                         (id2_right _ @ ! id2_left _ )
+                         (δδ₂ ▹▹ ff •• disp_cell_lift_1cell_factor Lh')
+                       =
+                       disp_cell_lift_1cell_factor Lh •• σσ)
+      : δδ₁ = δδ₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (proofirrelevance _ (isapropifcontr Hσσ) (δδ₁ ,, Pδδ₁) (δδ₂ ,, Pδδ₂)) <span class="k">as</span> p.
+      <span class="bp">exact</span> (maponpaths pr1 p).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_1cell</span>
+      : UU
+      := (∏ (c : B)
+            (cc : D c)
+            (h : c --&gt; a)
+            (gg : cc --&gt;[ h · f ] bb),
+          lift_1cell_factor gg)
+         ×
+         ∏ (c : B)
+           (cc : D c)
+           (h h' : c --&gt; a)
+           (gg : cc --&gt;[h · f ] bb)
+           (gg' : cc --&gt;[h' · f ] bb)
+           (δ : h ==&gt; h')
+           (σσ : gg ==&gt;[ δ ▹ f] gg')
+           (Lh : lift_1cell_factor gg)
+           (Lh' : lift_1cell_factor gg'),
+         lift_2cell_factor σσ Lh Lh'.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_1cell_lift_1cell</span>
+               (<span class="nv">Hff</span> : cartesian_1cell)
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> : c --&gt; a}
+               (<span class="nv">gg</span> : cc --&gt;[ h · f ] bb)
+      : lift_1cell_factor gg
+      := pr1 Hff c cc h gg.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_1cell_lift_2cell</span>
+               (<span class="nv">Hff</span> : cartesian_1cell)
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               (<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg')
+               (<span class="nv">Lh</span> : lift_1cell_factor gg)
+               (<span class="nv">Lh'</span> : lift_1cell_factor gg')
+      : Lh ==&gt;[ δ ] Lh'
+      := pr2 Hff c cc h h' gg gg' δ σσ Lh Lh'.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_1cell_lift_2cell_commutes</span>
+               (<span class="nv">Hff</span> : cartesian_1cell)
+               {<span class="nv">c</span> : B}
+               {<span class="nv">cc</span> : D c}
+               {<span class="nv">h</span> <span class="nv">h'</span> : c --&gt; a}
+               {<span class="nv">gg</span> : cc --&gt;[h · f ] bb}
+               {<span class="nv">gg'</span> : cc --&gt;[h' · f ] bb}
+               {<span class="nv">δ</span> : h ==&gt; h'}
+               (<span class="nv">σσ</span> : gg ==&gt;[ δ ▹ f] gg')
+               (<span class="nv">Lh</span> : lift_1cell_factor gg)
+               (<span class="nv">Lh'</span> : lift_1cell_factor gg')
+      : transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+          (id2_right _ @ ! id2_left _ )
+          (cartesian_1cell_lift_2cell Hff σσ Lh Lh' ▹▹ ff
+           ••
+           disp_cell_lift_1cell_factor Lh')
+        =
+        disp_cell_lift_1cell_factor Lh •• σσ
+      := eq_lift_2cell (pr2 Hff c cc h h' gg gg' δ σσ Lh Lh').
+  <span class="kn">End</span> <span class="nf">Cartesian1cell</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+    : UU
+    := ∏ (h : x --&gt; y)
+         (hh : xx --&gt;[ h ] yy)
+         (γ : h ==&gt; f)
+         (ββ : hh ==&gt;[ γ • α ] gg),
+       <span class="k">∃</span>! (γγ : hh ==&gt;[ γ ] ff), (γγ •• αα) = ββ.
+
+  <span class="kn">Section</span> <span class="nf">Cartesian2Cell</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+            {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+            {<span class="nv">α</span> : f ==&gt; g}
+            {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+            (<span class="nv">Hαα</span> : is_cartesian_2cell αα).
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_factor</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : h ==&gt; f)
+               (<span class="nv">ββ</span> : hh ==&gt;[ γ • α ] gg)
+      : hh ==&gt;[ γ ] ff
+      := pr11 (Hαα h hh γ ββ).
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_comm</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : h ==&gt; f)
+               (<span class="nv">ββ</span> : hh ==&gt;[ γ • α ] gg)
+      : (is_cartesian_2cell_factor hh γ ββ •• αα) = ββ
+      := pr21 (Hαα h hh γ ββ).
+
+    <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_unique</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : h ==&gt; f)
+               (<span class="nv">ββ</span> : hh ==&gt;[ γ • α ] gg)
+               {<span class="nv">γγ₁</span> <span class="nv">γγ₂</span> : hh ==&gt;[ γ ] ff}
+               (<span class="nv">pγγ₁</span> : (γγ₁ •• αα) = ββ)
+               (<span class="nv">pγγ₂</span> : (γγ₂ •• αα) = ββ)
+      : γγ₁ = γγ₂.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (maponpaths
+               pr1
+               (proofirrelevance
+                  _
+                  (isapropifcontr (Hαα h hh γ ββ))
+                  (γγ₁ ,, pγγ₁) (γγ₂ ,, pγγ₂))).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Cartesian2Cell</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_lift_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+             (<span class="nv">α</span> : f ==&gt; g)
+    : UU
+    := ∑ (ff : xx --&gt;[ f ] yy)
+         (αα : ff ==&gt;[ α ] gg),
+       is_cartesian_2cell αα.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_cartesian_lift_2cell</span>
+           {x y : B}
+           {xx : D x}
+           {yy : D y}
+           {f g : x --&gt; y}
+           {gg : xx --&gt;[ g ] yy}
+           {α : f ==&gt; g}
+           (ℓ : cartesian_lift_2cell gg α)
+    : xx --&gt;[ f ] yy
+    := pr1 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">cell_of_cartesian_lift_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">ℓ</span> : cartesian_lift_2cell gg α)
+    : ℓ ==&gt;[ α] gg
+    := pr12 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">cell_of_cartesian_lift_2cell_is_cartesian</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">ℓ</span> : cartesian_lift_2cell gg α)
+    : is_cartesian_2cell (cell_of_cartesian_lift_2cell ℓ)
+    := pr22 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">local_cleaving</span>
+    : UU
+    := ∏ (x y : B)
+         (xx : D x) (yy : D y)
+         (f g : x --&gt; y)
+         (gg : xx --&gt;[ g ] yy)
+         (α : f ==&gt; g),
+       cartesian_lift_2cell gg α.
+
+  <span class="kn">Definition</span> <span class="nf">global_cleaving</span>
+    : UU
+    := ∏ (a b : B)
+         (bb : D b)
+         (f : a --&gt; b),
+       ∑ (aa : D a) (ff : aa --&gt;[ f ] bb), cartesian_1cell ff.
+
+  <span class="kn">Definition</span> <span class="nf">lwhisker_cartesian</span>
+    : UU
+    := ∏ (w x y : B)
+         (ww : D w) (xx : D x) (yy : D y)
+         (h : w --&gt; x)
+         (f g : x --&gt; y)
+         (hh : ww --&gt;[ h ] xx)
+         (ff : xx --&gt;[ f ] yy)
+         (gg : xx --&gt;[ g ] yy)
+         (α : f ==&gt; g)
+         (αα : ff ==&gt;[ α ] gg),
+       is_cartesian_2cell αα → is_cartesian_2cell (hh ◃◃ αα).
+
+  <span class="kn">Definition</span> <span class="nf">rwhisker_cartesian</span>
+    : UU
+    := ∏ (x y z : B)
+         (xx : D x) (yy : D y) (zz : D z)
+         (f g : x --&gt; y) (h : y --&gt; z)
+         (ff : xx --&gt;[ f ] yy)
+         (gg : xx --&gt;[ g ] yy)
+         (hh : yy --&gt;[ h ] zz)
+         (α : f ==&gt; g)
+         (αα : ff ==&gt;[ α ] gg),
+       is_cartesian_2cell αα → is_cartesian_2cell (αα ▹▹ hh).
+
+  <span class="kn">Definition</span> <span class="nf">cleaving_of_bicats</span>
+    : UU
+    := local_cleaving
+       × global_cleaving
+       × lwhisker_cartesian
+       × rwhisker_cartesian.
+<span class="kn">End</span> <span class="nf">BicatCleaving</span>.
+
+<span class="sd">(** 2. Properties of cartesian 2-cells *)</span>
+<span class="kn">Definition</span> <span class="nf">local_fib</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∏ (x y : B)
+       (xx : D x)
+       (yy : D y),
+     cleaving (disp_hom xx yy).
+
+<span class="sd">(** Being a cartesian 2-cell is a proposition *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_is_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+  : isaprop (is_cartesian_2cell D αα).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_cartesian_2cell.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The two definitions of local cleavings coincide *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_2cell_to_cartesian</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+           (<span class="nv">Hαα</span> : is_cartesian_2cell D αα)
+  : @is_cartesian _ (disp_hom xx yy) _ _ _ _ _ αα.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h γ hh γα.
+  <span class="bp">exact</span> (Hαα h hh γ γα).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_to_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+           (<span class="nv">Hαα</span> : @is_cartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+  : is_cartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h hh γ γα.
+  <span class="bp">exact</span> (Hαα h γ hh γα).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_2cell_weq_cartesian</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+  : (@is_cartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+    ≃
+    is_cartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> cartesian_to_cartesian_2cell.
+  - <span class="nb">apply</span> cartesian_2cell_to_cartesian.
+  - <span class="nb">apply</span> isaprop_is_cartesian.
+  - <span class="nb">apply</span> isaprop_is_cartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_cleaving_to_local_fib</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_cleaving D)
+  : local_fib D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y xx yy g f α gg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">pose</span> (HD x y xx yy f g gg α) <span class="k">as</span> lift.
+  <span class="nb">unfold</span> cartesian_lift.
+  <span class="nb">unfold</span> cartesian_lift_2cell <span class="k">in</span> lift.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (pr1 lift ,, pr12 lift ,, _).
+  <span class="nb">apply</span> cartesian_2cell_to_cartesian.
+  <span class="bp">exact</span> (pr22 lift).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_fib_to_local_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_fib D)
+  : local_cleaving D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y xx yy g f α gg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">pose</span> (HD x y xx yy f g gg α) <span class="k">as</span> lift.
+  <span class="nb">unfold</span> cartesian_lift <span class="k">in</span> lift.
+  <span class="nb">unfold</span> cartesian_lift_2cell.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (pr1 lift ,, pr12 lift ,, _).
+  <span class="nb">apply</span> cartesian_to_cartesian_2cell.
+  <span class="bp">exact</span> (pr22 lift).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_fib_weq_local_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : local_cleaving D ≃ local_fib D.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> local_cleaving_to_local_fib.
+  - use isweq_iso.
+    + <span class="bp">exact</span> local_fib_to_local_cleaving.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> HD ;
+         <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isaprop_is_cartesian_2cell).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> HD ;
+         <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isaprop_is_cartesian).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Properties of cartesian 2-cells *)</span>
+<span class="kn">Definition</span> <span class="nf">identity_is_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+  : is_cartesian_2cell D (disp_id2 ff).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cartesian_to_cartesian_2cell.
+  <span class="bp">exact</span> (@is_cartesian_id_disp _ (disp_hom xx yy) f ff).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">vcomp_is_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g} {<span class="nv">β</span> : g ==&gt; h}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           {<span class="nv">hh</span> : xx --&gt;[ h ] yy}
+           {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+           {<span class="nv">ββ</span> : gg ==&gt;[ β ] hh}
+           (<span class="nv">Hαα</span> : is_cartesian_2cell D αα)
+           (<span class="nv">Hββ</span> : is_cartesian_2cell D ββ)
+  : is_cartesian_2cell D (αα •• ββ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cartesian_to_cartesian_2cell.
+  <span class="bp">exact</span> (@is_cartesian_comp_disp
+           _ (disp_hom xx yy)
+           f ff
+           g gg
+           h hh
+           α β
+           αα ββ
+           (cartesian_2cell_to_cartesian _ Hαα)
+           (cartesian_2cell_to_cartesian _ Hββ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_is_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">Hα</span> : is_invertible_2cell α}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+           (<span class="nv">Hαα</span> : is_disp_invertible_2cell Hα αα)
+  : is_cartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> cartesian_to_cartesian_2cell.
+  <span class="nb">apply</span> (is_cartesian_z_iso_disp (disp_hom_disp_invertible_2cell_to_z_iso _ Hαα)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Cartesian2CellUnique</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+          {<span class="nv">α</span> : f ==&gt; g}
+          {<span class="nv">xx</span> : D x}
+          {<span class="nv">yy</span> : D y}
+          {<span class="nv">ff₁</span> <span class="nv">ff₂</span> : xx --&gt;[ f ] yy}
+          {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+          {<span class="nv">αα</span> : ff₁ ==&gt;[ α ] gg}
+          {<span class="nv">ββ</span> : ff₂ ==&gt;[ α ] gg}
+          (<span class="nv">Hαα</span> : is_cartesian_2cell D αα)
+          (<span class="nv">Hββ</span> : is_cartesian_2cell D ββ).
+
+  <span class="kn">Let</span> <span class="nf">m</span> : ff₁ ==&gt;[ id₂ f] ff₂.
+  <span class="kn">Proof</span>.
+    use (is_cartesian_2cell_factor _ Hββ).
+    <span class="bp">exact</span> (transportb
+             (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+             (id2_left _)
+             αα).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">i</span> : ff₂ ==&gt;[ id₂ f] ff₁.
+  <span class="kn">Proof</span>.
+    use (is_cartesian_2cell_factor _ Hαα).
+    <span class="bp">exact</span> (transportb
+             (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+             (id2_left _)
+             ββ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_cartesian_2cell_unique_iso_inv₁</span>
+    : m •• i
+      =
+      transportb
+        (<span class="k">λ</span> <span class="nv">z</span>, ff₁ ==&gt;[ z ] ff₁)
+        (id2_left (id₂ f))
+        (disp_id2 ff₁).
+  <span class="kn">Proof</span>.
+    use (is_cartesian_2cell_unique _ Hαα).
+    - <span class="nb">refine</span> (transportb
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                αα).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">rewrite</span> disp_vassocl.
+      <span class="nb">unfold</span> i.
+      <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">unfold</span> m.
+      <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> disp_id2_left.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_cartesian_2cell_unique_iso_inv₂</span>
+    : i •• m
+      =
+      transportb
+        (<span class="k">λ</span> <span class="nv">z</span>, ff₂ ==&gt;[ z ] ff₂)
+        (id2_left (id₂ f))
+        (disp_id2 ff₂).
+  <span class="kn">Proof</span>.
+    use (is_cartesian_2cell_unique _ Hββ).
+    - <span class="nb">refine</span> (transportb
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                ββ).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">rewrite</span> disp_vassocl.
+      <span class="nb">unfold</span> m.
+      <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">unfold</span> i.
+      <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> disp_id2_left.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_unique_iso</span>
+    : disp_invertible_2cell (id2_invertible_2cell _) ff₁ ff₂
+    := (m
+        ,, i
+        ,, is_cartesian_2cell_unique_iso_inv₁
+        ,, is_cartesian_2cell_unique_iso_inv₂).
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_2cell_unique_iso_com</span>
+    : αα
+      =
+      transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+        (id2_left _)
+        (is_cartesian_2cell_unique_iso •• ββ).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> m.
+    <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> pathsinv0l.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Cartesian2CellUnique</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_hcomp_is_cartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">CD</span> : cleaving_of_bicats D)
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : b₁ --&gt; b₂}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : b₂ --&gt; b₃}
+           {<span class="nv">α</span> : f₁ ==&gt; f₂}
+           {<span class="nv">β</span> : g₁ ==&gt; g₂}
+           {<span class="nv">bb₁</span> : D b₁}
+           {<span class="nv">bb₂</span> : D b₂}
+           {<span class="nv">bb₃</span> : D b₃}
+           {<span class="nv">ff₁</span> : bb₁ --&gt;[ f₁ ] bb₂}
+           {<span class="nv">ff₂</span> : bb₁ --&gt;[ f₂ ] bb₂}
+           {<span class="nv">gg₁</span> : bb₂ --&gt;[ g₁ ] bb₃}
+           {<span class="nv">gg₂</span> : bb₂ --&gt;[ g₂ ] bb₃}
+           {<span class="nv">αα</span> : ff₁ ==&gt;[ α ] ff₂}
+           {<span class="nv">ββ</span> : gg₁ ==&gt;[ β ] gg₂}
+           (<span class="nv">Hαα</span> : is_cartesian_2cell D αα)
+           (<span class="nv">Hββ</span> : is_cartesian_2cell D ββ)
+  : is_cartesian_2cell D (disp_hcomp αα ββ).
+<span class="kn">Proof</span>.
+  use vcomp_is_cartesian_2cell.
+  - <span class="nb">apply</span> CD.
+    <span class="bp">exact</span> Hαα.
+  - <span class="nb">apply</span> CD.
+    <span class="bp">exact</span> Hββ.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** 3. Local Opcleavings *)</span>
+<span class="kn">Section</span> <span class="nf">LocalOpcleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : disp_bicat B).
+
+  <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+    : UU
+    := ∏ (h : x --&gt; y)
+         (hh : xx --&gt;[ h ] yy)
+         (γ : g ==&gt; h)
+         (ββ : ff ==&gt;[ α • γ ] hh),
+       <span class="k">∃</span>! (γγ : gg ==&gt;[ γ ] hh), (αα •• γγ) = ββ.
+
+  <span class="kn">Section</span> <span class="nf">OpCartesian2Cell</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+            {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+            {<span class="nv">α</span> : f ==&gt; g}
+            {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+            (<span class="nv">Hαα</span> : is_opcartesian_2cell αα).
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_factor</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : g ==&gt; h)
+               (<span class="nv">ββ</span> : ff ==&gt;[ α • γ ] hh)
+      : gg ==&gt;[ γ ] hh
+      := pr11 (Hαα h hh γ ββ).
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_comm</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : g ==&gt; h)
+               (<span class="nv">ββ</span> : ff ==&gt;[ α • γ ] hh)
+      : (αα •• is_opcartesian_2cell_factor hh γ ββ) = ββ
+      := pr21 (Hαα h hh γ ββ).
+
+    <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_unique</span>
+               {<span class="nv">h</span> : x --&gt; y}
+               (<span class="nv">hh</span> : xx --&gt;[ h ] yy)
+               (<span class="nv">γ</span> : g ==&gt; h)
+               (<span class="nv">ββ</span> : ff ==&gt;[ α • γ ] hh)
+               {<span class="nv">γγ₁</span> <span class="nv">γγ₂</span> : gg ==&gt;[ γ ] hh}
+               (<span class="nv">pγγ₁</span> : (αα •• γγ₁) = ββ)
+               (<span class="nv">pγγ₂</span> : (αα •• γγ₂) = ββ)
+      : γγ₁ = γγ₂.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (maponpaths
+               pr1
+               (proofirrelevance
+                  _
+                  (isapropifcontr (Hαα h hh γ ββ))
+                  (γγ₁ ,, pγγ₁) (γγ₂ ,, pγγ₂))).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">OpCartesian2Cell</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opcartesian_lift_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+             (<span class="nv">α</span> : f ==&gt; g)
+    : UU
+    := ∑ (gg : xx --&gt;[ g ] yy) (αα : ff ==&gt;[ α ] gg), is_opcartesian_2cell αα.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_opcartesian_lift_2cell</span>
+           {x y : B}
+           {xx : D x}
+           {yy : D y}
+           {f g : x --&gt; y}
+           {ff : xx --&gt;[ f ] yy}
+           {α : f ==&gt; g}
+           (ℓ : opcartesian_lift_2cell ff α)
+    : xx --&gt;[ g ] yy
+    := pr1 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">cell_of_opcartesian_lift_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">ℓ</span> : opcartesian_lift_2cell ff α)
+    : ff ==&gt;[ α ] ℓ
+    := pr12 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">cell_of_opcartesian_lift_2cell_is_opcartesian</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">xx</span> : D x}
+             {<span class="nv">yy</span> : D y}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">ℓ</span> : opcartesian_lift_2cell ff α)
+    : is_opcartesian_2cell (cell_of_opcartesian_lift_2cell ℓ)
+    := pr22 ℓ.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcleaving</span>
+    : UU
+    := ∏ (x y : B)
+         (xx : D x) (yy : D y)
+         (f g : x --&gt; y)
+         (ff : xx --&gt;[ f ] yy)
+         (α : f ==&gt; g),
+       opcartesian_lift_2cell ff α.
+<span class="kn">End</span> <span class="nf">LocalOpcleaving</span>.
+
+<span class="sd">(** 4. Properties of opcartesian 2-cells *)</span>
+<span class="kn">Definition</span> <span class="nf">local_opfib</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∏ (x y : B)
+       (xx : D x)
+       (yy : D y),
+     opcleaving (disp_hom xx yy).
+
+<span class="sd">(** Being a cartesian 2-cell is a proposition *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_is_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+  : isaprop (is_opcartesian_2cell D αα).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** The two definitions of local cleavings coincide *)</span>
+<span class="kn">Definition</span> <span class="nf">opcartesian_2cell_to_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+           (<span class="nv">Hαα</span> : is_opcartesian_2cell D αα)
+  : @is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h γ hh γα.
+  <span class="nb">apply</span> Hαα.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcartesian_to_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+           (<span class="nv">Hαα</span> : @is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+  : is_opcartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> h hh γ γα.
+  <span class="nb">apply</span> Hαα.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcartesian_2cell_weq_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : ff ==&gt;[ α ] gg)
+  : (@is_opcartesian _ (disp_hom xx yy) _ _ _ _ _ αα)
+    ≃
+    is_opcartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> opcartesian_to_opcartesian_2cell.
+  - <span class="nb">apply</span> opcartesian_2cell_to_opcartesian.
+  - <span class="nb">apply</span> isaprop_is_opcartesian.
+  - <span class="nb">apply</span> isaprop_is_opcartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcleaving_to_local_opfib</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_opcleaving D)
+  : local_opfib D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y xx yy f g ff α ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">pose</span> (HD x y xx yy f g ff α) <span class="k">as</span> lift.
+  <span class="nb">refine</span> (pr1 lift ,, pr12 lift ,, _).
+  <span class="nb">apply</span> opcartesian_2cell_to_opcartesian.
+  <span class="bp">exact</span> (pr22 lift).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opfib_to_local_opcleaving</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_opfib D)
+  : local_opcleaving D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y xx yy f g ff α ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">pose</span> (HD x y xx yy f g ff α) <span class="k">as</span> lift.
+  <span class="nb">refine</span> (pr1 lift ,, pr12 lift ,, _).
+  <span class="nb">apply</span> opcartesian_to_opcartesian_2cell.
+  <span class="bp">exact</span> (pr22 lift).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opfib_weq_local_opcleaving</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : local_opcleaving D ≃ local_opfib D.
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> local_opcleaving_to_local_opfib.
+  - use isweq_iso.
+    + <span class="bp">exact</span> local_opfib_to_local_opcleaving.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> HD ;
+         <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isaprop_is_opcartesian_2cell).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> HD ;
+         <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         use total2_paths_f ; [ <span class="nb">apply</span> idpath | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isaprop_is_opcartesian).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_is_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+  : is_opcartesian_2cell D (disp_id2 ff).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> opcartesian_to_opcartesian_2cell.
+  <span class="bp">exact</span> (@is_opcartesian_id_disp _ (disp_hom xx yy) f ff).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">vcomp_is_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g} {<span class="nv">β</span> : g ==&gt; h}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           {<span class="nv">hh</span> : xx --&gt;[ h ] yy}
+           {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+           {<span class="nv">ββ</span> : gg ==&gt;[ β ] hh}
+           (<span class="nv">Hαα</span> : is_opcartesian_2cell D αα)
+           (<span class="nv">Hββ</span> : is_opcartesian_2cell D ββ)
+  : is_opcartesian_2cell D (αα •• ββ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> opcartesian_to_opcartesian_2cell.
+  <span class="bp">exact</span> (@is_opcartesian_comp_disp
+           _ (disp_hom xx yy)
+           f ff
+           g gg
+           h hh
+           α β
+           αα ββ
+           (opcartesian_2cell_to_opcartesian _ Hαα)
+           (opcartesian_2cell_to_opcartesian _ Hββ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_is_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">Hα</span> : is_invertible_2cell α}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           {<span class="nv">αα</span> : ff ==&gt;[ α ] gg}
+           (<span class="nv">Hαα</span> : is_disp_invertible_2cell Hα αα)
+  : is_opcartesian_2cell D αα.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> opcartesian_to_opcartesian_2cell.
+  <span class="nb">apply</span> (is_opcartesian_z_iso_disp (disp_hom_disp_invertible_2cell_to_z_iso _ Hαα)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∏ (w x y : B)
+       (ww : D w) (xx : D x) (yy : D y)
+       (h : w --&gt; x)
+       (f g : x --&gt; y)
+       (hh : ww --&gt;[ h ] xx)
+       (ff : xx --&gt;[ f ] yy)
+       (gg : xx --&gt;[ g ] yy)
+       (α : f ==&gt; g)
+       (αα : ff ==&gt;[ α ] gg),
+     is_opcartesian_2cell _ αα → is_opcartesian_2cell _ (hh ◃◃ αα).
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∏ (x y z : B)
+       (xx : D x) (yy : D y) (zz : D z)
+       (f g : x --&gt; y) (h : y --&gt; z)
+       (ff : xx --&gt;[ f ] yy)
+       (gg : xx --&gt;[ g ] yy)
+       (hh : yy --&gt;[ h ] zz)
+       (α : f ==&gt; g)
+       (αα : ff ==&gt;[ α ] gg),
+     is_opcartesian_2cell _ αα → is_opcartesian_2cell _ (αα ▹▹ hh).
+
+<span class="kn">Section</span> <span class="nf">OpCartesian2CellUnique</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+          {<span class="nv">α</span> : f ==&gt; g}
+          {<span class="nv">xx</span> : D x}
+          {<span class="nv">yy</span> : D y}
+          {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+          {<span class="nv">gg₁</span> <span class="nv">gg₂</span> : xx --&gt;[ g ] yy}
+          {<span class="nv">αα</span> : ff ==&gt;[ α ] gg₁}
+          {<span class="nv">ββ</span> : ff ==&gt;[ α ] gg₂}
+          (<span class="nv">Hαα</span> : is_opcartesian_2cell D αα)
+          (<span class="nv">Hββ</span> : is_opcartesian_2cell D ββ).
+
+  <span class="kn">Let</span> <span class="nf">m</span> : gg₁ ==&gt;[ id₂ g ] gg₂.
+  <span class="kn">Proof</span>.
+    use (is_opcartesian_2cell_factor _ Hαα).
+    <span class="bp">exact</span> (transportb
+             (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+             (id2_right _)
+             ββ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">i</span> : gg₂ ==&gt;[ id₂ g ] gg₁.
+  <span class="kn">Proof</span>.
+    use (is_opcartesian_2cell_factor _ Hββ).
+    <span class="bp">exact</span> (transportb
+             (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+             (id2_right _)
+             αα).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_opcartesian_2cell_unique_iso_inv₁</span>
+    : i •• m
+      =
+      transportb
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+        (id2_left _)
+        (disp_id2 _).
+  <span class="kn">Proof</span>.
+    use (is_opcartesian_2cell_unique _ Hββ).
+    - <span class="nb">refine</span> (transportb
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                ββ).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id2_right ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">unfold</span> i, m.
+      <span class="nb">rewrite</span> disp_vassocr.
+      <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> disp_id2_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_opcartesian_2cell_unique_iso_inv₂</span>
+    : m •• i
+      =
+      transportb
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+        (id2_left _)
+        (disp_id2 gg₁).
+  <span class="kn">Proof</span>.
+    use (is_opcartesian_2cell_unique _ Hαα).
+    - <span class="nb">refine</span> (transportb
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                αα).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id2_right ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">unfold</span> i, m.
+      <span class="nb">rewrite</span> disp_vassocr.
+      <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> disp_id2_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_unique_iso</span>
+    : disp_invertible_2cell (id2_invertible_2cell _) gg₂ gg₁
+    := (i
+        ,, m
+        ,, is_opcartesian_2cell_unique_iso_inv₁
+        ,, is_opcartesian_2cell_unique_iso_inv₂).
+
+  <span class="kn">Definition</span> <span class="nf">is_opcartesian_2cell_unique_iso_com</span>
+    : αα
+      =
+      transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+        (id2_right _)
+        (ββ •• is_opcartesian_2cell_unique_iso).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> i.
+    <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> pathsinv0l.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">OpCartesian2CellUnique</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_hcomp_is_opcartesian_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD_l</span> : lwhisker_opcartesian D)
+           (<span class="nv">HD_r</span> : rwhisker_opcartesian D)
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : b₁ --&gt; b₂}
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : b₂ --&gt; b₃}
+           {<span class="nv">α</span> : f₁ ==&gt; f₂}
+           {<span class="nv">β</span> : g₁ ==&gt; g₂}
+           {<span class="nv">bb₁</span> : D b₁}
+           {<span class="nv">bb₂</span> : D b₂}
+           {<span class="nv">bb₃</span> : D b₃}
+           {<span class="nv">ff₁</span> : bb₁ --&gt;[ f₁ ] bb₂}
+           {<span class="nv">ff₂</span> : bb₁ --&gt;[ f₂ ] bb₂}
+           {<span class="nv">gg₁</span> : bb₂ --&gt;[ g₁ ] bb₃}
+           {<span class="nv">gg₂</span> : bb₂ --&gt;[ g₂ ] bb₃}
+           {<span class="nv">αα</span> : ff₁ ==&gt;[ α ] ff₂}
+           {<span class="nv">ββ</span> : gg₁ ==&gt;[ β ] gg₂}
+           (<span class="nv">Hαα</span> : is_opcartesian_2cell D αα)
+           (<span class="nv">Hββ</span> : is_opcartesian_2cell D ββ)
+  : is_opcartesian_2cell D (disp_hcomp αα ββ).
+<span class="kn">Proof</span>.
+  use vcomp_is_opcartesian_2cell.
+  - <span class="nb">apply</span> HD_r.
+    <span class="bp">exact</span> Hαα.
+  - <span class="nb">apply</span> HD_l.
+    <span class="bp">exact</span> Hββ.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Local isocleavings</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LocalIsoCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">local_iso_cleaving</span> (<span class="nv">D</span> : disp_prebicat C)
+    : UU
+    := ∏ (c c' : C) (f f' : C⟦c,c'⟧)
+         (d : D c) (d' : D c')
+         (ff' : d --&gt;[f'] d')
+         (α : invertible_2cell f f'),
+       ∑ ff : d --&gt;[f] d', disp_invertible_2cell α ff ff'.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">D</span> : disp_prebicat C} (<span class="nv">lic</span> : local_iso_cleaving D)
+            {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : C⟦c,c'⟧}
+            {<span class="nv">d</span> : D c} {<span class="nv">d'</span> : D c'}
+            (<span class="nv">ff'</span> : d --&gt;[f'] d')
+            (<span class="nv">α</span> : invertible_2cell f f').
+
+    <span class="kn">Definition</span> <span class="nf">local_iso_cleaving_1cell</span>
+      : d --&gt;[f] d'
+      := pr1 (lic c c' f f' d d' ff' α).
+
+    <span class="kn">Definition</span> <span class="nf">disp_local_iso_cleaving_invertible_2cell</span>
+      : disp_invertible_2cell α local_iso_cleaving_1cell ff'
+      := pr2 (lic c c' f f' d d' ff' α).
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+<span class="kn">End</span> <span class="nf">LocalIsoCleaving</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_1_to_local_iso_cleaving_help</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">D</span> : disp_prebicat C}
+           {<span class="nv">c</span> <span class="nv">c'</span> : C}
+           {<span class="nv">f</span> <span class="nv">f'</span> : C⟦c,c'⟧}
+           {<span class="nv">d</span> : D c} {<span class="nv">d'</span> : D c'}
+           (<span class="nv">ff'</span> : d --&gt;[f'] d')
+           (<span class="nv">α</span> : f  = f')
+  : ∑ ff : d --&gt;[f] d', disp_invertible_2cell (idtoiso_2_1 _ _ α) ff ff'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> α.
+  <span class="nb">refine</span> (ff' ,, _).
+  <span class="nb">apply</span> disp_id2_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_2_1_to_local_iso_cleaving</span>
+           {<span class="nv">C</span> : bicat}
+           (<span class="nv">HC</span> : is_univalent_2_1 C)
+           (<span class="nv">D</span> : disp_prebicat C)
+  : local_iso_cleaving D.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f g xx yy gg α.
+  <span class="nb">pose</span> (univalent_2_1_to_local_iso_cleaving_help gg (isotoid_2_1 HC α)) <span class="k">as</span> t.
+  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 <span class="k">in</span> t.
+  <span class="bp">exact</span> t.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Local isocleavings from local (op)cleavings</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LocalCleavingToLocalIsoCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">HD</span> : local_cleaving D)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+          {<span class="nv">xx</span> : D x}
+          {<span class="nv">yy</span> : D y}
+          (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+          (<span class="nv">α</span> : invertible_2cell f g).
+
+  <span class="kn">Definition</span> <span class="nf">local_cleaving_to_local_iso_cleaving_lift</span>
+    : xx --&gt;[ f ] yy
+    := HD x y xx yy f g gg α.
+
+  <span class="kn">Let</span> <span class="nf">ff</span> : xx --&gt;[ f ] yy
+    := local_cleaving_to_local_iso_cleaving_lift.
+
+  <span class="kn">Let</span> <span class="nf">γ</span> : ff ==&gt;[ α ] gg
+    := cell_of_cartesian_lift_2cell _ (HD x y xx yy f g gg α).
+
+  <span class="kn">Let</span> <span class="nf">Hγ</span> : is_cartesian_2cell _ γ
+    := cell_of_cartesian_lift_2cell_is_cartesian _ (HD x y xx yy f g gg α).
+
+  <span class="kn">Definition</span> <span class="nf">local_cleaving_to_local_iso_cleaving_disp_inv</span>
+    : gg ==&gt;[ α^-<span class="mi">1</span> ] ff.
+  <span class="kn">Proof</span>.
+    use (is_cartesian_2cell_factor _ Hγ).
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+              _
+              (disp_id2 _)).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> vcomp_linv ;
+       <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">δ</span> : gg ==&gt;[ α^-<span class="mi">1</span> ] ff
+    := local_cleaving_to_local_iso_cleaving_disp_inv.
+
+  <span class="kn">Lemma</span> <span class="nf">local_cleaving_to_local_iso_cleaving_disp_left_inv</span>
+    : γ •• δ
+      =
+      transportb (<span class="k">λ</span> <span class="nv">z</span>, ff ==&gt;[ z ] ff) (vcomp_rinv α) (disp_id2 ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> δ, local_cleaving_to_local_iso_cleaving_disp_inv.
+    use (is_cartesian_2cell_unique _ Hγ).
+    - <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                γ).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> vcomp_rinv ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">rewrite</span> disp_vassocl.
+      <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> disp_id2_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> disp_id2_left.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">local_cleaving_to_local_iso_cleaving_disp_right_inv</span>
+    : δ •• γ
+      =
+      transportb (<span class="k">λ</span> <span class="nv">z</span>, gg ==&gt;[ z ] gg) (vcomp_linv α) (disp_id2 gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> δ, local_cleaving_to_local_iso_cleaving_disp_inv.
+    <span class="nb">rewrite</span> is_cartesian_2cell_comm.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_cleaving_to_local_iso_cleaving_disp_iso</span>
+    : disp_invertible_2cell α ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> γ.
+    - <span class="nb">refine</span> (δ ,, _ ,, _).
+      * <span class="bp">exact</span> local_cleaving_to_local_iso_cleaving_disp_left_inv.
+      * <span class="bp">exact</span> local_cleaving_to_local_iso_cleaving_disp_right_inv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LocalCleavingToLocalIsoCleaving</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_cleaving_to_local_iso_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_cleaving D)
+  : local_iso_cleaving D
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">gg</span> <span class="nv">α</span>,
+     local_cleaving_to_local_iso_cleaving_lift HD gg α
+     ,,
+     local_cleaving_to_local_iso_cleaving_disp_iso HD gg α.
+
+<span class="kn">Section</span> <span class="nf">LocalOpCleavingToLocalIsoCleaving</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">HD</span> : local_opcleaving D)
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+          {<span class="nv">xx</span> : D x}
+          {<span class="nv">yy</span> : D y}
+          (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+          (<span class="nv">α</span> : invertible_2cell f g).
+
+  <span class="kn">Definition</span> <span class="nf">local_opcleaving_to_local_iso_cleaving_lift</span>
+    : xx --&gt;[ f ] yy
+    := HD x y xx yy g f gg α^-<span class="mi">1</span>.
+
+  <span class="kn">Let</span> <span class="nf">ff</span> : xx --&gt;[ f ] yy
+    := local_opcleaving_to_local_iso_cleaving_lift.
+
+  <span class="kn">Let</span> <span class="nf">γ</span> : gg ==&gt;[ α^-<span class="mi">1</span> ] ff
+    := cell_of_opcartesian_lift_2cell _ (HD x y xx yy g f gg α^-<span class="mi">1</span>).
+
+  <span class="kn">Let</span> <span class="nf">Hγ</span> : is_opcartesian_2cell _ γ
+    := cell_of_opcartesian_lift_2cell_is_opcartesian _ (HD x y xx yy g f gg α^-<span class="mi">1</span>).
+
+  <span class="kn">Definition</span> <span class="nf">local_opcleaving_to_local_iso_cleaving_disp_iso_cell</span>
+    : ff ==&gt;[ α ] gg.
+  <span class="kn">Proof</span>.
+    use (is_opcartesian_2cell_factor
+           _
+           Hγ).
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+              _
+              (disp_id2 _)).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> vcomp_linv ;
+       <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">δ</span> : ff ==&gt;[ α ] gg
+    := local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+
+  <span class="kn">Lemma</span> <span class="nf">local_opcleaving_to_local_iso_cleaving_left_inv</span>
+    : δ •• γ
+      =
+      transportb (<span class="k">λ</span> <span class="nv">z</span>, ff ==&gt;[ z ] ff) (vcomp_rinv α) (disp_id2 ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> δ, local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+    use (is_opcartesian_2cell_unique _ Hγ).
+    - <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                γ).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> vcomp_rinv ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">rewrite</span> disp_vassocr.
+      <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+      <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+      <span class="nb">rewrite</span> disp_id2_left.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+      <span class="nb">rewrite</span> disp_id2_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">local_opcleaving_to_local_iso_cleaving_right_inv</span>
+    : γ •• δ
+      =
+      transportb (<span class="k">λ</span> <span class="nv">z</span>, gg ==&gt;[ z ] gg) (vcomp_linv α) (disp_id2 gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> δ, local_opcleaving_to_local_iso_cleaving_disp_iso_cell.
+    <span class="nb">rewrite</span> is_opcartesian_2cell_comm.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcleaving_to_local_iso_cleaving_disp_iso</span>
+    : disp_invertible_2cell α ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> δ.
+    - <span class="nb">refine</span> (γ ,, _ ,, _).
+      + <span class="bp">exact</span> local_opcleaving_to_local_iso_cleaving_left_inv.
+      + <span class="bp">exact</span> local_opcleaving_to_local_iso_cleaving_right_inv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LocalOpCleavingToLocalIsoCleaving</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcleaving_to_local_iso_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : local_opcleaving D)
+  : local_iso_cleaving D
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">gg</span> <span class="nv">α</span>,
+     local_opcleaving_to_local_iso_cleaving_lift HD gg α
+     ,,
+     local_opcleaving_to_local_iso_cleaving_disp_iso HD gg α.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/CleavingOfBicat.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Local isocleavings from local (op)cleavings
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodomainFiber.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************</span>
+<span class="sd"> Fibers of the arrow bicategory</span>
+
+<span class="sd"> In this file, we calculate the fibers of the arrow bicategory</span>
+
+<span class="sd"> 1. To the fiber</span>
+<span class="sd"> 2. From the fiber</span>
+<span class="sd"> 3. The unit</span>
+<span class="sd"> 4. The counit</span>
+<span class="sd"> 5. The modifications</span>
+<span class="sd"> 6. The biequivalence</span>
+
+<span class="sd"> *******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Slice.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Section</span> <span class="nf">FiberOfCodomain</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">b</span> : B).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Calculation of operations in fiber</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             {<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">β</span> : g ==&gt; h)
+    : pr1 (α • β) = pr1 α • pr1 β.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_cell_of_cod_over.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : x --&gt; y)
+    : pr1 (lunitor f) = lunitor (pr1 f).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">linvunitor_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : x --&gt; y)
+    : pr1 (linvunitor f) = linvunitor (pr1 f).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">apply</span> id2_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">runitor_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : x --&gt; y)
+    : pr1 (runitor f) = runitor (pr1 f).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rinvunitor_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : x --&gt; y)
+    : pr1 (rinvunitor f) = rinvunitor (pr1 f).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">apply</span> id2_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lassociator_cod_fiber</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : w --&gt; x)
+             (<span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">h</span> : y --&gt; z)
+    : pr1 (lassociator f g h) = lassociator (pr1 f) (pr1 g) (pr1 h).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker, !id2_left, !id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rassociator_cod_fiber</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : w --&gt; x)
+             (<span class="nv">g</span> : x --&gt; y)
+             (<span class="nv">h</span> : y --&gt; z)
+    : pr1 (rassociator f g h) = rassociator (pr1 f) (pr1 g) (pr1 h).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker, !id2_left, !id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lwhisker_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             (<span class="nv">f</span> : x --&gt; y)
+             {<span class="nv">g</span> <span class="nv">h</span> : y --&gt; z}
+             (<span class="nv">α</span> : g ==&gt; h)
+    : pr1 (f ◃ α) = _ ◃ pr1 α.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">rwhisker_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> : f ==&gt; g)
+             (<span class="nv">h</span> : y --&gt; z)
+    : pr1 (α ▹ h) = pr1 α ▹ _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_cell_of_cod_over.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">path_2cell_cod_fiber</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat (cod_disp_bicat B) (cod_local_iso_cleaving B) b}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g)
+             (<span class="nv">p</span> : pr1 α = pr1 β)
+    : α = β.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> cellset_property.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. To the fiber</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_data</span>
+    : psfunctor_data
+        (slice_bicat b)
+        (strict_fiber_bicat
+           (cod_disp_bicat B)
+           (cod_local_iso_cleaving B)
+           b).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">g</span>,
+             pr1 g
+             ,,
+             comp_of_invertible_2cell
+               (runitor_invertible_2cell _)
+               (pr2 g)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">β</span>, pr1 β ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (pr2 β)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a</span>, id2 _ ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_rwhisker, id2_right ;
+         <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">a₃</span> <span class="nv">g₁</span> <span class="nv">g₂</span>, id2 _ ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+         <span class="nb">rewrite</span> id2_rwhisker, id2_right ;
+         <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp, &lt;- !rwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> &lt;- lunitor_lwhisker ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+         <span class="nb">rewrite</span> lassociator_rassociator ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lwhisker_vcomp ;
+         <span class="nb">rewrite</span> linvunitor_lunitor ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> runitor_triangle ;
+         <span class="nb">rewrite</span> vcomp_runitor ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_laws</span>
+    : psfunctor_laws to_fiber_cod_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _) ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use path_2cell_cod_fiber.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> comp_cod_fiber.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> lunitor_cod_fiber.
+      <span class="nb">rewrite</span> rwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> runitor_cod_fiber.
+      <span class="nb">rewrite</span> lwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> lwhisker_cod_fiber, rwhisker_cod_fiber.
+      <span class="nb">rewrite</span> lassociator_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker.
+      <span class="nb">rewrite</span> !id2_left, !id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> lwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> rwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod</span>
+    : psfunctor
+        (slice_bicat b)
+        (strict_fiber_bicat
+           (cod_disp_bicat B)
+           (cod_local_iso_cleaving B)
+           b).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> to_fiber_cod_data.
+    - <span class="bp">exact</span> to_fiber_cod_laws.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span>.
+        use strict_fiber_bicat_invertible_2cell.
+        use is_disp_invertible_2cell_cod ; <span class="nb">cbn</span>.
+        is_iso.
+      + <span class="nb">intros</span>.
+        use strict_fiber_bicat_invertible_2cell.
+        use is_disp_invertible_2cell_cod ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. From the fiber</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_fiber_cod_data</span>
+    : psfunctor_data
+        (strict_fiber_bicat
+           (cod_disp_bicat B)
+           (cod_local_iso_cleaving B)
+           b)
+        (slice_bicat b).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">g</span>,
+             pr1 g
+             ,,
+             comp_of_invertible_2cell
+               (rinvunitor_invertible_2cell _)
+               (pr2 g)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">β</span>, pr1 β ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (pr2 β) @ _) ;
+         <span class="nb">rewrite</span> lwhisker_id2 ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a</span>, id2 _ ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_rwhisker ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> rinvunitor_runitor ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">a₃</span> <span class="nv">g₁</span> <span class="nv">g₂</span>, id2 _ ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_rwhisker ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_vcomp ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> !lwhisker_hcomp ;
+         <span class="nb">rewrite</span> triangle_r_inv ;
+         <span class="nb">rewrite</span> &lt;- rwhisker_hcomp, &lt;- lwhisker_hcomp ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+         <span class="nb">rewrite</span> rassociator_lassociator ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">rewrite</span> left_unit_inv_assoc ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> rinvunitor_natural ;
+         <span class="nb">rewrite</span> &lt;- rwhisker_hcomp ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">refine</span> (_ @ id2_right _) ;
+         use vcomp_move_L_pM ; [ is_iso | ] ;
+         <span class="nb">cbn</span> ;
+         use vcomp_move_R_Mp ; [ is_iso | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">rewrite</span> &lt;- runitor_triangle ;
+         <span class="nb">rewrite</span> runitor_lunitor_identity ;
+         <span class="nb">rewrite</span> lunitor_lwhisker ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_fiber_cod_laws</span>
+    : psfunctor_laws from_fiber_cod_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ;
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+    use eq_2cell_slice.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[vcomp2].
+      <span class="nb">rewrite</span> comp_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[lunitor].
+      <span class="nb">rewrite</span> lunitor_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[runitor].
+      <span class="nb">rewrite</span> runitor_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[lassociator].
+      <span class="nb">rewrite</span> lassociator_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, !id2_left, !id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[lwhisker].
+      <span class="nb">rewrite</span> lwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span> -[rwhisker].
+      <span class="nb">rewrite</span> rwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_fiber_cod</span>
+    : psfunctor
+        (strict_fiber_bicat
+           (cod_disp_bicat B)
+           (cod_local_iso_cleaving B)
+           b)
+        (slice_bicat b).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> from_fiber_cod_data.
+    - <span class="bp">exact</span> from_fiber_cod_laws.
+    - <span class="nb">split</span> ; <span class="nb">intros</span>.
+      + use is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+        is_iso.
+      + use is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The unit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit_data</span>
+    : pstrans_data
+        (id_psfunctor _)
+        (comp_psfunctor from_fiber_cod to_fiber_cod).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, id₁ _ ,, linvunitor_invertible_2cell _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">g</span>, _).
+      use make_invertible_2cell.
+      + <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rinvunitor_runitor ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> lwhisker_hcomp ;
+             <span class="nb">rewrite</span> &lt;- linvunitor_natural ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> linvunitor_assoc ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocr ;
+             use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> runitor_rwhisker ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit_is_pstrans</span>
+    : is_pstrans to_fiber_cod_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f g α.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">rewrite</span> lunitor_runitor_identity, runitor_rinvunitor.
+      <span class="nb">rewrite</span> runitor_lunitor_identity, lunitor_linvunitor.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> lwhisker_id2, id2_rwhisker.
+      <span class="nb">rewrite</span> id2_left, id2_right.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- runitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • (_ • (_ • z)))) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit</span>
+    : pstrans
+        (id_psfunctor _)
+        (comp_psfunctor from_fiber_cod to_fiber_cod).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> to_fiber_cod_unit_data.
+    - <span class="bp">exact</span> to_fiber_cod_unit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit_inv_data</span>
+    : pstrans_data
+        (comp_psfunctor from_fiber_cod to_fiber_cod)
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, id₁ _ ,, linvunitor_invertible_2cell _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, _).
+      use make_invertible_2cell.
+      + <span class="nb">cbn</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rinvunitor_runitor ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> lwhisker_hcomp ;
+             <span class="nb">rewrite</span> &lt;- linvunitor_natural ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> linvunitor_assoc ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocr ;
+             use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> runitor_rwhisker ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit_inv_is_pstrans</span>
+    : is_pstrans to_fiber_cod_unit_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f g α.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> runitor_lunitor_identity, lunitor_linvunitor.
+      <span class="nb">rewrite</span> lunitor_runitor_identity, runitor_rinvunitor.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      use eq_2cell_slice.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      use vcomp_move_R_Mp ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (!(id2_right _) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- runitor_triangle.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • (_ • z))) (vassocr _ _ _)).
+      <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_right.
+      use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_unit_inv</span>
+    : pstrans
+        (comp_psfunctor from_fiber_cod to_fiber_cod)
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> to_fiber_cod_unit_inv_data.
+    - <span class="bp">exact</span> to_fiber_cod_unit_inv_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. The counit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit_data</span>
+    : pstrans_data
+        (comp_psfunctor to_fiber_cod from_fiber_cod)
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">f</span>, id₁ _ ,, _).
+      <span class="bp">exact</span> (comp_of_invertible_2cell
+               (runitor_invertible_2cell _)
+               (linvunitor_invertible_2cell _)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, _).
+      use make_invertible_2cell.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+             <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">refine</span> (!_) ;
+             etrans ;
+             [ <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths ;
+               <span class="nb">rewrite</span> lwhisker_hcomp ;
+               <span class="nb">apply</span> triangle_l_inv
+             | ] ;
+             <span class="nb">rewrite</span> &lt;- rwhisker_hcomp ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> lunitor_triangle ;
+             <span class="nb">rewrite</span> runitor_triangle ;
+             <span class="nb">rewrite</span> vcomp_lunitor ;
+             <span class="nb">rewrite</span> vcomp_runitor ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> &lt;- lunitor_triangle ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> &lt;- runitor_triangle ;
+             <span class="nb">rewrite</span> runitor_lunitor_identity ;
+             <span class="nb">apply</span> lunitor_lwhisker).
+      + <span class="nb">apply</span> strict_fiber_bicat_invertible_2cell.
+        use is_disp_invertible_2cell_cod.
+        <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit_is_pstrans</span>
+    : is_pstrans to_fiber_cod_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> x y f g α.
+      use path_2cell_cod_fiber.
+      <span class="nb">rewrite</span> !comp_cod_fiber.
+      <span class="nb">rewrite</span> lwhisker_cod_fiber.
+      <span class="nb">rewrite</span> rwhisker_cod_fiber.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> vcomp_lunitor.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rinvunitor_natural.
+      <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x.
+      use path_2cell_cod_fiber.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lwhisker_cod_fiber.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> runitor_cod_fiber.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> linvunitor_cod_fiber.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> rwhisker_cod_fiber.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> comp_cod_fiber.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> lunitor_runitor_identity, runitor_rinvunitor.
+      <span class="nb">rewrite</span> runitor_lunitor_identity, lunitor_linvunitor.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="kn">Opaque</span> comp_psfunctor.
+      use path_2cell_cod_fiber.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (lwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, (z • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((z • _) • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, (((z • _) • _) • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((z • _) • _) • _) • _) • _) (lassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • z) • _) • _) • _) • _) (rwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • z) • _) • _) • _) (rassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • z) • _) • _) (lwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • _) • z) • _) (lassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • _) • _) • z) (rwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • _) • _) • (z ▹ _)) (comp_cod_fiber _ _) @ _).
+      <span class="kn">Transparent</span> comp_psfunctor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">rewrite</span> id2_rwhisker, id2_right.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- lunitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> left_unit_inv_assoc₂.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ id2_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+      <span class="kn">Opaque</span> comp_psfunctor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit</span>
+    : pstrans
+        (comp_psfunctor to_fiber_cod from_fiber_cod)
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> to_fiber_cod_counit_data.
+    - <span class="bp">exact</span> to_fiber_cod_counit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit_inv_data</span>
+    : pstrans_data
+        (id_psfunctor _)
+        (comp_psfunctor to_fiber_cod from_fiber_cod).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, id₁ _ ,, _).
+      <span class="bp">exact</span> (comp_of_invertible_2cell
+               (runitor_invertible_2cell _)
+               (linvunitor_invertible_2cell _)).
+    - <span class="nb">intros</span> x y f.
+      use make_invertible_2cell.
+      + <span class="nb">simple refine</span> (_ ,, _).
+        * <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (lunitor _ • rinvunitor _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+             <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> runitor_rinvunitor ;
+             <span class="nb">rewrite</span> id2_left ;
+             use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> runitor_rwhisker ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> runitor_triangle ;
+             <span class="nb">rewrite</span> lunitor_triangle ;
+             <span class="nb">rewrite</span> vcomp_lunitor ;
+             <span class="nb">rewrite</span> vcomp_runitor ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> &lt;- lunitor_triangle ;
+             <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> linvunitor_lunitor ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> &lt;- runitor_triangle ;
+             <span class="nb">rewrite</span> runitor_lunitor_identity ;
+             <span class="nb">rewrite</span> lunitor_lwhisker ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> strict_fiber_bicat_invertible_2cell.
+        use is_disp_invertible_2cell_cod.
+        <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> strict_fiber_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit_inv_is_pstrans</span>
+    : is_pstrans to_fiber_cod_counit_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f g  α.
+      use path_2cell_cod_fiber.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lwhisker_cod_fiber.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_cod_fiber.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_lunitor.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _ @ vassocr _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> rinvunitor_natural.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> rwhisker_hcomp.
+    - <span class="nb">intros</span> x.
+      use path_2cell_cod_fiber.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> lwhisker_cod_fiber.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cod_fiber
+                 (psfunctor_id to_fiber_cod x)
+                 (##to_fiber_cod (psfunctor_id from_fiber_cod x))).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> runitor_cod_fiber.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> linvunitor_cod_fiber.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_cod_fiber.
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id2_rwhisker.
+      }
+      <span class="nb">refine</span> (id2_right _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> id2_left.
+        }
+        <span class="nb">apply</span> lwhisker_id2.
+      }
+      <span class="nb">refine</span> (id2_left _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lunitor_runitor_identity.
+      }
+      <span class="nb">refine</span> (runitor_rinvunitor _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> runitor_lunitor_identity.
+      }
+      <span class="nb">apply</span> lunitor_linvunitor.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="kn">Opaque</span> comp_psfunctor.
+      use path_2cell_cod_fiber.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (lwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, (z • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((z • _) • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, (((z • _) • _) • _) • _) (comp_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((z • _) • _) • _) • _) • _) (lassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • z) • _) • _) • _) • _) (rwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • z) • _) • _) • _) (rassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • z) • _) • _) (lwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • _) • z) • _) (lassociator_cod_fiber _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, ((((_ • _) • _) • _) • _) • z) (rwhisker_cod_fiber _ _) @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cod_fiber
+                 (psfunctor_comp
+                    to_fiber_cod
+                    (# from_fiber_cod f)
+                    (# from_fiber_cod g))
+                 (## to_fiber_cod (psfunctor_comp from_fiber_cod f g))).
+      }
+      <span class="kn">Transparent</span> comp_psfunctor.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> id2_left.
+        }
+        <span class="nb">apply</span> lwhisker_id2.
+      }
+      <span class="nb">refine</span> (id2_left _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id2_rwhisker.
+      }
+      <span class="nb">refine</span> (id2_right _ @ _).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> rwhisker_vcomp.
+        }
+        <span class="nb">refine</span> (vassocr  _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lunitor_triangle.
+      }
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> lwhisker_vcomp.
+        }
+        <span class="nb">refine</span> (vassocl _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> left_unit_inv_assoc.
+        }
+        <span class="nb">refine</span> (vassocl _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> rassociator_lassociator.
+        }
+        <span class="nb">apply</span> id2_right.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lunitor_lwhisker.
+      }
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> rinvunitor_runitor.
+        }
+        <span class="nb">apply</span> id2_rwhisker.
+      }
+      <span class="nb">apply</span> id2_left.
+      <span class="kn">Opaque</span> comp_psfunctor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> strict_fiber_bicat comp_psfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_counit_inv</span>
+    : pstrans
+        (id_psfunctor _)
+        (comp_psfunctor to_fiber_cod from_fiber_cod).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> to_fiber_cod_counit_inv_data.
+    - <span class="bp">exact</span> to_fiber_cod_counit_inv_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. The modifications</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_left_data</span>
+    : invertible_modification_data
+        (id_pstrans _)
+        (comp_pstrans to_fiber_cod_unit_inv to_fiber_cod_unit).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use make_invertible_2cell.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (linvunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> lunitor_runitor_identity ;
+           <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp ;
+           <span class="nb">apply</span> triangle_r).
+    - <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_left_is_modification</span>
+    : is_modification cod_unit_inv_left_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use eq_2cell_slice.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_runitor.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> runitor_lunitor_identity.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> linvunitor_lunitor.
+    <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_left</span>
+    : invertible_modification
+        (id_pstrans _)
+        (comp_pstrans to_fiber_cod_unit_inv to_fiber_cod_unit).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="bp">exact</span> cod_unit_inv_left_data.
+    - <span class="bp">exact</span> cod_unit_inv_left_is_modification.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_right_data</span>
+    : invertible_modification_data
+        (comp_pstrans to_fiber_cod_unit to_fiber_cod_unit_inv)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use make_invertible_2cell.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (lunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (_ @ id2_right _) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">rewrite</span> lunitor_runitor_identity ;
+           <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> triangle_r).
+    - <span class="nb">apply</span> is_invertible_2cell_in_slice_bicat.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_right_is_modification</span>
+    : is_modification cod_unit_inv_right_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use eq_2cell_slice.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> lunitor_lwhisker.
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> rinvunitor_runitor.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lunitor_triangle.
+    <span class="nb">rewrite</span> lwhisker_vcomp.
+    <span class="nb">rewrite</span> vcomp_lunitor.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_unit_inv_right</span>
+    : invertible_modification
+        (comp_pstrans to_fiber_cod_unit to_fiber_cod_unit_inv)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="bp">exact</span> cod_unit_inv_right_data.
+    - <span class="bp">exact</span> cod_unit_inv_right_is_modification.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_right_data</span>
+    : invertible_modification_data
+        (id_pstrans _)
+        (comp_pstrans to_fiber_cod_counit to_fiber_cod_counit_inv).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use make_invertible_2cell.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (linvunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> lunitor_runitor_identity ;
+           <span class="nb">rewrite</span> runitor_rwhisker ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> &lt;- lunitor_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> runitor_triangle ;
+           <span class="nb">rewrite</span> vcomp_runitor ;
+           <span class="nb">apply</span> idpath).
+    - use strict_fiber_bicat_invertible_2cell.
+      use is_disp_invertible_2cell_cod.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> comp_psfunctor strict_fiber_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_right_is_modification</span>
+    : is_modification cod_counit_inv_right_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use path_2cell_cod_fiber.
+    <span class="nb">refine</span> (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lwhisker_cod_fiber.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> comp_cod_fiber.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lunitor_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rinvunitor_cod_fiber.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rwhisker_cod_fiber.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rassociator_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lassociator_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lwhisker_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rassociator_cod_fiber.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lunitor_lwhisker.
+    }
+    etrans.
+    {
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> rwhisker_vcomp.
+        }
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> runitor_lunitor_identity.
+        }
+        <span class="nb">apply</span> linvunitor_lunitor.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> id2_rwhisker.
+      }
+      <span class="nb">apply</span> id2_left.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> vcomp_lunitor.
+      }
+      <span class="nb">apply</span> vassocl.
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (_ @ vassocr _ _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> rwhisker_vcomp.
+      }
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lunitor_triangle.
+    }
+    <span class="nb">refine</span> (vassocl _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    use vcomp_move_R_pM ; [ is_iso | ].
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    <span class="nb">apply</span> lunitor_lwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> comp_psfunctor strict_fiber_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_right</span>
+    : invertible_modification
+        (id_pstrans _)
+        (comp_pstrans to_fiber_cod_counit to_fiber_cod_counit_inv).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="bp">exact</span> cod_counit_inv_right_data.
+    - <span class="bp">exact</span> cod_counit_inv_right_is_modification.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_left_data</span>
+    : invertible_modification_data
+        (comp_pstrans to_fiber_cod_counit_inv to_fiber_cod_counit)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    use make_invertible_2cell.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (lunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> lunitor_runitor_identity ;
+           <span class="nb">rewrite</span> runitor_rwhisker ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> &lt;- lunitor_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> runitor_triangle ;
+           <span class="nb">rewrite</span> vcomp_runitor ;
+           <span class="nb">apply</span> idpath).
+    - use strict_fiber_bicat_invertible_2cell.
+      use is_disp_invertible_2cell_cod.
+      <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> comp_psfunctor strict_fiber_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_left_is_modification</span>
+    : is_modification cod_counit_inv_left_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use path_2cell_cod_fiber.
+    <span class="nb">refine</span> (comp_cod_fiber _ _ @ _ @ !(comp_cod_fiber _ _)).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rwhisker_cod_fiber.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lunitor_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rinvunitor_cod_fiber.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lwhisker_cod_fiber.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rassociator_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lassociator_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (comp_cod_fiber _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lwhisker_cod_fiber.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> rassociator_cod_fiber.
+    }
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> lwhisker_vcomp.
+      }
+      <span class="nb">refine</span> (vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> lunitor_lwhisker.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> runitor_lunitor_identity.
+    }
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">refine</span> (vassocl _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lunitor_lwhisker.
+      }
+      <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rinvunitor_runitor.
+      }
+      <span class="nb">apply</span> id2_right.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitor_triangle.
+    }
+    <span class="nb">apply</span> vcomp_lunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> comp_psfunctor strict_fiber_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">cod_counit_inv_left</span>
+    : invertible_modification
+        (comp_pstrans to_fiber_cod_counit_inv to_fiber_cod_counit)
+        (id_pstrans _).
+  <span class="kn">Proof</span>.
+    use make_invertible_modification.
+    - <span class="bp">exact</span> cod_counit_inv_left_data.
+    - <span class="bp">exact</span> cod_counit_inv_left_is_modification.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. The biequivalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_fiber_cod_is_biequivalence</span>
+    : is_biequivalence to_fiber_cod.
+  <span class="kn">Proof</span>.
+    use make_is_biequivalence.
+    - <span class="bp">exact</span> from_fiber_cod.
+    - <span class="bp">exact</span> to_fiber_cod_unit.
+    - <span class="bp">exact</span> to_fiber_cod_unit_inv.
+    - <span class="bp">exact</span> to_fiber_cod_counit.
+    - <span class="bp">exact</span> to_fiber_cod_counit_inv.
+    - <span class="bp">exact</span> cod_unit_inv_left.
+    - <span class="bp">exact</span> cod_unit_inv_right.
+    - <span class="bp">exact</span> cod_counit_inv_right.
+    - <span class="bp">exact</span> cod_counit_inv_left.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberOfCodomain</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/FiberBicategory/CodomainFiber.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The biequivalence
+  &gt;
+  &gt;  *******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

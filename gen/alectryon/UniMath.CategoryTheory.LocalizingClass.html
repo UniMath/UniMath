@@ -1,0 +1,1832 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LocalizingClass.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Localizing class *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="sd">(** * Localizing class and localization of categories.</span>
+<span class="sd">    In this section we define localization of categories when the collection of morphisms forms</span>
+<span class="sd">    so called localizing class. The axioms of localizing class S are the following</span>
+<span class="sd">    - every identity morphism must be in the collection</span>
+<span class="sd">    - if f and g are in S, then so is f · g</span>
+<span class="sd">    - Suppose we morphisms s : X --&gt; Y and f : Z --&gt; Y such that s in in S. Then we can find a</span>
+<span class="sd">      square, that is morphisms, s' : W --&gt; Z and f' : W --&gt; X, such that s' in in S and we have</span>
+<span class="sd">      s' · f = f' · s.</span>
+<span class="sd">    - Dual version of the previous. Suppose s : X --&gt; Y and f : X --&gt; Z such that s in in S. Then</span>
+<span class="sd">      we can find a square, that is morphisms, s' : Z --&gt; W and f' : Y --&gt; W, such that s' is in S</span>
+<span class="sd">      and we have s' · f = f' · s.</span>
+<span class="sd">    - Suppose we have a morphism s : X --&gt; Y contained in S and two morphisms f g : Y --&gt; Z such</span>
+<span class="sd">      that s · f = s · g. Then S contains a morphism s' such that f · s' = f · s'.</span>
+<span class="sd">    - Dual of the above. Suppose we have a morphism s : Z --&gt; W in S and two morphisms</span>
+<span class="sd">      f g : Y --&gt; Z such that f · s = g · s. Then we can find a morphism s' in S such that</span>
+<span class="sd">      s' · f = s' · g.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Section</span> <span class="nf">def_roofs</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : precategory.
+  <span class="kn">Hypothesis</span> <span class="nv">hs</span> : has_homsets C.
+
+  <span class="kn">Definition</span> <span class="nf">SubsetsOfMors</span> : UU := ∏ (x y : ob C), hsubtype (make_hSet (C⟦x, y⟧) (hs x y)).
+
+  <span class="sd">(** ** Localizing classes *)</span>
+
+  <span class="sd">(** *** Identities and compositions are in the subset of morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass1</span> (<span class="nv">SOM</span> : SubsetsOfMors) : UU :=
+    (∏ (x : ob C), SOM x x (identity x))
+      × (∏ (x y z : ob C) (f : x --&gt; y) (e1 : SOM x y f) (g : y --&gt; z) (e2 : SOM y z g),
+         SOM x z (f · g)).
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassIs</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass1 SOM) :
+    ∏ (x : ob C), SOM x x (identity x) := pr1 H.
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassComp</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass1 SOM) :
+    ∏ (x y z : ob C) (f : x --&gt; y) (e1 : SOM x y f) (g : y --&gt; z) (e2 : SOM y z g),
+    SOM x z (f · g) := pr2 H.
+
+  <span class="sd">(** **** Squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">LocSqr1</span> (<span class="nv">SOM</span> : SubsetsOfMors) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">s</span> : x --&gt; y) (<span class="nv">e1</span> : SOM x y s)
+             (<span class="nv">f</span> : x --&gt; z) : UU :=
+    ∑ D : (∑ (w : ob C), C⟦y, w⟧ × C⟦z, w⟧),
+          (SOM z (pr1 D) (dirprod_pr2 (pr2 D)))
+            × (s · (dirprod_pr1 (pr2 D)) = f · (dirprod_pr2 (pr2 D))).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr1Ob</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e1</span> : SOM x y s}
+             {<span class="nv">f</span> : x --&gt; z} (<span class="nv">LS1</span> : LocSqr1 SOM s e1 f) : ob C := pr1 (pr1 LS1).
+  <span class="kn">Coercion</span> <span class="nf">LocSqr1Ob</span> : LocSqr1 &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr1Mor1</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e1</span> : SOM x y s}
+             {<span class="nv">f</span> : x --&gt; z} (<span class="nv">LS1</span> : LocSqr1 SOM s e1 f) : C⟦y, LS1⟧ := dirprod_pr1 (pr2 (pr1 LS1)).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr1Mor2</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e1</span> : SOM x y s}
+             {<span class="nv">f</span> : x --&gt; z} (<span class="nv">LS1</span> : LocSqr1 SOM s e1 f) : C⟦z, LS1⟧ := dirprod_pr2 (pr2 (pr1 LS1)).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr1Mor2Is</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e1</span> : SOM x y s}
+             {<span class="nv">f</span> : x --&gt; z} (<span class="nv">LS1</span> : LocSqr1 SOM s e1 f) : SOM z LS1 (LocSqr1Mor2 LS1) :=
+    pr1 (pr2 LS1).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr1Comm</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e1</span> : SOM x y s}
+             {<span class="nv">f</span> : x --&gt; z} (<span class="nv">LS1</span> : LocSqr1 SOM s e1 f) :
+    s · (LocSqr1Mor1 LS1) = f · (LocSqr1Mor2 LS1) := dirprod_pr2 (pr2 LS1).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2</span> (<span class="nv">SOM</span> : SubsetsOfMors) {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">s</span> : y --&gt; w) (<span class="nv">e1</span> : SOM y w s)
+             (<span class="nv">f</span> : z --&gt; w) : UU :=
+    ∑ D : (∑ (x : ob C), C⟦x, y⟧ × C⟦x, z⟧),
+          (SOM (pr1 D) z (dirprod_pr2 (pr2 D)))
+            × ((dirprod_pr1 (pr2 D)) · s = (dirprod_pr2 (pr2 D)) · f).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2Ob</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">s</span> : y --&gt; w} {<span class="nv">e1</span> : SOM y w s}
+             {<span class="nv">f</span> : z --&gt; w} (<span class="nv">LS2</span> : LocSqr2 SOM s e1 f) : ob C := pr1 (pr1 LS2).
+  <span class="kn">Coercion</span> <span class="nf">LocSqr2Ob</span> : LocSqr2 &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2Mor1</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">s</span> : y --&gt; w} {<span class="nv">e1</span> : SOM y w s}
+             {<span class="nv">f</span> : z --&gt; w} (<span class="nv">LS2</span> : LocSqr2 SOM s e1 f) : C⟦LS2, y⟧ := dirprod_pr1 (pr2 (pr1 LS2)).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2Mor2</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">s</span> : y --&gt; w} {<span class="nv">e1</span> : SOM y w s}
+             {<span class="nv">f</span> : z --&gt; w} (<span class="nv">LS2</span> : LocSqr2 SOM s e1 f) : C⟦LS2, z⟧ := dirprod_pr2 (pr2 (pr1 LS2)).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2Mor2Is</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">s</span> : y --&gt; w} {<span class="nv">e1</span> : SOM y w s}
+             {<span class="nv">f</span> : z --&gt; w} (<span class="nv">LS2</span> : LocSqr2 SOM s e1 f) : SOM LS2 z (LocSqr2Mor2 LS2) :=
+    dirprod_pr1 (pr2 LS2).
+
+  <span class="kn">Definition</span> <span class="nf">LocSqr2Comm</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">s</span> : y --&gt; w} {<span class="nv">e1</span> : SOM y w s}
+             {<span class="nv">f</span> : z --&gt; w} (<span class="nv">LS2</span> : LocSqr2 SOM s e1 f) :
+    (LocSqr2Mor1 LS2) · s = (LocSqr2Mor2 LS2) · f := dirprod_pr2 (pr2 LS2).
+
+  <span class="sd">(** *** Completion to squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass2</span> (<span class="nv">SOM</span> : SubsetsOfMors) : UU :=
+    (∏ (x y z : ob C) (s : x --&gt; y) (e1 : SOM x y s) (f : x --&gt; z), (LocSqr1 SOM s e1 f))
+      × (∏ (y z w : ob C) (s : y --&gt; w) (e1 : SOM y w s) (f : z --&gt; w), (LocSqr2 SOM s e1 f)).
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassSqr1</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass2 SOM) :
+    ∏ (x y z : ob C) (s : x --&gt; y) (e1 : SOM x y s) (f : x --&gt; z), LocSqr1 SOM s e1 f :=
+    dirprod_pr1 H.
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassSqr2</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass2 SOM) :
+    ∏ (y z w : ob C) (s : y --&gt; w) (e1 : SOM y w s) (f : z --&gt; w), LocSqr2 SOM s e1 f :=
+    dirprod_pr2 H.
+
+  <span class="sd">(** **** Pre- and post switch *)</span>
+  <span class="kn">Definition</span> <span class="nf">PreSwitch</span> (<span class="nv">SOM</span> : SubsetsOfMors) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">s</span> : x --&gt; y) (<span class="nv">e</span> : SOM x y s)
+             (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> : s · f = s · g) : UU :=
+    ∑ D : (∑ (w : ob C), C⟦z, w⟧), (SOM z (pr1 D) (pr2 D)) × (f · (pr2 D) = g · (pr2 D)).
+
+  <span class="kn">Definition</span> <span class="nf">PreSwitchOb</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e</span> : SOM x y s}
+             {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : s · f = s · g} (<span class="nv">PreS</span> : PreSwitch SOM s e f g H) : ob C :=
+    pr1 (pr1 PreS).
+  <span class="kn">Coercion</span> <span class="nf">PreSwitchOb</span> : PreSwitch &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">PreSwitchMor</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e</span> : SOM x y s}
+             {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : s · f = s · g} (<span class="nv">PreS</span> : PreSwitch SOM s e f g H) :
+    C⟦z, PreS⟧ := pr2 (pr1 PreS).
+
+  <span class="kn">Definition</span> <span class="nf">PreSwitchMorIs</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e</span> : SOM x y s}
+             {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : s · f = s · g} (<span class="nv">PreS</span> : PreSwitch SOM s e f g H) :
+    SOM z PreS (PreSwitchMor PreS) := dirprod_pr1 (pr2 PreS).
+
+  <span class="kn">Definition</span> <span class="nf">PreSwitchEq</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} {<span class="nv">s</span> : x --&gt; y} {<span class="nv">e</span> : SOM x y s}
+             {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : s · f = s · g} (<span class="nv">PreS</span> : PreSwitch SOM s e f g H) :
+    f · (PreSwitchMor PreS) = g · (PreSwitchMor PreS) := dirprod_pr2 (pr2 PreS).
+
+  <span class="sd">(** **** Post switch *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">PostSwitch</span> (<span class="nv">SOM</span> : SubsetsOfMors) {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">s</span> : z --&gt; w)
+             (<span class="nv">e</span> : SOM z w s) (<span class="nv">H</span> : f · s = g · s) : UU :=
+    ∑ D : (∑ (x : ob C), C⟦x, y⟧), (SOM (pr1 D) y (pr2 D)) × ((pr2 D) · f = (pr2 D) · g).
+
+  <span class="kn">Definition</span> <span class="nf">PostSwitchOb</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">s</span> : z --&gt; w}
+             {<span class="nv">e</span> : SOM z w s} {<span class="nv">H</span> : f · s = g · s} (<span class="nv">PostS</span> : PostSwitch SOM f g s e H) : ob C :=
+    pr1 (pr1 PostS).
+  <span class="kn">Coercion</span> <span class="nf">PostSwitchOb</span> : PostSwitch &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">PostSwitchMor</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">s</span> : z --&gt; w}
+             {<span class="nv">e</span> : SOM z w s} {<span class="nv">H</span> : f · s = g · s} (<span class="nv">PostS</span> : PostSwitch SOM f g s e H) :
+    C⟦PostS, y⟧ := pr2 (pr1 PostS).
+
+  <span class="kn">Definition</span> <span class="nf">PostSwitchMorIs</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">s</span> : z --&gt; w}
+             {<span class="nv">e</span> : SOM z w s} {<span class="nv">H</span> : f · s = g · s} (<span class="nv">PostS</span> : PostSwitch SOM f g s e H) :
+    SOM PostS y (PostSwitchMor PostS) := dirprod_pr1 (pr2 PostS).
+
+  <span class="kn">Definition</span> <span class="nf">PostSwitchEq</span> {<span class="nv">SOM</span> : SubsetsOfMors} {<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} {<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z} {<span class="nv">s</span> : z --&gt; w}
+             {<span class="nv">e</span> : SOM z w s} {<span class="nv">H</span> : f · s = g · s} (<span class="nv">PostS</span> : PostSwitch SOM f g s e H) :
+    (PostSwitchMor PostS) · f = (PostSwitchMor PostS) · g := dirprod_pr2 (pr2 PostS).
+
+  <span class="sd">(** *** Pre- and postcomposition with morphisms in the subset *)</span>
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass3</span> (<span class="nv">SOM</span> : SubsetsOfMors) : UU :=
+    (∏ (x y z : ob C) (s : x --&gt; y) (e : SOM x y s) (f g : y --&gt; z) (H : s · f = s · g),
+     PreSwitch SOM s e f g H)
+      × (∏ (y z w : ob C) (f g : y --&gt; z) (s : z --&gt; w) (e : SOM z w s) (H : f · s = g · s),
+         PostSwitch SOM f g s e H).
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassPre</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass3 SOM) :
+    ∏ (x y z : ob C) (s : x --&gt; y) (e : SOM x y s) (f g : y --&gt; z) (H : s · f = s · g),
+    PreSwitch SOM s e f g H := dirprod_pr1 H.
+
+  <span class="kn">Definition</span> <span class="nf">isLocClassPost</span> {<span class="nv">SOM</span> : SubsetsOfMors} (<span class="nv">H</span> : isLocalizingClass3 SOM) :
+    ∏ (y z w : ob C) (f g : y --&gt; z) (s : z --&gt; w) (e : SOM z w s) (H : f · s = g · s),
+    PostSwitch SOM f g s e H := dirprod_pr2 H.
+
+  <span class="sd">(** *** Localizing class *)</span>
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass</span> (<span class="nv">SOM</span> : SubsetsOfMors) : UU :=
+    (isLocalizingClass1 SOM) × (isLocalizingClass2 SOM) × (isLocalizingClass3 SOM).
+
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass_isLocalizingClass1</span> {<span class="nv">SOM</span> : SubsetsOfMors}
+             (<span class="nv">H</span> : isLocalizingClass SOM) : isLocalizingClass1 SOM := dirprod_pr1 H.
+  <span class="kn">Coercion</span> <span class="nf">isLocalizingClass_isLocalizingClass1</span> : isLocalizingClass &gt;-&gt; isLocalizingClass1.
+
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass_isLocalizingClass2</span> {<span class="nv">SOM</span> : SubsetsOfMors}
+             (<span class="nv">H</span> : isLocalizingClass SOM) : isLocalizingClass2 SOM :=
+    dirprod_pr1 (dirprod_pr2 H).
+  <span class="kn">Coercion</span> <span class="nf">isLocalizingClass_isLocalizingClass2</span> : isLocalizingClass &gt;-&gt; isLocalizingClass2.
+
+  <span class="kn">Definition</span> <span class="nf">isLocalizingClass_isLocalizingClass3</span> {<span class="nv">SOM</span> : SubsetsOfMors}
+             (<span class="nv">H</span> : isLocalizingClass SOM) : isLocalizingClass3 SOM :=
+    dirprod_pr2 (dirprod_pr2 H).
+  <span class="kn">Coercion</span> <span class="nf">isLocalizingClass_isLocalizingClass3</span> : isLocalizingClass &gt;-&gt; isLocalizingClass3.
+
+  <span class="sd">(** Collection of morphisms in C *)</span>
+  <span class="kn">Variable</span> <span class="nv">SOM</span> : SubsetsOfMors.
+
+  <span class="sd">(** The above collection satisfies the conditions of localizin class. See the comment on top</span>
+<span class="sd">      of this section. *)</span>
+  <span class="kn">Hypothesis</span> <span class="nv">iLC</span> : isLocalizingClass SOM.
+
+  <span class="sd">(** ** Roofs *)</span>
+  <span class="kn">Definition</span> <span class="nf">Roof</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : UU :=
+    ∑ D : (∑ z : ob C, C⟦z, x⟧ × C⟦z, y⟧), (SOM (pr1 D) x (dirprod_pr1 (pr2 D))).
+
+  <span class="kn">Definition</span> <span class="nf">make_Roof</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C) (<span class="nv">s</span> : z --&gt; x) (<span class="nv">f</span> : z --&gt; y) (<span class="nv">e</span> : SOM z x s) : Roof x y :=
+    tpair _ (tpair _ z (s,,f)) e.
+
+  <span class="kn">Definition</span> <span class="nf">RoofOb</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : ob C := pr1 (pr1 R).
+  <span class="kn">Coercion</span> <span class="nf">RoofOb</span> : Roof &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">RoofMor1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : C⟦R, x⟧ := dirprod_pr1 (pr2 (pr1 R)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofMor1Is</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : SOM R x (RoofMor1 R) := pr2 R.
+
+  <span class="kn">Definition</span> <span class="nf">RoofMor2</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : C⟦R, y⟧ := dirprod_pr2 (pr2 (pr1 R)).
+
+  <span class="sd">(** ** Coroofs *)</span>
+  <span class="kn">Definition</span> <span class="nf">Coroof</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : UU :=
+    ∑ D : (∑ z : ob C, C⟦x, z⟧ × C⟦y, z⟧), (SOM y (pr1 D) (dirprod_pr2 (pr2 D))).
+
+  <span class="kn">Definition</span> <span class="nf">make_Coroof</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C) (<span class="nv">f</span> : x --&gt; z) (<span class="nv">s</span> : y --&gt; z) (<span class="nv">e</span> : SOM y z s) : Coroof x y :=
+    tpair _ (tpair _ z (f,,s)) e.
+
+  <span class="kn">Definition</span> <span class="nf">CoroofOb</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">CR</span> : Coroof x y) : ob C := pr1 (pr1 CR).
+  <span class="kn">Coercion</span> <span class="nf">CoroofOb</span> : Coroof &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">CoroofMor1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">CR</span> : Coroof x y) : C⟦x, CR⟧ := dirprod_pr1 (pr2 (pr1 CR)).
+
+  <span class="kn">Definition</span> <span class="nf">CoroofMor2</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">CR</span> : Coroof x y) : C⟦y, CR⟧ := dirprod_pr2 (pr2 (pr1 CR)).
+
+  <span class="kn">Definition</span> <span class="nf">CoroofMor2Is</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">CR</span> : Coroof x y) : SOM y CR (CoroofMor2 CR) := pr2 CR.
+
+  <span class="kn">Definition</span> <span class="nf">RoofToCoroof</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : Coroof x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (sqr := isLocClassSqr1 iLC _ _ _ (RoofMor1 R) (RoofMor1Is R) (RoofMor2 R)).
+    use make_Coroof.
+    - <span class="bp">exact</span> sqr.
+    - <span class="bp">exact</span> (LocSqr1Mor1 sqr).
+    - <span class="bp">exact</span> (LocSqr1Mor2 sqr).
+    - <span class="bp">exact</span> (LocSqr1Mor2Is sqr).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** RoofTop *)</span>
+  <span class="sd">(** These are used to define an equivalence relation between roofs *)</span>
+  <span class="kn">Definition</span> <span class="nf">RoofTop</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) : UU :=
+    ∑ D : (∑ w : ob C, C⟦w, R1⟧ × C⟦w, R2⟧),
+          (SOM (pr1 D) x ((dirprod_pr1 (pr2 D)) · (RoofMor1 R1)))
+            × ((dirprod_pr1 (pr2 D)) · (RoofMor1 R1) = (dirprod_pr2 (pr2 D)) · (RoofMor1 R2))
+            × ((dirprod_pr1 (pr2 D)) · (RoofMor2 R1) = (dirprod_pr2 (pr2 D)) · (RoofMor2 R2)).
+
+  <span class="kn">Definition</span> <span class="nf">make_RoofTop</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">w</span> : ob C) (<span class="nv">s</span> : w --&gt; R1) (<span class="nv">f</span> : w --&gt; R2)
+             (<span class="nv">e</span> : SOM w x (s · RoofMor1 R1))
+             (<span class="nv">H1</span> : s · (RoofMor1 R1) = f · (RoofMor1 R2))
+             (<span class="nv">H2</span> : s · (RoofMor2 R1) = f · (RoofMor2 R2)) : RoofTop R1 R2 :=
+    tpair _ (tpair _ w (s,,f)) (e,,(H1,,H2)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopOb</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) : ob C := pr1 (pr1 T).
+  <span class="kn">Coercion</span> <span class="nf">RoofTopOb</span> : RoofTop &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopMor1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) : C⟦T, R1⟧ :=
+    dirprod_pr1 (pr2 (pr1 T)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopMor1Is</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) :
+    (SOM T x ((RoofTopMor1 T) · (RoofMor1 R1))) := (dirprod_pr1 (pr2 T)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopMor2</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) : C⟦T, R2⟧ :=
+    dirprod_pr2 (pr2 (pr1 T)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopEq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) :
+    (RoofTopMor1 T) · (RoofMor1 R1) = (RoofTopMor2 T) · (RoofMor1 R2) :=
+    dirprod_pr1 (dirprod_pr2 (pr2 T)).
+
+  <span class="kn">Definition</span> <span class="nf">RoofTopEq2</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) :
+    (RoofTopMor1 T) · (RoofMor2 R1) = (RoofTopMor2 T) · (RoofMor2 R2) :=
+    dirprod_pr2 (dirprod_pr2 (pr2 T)).
+
+  <span class="sd">(** We define an equivalence relation between the roofs *)</span>
+  <span class="kn">Definition</span> <span class="nf">RoofHrel'</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) : hProp := ishinh (RoofTop R1 R2).
+
+  <span class="kn">Definition</span> <span class="nf">RoofHrel</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : hrel (Roof x y) :=
+    (<span class="k">λ</span> <span class="nv">R1</span> : Roof x y, <span class="k">λ</span> <span class="nv">R2</span> : Roof x y, RoofHrel' R1 R2).
+
+  <span class="kn">Lemma</span> <span class="nf">RoofEqrel</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : iseqrel (RoofHrel x y).
+  <span class="kn">Proof</span>.
+    use iseqrelconstr.
+    <span class="c">(* is trans *)</span>
+    - <span class="nb">intros</span> R1 R2 R3 T1' T2'.
+      use (squash_to_prop T1'). <span class="nb">apply</span> isapropishinh. <span class="nb">intros</span> T1. <span class="nb">clear</span> T1'.
+      use (squash_to_prop T2'). <span class="nb">apply</span> isapropishinh. <span class="nb">intros</span> T2. <span class="nb">clear</span> T2'.
+      <span class="nb">set</span> (tmp := isLocClassSqr2 iLC T2 T1 x (RoofTopMor1 T2 · RoofMor1 R2) (RoofTopMor1Is T2)
+                                 (RoofTopMor2 T1 · RoofMor1 R2)).
+      <span class="nb">induction</span> tmp <span class="k">as</span> [D1 D2]. <span class="nb">induction</span> D1 <span class="k">as</span> [w m]. <span class="nb">induction</span> m <span class="k">as</span> [m1 m2].
+      <span class="nb">induction</span> D2 <span class="k">as</span> [D1 D2]. <span class="nb">cbn</span> <span class="k">in</span> D1, D2. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> D2.
+      <span class="nb">set</span> (tmp := isLocClassPost iLC w R2 x (m1 · RoofTopMor1 T2) (m2 · RoofTopMor2 T1)
+                                 (RoofMor1 R2) (RoofMor1Is R2) D2).
+      <span class="nb">induction</span> tmp <span class="k">as</span> [t p].
+      <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+      use make_RoofTop.
+      + <span class="bp">exact</span> (pr1 t).
+      + <span class="bp">exact</span> ((pr2 t) · m2 · RoofTopMor1 T1).
+      + <span class="bp">exact</span> ((pr2 t) · m1 · RoofTopMor2 T2).
+      + <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc. use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (dirprod_pr1 p).
+        * use (isLocClassComp iLC).
+          -- <span class="bp">exact</span> D1.
+          -- <span class="bp">exact</span> (RoofTopMor1Is T1).
+      + <span class="nb">induction</span> p <span class="k">as</span> [p1 p2]. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> p2.
+        <span class="nb">set</span> (tmp := RoofTopEq1 T2). <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- (assoc (pr2 t)). <span class="nb">rewrite</span> D2.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> cancel_precomposition.
+        <span class="bp">exact</span> (RoofTopEq1 T1).
+      + <span class="nb">induction</span> p <span class="k">as</span> [p1 p2]. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> p2.
+        <span class="nb">set</span> (tmp := RoofTopEq2 T2). <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+        <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> p2. <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> cancel_precomposition.
+        <span class="bp">exact</span> (RoofTopEq2 T1).
+    <span class="c">(* isrefl *)</span>
+    - <span class="nb">intros</span> R1.
+      <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+      use make_RoofTop.
+      + <span class="bp">exact</span> R1.
+      + <span class="bp">exact</span> (identity R1).
+      + <span class="bp">exact</span> (identity R1).
+      + <span class="nb">rewrite</span> id_left. <span class="bp">exact</span> (RoofMor1Is R1).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+    <span class="c">(* issymm *)</span>
+    - <span class="nb">intros</span> R1 R2 T'.
+      use (squash_to_prop T'). <span class="nb">apply</span> isapropishinh. <span class="nb">intros</span> T. <span class="nb">clear</span> T'.
+      <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+      use make_RoofTop.
+      + <span class="bp">exact</span> T.
+      + <span class="bp">exact</span> (RoofTopMor2 T).
+      + <span class="bp">exact</span> (RoofTopMor1 T).
+      + <span class="nb">rewrite</span> &lt;- (RoofTopEq1 T). <span class="bp">exact</span> (RoofTopMor1Is T).
+      + <span class="bp">exact</span> (! (RoofTopEq1 T)).
+      + <span class="bp">exact</span> (! (RoofTopEq2 T)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** We are interested in the equivalence classes of roofs. *)</span>
+  <span class="c">(* Definition eqclass {X : UU} {r : eqrel X} : UU := ∑ A : hsubtype X, iseqclass r A. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclass</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : UU :=
+    ∑ A : hsubtype (Roof x y), iseqclass (make_eqrel _ (RoofEqrel x y)) A.
+
+  <span class="kn">Lemma</span> <span class="nf">isasetRoofEqclass</span> (<span class="nv">x</span> <span class="nv">y</span> : ob C) : isaset (RoofEqclass x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isasethsubtype.
+    - <span class="nb">intros</span> x0.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isapropiseqclass.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_RoofEqclass</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">A</span> : hsubtype (Roof x y))
+             (<span class="nv">H</span> : iseqclass (make_eqrel _ (RoofEqrel x y)) A) : RoofEqclass x y := tpair _ A H.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassIn</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE</span> : RoofEqclass x y) : hsubtype (Roof x y) := pr1 RE.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassIs</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE</span> : RoofEqclass x y) :
+    iseqclass (make_eqrel _ (RoofEqrel x y)) (RoofEqclassIn RE) := pr2 RE.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassEq</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE1</span> <span class="nv">RE2</span> : RoofEqclass x y)
+             (<span class="nv">H1</span> : ∏ (R : Roof x y) (H : (pr1 RE1) R), (pr1 RE2) R)
+             (<span class="nv">H2</span> : ∏ (R : Roof x y) (H : (pr1 RE2) R), (pr1 RE1) R) : RE1 = RE2.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - use funextfun. <span class="nb">intros</span> g.
+      <span class="nb">apply</span> hPropUnivalence.
+      + <span class="nb">apply</span> H1.
+      + <span class="nb">apply</span> H2.
+    - <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> isapropiseqclass.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassDisjoint</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE1</span> <span class="nv">RE2</span> : RoofEqclass x y)
+             (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) (<span class="nv">H1</span> : RoofEqclassIn RE1 R1) (<span class="nv">H2</span> : RoofEqclassIn RE2 R2)
+             (<span class="nv">H</span> : (make_eqrel _ (RoofEqrel x y)) R1 R2) : RE1 = RE2.
+  <span class="kn">Proof</span>.
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R H'.
+      <span class="nb">set</span> (tmp := eqax1 (pr2 RE1) R1 R2 H H1).
+      <span class="nb">set</span> (tmp' := eqax2 (pr2 RE1) R R2 H' tmp).
+      <span class="nb">apply</span> eqrelsymm <span class="k">in</span> tmp'.
+      <span class="nb">apply</span> (eqax1 (pr2 RE2) R2 R tmp' H2).
+    - <span class="nb">intros</span> R H'.
+      <span class="nb">apply</span> eqrelsymm <span class="k">in</span> H.
+      <span class="nb">set</span> (tmp := eqax1 (pr2 RE2) R2 R1 H H2).
+      <span class="nb">set</span> (tmp' := eqax2 (pr2 RE2) R1 R tmp H').
+      <span class="nb">apply</span> (eqax1 (pr2 RE1) R1 R tmp' H1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassFromRoof</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) : RoofEqclass x y.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">RR</span> : Roof x y, (make_eqrel _ (RoofEqrel x y)) RR R).
+    - use tpair.
+      + <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+        use tpair.
+        * <span class="bp">exact</span> R.
+        * <span class="nb">apply</span> eqrelrefl.
+      + <span class="nb">split</span>.
+        * <span class="nb">intros</span> x1 x2 X X0.
+          use eqreltrans.
+          -- <span class="bp">exact</span> x1.
+          -- <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> X.
+          -- <span class="nb">apply</span> X0.
+        * <span class="nb">intros</span> x1 x2 X X0.
+          use eqreltrans.
+          -- <span class="bp">exact</span> R.
+          -- <span class="bp">exact</span> X.
+          -- <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> X0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassFromRoofIn</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) :
+    RoofEqclassIn (RoofEqclassFromRoof R) R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> R.
+    - <span class="bp">exact</span> (identity R).
+    - <span class="bp">exact</span> (identity R).
+    - use (isLocClassComp iLC).
+      + <span class="nb">apply</span> (isLocClassIs iLC).
+      + <span class="nb">apply</span> (RoofMor1Is R).
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqclassEqRoof</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE</span> : RoofEqclass x y)
+             (<span class="nv">R</span> : Roof x y) (<span class="nv">HR</span> : RoofEqclassIn RE R) : RE = RoofEqclassFromRoof R.
+  <span class="kn">Proof</span>.
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R0 HR0.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R))).
+      + <span class="bp">exact</span> R.
+      + use (eqax2 (RoofEqclassIs RE)).
+        * <span class="bp">exact</span> HR.
+        * <span class="bp">exact</span> HR0.
+      + <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">intros</span> R0 HR0.
+      use (eqax1 (RoofEqclassIs RE)).
+      + <span class="bp">exact</span> R.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R))).
+        * <span class="nb">apply</span> RoofEqclassFromRoofIn.
+        * <span class="bp">exact</span> HR0.
+      + <span class="bp">exact</span> HR.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqClassIn</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> <span class="nv">R2</span> <span class="nv">R3</span> : Roof x y)
+             (<span class="nv">H1</span> : RoofEqclassIn (RoofEqclassFromRoof R1) R2)
+             (<span class="nv">H2</span> : (make_eqrel _ (RoofEqrel x y)) R2 R3) :
+    RoofEqclassIn (RoofEqclassFromRoof R1) R3.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R1)) R2 R3 H2 H1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RoofEqClassIn2</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">RE</span> : RoofEqclass x y) (<span class="nv">R2</span> <span class="nv">R3</span> : Roof x y)
+             (<span class="nv">H1</span> : RoofEqclassIn RE R2) (<span class="nv">H2</span> : (make_eqrel _ (RoofEqrel x y)) R2 R3) :
+    RoofEqclassIn RE R3.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (pr1 (RoofEqclassIs RE))). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> RE1.
+    <span class="nb">induction</span> RE1 <span class="k">as</span> [RE1 RE2].
+    <span class="nb">apply</span> (eqax1 (RoofEqclassIs RE) RE1 R3).
+    - use eqreltrans.
+      + <span class="bp">exact</span> R2.
+      + <span class="nb">apply</span> (eqax2 (RoofEqclassIs RE) RE1 R2 RE2 H1).
+      + <span class="nb">apply</span> H2.
+    - <span class="nb">apply</span> RE2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">roof_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">R1</span> : Roof x y) (<span class="nv">R2</span> : Roof y z) : Roof x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (LS2 := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    use make_Roof.
+    - <span class="bp">exact</span> LS2.
+    - <span class="bp">exact</span> ((LocSqr2Mor2 LS2) · (RoofMor1 R1)).
+    - <span class="bp">exact</span> ((LocSqr2Mor1 LS2) · (RoofMor2 R2)).
+    - use (isLocClassComp iLC).
+      + <span class="bp">exact</span> (LocSqr2Mor2Is LS2).
+      + <span class="bp">exact</span> (RoofMor1Is R1).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Composition of roofs *)</span>
+
+  <span class="sd">(** Construct a "commutative coroof" from RoofTop *)</span>
+  <span class="kn">Definition</span> <span class="nf">RoofTopToCoroof</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y} (<span class="nv">T</span> : RoofTop R1 R2) :
+    ∑ CR : Coroof x y, (RoofMor1 R1 · CoroofMor1 CR = RoofMor2 R1 · CoroofMor2 CR)
+                         × (RoofMor1 R2 · CoroofMor1 CR = RoofMor2 R2 · CoroofMor2 CR).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (sqr1 := isLocClassSqr1 iLC _ _ _ (RoofMor1 R1) (RoofMor1Is R1) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr2 := isLocClassSqr1 iLC _ _ _ (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R2)).
+    <span class="nb">set</span> (sqr3 := isLocClassSqr1 iLC _ _ _ (LocSqr1Mor2 sqr1) (LocSqr1Mor2Is sqr1)
+                                (LocSqr1Mor2 sqr2)).
+    <span class="nb">set</span> (mor1 := RoofTopMor1 T · RoofMor1 R1 · LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3).
+    <span class="nb">set</span> (mor2 := RoofTopMor1 T · RoofMor1 R1 · LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3).
+
+    <span class="nb">assert</span> (H : RoofTopMor1 T · RoofMor1 R1 · (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3)
+                = RoofTopMor1 T · RoofMor1 R1 · (LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3)).
+    {
+      <span class="nb">set</span> (tmp1 := LocSqr1Comm sqr1).
+      <span class="nb">set</span> (tmp2 := LocSqr1Comm sqr2).
+      <span class="nb">set</span> (tmp3 := LocSqr1Comm sqr3).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ (RoofMor1 R1)). <span class="nb">rewrite</span> tmp1.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> tmp3.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (RoofTopEq2 T).
+      <span class="nb">rewrite</span> &lt;- (assoc _ (RoofMor2 R2)). <span class="nb">rewrite</span> &lt;- tmp2.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (RoofTopEq1 T). <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">set</span> (PreS := isLocClassPre iLC _ _ _ (RoofTopMor1 T · RoofMor1 R1) (RoofTopMor1Is T)
+                               (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3)
+                               (LocSqr1Mor1 sqr2 · LocSqr1Mor2 sqr3) H).
+    use tpair.
+    - use make_Coroof.
+      + <span class="bp">exact</span> PreS.
+      + <span class="bp">exact</span> (LocSqr1Mor1 sqr1 · LocSqr1Mor1 sqr3 · PreSwitchMor PreS).
+      + <span class="bp">exact</span> (LocSqr1Mor2 sqr2 · LocSqr1Mor2 sqr3 · PreSwitchMor PreS).
+      + use (isLocClassComp iLC).
+        * use (isLocClassComp iLC).
+          -- <span class="bp">exact</span> (LocSqr1Mor2Is sqr2).
+          -- <span class="bp">exact</span> (LocSqr1Mor2Is sqr3).
+        * <span class="bp">exact</span> (PreSwitchMorIs PreS).
+    - <span class="nb">cbn</span>. <span class="nb">split</span>.
+      + <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqr3).
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (LocSqr1Comm sqr1).
+      + <span class="nb">rewrite</span> (PreSwitchEq PreS).
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (LocSqr1Comm sqr2).
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> RoofTopToCoroof.
+
+  <span class="sd">(** Precomposition with equivalent roofs yield equivalent roofs. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">roof_pre_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y)
+        (<span class="nv">e</span> : (make_eqrel (RoofHrel x y) (RoofEqrel x y)) R1 R2) (<span class="nv">R3</span> : Roof y z) :
+    (make_eqrel (RoofHrel x z) (RoofEqrel x z)) (roof_comp R1 R3) (roof_comp R2 R3).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop e). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> T.
+    <span class="nb">set</span> (T' := RoofTopToCoroof T). <span class="nb">induction</span> T' <span class="k">as</span> [CR eq].
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    <span class="nb">set</span> (R4 := roof_comp R1 R3). <span class="nb">set</span> (R5 := roof_comp R2 R3).
+    <span class="nb">unfold</span> roof_comp <span class="k">in</span> R4. <span class="nb">unfold</span> roof_comp <span class="k">in</span> R5.
+    <span class="nb">set</span> (sqr4 := isLocClassSqr2 iLC R3 R1 y (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr5 := isLocClassSqr2 iLC R3 R2 y (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
+    <span class="nb">fold</span> sqr4 <span class="k">in</span> R4. <span class="nb">fold</span> sqr5 <span class="k">in</span> R5.
+    <span class="nb">set</span> (sqr6 := isLocClassSqr2 iLC R5 R4 x (LocSqr2Mor2 sqr5 · RoofMor1 R2) (RoofMor1Is R5)
+                                (LocSqr2Mor2 sqr4 · RoofMor1 R1)).
+    <span class="nb">assert</span> (s : SOM R3 CR (RoofMor1 R3 · CoroofMor2 CR)).
+    {
+      use (isLocClassComp iLC).
+      - <span class="bp">exact</span> (RoofMor1Is R3).
+      - <span class="bp">exact</span> (CoroofMor2Is CR).
+    }
+    <span class="nb">assert</span> (H : LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · (RoofMor1 R3 · CoroofMor2 CR) =
+                LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · (RoofMor1 R3 · CoroofMor2 CR)).
+    {
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr5)). <span class="nb">rewrite</span> (LocSqr2Comm sqr5).
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr4)). <span class="nb">rewrite</span> (LocSqr2Comm sqr4).
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- (dirprod_pr1 eq). <span class="nb">rewrite</span> &lt;- (dirprod_pr2 eq).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">set</span> (tmp := LocSqr2Comm sqr6). <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="nb">apply</span> tmp.
+    }
+    <span class="nb">set</span> (PostS := isLocClassPost iLC _ _ _
+                                 (LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5)
+                                 (LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4)
+                                 (RoofMor1 R3 · CoroofMor2 CR) s H).
+    use make_RoofTop.
+    - <span class="bp">exact</span> PostS.
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor2 sqr6).
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor1 sqr6).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (PostSwitchMorIs PostS).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr6).
+      + <span class="bp">exact</span> (RoofMor1Is R4).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! (LocSqr2Comm sqr6)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">set</span> (tmp := ! (PostSwitchEq PostS)). <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, f · RoofMor2 R3)) <span class="k">in</span> tmp.
+      <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Postcomposition with equivalent roofs yield equivalent roofs. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">roof_post_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">R1</span> : Roof x y) (<span class="nv">R2</span> <span class="nv">R3</span> : Roof y z)
+        (<span class="nv">e</span> : (make_eqrel (RoofHrel y z) (RoofEqrel y z)) R2 R3) :
+    (make_eqrel (RoofHrel x z) (RoofEqrel x z)) (roof_comp R1 R2) (roof_comp R1 R3).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop e). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> T. <span class="nb">clear</span> e.
+    <span class="nb">set</span> (T' := RoofTopToCoroof T). <span class="nb">induction</span> T' <span class="k">as</span> [CR eq].
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    <span class="nb">set</span> (R4 := roof_comp R1 R2). <span class="nb">set</span> (R5 := roof_comp R1 R3).
+    <span class="nb">unfold</span> roof_comp <span class="k">in</span> R4. <span class="nb">unfold</span> roof_comp <span class="k">in</span> R5.
+    <span class="nb">set</span> (sqr4 := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr5 := isLocClassSqr2 iLC R3 R1 y (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R1)).
+    <span class="nb">fold</span> sqr4 <span class="k">in</span> R4. <span class="nb">fold</span> sqr5 <span class="k">in</span> R5.
+    <span class="nb">set</span> (sqr6 := isLocClassSqr2 iLC R5 R4 R1 (LocSqr2Mor2 sqr5) (LocSqr2Mor2Is sqr5)
+                                (LocSqr2Mor2 sqr4)).
+    <span class="nb">assert</span> (H : LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · RoofMor2 R3 · CoroofMor2 CR =
+                LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · RoofMor2 R2 · CoroofMor2 CR).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- (dirprod_pr1 eq). <span class="nb">rewrite</span> &lt;- (dirprod_pr2 eq).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr4)). <span class="nb">rewrite</span> (LocSqr2Comm sqr4).
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr5)). <span class="nb">rewrite</span> (LocSqr2Comm sqr5).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> (LocSqr2Comm sqr6).
+    }
+    <span class="nb">set</span> (PostS := isLocClassPost iLC _ _ _
+                               (LocSqr2Mor1 sqr6 · LocSqr2Mor1 sqr5 · RoofMor2 R3)
+                               (LocSqr2Mor2 sqr6 · LocSqr2Mor1 sqr4 · RoofMor2 R2)
+                               (CoroofMor2 CR) (CoroofMor2Is CR) H).
+    use make_RoofTop.
+    - <span class="bp">exact</span> PostS.
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor2 sqr6).
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor1 sqr6).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (PostSwitchMorIs PostS).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr6).
+      + <span class="bp">exact</span> (RoofMor1Is R4).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">set</span> (tmp := ! (LocSqr2Comm sqr6)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, PostSwitchMor PostS · f)) <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">apply</span> tmp.
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">set</span> (tmp := PostSwitchEq PostS).
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">roof_comp_iscontr</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C) (<span class="nv">e1</span> : RoofEqclass x y) (<span class="nv">e2</span> : RoofEqclass y z) :
+    iscontr (∑ e3 : RoofEqclass x z,
+                    ∏ (f : Roof x y) (s1 : (RoofEqclassIn e1) f)
+                      (g : Roof y z) (s2 : (RoofEqclassIn e2) g),
+                    (RoofEqclassIn e3) (roof_comp f g)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e1 <span class="k">as</span> [e1 e1eq]. <span class="nb">induction</span> e2 <span class="k">as</span> [e2 e2eq].
+    use (squash_to_prop (dirprod_pr1 e1eq)). <span class="nb">apply</span> isapropiscontr. <span class="nb">intros</span> R1.
+    <span class="nb">induction</span> R1 <span class="k">as</span> [R1 R1'].
+    use (squash_to_prop (dirprod_pr1 e2eq)). <span class="nb">apply</span> isapropiscontr. <span class="nb">intros</span> R2.
+    <span class="nb">induction</span> R2 <span class="k">as</span> [R2 R2'].
+    use tpair.
+    - use tpair.
+      + use make_RoofEqclass.
+        * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">RR</span> : (Roof x z), (make_eqrel _ (RoofEqrel x z)) RR (roof_comp R1 R2)).
+        * use iseqclassconstr.
+          -- <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+             use tpair.
+             ++ <span class="bp">exact</span> (roof_comp R1 R2).
+             ++ use eqrelrefl.
+          -- <span class="nb">intros</span> R3 R4 H1 H2. <span class="nb">cbn</span> beta <span class="k">in</span> H2. <span class="nb">cbn</span> beta.
+             use (squash_to_prop H1). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> T1.
+             use (squash_to_prop H2). <span class="nb">apply</span> propproperty. <span class="nb">intros</span> T2.
+             <span class="nb">apply</span> eqrelsymm <span class="k">in</span> H1.
+             use eqreltrans.
+             ++ <span class="bp">exact</span> R3.
+             ++ <span class="bp">exact</span> H1.
+             ++ <span class="bp">exact</span> H2.
+          -- <span class="nb">intros</span> R3 R4 H1 H2. <span class="nb">cbn</span> beta <span class="k">in</span> H1, H2.
+             <span class="nb">apply</span> eqrelsymm <span class="k">in</span> H2.
+             use eqreltrans.
+             ++ <span class="bp">exact</span> (roof_comp R1 R2).
+             ++ <span class="bp">exact</span> H1.
+             ++ <span class="bp">exact</span> H2.
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> R3 R3' R4 R4'.
+        <span class="nb">set</span> (tmp1 := eqax2 e1eq R1 R3 R1' R3').
+        <span class="nb">set</span> (tmp2 := eqax2 e2eq R2 R4 R2' R4').
+        <span class="nb">set</span> (tmp_pre := roof_pre_comp R1 R3 tmp1 R4).
+        <span class="nb">set</span> (tmp_post := roof_post_comp R1 R2 R4 tmp2).
+        <span class="nb">assert</span> (X : (make_eqrel (RoofHrel x z) (RoofEqrel x z)) (roof_comp R3 R4) (roof_comp R1 R2)).
+        {
+          <span class="nb">apply</span> eqrelsymm.
+          use eqreltrans.
+          - <span class="bp">exact</span> (roof_comp R1 R4).
+          - <span class="bp">exact</span> tmp_post.
+          - <span class="bp">exact</span> tmp_pre.
+        }
+        <span class="bp">exact</span> X.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> t.
+      use total2_paths_f.
+      + use RoofEqclassEq.
+        * <span class="nb">intros</span> R HR. <span class="nb">cbn</span>.
+          <span class="nb">set</span> (tmp1 := eqax2 (pr2 (pr1 t))). <span class="nb">apply</span> tmp1.
+          -- <span class="bp">exact</span> HR.
+          -- <span class="nb">apply</span> (pr2 t).
+             ++ <span class="nb">cbn</span>. <span class="bp">exact</span> R1'.
+             ++ <span class="nb">cbn</span>. <span class="bp">exact</span> R2'.
+        * <span class="nb">intros</span> R HR. <span class="nb">cbn</span> <span class="k">in</span> HR.
+          <span class="nb">set</span> (tmp1 := eqax1 (pr2 (pr1 t))). <span class="nb">apply</span> (tmp1 (roof_comp R1 R2)).
+          -- <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> HR.
+          -- <span class="nb">apply</span> (pr2 t).
+             ++ <span class="nb">cbn</span>. <span class="bp">exact</span> R1'.
+             ++ <span class="nb">cbn</span>. <span class="bp">exact</span> R2'.
+      + <span class="nb">apply</span> proofirrelevance.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t0.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t1.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t2.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t3.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t4.
+        <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t5.
+        <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">roof_comp_iscontr_in</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C) (<span class="nv">R1</span> : Roof x y) (<span class="nv">R2</span> : Roof y z) :
+    RoofEqclassIn (pr1 (pr1 (roof_comp_iscontr _ _ _ (RoofEqclassFromRoof R1)
+                                               (RoofEqclassFromRoof R2))))
+                  (roof_comp R1 R2).
+  <span class="kn">Proof</span>.
+    use (pr2 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof R1) (RoofEqclassFromRoof R2)))).
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Definition of the localization *)</span>
+  <span class="kn">Definition</span> <span class="nf">loc_precategory_ob_mor</span> : precategory_ob_mor :=
+    tpair (<span class="k">λ</span> <span class="nv">ob</span> : UU, ob -&gt; ob -&gt; UU) (ob C) (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : ob C, RoofEqclass x y).
+
+  <span class="kn">Definition</span> <span class="nf">IdRoof</span> (<span class="nv">x</span> : ob C) : Roof x x.
+  <span class="kn">Proof</span>.
+    use make_Roof.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> (identity x).
+    - <span class="bp">exact</span> (identity x).
+    - <span class="bp">exact</span> (isLocClassIs iLC x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">IdRoofEqrel_left</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> : Roof x y) :
+    (make_eqrel (RoofHrel x y) (RoofEqrel x y)) R1 (roof_comp (IdRoof x) R1).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (comp := roof_comp (IdRoof x) R1). <span class="nb">unfold</span> roof_comp <span class="k">in</span> comp.
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC R1 (IdRoof x) x (RoofMor1 R1) (RoofMor1Is R1)
+                               (RoofMor2 (IdRoof x))).
+    <span class="nb">fold</span> sqr <span class="k">in</span> comp. <span class="nb">apply</span> eqrelsymm.
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> comp.
+    - <span class="bp">exact</span> (identity comp).
+    - <span class="bp">exact</span> (LocSqr2Mor1 sqr).
+    - use (isLocClassComp iLC).
+      + <span class="nb">apply</span> (isLocClassIs iLC).
+      + <span class="nb">apply</span> (RoofMor1Is comp).
+    - <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">apply</span> (! (LocSqr2Comm sqr)).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">IdRoofEqrel_right</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> : Roof x y) :
+    (make_eqrel (RoofHrel x y) (RoofEqrel x y)) R1 (roof_comp R1 (IdRoof y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (comp := roof_comp R1 (IdRoof y)). <span class="nb">unfold</span> roof_comp <span class="k">in</span> comp.
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC (IdRoof y) R1 y (RoofMor1 (IdRoof y))
+                               (RoofMor1Is (IdRoof y)) (RoofMor2 R1)).
+    <span class="nb">fold</span> sqr <span class="k">in</span> comp. <span class="nb">apply</span> eqrelsymm.
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> comp.
+    - <span class="bp">exact</span> (identity comp).
+    - <span class="bp">exact</span> (LocSqr2Mor2 sqr).
+    - use (isLocClassComp iLC).
+      + <span class="nb">apply</span> (isLocClassIs iLC).
+      + <span class="nb">apply</span> (RoofMor1Is comp).
+    - <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">apply</span> (LocSqr2Comm sqr).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">IdRoofEqclass</span> (<span class="nv">x</span> : ob C) : RoofEqclass x x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (RoofEqclassFromRoof (make_Roof x x x (identity x) (identity x) (isLocClassIs iLC x))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">loc_precategory_data</span> : precategory_data :=
+    make_precategory_data
+      loc_precategory_ob_mor
+      (<span class="k">λ</span> (<span class="nv">x</span> : ob C), IdRoofEqclass x)
+      (<span class="k">fun</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C) (<span class="nv">f</span> : RoofEqclass x y) (<span class="nv">g</span> : RoofEqclass y z) =&gt;
+         pr1 (pr1 (roof_comp_iscontr x y z f g))).
+
+  <span class="kn">Lemma</span> <span class="nf">loc_id_left_in</span> {<span class="nv">x</span> <span class="nv">y</span> : loc_precategory_data} (<span class="nv">f</span> : loc_precategory_data⟦x, y⟧)
+    (<span class="nv">R1</span> : Roof x y) (<span class="nv">H1</span> : RoofEqclassIn f R1) :
+    pr1 (identity x · f) (roof_comp (IdRoof x) R1).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f))).
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">apply</span> H1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_id_left</span> {<span class="nv">x</span> <span class="nv">y</span> : loc_precategory_data} (<span class="nv">f</span> : loc_precategory_data⟦x, y⟧) :
+    identity x · f = f.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). <span class="nb">apply</span> isasetRoofEqclass. <span class="nb">intros</span> f'.
+    <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2].
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">set</span> (tmp := IdRoofEqrel_left R).
+      <span class="nb">set</span> (e1 := eqax1 (RoofEqclassIs (identity x · f)) _ _ tmp HR).
+      <span class="c">(* Need to show that eqrel f1 R *)</span>
+      <span class="nb">assert</span> (X : RoofEqclassIn (identity x · f) (roof_comp (IdRoof x) f1)).
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f)) (IdRoof x)).
+        - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+        - <span class="nb">apply</span> f2.
+      }
+      <span class="nb">set</span> (e2 := eqax2 (RoofEqclassIs (identity x · f)) _ _ e1 X).
+      <span class="nb">set</span> (e3 := IdRoofEqrel_left R).
+      use (eqax1 (RoofEqclassIs f)).
+      + <span class="bp">exact</span> (roof_comp (IdRoof x) f1).
+      + use eqreltrans.
+        * <span class="bp">exact</span> (roof_comp (IdRoof x) R).
+        * <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> e2.
+        * <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> e3.
+      + <span class="nb">set</span> (e4 := IdRoofEqrel_left f1).
+        use (eqax1 (RoofEqclassIs f)).
+        -- <span class="bp">exact</span> f1.
+        -- <span class="bp">exact</span> e4.
+        -- <span class="bp">exact</span> f2.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">set</span> (tmp := IdRoofEqrel_left R).
+      use (eqax1 (RoofEqclassIs (identity x · f))).
+      + <span class="bp">exact</span> (roof_comp (IdRoof x) R).
+      + <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> tmp.
+      + <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x x y (IdRoofEqclass x) f))).
+        * <span class="nb">apply</span> RoofEqclassFromRoofIn.
+        * <span class="nb">apply</span> HR.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_id_right</span> {<span class="nv">x</span> <span class="nv">y</span> : loc_precategory_data} (<span class="nv">f</span> : loc_precategory_data⟦x, y⟧) :
+    f · identity y = f.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). <span class="nb">apply</span> isasetRoofEqclass. <span class="nb">intros</span> f'.
+    <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2].
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">set</span> (tmp := IdRoofEqrel_right R).
+      <span class="nb">set</span> (e1 := eqax1 (RoofEqclassIs (f · identity y)) _ _ tmp HR).
+      <span class="c">(* Need to show (eqrel ...) f1 R *)</span>
+      <span class="nb">assert</span> (X : RoofEqclassIn (f · identity y) (roof_comp f1 (IdRoof y))).
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x y y f (IdRoofEqclass y)))).
+        - <span class="nb">apply</span> f2.
+        - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+      }
+      <span class="nb">set</span> (e2 := eqax2 (RoofEqclassIs (f · identity y)) _ _ e1 X).
+      use (eqax1 (RoofEqclassIs f)).
+      + <span class="bp">exact</span> (roof_comp f1 (IdRoof y)).
+      + use eqreltrans.
+        * <span class="bp">exact</span> (roof_comp R (IdRoof y)).
+        * <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> e2.
+        * <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> tmp.
+      + <span class="nb">set</span> (e4 := IdRoofEqrel_right f1).
+        use (eqax1 (RoofEqclassIs f)).
+        -- <span class="bp">exact</span> f1.
+        -- <span class="bp">exact</span> e4.
+        -- <span class="bp">exact</span> f2.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">set</span> (tmp := IdRoofEqrel_right R).
+      use (eqax1 (RoofEqclassIs (f · identity y))).
+      + <span class="bp">exact</span> (roof_comp R (IdRoof y)).
+      + <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> tmp.
+      + <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x y y f (IdRoofEqclass y)))).
+        * <span class="nb">apply</span> HR.
+        * <span class="nb">apply</span> RoofEqclassFromRoofIn.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">loc_precategory_assoc_Roof</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : loc_precategory_data) (<span class="nv">R1</span> : Roof x y)
+        (<span class="nv">R2</span> : Roof y z) (<span class="nv">R3</span> : Roof z w) : Roof x w.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (sqr1 := isLocClassSqr2 iLC _ _ _ (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr2 := isLocClassSqr2 iLC _ _ _ (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
+    <span class="nb">set</span> (sqr3 := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr2) (LocSqr2Mor2Is sqr2)
+                                (LocSqr2Mor1 sqr1)).
+    use make_Roof.
+    - <span class="bp">exact</span> sqr3.
+    - <span class="bp">exact</span> (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1 · RoofMor1 R1).
+    - <span class="bp">exact</span> (LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2 · RoofMor2 R3).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr3).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr1).
+      + <span class="bp">exact</span> (RoofMor1Is R1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_precategory_assoc_eqrel1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : loc_precategory_data} (<span class="nv">R1</span> : Roof x y)
+        (<span class="nv">R2</span> : Roof y z) (<span class="nv">R3</span> : Roof z w) :
+    (make_eqrel (RoofHrel x w) (RoofEqrel x w)) (roof_comp (roof_comp R1 R2) R3)
+                                               (loc_precategory_assoc_Roof x y z w R1 R2 R3).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (R4 := roof_comp R1 R2).
+    <span class="nb">set</span> (R5 := roof_comp R2 R3).
+    <span class="nb">set</span> (R6 := loc_precategory_assoc_Roof x y z w R1 R2 R3).
+    <span class="nb">set</span> (R6' := roof_comp R4 R3).
+    <span class="nb">set</span> (CR := RoofToCoroof R3).
+    <span class="nb">set</span> (sqrop := isLocClassSqr1 iLC R3 z w (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R3)).
+    <span class="nb">set</span> (sqr1 := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr2 := isLocClassSqr2 iLC R3 R2 z (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
+    <span class="nb">set</span> (sqr3 := isLocClassSqr2 iLC sqr2 sqr1 R2 (LocSqr2Mor2 sqr2) (LocSqr2Mor2Is sqr2)
+                                (LocSqr2Mor1 sqr1)).
+    <span class="nb">set</span> (sqr4 := isLocClassSqr2 iLC R3 sqr1 z (RoofMor1 R3) (RoofMor1Is R3)
+                                (LocSqr2Mor1 sqr1 · RoofMor2 R2)).
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr3) (LocSqr2Mor2Is sqr3)
+                               (LocSqr2Mor2 sqr4)).
+    <span class="nb">assert</span> (H : LocSqr2Mor2 sqr · RoofMor2 R6' · CoroofMor2 CR =
+                LocSqr2Mor1 sqr · RoofMor2 R6 · CoroofMor2 CR).
+    {
+      <span class="nb">cbn</span>. <span class="nb">fold</span> sqrop. <span class="nb">fold</span> sqr1. <span class="nb">fold</span> sqr2. <span class="nb">fold</span> sqr3. <span class="nb">fold</span> sqr4.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop).
+      <span class="nb">rewrite</span> &lt;- (assoc _ (RoofMor2 R3)). <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr4)). <span class="nb">rewrite</span> (LocSqr2Comm sqr4).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr2)). <span class="nb">rewrite</span> (LocSqr2Comm sqr2).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> &lt;- (LocSqr2Comm sqr). <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! (LocSqr2Comm sqr3)).
+    }
+    <span class="nb">set</span> (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · RoofMor2 R6')
+                                 (LocSqr2Mor1 sqr ·  RoofMor2 R6)
+                                 (CoroofMor2 CR) (CoroofMor2Is CR) H).
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> (PostS).
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor2 sqr).
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor1 sqr).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (PostSwitchMorIs PostS).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr).
+      + <span class="bp">exact</span> (RoofMor1Is R6').
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> cancel_precomposition. <span class="nb">cbn</span>. <span class="nb">fold</span> sqr1. <span class="nb">fold</span> sqr2. <span class="nb">fold</span> sqr3. <span class="nb">fold</span> sqr4.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="bp">exact</span> (! (LocSqr2Comm sqr)).
+    - <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="bp">exact</span> (PostSwitchEq PostS).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_precategory_assoc_eqrel2</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : loc_precategory_data) (<span class="nv">R1</span> : Roof x y)
+        (<span class="nv">R2</span> : Roof y z) (<span class="nv">R3</span> : Roof z w) :
+    (make_eqrel (RoofHrel x w) (RoofEqrel x w)) (roof_comp R1 (roof_comp R2 R3))
+                                               (loc_precategory_assoc_Roof x y z w R1 R2 R3).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (R4 := roof_comp R1 R2).
+    <span class="nb">set</span> (R5 := roof_comp R2 R3).
+    <span class="nb">set</span> (R6 := loc_precategory_assoc_Roof x y z w R1 R2 R3).
+    <span class="nb">set</span> (R6' := roof_comp R1 R5).
+    <span class="nb">set</span> (CR := RoofToCoroof R2).
+    <span class="nb">set</span> (sqrop := isLocClassSqr1 iLC R2 y z (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R2)).
+    <span class="nb">set</span> (sqr1 := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    <span class="nb">set</span> (sqr2 := isLocClassSqr2 iLC R3 R2 z (RoofMor1 R3) (RoofMor1Is R3) (RoofMor2 R2)).
+    <span class="nb">set</span> (sqr3 := isLocClassSqr2 iLC sqr2 sqr1 R2 (LocSqr2Mor2 sqr2) (LocSqr2Mor2Is sqr2)
+                                (LocSqr2Mor1 sqr1)).
+    <span class="nb">set</span> (sqr4 := isLocClassSqr2 iLC sqr2 R1 y (LocSqr2Mor2 sqr2 · RoofMor1 R2)
+                                (isLocClassComp iLC sqr2 R2 y (LocSqr2Mor2 sqr2)
+                                                (LocSqr2Mor2Is sqr2)
+                                                (RoofMor1 R2) (RoofMor1Is R2)) (RoofMor2 R1)).
+    <span class="nb">assert</span> (e0 : SOM _ _ (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1)).
+    {
+      use (isLocClassComp iLC).
+      - <span class="bp">exact</span> (LocSqr2Mor2Is sqr3).
+      - <span class="bp">exact</span> (LocSqr2Mor2Is sqr1).
+    }
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC _ _ _ (LocSqr2Mor2 sqr3 · LocSqr2Mor2 sqr1) e0
+                               (LocSqr2Mor2 sqr4)).
+    <span class="nb">assert</span> (e : SOM R3 CR (RoofMor1 R3 · CoroofMor2 CR)).
+    {
+      use (isLocClassComp iLC).
+      - <span class="bp">exact</span> (RoofMor1Is R3).
+      - <span class="bp">exact</span> (CoroofMor2Is CR).
+    }
+    <span class="nb">assert</span> (H : LocSqr2Mor2 sqr · LocSqr2Mor1 sqr4 · LocSqr2Mor1 sqr2 ·
+                            (RoofMor1 R3 · LocSqr1Mor2 sqrop) =
+                LocSqr2Mor1 sqr · LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2 ·
+                            (RoofMor1 R3 · LocSqr1Mor2 sqrop)).
+    {
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr2)). <span class="nb">rewrite</span> (LocSqr2Comm sqr2). <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr2)). <span class="nb">rewrite</span> (LocSqr2Comm sqr2). <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop). <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (assoc _ _ (LocSqr1Mor2 sqrop)). <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop). <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> &lt;- (assoc _ (LocSqr2Mor1 sqr3)). <span class="nb">rewrite</span> (LocSqr2Comm sqr3). <span class="nb">rewrite</span> assoc.
+
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (LocSqr2Comm sqr4). <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (LocSqr2Comm sqr).
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (! (LocSqr2Comm sqr1)).
+    }
+    <span class="nb">set</span> (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor2 sqr · LocSqr2Mor1 sqr4 · LocSqr2Mor1 sqr2)
+                                 (LocSqr2Mor1 sqr · LocSqr2Mor1 sqr3 · LocSqr2Mor1 sqr2)
+                                 (RoofMor1 R3 · CoroofMor2 CR) e H).
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> PostS.
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor2 sqr).
+    - <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor1 sqr).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (PostSwitchMorIs PostS).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr).
+      + <span class="bp">exact</span> (RoofMor1Is R6').
+    - <span class="nb">cbn</span>. <span class="nb">fold</span> sqr1. <span class="nb">fold</span> sqr2. <span class="nb">fold</span> sqr3. <span class="nb">fold</span> sqr4.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> (LocSqr2Comm sqr).
+    - <span class="nb">cbn</span>. <span class="nb">fold</span> sqr1. <span class="nb">fold</span> sqr2. <span class="nb">fold</span> sqr3. <span class="nb">fold</span> sqr4.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">set</span> (tmp := PostSwitchEq PostS). <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_precategory_assoc_eqrel</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : loc_precategory_data) (<span class="nv">R1</span> : Roof x y)
+        (<span class="nv">R2</span> : Roof y z) (<span class="nv">R3</span> : Roof z w) :
+    (make_eqrel (RoofHrel x w) (RoofEqrel x w)) (roof_comp R1 (roof_comp R2 R3))
+                                               (roof_comp (roof_comp R1 R2) R3).
+  <span class="kn">Proof</span>.
+    use eqreltrans.
+    - <span class="bp">exact</span> (loc_precategory_assoc_Roof x y z w R1 R2 R3).
+    - <span class="bp">exact</span> (loc_precategory_assoc_eqrel2 x y z w R1 R2 R3).
+    - <span class="nb">apply</span> eqrelsymm.
+      <span class="bp">exact</span> (loc_precategory_assoc_eqrel1 R1 R2 R3).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">loc_precategory_assoc</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : loc_precategory_data)
+        (<span class="nv">f</span> : loc_precategory_data ⟦a, b⟧) (<span class="nv">g</span> : loc_precategory_data ⟦b, c⟧)
+        (<span class="nv">h</span> : loc_precategory_data ⟦c, d⟧) : f · (g · h) = f · g · h.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (pr1 (RoofEqclassIs f))). <span class="nb">apply</span> isasetRoofEqclass. <span class="nb">intros</span> f'.
+    use (squash_to_prop (pr1 (RoofEqclassIs g))). <span class="nb">apply</span> isasetRoofEqclass. <span class="nb">intros</span> g'.
+    use (squash_to_prop (pr1 (RoofEqclassIs h))). <span class="nb">apply</span> isasetRoofEqclass. <span class="nb">intros</span> h'.
+    <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2]. <span class="nb">induction</span> g' <span class="k">as</span> [g1 g2]. <span class="nb">induction</span> h' <span class="k">as</span> [h1 h2].
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">assert</span> (X1 : pr1 (f · (g · h)) (roof_comp f1 (roof_comp g1 h1))).
+      {
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a b d f (pr1 (pr1 (roof_comp_iscontr b c d g h)))))).
+        - <span class="nb">apply</span> f2.
+        - <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr b c d g h))).
+          + <span class="nb">apply</span> g2.
+          + <span class="nb">apply</span> h2.
+      }
+      <span class="nb">assert</span> (X2 : pr1 (f · g · h) (roof_comp (roof_comp f1 g1) h1)).
+      {
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a c d (pr1 (pr1 (roof_comp_iscontr a b c f g))) h))).
+        - <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a b c f g))).
+          + <span class="nb">apply</span> f2.
+          + <span class="nb">apply</span> g2.
+        - <span class="nb">apply</span> h2.
+      }
+      <span class="nb">set</span> (X3 := loc_precategory_assoc_eqrel a b c d f1 g1 h1).
+      use (eqax1 (RoofEqclassIs (f · g · h))).
+      + <span class="bp">exact</span> (roof_comp f1 (roof_comp g1 h1)).
+      + use (eqax2 (RoofEqclassIs (f · (g · h)))).
+        * <span class="bp">exact</span> X1.
+        * <span class="bp">exact</span> HR.
+      + use (eqax1 (RoofEqclassIs (f · g · h))).
+        * <span class="bp">exact</span> (roof_comp (roof_comp f1 g1) h1).
+        * <span class="nb">apply</span> eqrelsymm. <span class="bp">exact</span> X3.
+        * <span class="bp">exact</span> X2.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">assert</span> (X1 : pr1 (f · (g · h)) (roof_comp f1 (roof_comp g1 h1))).
+      {
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a b d f (pr1 (pr1 (roof_comp_iscontr b c d g h)))))).
+        - <span class="nb">apply</span> f2.
+        - <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr b c d g h))).
+          + <span class="nb">apply</span> g2.
+          + <span class="nb">apply</span> h2.
+      }
+      <span class="nb">assert</span> (X2 : pr1 (f · g · h) (roof_comp (roof_comp f1 g1) h1)).
+      {
+        <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a c d (pr1 (pr1 (roof_comp_iscontr a b c f g))) h))).
+        - <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr a b c f g))).
+          + <span class="nb">apply</span> f2.
+          + <span class="nb">apply</span> g2.
+        - <span class="nb">apply</span> h2.
+      }
+      <span class="nb">set</span> (X3 := loc_precategory_assoc_eqrel a b c d f1 g1 h1).
+      use (eqax1 (RoofEqclassIs (f · (g · h)))).
+      + <span class="bp">exact</span> (roof_comp f1 (roof_comp g1 h1)).
+      + use eqreltrans.
+        * <span class="bp">exact</span> (roof_comp (roof_comp f1 g1) h1).
+        * <span class="bp">exact</span> X3.
+        * use (eqax2 (RoofEqclassIs (f · g · h))).
+          -- <span class="bp">exact</span> X2.
+          -- <span class="bp">exact</span> HR.
+      + <span class="bp">exact</span> X1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_loc_precategory_data</span> : is_precategory loc_precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a b f.
+        <span class="nb">apply</span> loc_id_left.
+      + <span class="nb">intros</span> a b f.
+        <span class="nb">apply</span> loc_id_right.
+    - <span class="nb">intros</span> a b c d f g h.
+      <span class="nb">apply</span> loc_precategory_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The category of roofs under the correct equivalence relation *)</span>
+  <span class="kn">Definition</span> <span class="nf">loc_precategory</span> : precategory := tpair _ _ is_precategory_loc_precategory_data.
+
+  <span class="sd">(** In particular, loc_precategory has homsets. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_loc_precategory</span> : has_homsets loc_precategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> R1 R2. <span class="nb">apply</span> isasetRoofEqclass.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Universal property *)</span>
+  <span class="sd">(** We verify that loc_precategory satisfies the universal property required for localization</span>
+<span class="sd">      of categories. Universal property: Suppose F : C -&gt; D is a functor which maps the</span>
+<span class="sd">      morphisms in SOM to isomorphisms in D. Then there exists a unique functor H : loc_precategory</span>
+<span class="sd">      -&gt; D such that functor_composite [FunctorToLocalization] H = F, where FunctorToLocalization</span>
+<span class="sd">      is the natural inclusion functor C -&gt; loc_precategory.</span>
+
+<span class="sd">      The unique functor H is constructed in [LocalizationUniversalFunctor], commutativity is</span>
+<span class="sd">      proved in [LocalizationUniversalFunctorComm], and uniqueness of the functor is proved in</span>
+<span class="sd">      [LocalizationUniversalFunctorUnique]. In case the objects of D satisfy isaset, then we also</span>
+<span class="sd">      show that commutativity is unique. This means that the type</span>
+<span class="sd">      "functor_composite [FunctorToLocalization] H = F" has only one term.</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(** Maps a morphism to roofs *)</span>
+  <span class="kn">Definition</span> <span class="nf">MorToRoof</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">f</span> : x --&gt; y) : Roof x y.
+  <span class="kn">Proof</span>.
+    use make_Roof.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> (identity x).
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (isLocClassIs iLC x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** MorToRoof is linear with respect to composition in C. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorphismCompEqrel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    (make_eqrel _ (RoofEqrel x z)) (MorToRoof (f · g)) (roof_comp (MorToRoof f) (MorToRoof g)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Rf := MorToRoof f).
+    <span class="nb">set</span> (Rg := MorToRoof g).
+    <span class="nb">set</span> (Rfg := MorToRoof (f · g)).
+    <span class="nb">unfold</span> roof_comp.
+    <span class="nb">set</span> (sqr1 := isLocClassSqr2 iLC Rg Rf y (RoofMor1 Rg) (RoofMor1Is Rg) (RoofMor2 Rf)).
+    <span class="nb">set</span> (CR := RoofToCoroof (MorToRoof g)).
+    <span class="nb">set</span> (sqrop := isLocClassSqr1 iLC y y z (identity y) (isLocClassIs iLC y) g).
+    <span class="nb">assert</span> (H : LocSqr2Mor1 sqr1 · RoofMor2 Rg · CoroofMor2 CR =
+                LocSqr2Mor2 sqr1 · f · g · CoroofMor2 CR).
+    {
+      <span class="nb">cbn</span>. <span class="nb">fold</span> sqrop.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop). <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- (LocSqr1Comm sqrop). <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">set</span> (tmp := LocSqr2Comm sqr1). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp.
+      <span class="bp">exact</span> tmp.
+    }
+    <span class="nb">set</span> (PostS := isLocClassPost iLC _ _ _ (LocSqr2Mor1 sqr1 · RoofMor2 Rg)
+                                 (LocSqr2Mor2 sqr1 · f · g)
+                                 (CoroofMor2 CR) (CoroofMor2Is CR) H).
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> PostS.
+    - <span class="bp">exact</span> (PostSwitchMor PostS · (LocSqr2Mor2 sqr1)).
+    - <span class="bp">exact</span> (PostSwitchMor PostS).
+    - use (isLocClassComp iLC).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (PostSwitchMorIs PostS).
+        * <span class="bp">exact</span> (LocSqr2Mor2Is sqr1).
+      + <span class="bp">exact</span> (RoofMor1Is Rfg).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">set</span> (tmp := PostSwitchEq PostS). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp. <span class="nb">rewrite</span> assoc <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> (! (tmp)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This is used to show that the natural inclusion functor C --&gt; loc_precategory</span>
+<span class="sd">      respects composition. See [FunctorToLocalization]. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">FunctorToLocalization_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    RoofEqclassFromRoof (MorToRoof (f · g)) =
+    pr1 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                (RoofEqclassFromRoof (MorToRoof g)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmpp := roof_comp_iscontr_in x y z (MorToRoof f) (MorToRoof g)).
+    <span class="nb">set</span> (eqclass := pr1 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                                (RoofEqclassFromRoof (MorToRoof g))))).
+    <span class="nb">fold</span> eqclass <span class="k">in</span> tmpp.
+    <span class="nb">set</span> (cont := pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof (MorToRoof f))
+                                        (RoofEqclassFromRoof (MorToRoof g)))).
+    <span class="nb">set</span> (cont' := pr2 cont). <span class="nb">cbn</span> <span class="k">in</span> cont, cont'.
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R HR.
+      <span class="nb">unfold</span> RoofEqclassIn <span class="k">in</span> tmpp.
+      use (eqax1 (RoofEqclassIs eqclass)).
+      + <span class="bp">exact</span> (roof_comp (MorToRoof f) (MorToRoof g)).
+      + use eqreltrans.
+        * <span class="bp">exact</span> (MorToRoof (f · g)).
+        * <span class="nb">apply</span> eqrelsymm. <span class="nb">apply</span> MorphismCompEqrel.
+        * <span class="nb">set</span> (HR' := RoofEqclassFromRoofIn (MorToRoof (f · g))).
+          use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f · g))))).
+          -- <span class="bp">exact</span> HR'.
+          -- <span class="bp">exact</span> HR.
+      + <span class="bp">exact</span> tmpp.
+    - <span class="nb">intros</span> R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (MorToRoof (f · g))))).
+      + <span class="bp">exact</span> (MorToRoof (f · g)).
+      + use eqreltrans.
+        * <span class="bp">exact</span> (roof_comp (MorToRoof f) (MorToRoof g)).
+        * <span class="nb">apply</span> MorphismCompEqrel.
+        * use (eqax2 (RoofEqclassIs eqclass)).
+          -- <span class="bp">exact</span> tmpp.
+          -- <span class="bp">exact</span> HR.
+      + <span class="nb">apply</span> RoofEqclassFromRoofIn.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This is the natural inclusion functor from C to loc_precategory. It is identity on objects</span>
+<span class="sd">      and sends a morphisms f : X --&gt; Y to a roof (id_X, f). *)</span>
+  <span class="kn">Definition</span> <span class="nf">FunctorToLocalization</span> : functor C loc_precategory.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use functor_data_constr.
+      + <span class="nb">intros</span> x. <span class="bp">exact</span> x.
+      + <span class="nb">intros</span> x y f. <span class="bp">exact</span> (RoofEqclassFromRoof (MorToRoof f)).
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> x. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> x y z f g. <span class="bp">exact</span> (FunctorToLocalization_comp f g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** This definition is the map used by the unique localization functor to map morphisms.</span>
+<span class="sd">      It sends a roof (s, f) to the composite (# F s)^{-1} · (# F f). *)</span>
+  <span class="kn">Definition</span> <span class="nf">MorMap</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D) (<span class="nv">x</span> <span class="nv">y</span> : ob C)
+             (<span class="nv">H</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    Roof x y -&gt; D⟦F x, F y⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> R.
+    <span class="bp">exact</span> (inv_from_iso (make_iso _ (H _ _(RoofMor1 R) (RoofMor1Is R))) · (# F (RoofMor2 R))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** One of the 2-out-of-3 properties for isomorphisms. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_iso_pre</span> {<span class="nv">D</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : D} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+        (<span class="nv">H1</span> : is_iso (f · g)) (<span class="nv">H2</span> : is_iso g) : is_iso f.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (iso1 := make_iso _ H1).
+    <span class="nb">set</span> (iso2 := make_iso _ H2).
+    <span class="nb">set</span> (inv1 := inv_from_iso iso1).
+    <span class="nb">set</span> (inv2 := inv_from_iso iso2).
+    use is_iso_qinv.
+    - <span class="bp">exact</span> (g · inv1).
+    - <span class="nb">split</span>.
+      + <span class="nb">rewrite</span> assoc. <span class="nb">unfold</span> inv1.
+        <span class="nb">set</span> (tmp := iso_inv_after_iso iso1). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+        <span class="nb">apply</span> tmp.
+      + <span class="nb">set</span> (tmp := iso_inv_after_iso iso2). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> (post_comp_with_iso_is_inj _ _ g H2).
+        <span class="nb">set</span> (tmp := iso_after_iso_inv iso2). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">set</span> (tmp := iso_after_iso_inv iso1). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** These two lemmas are used in the proof of [MorMap_iscomprelfun]. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorMap_top_mor1_is_iso</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">x</span> <span class="nv">y</span> : ob C) (<span class="nv">H</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f))
+        (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) (<span class="nv">T</span> : RoofTop R1 R2) : is_iso (# F (RoofTopMor1 T)).
+  <span class="kn">Proof</span>.
+    use (@is_iso_pre D).
+    - <span class="bp">exact</span> (F x).
+    - <span class="bp">exact</span> (# F (RoofMor1 R1)).
+    - <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">apply</span> H. <span class="nb">apply</span> (RoofTopMor1Is T).
+    - <span class="nb">apply</span> H. <span class="nb">apply</span> (RoofMor1Is R1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MorMap_top_mor2_is_iso</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">x</span> <span class="nv">y</span> : ob C) (<span class="nv">H</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f))
+        (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) (<span class="nv">T</span> : RoofTop R1 R2) : is_iso (# F (RoofTopMor2 T)).
+  <span class="kn">Proof</span>.
+    use (@is_iso_pre D).
+    - <span class="bp">exact</span> (F x).
+    - <span class="bp">exact</span> (# F (RoofMor1 R2)).
+    - <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- (RoofTopEq1 T). <span class="nb">apply</span> H. <span class="nb">apply</span> (RoofTopMor1Is T).
+    - <span class="nb">apply</span> H. <span class="nb">apply</span> (RoofMor1Is R2).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Equation for compositions of inverses *)</span>
+  <span class="kn">Lemma</span> <span class="nf">inv_from_iso_comp</span> {<span class="nv">D</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : D} (<span class="nv">f</span> : iso x y) (<span class="nv">g</span> : iso y z) :
+    inv_from_iso (iso_comp f g) = inv_from_iso g · inv_from_iso f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> inv_iso_unique'. <span class="nb">unfold</span> precomp_with. <span class="nb">unfold</span> iso_comp. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ g). <span class="nb">rewrite</span> iso_inv_after_iso. <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> iso_inv_after_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** MorMap is compatible with equivalence relation of roofs when one assumes that all the</span>
+<span class="sd">      morpsisms in SOM are mapped to isomorphisms. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorMap_iscomprelfun</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D) (<span class="nv">x</span> <span class="nv">y</span> : ob C)
+             (<span class="nv">H</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    iscomprelfun (make_eqrel _ (RoofEqrel x y)) (MorMap D hsD F x y H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> R1 R2 T'.
+    use (squash_to_prop T'). <span class="nb">apply</span> hsD. <span class="nb">intros</span> T. <span class="nb">clear</span> T'.
+    <span class="nb">set</span> (iso1 := make_iso _ (H _ _ _ (RoofMor1Is R1))).
+    <span class="nb">set</span> (iso2 := make_iso _ (H _ _ _ (RoofMor1Is R2))).
+    <span class="nb">set</span> (iso3 := make_iso _ (MorMap_top_mor1_is_iso D hsD F x y H R1 R2 T)).
+    <span class="nb">set</span> (iso4 := make_iso _ (MorMap_top_mor2_is_iso D hsD F x y H R1 R2 T)).
+    <span class="nb">unfold</span> MorMap.
+    <span class="nb">rewrite</span> &lt;- (id_left (# F (RoofMor2 R1))).
+    <span class="nb">rewrite</span> &lt;- (iso_after_iso_inv (iso3)). <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- inv_from_iso_comp.
+    <span class="nb">rewrite</span> (RoofTopEq2 T). <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">fold</span> iso1 iso2 iso3 iso4.
+    <span class="nb">assert</span> (X : iso_comp iso3 iso1 = iso_comp iso4 iso2).
+    {
+      <span class="nb">apply</span> eq_iso. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">rewrite</span> &lt;- functor_comp. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (RoofTopEq1 T).
+    }
+    <span class="nb">rewrite</span> X.
+    <span class="nb">rewrite</span> inv_from_iso_comp. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">set</span> (tmp := iso_after_iso_inv iso4). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** There is a unique morphism in D such that all the roofs R which are in equivalence class</span>
+<span class="sd">      eqclass are mapped to. This uses the assumption H' which says that all morphisms in SOM</span>
+<span class="sd">      are mapped to isomorphisms in D. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorMap_iscontr</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f))
+        (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">eqclass</span> : RoofEqclass x y) :
+    iscontr (∑ g : D⟦F x, F y⟧,
+                   ∏ (R : Roof x y) (H1 : RoofEqclassIn (eqclass) R), g = MorMap D hsD F x y H' R).
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (pr1 (RoofEqclassIs eqclass))). <span class="nb">apply</span> isapropiscontr. <span class="nb">intros</span> R.
+    <span class="nb">induction</span> R <span class="k">as</span> [R1 R2].
+    <span class="nb">set</span> (tmp := MorMap_iscomprelfun D hsD F x y H'). <span class="nb">unfold</span> iscomprelfun <span class="k">in</span> tmp.
+    use unique_exists.
+    - <span class="bp">exact</span> (MorMap D hsD F x y H' R1).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span> R' HR'. <span class="nb">apply</span> tmp.
+      use (eqax2 (RoofEqclassIs eqclass)).
+      + <span class="bp">exact</span> R2.
+      + <span class="bp">exact</span> HR'.
+    - <span class="nb">intros</span> y0.
+      <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t.
+      <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t0.
+      <span class="nb">apply</span> hsD.
+    - <span class="nb">intros</span> y0 T. <span class="nb">cbn</span> beta <span class="k">in</span> T. <span class="bp">exact</span> (T R1 R2).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** MorMap equality from MorMap_iscontr *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorMap_iscontr_eq</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f))
+        (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">eqclass</span> : RoofEqclass x y) (<span class="nv">R</span> : Roof x y) (<span class="nv">H1</span> : RoofEqclassIn eqclass R) :
+    pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass)) = MorMap D hsD F x y H' R.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (pr2 (pr1 (MorMap_iscontr D hsD F H' x y eqclass))).
+    <span class="bp">exact</span> H1.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Equivalence class equality of roof_comp_iscontr with roof_comp's using R1'' and R2'' *)</span>
+  <span class="kn">Lemma</span> <span class="nf">roof_comp_iscontr_eqclass</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">R1</span> : RoofEqclass x y) (<span class="nv">R2</span> : RoofEqclass y z)
+        (<span class="nv">R1'</span> : Roof x y) (<span class="nv">R1''</span> : RoofEqclassIn R1 R1')
+        (<span class="nv">R2'</span> : Roof y z) (<span class="nv">R2''</span> : RoofEqclassIn R2 R2') :
+    pr1 (pr1 (roof_comp_iscontr x y z R1 R2)) = RoofEqclassFromRoof (roof_comp R1' R2').
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := pr2 (pr1 (roof_comp_iscontr x y z R1 R2)) R1' R1'' R2' R2'').
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R3 HR3.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof (roof_comp R1' R2')))).
+      + <span class="bp">exact</span> (roof_comp R1' R2').
+      + use (eqax2 (RoofEqclassIs (pr1 (pr1 (roof_comp_iscontr x y z R1 R2))))).
+        * <span class="bp">exact</span> tmp.
+        * <span class="bp">exact</span> HR3.
+      + <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">intros</span> R3 HR3.
+      use (eqax1 (RoofEqclassIs (pr1 (pr1 (roof_comp_iscontr x y z R1 R2))))).
+      + <span class="bp">exact</span> (roof_comp R1' R2').
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof (roof_comp R1' R2')))).
+        * <span class="nb">apply</span> RoofEqclassFromRoofIn.
+        * <span class="bp">exact</span> HR3.
+      + <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** MorMap is linear with respect to composition in D *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorMap_compose</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f))
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">R1</span> : Roof x y) (<span class="nv">R2</span> : Roof y z) :
+    MorMap D hsD F x z H' (roof_comp R1 R2) = MorMap D hsD F x y H' R1 · MorMap D hsD F y z H' R2.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC R2 R1 y (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1)).
+    <span class="nb">unfold</span> roof_comp. <span class="nb">fold</span> sqr. <span class="nb">unfold</span> MorMap <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (iso1 := make_iso
+                   (# F (LocSqr2Mor2 sqr · RoofMor1 R1))
+                   (H' sqr x (LocSqr2Mor2 sqr · RoofMor1 R1)
+                       (isLocClassComp iLC sqr R1 x (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr)
+                                       (RoofMor1 R1) (RoofMor1Is R1)))).
+    <span class="nb">set</span> (iso2 := make_iso _ (H' sqr R1 (LocSqr2Mor2 sqr) (LocSqr2Mor2Is sqr))).
+    <span class="nb">set</span> (iso3 := make_iso _ (H' R1 x (RoofMor1 R1) (RoofMor1Is R1))).
+    <span class="nb">set</span> (iso4 := make_iso _ (H' R2 y (RoofMor1 R2) (RoofMor1Is R2))).
+    <span class="nb">assert</span> (X : iso1 = iso_comp iso2 iso3).
+    {
+      use eq_iso. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> X. <span class="nb">rewrite</span> inv_from_iso_comp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> assoc.
+    <span class="nb">unfold</span> MorMap. <span class="nb">rewrite</span> assoc. <span class="nb">fold</span> iso3 iso4.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">set</span> (tmp := LocSqr2Comm sqr).
+    <span class="nb">apply</span> (pre_comp_with_iso_is_inj (C:=D) _ _ _ _ (pr2 iso2)). <span class="nb">rewrite</span> assoc.
+    <span class="nb">set</span> (tmp2 := iso_inv_after_iso iso2). <span class="nb">cbn</span> <span class="k">in</span> tmp2. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp2. <span class="nb">clear</span> tmp2.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> (post_comp_with_iso_is_inj (C:=D) _ _ _ (pr2 iso4)). <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">set</span> (tmp2 := iso_after_iso_inv iso4). <span class="nb">cbn</span> <span class="k">in</span> tmp2. <span class="nb">rewrite</span> tmp2. <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Construct a roof representing s^{-1} from a morphism s in SOM *)</span>
+  <span class="kn">Definition</span> <span class="nf">InvRoofFromMorInSom</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">s</span> : y --&gt; x) (<span class="nv">S</span> : SOM y x s) : Roof x y.
+  <span class="kn">Proof</span>.
+    use make_Roof.
+    - <span class="bp">exact</span> y.
+    - <span class="bp">exact</span> s.
+    - <span class="bp">exact</span> (identity y).
+    - <span class="bp">exact</span> S.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Roof is equivalent to composition of its "components". *)</span>
+  <span class="kn">Definition</span> <span class="nf">RoofDecomposeEqrel</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">R</span> : Roof x y) :
+    (make_eqrel _ (RoofEqrel x y)) R (roof_comp (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R))
+                                               (MorToRoof (RoofMor2 R))).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> roof_comp.
+    <span class="nb">set</span> (sqr := isLocClassSqr2 iLC (MorToRoof (RoofMor2 R))
+                               (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R)) R
+                               (RoofMor1 (MorToRoof (RoofMor2 R)))
+                               (RoofMor1Is (MorToRoof (RoofMor2 R)))
+                               (RoofMor2 (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R)))).
+    <span class="nb">fold</span> sqr.
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+    use make_RoofTop.
+    - <span class="bp">exact</span> sqr.
+    - <span class="bp">exact</span> (LocSqr2Mor2 sqr).
+    - <span class="bp">exact</span> (identity (sqr)).
+    - use (isLocClassComp iLC).
+      + <span class="bp">exact</span> (LocSqr2Mor2Is sqr).
+      + <span class="bp">exact</span> (RoofMor1Is R).
+    - <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">set</span> (tmp := LocSqr2Comm sqr). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp. <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp.
+      <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> tmp. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Composition of RoofEqclasses is the same as the equivalence class of composition of the</span>
+<span class="sd">      roofs. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">RoofEqclassCompToRoofComp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">R1</span> : Roof x y) (<span class="nv">R2</span> : Roof y z) :
+    @compose loc_precategory x y z (RoofEqclassFromRoof R1) (RoofEqclassFromRoof R2) =
+    (RoofEqclassFromRoof (roof_comp R1 R2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> RoofEqclassEqRoof.
+    <span class="nb">apply</span> (pr2 (pr1 (roof_comp_iscontr x y z (RoofEqclassFromRoof R1) (RoofEqclassFromRoof R2)))).
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Equivalent roofs give rise to the same equivalence class. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">RoofEqClassEq1</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R1</span> <span class="nv">R2</span> : Roof x y) (<span class="nv">H</span> : (make_eqrel _ (RoofEqrel x y)) R1 R2) :
+    (RoofEqclassFromRoof R1) = (RoofEqclassFromRoof R2).
+  <span class="kn">Proof</span>.
+    use RoofEqclassEq.
+    - <span class="nb">intros</span> R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+      + <span class="bp">exact</span> R1.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+        * <span class="bp">exact</span> (RoofEqclassFromRoofIn R1).
+        * <span class="bp">exact</span> HR.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+        * <span class="bp">exact</span> H.
+        * <span class="bp">exact</span> (RoofEqclassFromRoofIn R2).
+    - <span class="nb">intros</span> R HR.
+      use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+      + <span class="bp">exact</span> R2.
+      + use (eqax2 (RoofEqclassIs (RoofEqclassFromRoof R2))).
+        * <span class="bp">exact</span> (RoofEqclassFromRoofIn R2).
+        * <span class="bp">exact</span> HR.
+      + use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R1))).
+        * <span class="bp">exact</span> R1.
+        * <span class="bp">exact</span> H.
+        * <span class="bp">exact</span> (RoofEqclassFromRoofIn R1).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This lemma is used to show that inverse roof composed with roof gives the same equivalence</span>
+<span class="sd">      class as the IdRoof. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">RoofEqclassCompInvRToId</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">f1</span> : Roof x y) :
+    @compose loc_precategory _ _ _
+             (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+             (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1))) = (RoofEqclassFromRoof (IdRoof x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (R1 := (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1))).
+    <span class="nb">set</span> (R2 := (MorToRoof (RoofMor1 f1))).
+    <span class="nb">set</span> (tmp := pr2 (pr1 (roof_comp_iscontr x f1 x (RoofEqclassFromRoof R1)
+                                            (RoofEqclassFromRoof R2)))).
+    <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    use pathscomp0.
+    - <span class="bp">exact</span> (RoofEqclassFromRoof (roof_comp R1 R2)).
+    - use RoofEqclassEqRoof.
+      <span class="nb">apply</span> tmp.
+      + <span class="nb">apply</span> RoofEqclassFromRoofIn.
+      + <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">apply</span> RoofEqClassEq1.
+      <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P. <span class="nb">clear</span> tmp.
+      <span class="nb">unfold</span> roof_comp.
+      <span class="nb">set</span> (sqr := (isLocClassSqr2 iLC R2 R1 f1 (RoofMor1 R2) (RoofMor1Is R2) (RoofMor2 R1))).
+      use make_RoofTop.
+      + <span class="bp">exact</span> sqr.
+      + <span class="nb">cbn</span>. <span class="bp">exact</span> (identity sqr).
+      + <span class="bp">exact</span> (LocSqr2Mor2 sqr · (RoofMor1 f1)).
+      + use (isLocClassComp iLC).
+        * <span class="bp">exact</span> (isLocClassIs iLC _).
+        * <span class="bp">exact</span> (RoofMor1Is _).
+      + <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> id_right. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (tmp := LocSqr2Comm sqr). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp. <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp.
+        <span class="nb">rewrite</span> tmp. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This lemma shows that the equivalence class of roofs induced by a roof R is equal to the</span>
+<span class="sd">      equivalence class of roofs induced by composition of roofs (InvRoof (RoofMor1 R)) and</span>
+<span class="sd">      (MorToRoof (RoofMor2 R)) *)</span>
+  <span class="kn">Lemma</span> <span class="nf">RoofEqclassToRoofComp</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} (<span class="nv">R</span> : Roof x y) :
+    RoofEqclassFromRoof R =
+    RoofEqclassFromRoof
+      (roof_comp (InvRoofFromMorInSom (RoofMor1 R) (RoofMor1Is R)) (MorToRoof (RoofMor2 R))).
+  <span class="kn">Proof</span>.
+    use RoofEqclassEqRoof.
+    use (eqax1 (RoofEqclassIs (RoofEqclassFromRoof R))).
+    - <span class="bp">exact</span> R.
+    - <span class="bp">exact</span> (RoofDecomposeEqrel R).
+    - <span class="nb">apply</span> RoofEqclassFromRoofIn.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> RoofEqclassToRoofComp.
+
+  <span class="sd">(** This lemma is used to show that the localization functor [LocalizationUniversalFunctor] is</span>
+<span class="sd">      indeed a functor. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">LocalizationUniversalFunctor_isfunctor</span>
+    (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+    (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    @is_functor loc_precategory_data D
+      (functor_data_constr
+         loc_precategory_ob_mor D (<span class="k">λ</span> <span class="nv">x</span> : C, F x)
+         (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">eqclass</span> : RoofEqclass x y),
+          pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x. <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">set</span> (tmp := pr2 (pr1 (MorMap_iscontr D hsD F H' x x (IdRoofEqclass x))) (IdRoof x)).
+      <span class="nb">assert</span> (H2 : MorMap D hsD F x x H' (IdRoof x) = identity (F x)).
+      {
+        <span class="nb">unfold</span> MorMap. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (iso := make_iso _ (H' x x (identity x) (isLocClassIs iLC x))).
+        <span class="nb">set</span> (tmpp := iso_after_iso_inv iso). <span class="nb">cbn</span> <span class="k">in</span> tmpp. <span class="nb">apply</span> tmpp.
+      }
+      use (pathscomp0 _ H2).
+      <span class="nb">apply</span> tmp.
+      <span class="nb">apply</span> RoofEqclassFromRoofIn.
+    - <span class="nb">intros</span> x y z R1 R2. <span class="nb">cbn</span>.
+      use (squash_to_prop (pr1 (RoofEqclassIs R1))). <span class="nb">apply</span> hsD. <span class="nb">intros</span> R1'.
+      <span class="nb">induction</span> R1' <span class="k">as</span> [R1' R1''].
+      use (squash_to_prop (pr1 (RoofEqclassIs R2))). <span class="nb">apply</span> hsD. <span class="nb">intros</span> R2'.
+      <span class="nb">induction</span> R2' <span class="k">as</span> [R2' R2''].
+      <span class="nb">rewrite</span> (MorMap_iscontr_eq D hsD F H' x y R1 R1' R1'').
+      <span class="nb">rewrite</span> (MorMap_iscontr_eq D hsD F H' y z R2 R2' R2'').
+      <span class="nb">rewrite</span> (roof_comp_iscontr_eqclass R1 R2 R1' R1'' R2' R2'').
+      <span class="nb">set</span> (tmp := pr2 (pr1 (MorMap_iscontr
+                              D hsD F H' x z (RoofEqclassFromRoof (roof_comp R1' R2'))))
+                      (roof_comp R1' R2') (RoofEqclassFromRoofIn (roof_comp R1' R2'))).
+      <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> MorMap_compose.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The universal functor which we use to factor F through loc_precategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">LocalizationUniversalFunctor</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+             (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    functor loc_precategory D.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use functor_data_constr.
+      + <span class="nb">intros</span> x. <span class="bp">exact</span> (F x).
+      + <span class="nb">intros</span> x y eqclass. <span class="nb">apply</span> (pr1 (pr1 (MorMap_iscontr D hsD F H' x y eqclass))).
+    - <span class="bp">exact</span> (LocalizationUniversalFunctor_isfunctor D hsD F H').
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** We show that LocalizationUniversalFunctor satisfies the commutativity required for the</span>
+<span class="sd">      universal functor. *)</span>
+  <span class="kn">Definition</span> <span class="nf">LocalizationUniversalFunctorComm</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D)
+             (<span class="nv">F</span> : functor C D) (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    functor_composite FunctorToLocalization (LocalizationUniversalFunctor D hsD F H') = F.
+  <span class="kn">Proof</span>.
+    use (functor_eq _ _ hsD).
+    use total2_paths_f.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      use funextsec. <span class="nb">intros</span> a.
+      use funextsec. <span class="nb">intros</span> b.
+      use funextsec. <span class="nb">intros</span> f.
+      use (pathscomp0 (MorMap_iscontr_eq D hsD F H' a b (RoofEqclassFromRoof (MorToRoof f))
+                                         (MorToRoof f) (RoofEqclassFromRoofIn _))).
+      <span class="nb">unfold</span> MorToRoof. <span class="nb">unfold</span> MorMap. <span class="nb">cbn</span>.
+      <span class="nb">set</span> (iso := (make_iso (# F (identity a)) (H' a a (identity a) (isLocClassIs iLC a)))).
+      <span class="nb">assert</span> (X : iso = identity_iso (F a)).
+      {
+        use eq_iso. <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> X. <span class="nb">cbn</span>. <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This lemma shows uniqueness of the functor LocalizationUniversalFunctor *)</span>
+  <span class="kn">Lemma</span> <span class="nf">LocalizationUniversalFunctorUnique</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">F</span> : functor C D)
+        (<span class="nv">H'</span> : ∏ (x y : C) (f : C ⟦ x, y ⟧), SOM x y f → is_iso (# F f))
+        (<span class="nv">y</span> : functor loc_precategory D) (<span class="nv">T</span> : functor_composite FunctorToLocalization y = F) :
+    y = (LocalizationUniversalFunctor D hsD F H').
+  <span class="kn">Proof</span>.
+    use (functor_eq _ _ hsD).
+    use total2_paths_f.
+    - <span class="nb">induction</span> T. <span class="nb">apply</span> idpath.
+    - use funextsec. <span class="nb">intros</span> a.
+      use funextsec. <span class="nb">intros</span> b.
+      use funextsec. <span class="nb">intros</span> f.
+      <span class="nb">induction</span> T. <span class="nb">cbn</span>.
+      use (squash_to_prop (pr1 (RoofEqclassIs f))). <span class="nb">apply</span> hsD. <span class="nb">intros</span> f'. <span class="nb">induction</span> f' <span class="k">as</span> [f1 f2].
+      <span class="nb">rewrite</span> (RoofEqclassEqRoof f f1 f2).
+      use (pathscomp0 _ (! (pr2 (pr1 (MorMap_iscontr
+                                        D hsD (functor_composite FunctorToLocalization y)
+                                        H' a b (RoofEqclassFromRoof f1)))
+                                f1 (RoofEqclassFromRoofIn f1)))).
+      <span class="nb">rewrite</span> (RoofEqclassToRoofComp f1).
+      <span class="nb">rewrite</span> &lt;- (RoofEqclassCompToRoofComp (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1))
+                                           (MorToRoof (RoofMor2 f1))).
+      use (pathscomp0 (@functor_comp
+                         loc_precategory D y
+                         _ _ _
+                         (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+                         (RoofEqclassFromRoof (MorToRoof (RoofMor2 f1))))).
+      <span class="nb">unfold</span> functor_composite. <span class="nb">cbn</span>. <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">set</span> (iso1 := make_iso _ (H' f1 a (RoofMor1 f1) (RoofMor1Is f1))).
+      <span class="nb">apply</span> (post_comp_with_iso_is_inj _ _ _ (pr2 iso1)).
+      use (pathscomp0 _ (! (iso_after_iso_inv iso1))).
+      <span class="nb">unfold</span> iso1. <span class="nb">clear</span> iso1. <span class="nb">cbn</span>.
+      <span class="nb">set</span> (tmp := @functor_comp
+                    loc_precategory D y
+                    _ _ _
+                    (RoofEqclassFromRoof (InvRoofFromMorInSom (RoofMor1 f1) (RoofMor1Is f1)))
+                    (RoofEqclassFromRoof (MorToRoof (RoofMor1 f1)))).
+      <span class="nb">unfold</span> functor_on_morphisms <span class="k">in</span> tmp. <span class="nb">apply</span> pathsinv0 <span class="k">in</span> tmp. use (pathscomp0 tmp). <span class="nb">clear</span> tmp.
+      <span class="nb">rewrite</span> RoofEqclassCompInvRToId.
+      <span class="nb">apply</span> (@functor_id loc_precategory D y).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The following lemma only applies when the objects of D satisfy isaset. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">LocalizationUniversalProperty</span> (<span class="nv">D</span> : precategory) (<span class="nv">hsD</span> : has_homsets D) (<span class="nv">hssD</span> : isaset D)
+        (<span class="nv">F</span> : functor C D) (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)) :
+    iscontr (∑ H : functor loc_precategory D, functor_composite FunctorToLocalization H = F).
+  <span class="kn">Proof</span>.
+    use unique_exists.
+    <span class="c">(* The functor *)</span>
+    - <span class="bp">exact</span> (LocalizationUniversalFunctor D hsD F H').
+    <span class="c">(* Commutativity of the functor *)</span>
+    - <span class="bp">exact</span> (LocalizationUniversalFunctorComm D hsD F H').
+    <span class="c">(* Uniqueness of commutativity *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> (functor_isaset _ _ hsD hssD).
+    <span class="c">(* Uniqueness of the functor *)</span>
+    - <span class="bp">exact</span> (LocalizationUniversalFunctorUnique D hsD F H').
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> LocalizationUniversalProperty.
+
+  <span class="sd">(** The functor FunctorToLocalization maps morphisms in SOM to isomorphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">FunctorToLocalization_is_iso</span> :
+    ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# FunctorToLocalization f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f s. <span class="nb">cbn</span>.
+    use (@is_iso_qinv loc_precategory).
+    - <span class="bp">exact</span> (RoofEqclassFromRoof (InvRoofFromMorInSom f s)).
+    - <span class="nb">split</span>.
+      + <span class="nb">set</span> (sqr := isLocClassSqr2 iLC (InvRoofFromMorInSom f s) (MorToRoof f) y
+                                   (RoofMor1 (InvRoofFromMorInSom f s))
+                                   (RoofMor1Is (InvRoofFromMorInSom f s))
+                                   (RoofMor2 (MorToRoof f))).
+        <span class="nb">set</span> (PostS := isLocClassPost iLC sqr x y (LocSqr2Mor2 sqr) (LocSqr2Mor1 sqr) f s
+                                     (! (LocSqr2Comm sqr))).
+        <span class="nb">rewrite</span> RoofEqclassCompToRoofComp.
+        use RoofEqClassEq1.
+        <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+        <span class="nb">unfold</span> roof_comp. <span class="nb">fold</span> sqr.
+        use make_RoofTop.
+        * <span class="bp">exact</span> PostS.
+        * <span class="bp">exact</span> (PostSwitchMor PostS).
+        * <span class="bp">exact</span> (PostSwitchMor PostS · LocSqr2Mor2 sqr).
+        * use (isLocClassComp iLC).
+          -- <span class="bp">exact</span> (PostSwitchMorIs PostS).
+          -- use (isLocClassComp iLC).
+             ++ <span class="bp">exact</span> (LocSqr2Mor2Is sqr).
+             ++ <span class="bp">exact</span> (isLocClassIs iLC x).
+        * <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> idpath.
+        * <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> id_right.
+          <span class="bp">exact</span> (! (PostSwitchEq PostS)).
+      + <span class="nb">set</span> (sqr := isLocClassSqr2 iLC (MorToRoof f) (InvRoofFromMorInSom f s) x
+                                   (RoofMor1 (MorToRoof f)) (RoofMor1Is (MorToRoof f))
+                                   (RoofMor2 (InvRoofFromMorInSom f s))).
+        <span class="nb">rewrite</span> RoofEqclassCompToRoofComp.
+        use RoofEqClassEq1.
+        <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> X P.
+        <span class="nb">unfold</span> roof_comp. <span class="nb">fold</span> sqr.
+        use make_RoofTop.
+        * <span class="bp">exact</span> sqr.
+        * <span class="bp">exact</span> (identity sqr).
+        * <span class="bp">exact</span> (LocSqr2Mor2 sqr · f).
+        * use (isLocClassComp iLC).
+          -- <span class="bp">exact</span> (isLocClassIs iLC sqr).
+          -- use (isLocClassComp iLC).
+             ++ <span class="bp">exact</span> (LocSqr2Mor2Is sqr).
+             ++ <span class="bp">exact</span> s.
+        * <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> id_left. <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_right.
+          <span class="nb">set</span> (tmp := LocSqr2Comm sqr). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+          <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp. <span class="nb">rewrite</span> id_right <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp.
+          <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Localization of categories is unique up to isomorphism of categories and loc_precategory is</span>
+<span class="sd">      one such precategory. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">LocalizationUniversalCategory</span> (<span class="nv">CC</span> : precategory) (<span class="nv">hss</span> : has_homsets CC)
+        (<span class="nv">In</span> : functor C CC) (<span class="nv">H'</span> : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# In f))
+        (<span class="nv">HH</span> : ∏ (D : precategory) (hsD : has_homsets D)
+                (F : functor C D) (H' : ∏ (x y : C) (f : x --&gt; y) (s : SOM x y f), is_iso (# F f)),
+              ∑ HH : functor CC D, (functor_composite In HH = F)
+                                     × (∏ (yy : functor CC D) (comm : functor_composite In yy = F),
+                                        yy = HH)) :
+    ∑ D : (functor CC loc_precategory × functor loc_precategory CC),
+          (functor_composite (dirprod_pr1 D) (dirprod_pr2 D) = (functor_identity _))
+            × (functor_composite (dirprod_pr2 D) (dirprod_pr1 D) = (functor_identity _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (comm1 := LocalizationUniversalFunctorComm CC hss In H').
+    <span class="nb">set</span> (tmp := HH loc_precategory has_homsets_loc_precategory FunctorToLocalization
+                   FunctorToLocalization_is_iso).
+    <span class="nb">induction</span> tmp <span class="k">as</span> [inv1 p]. <span class="nb">induction</span> p <span class="k">as</span> [comm2 unique2].
+    <span class="nb">set</span> (inv2 := (LocalizationUniversalFunctor CC hss In H')).
+    use tpair.
+    - use make_dirprod.
+      + <span class="bp">exact</span> inv1.
+      + <span class="bp">exact</span> inv2.
+    - use make_dirprod.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- comm2 <span class="k">in</span> comm1. <span class="nb">rewrite</span> functor_assoc <span class="k">in</span> comm1.
+        <span class="nb">set</span> (tmp := HH CC hss In H').
+        <span class="nb">induction</span> tmp <span class="k">as</span> [F' CC2]. <span class="nb">induction</span> CC2 <span class="k">as</span> [comm3 unique3].
+        <span class="nb">set</span> (tmp1 := unique3 (functor_identity CC) (functor_identity_right _ _ _)).
+        <span class="nb">set</span> (tmp2 := unique3 (functor_composite inv1 (LocalizationUniversalFunctor CC hss In H'))
+                             comm1).
+        <span class="nb">rewrite</span> &lt;- tmp1 <span class="k">in</span> tmp2. <span class="bp">exact</span> tmp2.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- comm1 <span class="k">in</span> comm2. <span class="nb">rewrite</span> functor_assoc <span class="k">in</span> comm2.
+        <span class="nb">set</span> (tmp := LocalizationUniversalFunctorUnique
+                      loc_precategory has_homsets_loc_precategory FunctorToLocalization
+                      FunctorToLocalization_is_iso).
+        <span class="nb">set</span> (tmp1 := tmp _ comm2). <span class="nb">fold</span> inv2 <span class="k">in</span> tmp1.
+        <span class="nb">set</span> (tmp2 := tmp (functor_identity _) (functor_identity_right _ _ _)).
+        <span class="nb">rewrite</span> &lt;- tmp2 <span class="k">in</span> tmp1.
+        <span class="bp">exact</span> tmp1.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> LocalizationUniversalCategory.
+
+<span class="kn">End</span> <span class="nf">def_roofs</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/LocalizingClass.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Localizing class *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

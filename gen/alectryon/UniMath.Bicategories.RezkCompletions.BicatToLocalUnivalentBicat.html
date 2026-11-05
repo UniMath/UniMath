@@ -1,0 +1,2890 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatToLocalUnivalentBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, it is shown how any bicategory is weakly biequivalent to a locally univalent bicategory.</span>
+<span class="c">From any bicategory B, we construct a locally univalent bicategory LRB "local Rezk completion of B", which is defined by the following data:</span>
+<span class="c">ob LRB := ob B.</span>
+<span class="c">hom x y := RC(hom x y),</span>
+<span class="c">where RC is the Rezk completion for categories.</span>
+<span class="c">Since each hom-category of LRB is univalent, it is indeed locally univalent .</span>
+<span class="c">There is a pseudofunctor from B to LRB which is the identity on objects and</span>
+<span class="c">its action on morphisms is induced by the unit of the rezk completion of RC(hom _ _).</span>
+
+<span class="c">Most work lies in showing how LRB is indeed a bicategory.</span>
+<span class="c">In essence, this follows since all pieces of data (at level 1 and 2) of a bicategory correspond with a functor between some hom-categories. Those pieces of data can then be constructed using the universal property of the Rezk completion.</span>
+
+<span class="c">As a consequence, we can conclude that any bicategory admits a Rezk completion (this is formulated in Bicategories/RezkCompletions/RezkCompletion.v</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecompEquivalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RezkCompletions.RezkCompletions.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.YonedaLemma.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Properties.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">FunctorCompositionWeakBiequivalences</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_local_weak_equivalence</span>
+        {<span class="nv">B1</span> <span class="nv">B2</span> <span class="nv">B3</span> : bicat}
+        {<span class="nv">F</span> : psfunctor B1 B2}
+        {<span class="nv">G</span> : psfunctor B2 B3}
+        (<span class="nv">Feso</span> : local_weak_equivalence F)
+        (<span class="nv">Geso</span> : local_weak_equivalence G)
+    : local_weak_equivalence (comp_psfunctor G F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">split</span>.
+    - use (comp_essentially_surjective (Fmor F x y) _ (Fmor G _ _)).
+      + <span class="bp">exact</span> (pr1 (Feso x y)).
+      + <span class="nb">apply</span> (pr1 (Geso _ _)).
+    - use (comp_ff_is_ff _ _ _ (Fmor F x y) _ (Fmor G _ _)).
+      + <span class="bp">exact</span> (pr2 (Feso x y)).
+      + <span class="nb">apply</span> (pr2 (Geso _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_essentially_surjective</span>
+        {<span class="nv">B1</span> <span class="nv">B2</span> <span class="nv">B3</span> : bicat}
+        {<span class="nv">F</span> : psfunctor B1 B2}
+        {<span class="nv">G</span> : psfunctor B2 B3}
+        (<span class="nv">Feso</span> : essentially_surjective_psfunctor F)
+        (<span class="nv">Geso</span> : essentially_surjective_psfunctor G)
+    : essentially_surjective_psfunctor (comp_psfunctor G F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> z.
+    use (factor_through_squash_hProp _ _ (Geso z)).
+    <span class="nb">intros</span> [y yp].
+    use (factor_through_squash_hProp _ _ (Feso y)).
+    <span class="nb">intros</span> [x xp].
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">x</span>.
+    use (Composition.comp_adjequiv _ yp).
+    use (psfunctor_preserve_adj_equiv G).
+    <span class="bp">exact</span> xp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_weak_biequivalence</span>
+        {<span class="nv">B1</span> <span class="nv">B2</span> <span class="nv">B3</span> : bicat}
+        {<span class="nv">F</span> : psfunctor B1 B2}
+        {<span class="nv">G</span> : psfunctor B2 B3}
+        (<span class="nv">Fw</span> : weak_biequivalence F)
+        (<span class="nv">Gw</span> : weak_biequivalence G)
+    : weak_biequivalence (comp_psfunctor G F).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (comp_essentially_surjective (pr1 Fw) (pr1 Gw)).
+    - <span class="nb">apply</span> (comp_local_weak_equivalence (pr2 Fw) (pr2 Gw)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FunctorCompositionWeakBiequivalences</span>.
+
+<span class="kn">Section</span> <span class="nf">LocalUnivalenceRezk</span>.
+
+  <span class="kn">Context</span> (<span class="nv">RC</span> : RezkCat).
+  <span class="kn">Let</span> <span class="nf">R</span> : category -&gt; univalent_category := <span class="k">λ</span> <span class="nv">C</span>, pr1 (RC C).
+  <span class="kn">Let</span> <span class="nf">η</span> : ∏ C : category, functor C (R C) := <span class="k">λ</span> <span class="nv">C</span>, pr12 (RC C).
+  <span class="kn">Let</span> <span class="nf">eso</span> : ∏ C : category, Functors.essentially_surjective (η C) := <span class="k">λ</span> <span class="nv">C</span>, pr122 (RC C).
+  <span class="kn">Let</span> <span class="nf">ff</span> : ∏ C : category, Functors.fully_faithful (η C) := <span class="k">λ</span> <span class="nv">C</span>, pr222 (RC C).
+
+  <span class="kn">Notation</span> <span class="s2">"η_{ x , y }"</span> := (η (hom x y)).
+  <span class="kn">Notation</span> <span class="s2">"eso_{ x , y }"</span> := (eso (hom x y)).
+  <span class="kn">Notation</span> <span class="s2">"ff_{ x , y }"</span> := (ff (hom x y)).
+
+  <span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+  <span class="kn">Notation</span> <span class="s2">"( c , d )"</span> := (make_catbinprod c d).
+  <span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+
+  <span class="kn">Context</span> (<span class="nv">B</span> : bicat).
+
+  <span class="kn">Definition</span> <span class="nf">LRB_precat_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">ob</span> <span class="nv">B</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, ob (R (hom x y))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_composition</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B)
+    : functor (R (hom x y) ⊠ R (hom y z)) (R (hom x z)).
+  <span class="kn">Proof</span>.
+    use lift_functor_along.
+    - <span class="bp">exact</span> (hom x y ⊠ hom y z).
+    - <span class="bp">exact</span> (pair_functor (η_{x,y}) (η_{y,z})).
+    - <span class="nb">apply</span> pair_functor_eso ; <span class="nb">apply</span> eso.
+    - <span class="nb">apply</span> pair_functor_ff ; <span class="nb">apply</span> ff.
+    - <span class="bp">exact</span> (functor_composite hcomp_functor (η (hom x z))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_composition_comm</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B)
+    : nat_z_iso
+        (functor_composite (pair_functor (η (hom _ _)) (η (hom _ _))) (LRB_composition x y z))
+        (functor_composite hcomp_functor (η (hom x z)))
+    := lift_functor_along_comm _ _ _ _ _.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_composition_curry1</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B)
+    : functor (R (hom x y))
+              (FunctorCategory.functor_category (R (hom y z)) (R (hom x z)))
+    := curry_functor' (LRB_composition x y z).
+
+  <span class="kn">Definition</span> <span class="nf">LRB_composition_curry2</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B)
+    : functor (R (hom y z))
+              (FunctorCategory.functor_category (R (hom x y)) (R (hom x z)))
+    := curry_functor _ _ _ (LRB_composition x y z).
+
+  <span class="kn">Definition</span> <span class="nf">LRB_precat_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> LRB_precat_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, η (hom x x) (identity x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, LRB_composition x y z (f , g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_prebicat_2cell_struct</span>
+    : prebicat_2cell_struct LRB_precat_data
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, (R (hom x y))⟦f,g⟧.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_prebicat_1_id_comp_cells</span>
+    : prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">LRB_precat_data</span>.
+    <span class="bp">exact</span> LRB_prebicat_2cell_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">LRB_functor_lcomp_id</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    : functor (R (hom x y)) (R (hom x y)).
+  <span class="kn">Proof</span>.
+    use (lift_functor_along (R (hom x y)) _ (eso (hom x y)) (ff_{x,y})).
+    use (functor_composite _ (η_{x,y})).
+    use functor_composite.
+    - <span class="bp">exact</span> (hom x x ⊠ hom x y).
+    - use bindelta_pair_functor.
+      + <span class="nb">apply</span> constant_functor.
+        <span class="bp">exact</span> (identity x).
+      + <span class="nb">apply</span> functor_identity.
+    - <span class="nb">apply</span> hcomp_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lunitor_nat_z_iso_pre</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    : nat_z_iso
+    (η_{x,y}
+     ∙ (bindelta_pair_functor (constant_functor (R (hom x y)) (R (hom x x)) (η (hom x x) (id₁ x)))
+          (functor_identity (R (hom x y))) ∙ LRB_composition x x y))
+    (η_{x,y} ∙ functor_identity (R (hom x y))).
+  <span class="kn">Proof</span>.
+    transparent <span class="nb">assert</span> (p :
+                         (nat_z_iso (η_{x,y}
+              ∙ (bindelta_pair_functor
+                   (constant_functor (R (hom x y)) (R (hom x x)) (η (hom x x) (id₁ x)))
+                   (functor_identity (R (hom x y)))
+                ))
+                (bindelta_pair_functor
+                (constant_functor (hom x y) (hom x x) (id₁ x))
+                (functor_identity (hom x y))
+                ∙ (pair_functor (η (hom x x)) (η_{x,y}))))
+           ).
+    {
+      use make_nat_z_iso.
+      - use make_nat_trans.
+        + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+        + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+          <span class="nb">cbn</span>.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (! functor_id (η (hom x x)) _).
+      - <span class="nb">intro</span> ; <span class="nb">apply</span> (identity_is_z_iso (C := _ ⊠ _)).
+    }
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
+    use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: <span class="nb">apply</span> lift_functor_along_comm.
+    use (nat_z_iso_comp _ (nat_z_iso_inv (functor_commutes_with_id _))).
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    use post_whisker_nat_z_iso.
+    use make_nat_z_iso.
+    - <span class="nb">apply</span> lunitor_transf.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> is_z_iso_lunitor.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">LRB_runitor_nat_z_iso_pre</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    :  nat_z_iso
+    (η_{x,y}
+     ∙ (bindelta_pair_functor (functor_identity (R (hom x y)))
+          (constant_functor (R (hom x y)) (R (hom y y)) (η (hom y y) (id₁ y)))
+          ∙ LRB_composition x y y)) (η_{x,y} ∙ functor_identity (R (hom x y))).
+  <span class="kn">Proof</span>.
+    transparent <span class="nb">assert</span> (p :
+                         (nat_z_iso
+                            (η_{x,y}
+              ∙ (bindelta_pair_functor
+                   (functor_identity (R (hom x y)))
+                   (constant_functor (R (hom x y)) (R (hom y y)) (η (hom y y) (id₁ y)))
+                ))
+                            (bindelta_pair_functor
+                               (functor_identity (hom x y))
+                               (constant_functor (hom x y) (hom y y) (id₁ y))
+                               ∙ (pair_functor (η_{x,y}) (η (hom y y)))))
+           ).
+    {
+      use make_nat_z_iso.
+      - use make_nat_trans.
+        + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+        + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+          <span class="nb">cbn</span>.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (! functor_id (η (hom y y)) _).
+      - <span class="nb">intro</span> ; <span class="nb">apply</span> (identity_is_z_iso (C := _ ⊠ _)).
+    }
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
+    use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: <span class="nb">apply</span> lift_functor_along_comm.
+    use (nat_z_iso_comp _ (nat_z_iso_inv (functor_commutes_with_id _))).
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    use post_whisker_nat_z_iso.
+    use make_nat_z_iso.
+    - <span class="nb">apply</span> runitor_transf.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> is_z_iso_runitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lunitor_nat_z_iso</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    : nat_z_iso (functor_composite
+                   (bindelta_pair_functor (constant_functor _ _ (η (hom x x) (identity x))) (functor_identity _))
+                   (LRB_composition x x y)
+                )
+                (functor_identity (R (hom x y))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (lift_nat_z_iso_along  (R (hom x y)) _ (eso (hom x y)) (ff_{x,y})).
+    <span class="nb">apply</span> LRB_lunitor_nat_z_iso_pre.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lunitor</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : R (hom x y))
+    : z_iso (LRB_composition x x y (η (hom x x) (identity x) , f)) f.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="kp">try</span> (<span class="nb">apply</span> (LRB_lunitor_nat_z_iso x y)).
+    <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 (LRB_lunitor_nat_z_iso x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_runitor_nat_z_iso</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    : nat_z_iso (functor_composite
+                   (bindelta_pair_functor
+                      (functor_identity _)
+                      (constant_functor _ _ (η (hom y y) (identity y)))
+                   )
+                   (LRB_composition x y y)
+                )
+                (functor_identity (R (hom x y))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (lift_nat_z_iso_along  (R (hom x y)) _ (eso (hom x y)) (ff_{x,y})).
+    <span class="nb">apply</span> LRB_runitor_nat_z_iso_pre.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_runitor</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : R (hom x y))
+    : z_iso (LRB_composition x y y (f, η (hom y y) (identity y))) f.
+  <span class="kn">Proof</span>.
+    use make_z_iso ; <span class="kp">try</span> (<span class="nb">apply</span> (LRB_runitor_nat_z_iso x y)).
+    <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 (LRB_runitor_nat_z_iso x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">LRB_lunitor_comm</span> := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : B, lift_nat_trans_along_comm (R (hom x y)) _ (eso (hom x y)) (ff_{x,y}) (LRB_lunitor_nat_z_iso_pre x y).
+  <span class="kn">Let</span> <span class="nf">LRB_runitor_comm</span> := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : B, lift_nat_trans_along_comm (R (hom x y)) _ (eso (hom x y)) (ff_{x,y}) (LRB_runitor_nat_z_iso_pre x y).
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lwhisker</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+             (<span class="nv">f</span> : R (hom x y))
+             {<span class="nv">g1</span> <span class="nv">g2</span> : R (hom y z)}
+             (<span class="nv">α</span> : R (hom y z) ⟦ g1, g2 ⟧)
+    : R (hom x z) ⟦LRB_composition _ _ _ (f, g1), LRB_composition _ _ _ (f, g2)⟧
+    := #(LRB_composition_curry1 x y z f : functor _ _) α.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_rwhisker</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+             {<span class="nv">f1</span> <span class="nv">f2</span> : R (hom x y)}
+             (<span class="nv">α</span> : R (hom x y) ⟦ f1, f2 ⟧)
+             (<span class="nv">g</span>: R (hom y z))
+    : R (hom x z) ⟦LRB_composition _ _ _ (f1, g), LRB_composition _ _ _ (f2, g)⟧
+    := #(LRB_composition_curry2 x y z g : functor _ _) α.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_nat_z_iso_pre</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B)
+    : nat_z_iso
+        (pair_functor
+           (η_{x,y})
+           (pair_functor (η_{y,z}) (η (hom z w)))
+           ∙ (((precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w)))
+                 ∙ pair_functor (LRB_composition x y z) (functor_identity (R (hom z w))))
+                ∙ LRB_composition x z w)
+        )
+        (pair_functor
+           (η_{x,y})
+           (pair_functor (η_{y,z}) (η (hom z w)))
+           ∙ (pair_functor (functor_identity (R (hom x y))) (LRB_composition y z w)
+                           ∙ LRB_composition x y w)).
+  <span class="kn">Proof</span>.
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    transparent <span class="nb">assert</span> (p : (nat_z_iso
+                   (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
+                                 ∙ precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w)))
+                   (precategory_binproduct_assoc
+                      (hom x y) (hom y z) (hom z w)
+                      ∙ (pair_functor (pair_functor (η_{x,y}) (η_{y,z})) (η (hom z w)))))).
+    {
+      use make_nat_z_iso.
+      - use make_nat_trans.
+        + <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+        + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+          <span class="nb">cbn</span>.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+          <span class="bp">now</span> <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right.
+      - <span class="nb">intro</span> ; <span class="nb">apply</span> (identity_is_z_iso (C := _ ⊠ _)).
+    }
+    transparent <span class="nb">assert</span> (q :
+                         (nat_z_iso
+                            (pair_functor (pair_functor (η_{x,y}) (η_{y,z})) (η (hom z w))
+                                          ∙ pair_functor (LRB_composition x y z) (functor_identity (R (hom z w))))
+                            (pair_functor hcomp_functor (functor_identity (hom z w)) ∙ (pair_functor (η _) (η _)))
+                         )
+                       ).
+    {
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_pair _ _ _ _))).
+      use (nat_z_iso_comp _ (nat_z_iso_pair _ _ _ _)).
+      use nat_z_iso_between_pair.
+      - <span class="nb">apply</span> LRB_composition_comm.
+      - <span class="nb">apply</span> functor_commutes_with_id.
+    }
+    transparent <span class="nb">assert</span> ( q' :
+                         (nat_z_iso
+                            ((pair_functor (functor_identity (hom x y)) hcomp_functor)
+                            ∙ pair_functor (η (hom _ _)) (η (hom _ _)))
+                                          (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))) ∙ pair_functor (functor_identity (R (hom x y))) (LRB_composition y z w)))).
+    {
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_pair _ _ _ _))).
+      use (nat_z_iso_comp _ (nat_z_iso_pair _ _ _ _)).
+      use nat_z_iso_between_pair.
+      - <span class="nb">apply</span> functor_commutes_with_id.
+      - <span class="nb">apply</span> nat_z_iso_inv, LRB_composition_comm.
+    }
+    use (nat_z_iso_comp (post_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: {
+      use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+      use (nat_z_iso_comp (post_whisker_nat_z_iso p _) _).
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+      <span class="nb">apply</span> (pre_whisker_nat_z_iso _ q).
+    }
+    use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: {
+      use (nat_z_iso_comp (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+      use (pre_whisker_nat_z_iso _ _).
+      <span class="mi">2</span>: <span class="nb">apply</span> LRB_composition_comm.
+    }
+    use (nat_z_iso_comp (pre_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: <span class="nb">apply</span> (nat_z_iso_functor_comp_assoc _ _ _).
+    use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+    use (nat_z_iso_comp (post_whisker_nat_z_iso _ _) _).
+    <span class="mi">2</span>: {
+      use (nat_z_iso_comp (nat_z_iso_functor_comp_assoc _ _ _)).
+      use tpair.
+      - <span class="bp">exact</span> (rassociator_transf x y z w).
+      - <span class="nb">intro</span> ; <span class="nb">apply</span> is_z_iso_rassociator.
+    }
+    use (nat_z_iso_comp _ (nat_z_iso_inv (nat_z_iso_functor_comp_assoc _ _ _))).
+    use (nat_z_iso_comp _ (post_whisker_nat_z_iso q' _)).
+    use (nat_z_iso_comp _ (nat_z_iso_functor_comp_assoc _ _ _)).
+    use (nat_z_iso_comp _ (pre_whisker_nat_z_iso _ _)).
+    <span class="mi">3</span>: <span class="nb">apply</span> nat_z_iso_inv, LRB_composition_comm.
+    <span class="nb">apply</span> nat_z_iso_inv, nat_z_iso_functor_comp_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_lunitor_pre_simpl</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : B⟦x,y⟧)
+    :  pr1 (LRB_lunitor_nat_z_iso_pre x y) f = (pr1 (LRB_composition_comm x x y) (id₁ x : hom _ _, f : hom _ _) · #(η_{x,y}) (lunitor f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left.
+    etrans. { <span class="nb">apply</span> maponpaths_2, maponpaths, binprod_id. }
+    etrans. { <span class="nb">apply</span> maponpaths_2, functor_id. }
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_runitor_pre_simpl</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : B⟦x,y⟧)
+    :  pr1 (LRB_runitor_nat_z_iso_pre x y) f
+       = (pr1 (LRB_composition_comm x y y) (_,_)) · #(η_{x,y}) (runitor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left.
+    etrans. { <span class="nb">apply</span> maponpaths_2, maponpaths, binprod_id. }
+    etrans. { <span class="nb">apply</span> maponpaths_2, functor_id. }
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_nat_z_iso</span>
+             (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B)
+    : nat_z_iso
+        (functor_composite
+         (functor_composite
+            (precategory_binproduct_assoc
+               (R (hom (C := B) x y))
+               (R (hom (C := B) y z))
+               (R (hom (C := B) z w))
+            )
+            (pair_functor (LRB_composition x y z)
+                          (functor_identity (R (hom z w)))
+            )
+         )
+         (LRB_composition x z w)
+        )
+        (functor_composite
+           (pair_functor
+              (functor_identity (R (hom (C := B) x y)))
+              (LRB_composition y z w))
+           (LRB_composition x y w)).
+  <span class="kn">Proof</span>.
+    use lift_nat_z_iso_along.
+    - <span class="bp">exact</span> ((hom x y) ⊠ ((hom y z) ⊠ (hom z w))).
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> pair_functor) ; <span class="nb">apply</span> (η (hom _ _)).
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> pair_functor_eso) ; <span class="nb">apply</span> eso.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> pair_functor_ff) ; <span class="nb">apply</span> ff.
+    - <span class="bp">exact</span> (LRB_associator_nat_z_iso_pre x y z w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">eso3</span> := <span class="k">λ</span> <span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category, pair_functor_eso _ _ (eso C1) (pair_functor_eso _ _ (eso C2) (eso C3)).
+  <span class="kn">Let</span> <span class="nf">ff3</span> := <span class="k">λ</span> <span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category, pair_functor_ff _ _ (ff C1) (pair_functor_ff _ _ (ff C2) (ff C3)).
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_associator_comm</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B)
+    : pre_whisker (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))))
+         (lift_nat_trans_along (R (hom x w))
+            (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w))))
+            (eso3 _ _ _)
+            (ff3 _ _ _)
+            (LRB_associator_nat_z_iso_pre x y z w)
+         )
+       = LRB_associator_nat_z_iso_pre x y z w.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (lift_nat_trans_along_comm _ _ _ _ (LRB_associator_nat_z_iso_pre x y z w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_pre_simpl_mor</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B} (<span class="nv">f</span> : B⟦x,y⟧) (<span class="nv">g</span> : B⟦y,z⟧) (<span class="nv">h</span> : B⟦z,w⟧)
+    : R (hom x w)
+ ⟦ (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
+    ∙ ((precategory_binproduct_assoc (R (hom x y)) (R (hom y z)) (R (hom z w))
+        ∙ pair_functor (LRB_composition x y z) (functor_identity (R (hom z w))))
+       ∙ LRB_composition x z w)) (f : hom x y, (g : hom y z, h : hom z w)),
+ (pair_functor (η_{x,y}) (pair_functor (η_{y,z}) (η (hom z w)))
+  ∙ (pair_functor (functor_identity (R (hom x y))) (LRB_composition y z w) ∙ LRB_composition x y w))
+   (f : hom x y, (g : hom y z, h : hom z w)) ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (#(LRB_composition x z w) (pr1 (LRB_composition_comm x y z) (f : hom _ _ , g : hom _ _) #, identity _) · _).
+    <span class="nb">refine</span> (_ · #( LRB_composition x y w) (identity _ #, pr1 (nat_z_iso_inv (LRB_composition_comm y z w)) (g : hom _ _ , h : hom _ _))).
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (pr1 (LRB_composition_comm x z w) (f · g : hom _ _ , h : hom _ _) · _).
+    <span class="nb">refine</span> (_ · pr1 (nat_z_iso_inv (LRB_composition_comm x y w)) (f : hom _ _ , g · h : hom _ _)).
+    <span class="nb">apply</span> (#(η (hom x w))).
+    <span class="bp">exact</span> (rassociator f g h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_associator_pre_simpl</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B} (<span class="nv">f</span> : B⟦x,y⟧) (<span class="nv">g</span> : B⟦y,z⟧) (<span class="nv">h</span> : B⟦z,w⟧)
+    : pr1 (LRB_associator_nat_z_iso_pre x y z w) (f : hom _ _, (g : hom _ _, h : hom _ _))
+      = LRB_associator_pre_simpl_mor f g h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+    <span class="nb">rewrite</span> ! id_left.
+    <span class="nb">rewrite</span> ! id_right.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">rewrite</span> id2_left.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> maponpaths_2).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    use total2_paths_f.
+    - <span class="nb">cbn</span> ; <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_id. }
+      <span class="nb">apply</span> functor_id.
+    - <span class="bp">now</span> <span class="nb">rewrite</span> transportf_const.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+             (<span class="nv">f</span> : R (hom x y))
+             (<span class="nv">g</span> : R (hom y z))
+             (<span class="nv">h</span> : R (hom z w))
+    : z_iso (C := R (hom x w))
+            (LRB_composition _ _ _ (LRB_composition _ _ _ (f,g), h))
+            (LRB_composition _ _ _ (f, LRB_composition _ _ _ (g,h))).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> (LRB_associator_nat_z_iso x y z w) (f,(g,h))).
+    <span class="k">exists</span> (<span class="nv">pr1</span> (pr2 (LRB_associator_nat_z_iso x y z w) (f,(g,h)))).
+    <span class="nb">split</span> ; <span class="nb">apply</span> (pr2 (LRB_associator_nat_z_iso x y z w) (f,(g,h))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_prebicat_2_id_comp_struct</span>
+    : prebicat_2_id_comp_struct LRB_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, identity f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 (LRB_lunitor f)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 (LRB_runitor f)).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LRB_lunitor.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LRB_runitor.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LRB_associator.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LRB_associator.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">α</span> <span class="nv">β</span>, α · β).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g1</span> <span class="nv">g2</span> <span class="nv">α</span>, LRB_lwhisker f α).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f1</span> <span class="nv">f2</span> <span class="nv">g</span> <span class="nv">α</span>, LRB_rwhisker α g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_data</span> : prebicat_data.
+  <span class="kn">Proof</span>.
+    use make_prebicat_data.
+    - <span class="bp">exact</span> LRB_prebicat_1_id_comp_cells.
+    - <span class="bp">exact</span> LRB_prebicat_2_id_comp_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prewhisker_LRB_lunitor</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : B⟦x,y⟧)
+    : pr1 (LRB_lunitor (η_{x,y} f))
+      = LRB_rwhisker (id₁ (η (hom x x) (id₁ x))) (η_{x,y} f)
+                     · pr1 (LRB_composition_comm x x y)
+                     (make_catbinprod (C := hom x x) (D := hom x y) (id₁ x) f)
+                     · # (η_{x,y}) (lunitor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (toforallpaths _ _ _ (base_paths _ _ (LRB_lunitor_comm x y)) f @ _).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (! functor_id (LRB_composition_curry2 x x y (η_{x,y} f)) _).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> LRB_lunitor_nat_z_iso_pre.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_id. }
+      <span class="nb">apply</span> functor_id.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prewhisker_LRB_runitor</span> {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">f</span> : B⟦x,y⟧)
+    :  pr1 (LRB_runitor (η_{x,y} f))
+       = LRB_lwhisker (η_{x,y} f) (id₁ (η (hom y y) (id₁ y)))
+                      · pr1 (LRB_composition_comm x y y)
+                      (make_catbinprod (C := hom x y) (D := hom y y) f (id₁ y))
+                      · # (η_{x,y}) (runitor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (toforallpaths _ _ _ (base_paths _ _ (LRB_runitor_comm x y)) f @ _).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (! functor_id (LRB_composition_curry1 x y y (η_{x,y} f)) _).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> LRB_runitor_nat_z_iso_pre.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_id. }
+      <span class="nb">apply</span> functor_id.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prewhisker_LRB_associator'</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        (<span class="nv">f</span> : B ⟦ x, y ⟧)
+        (<span class="nv">g</span> : B ⟦ y, z ⟧)
+        (<span class="nv">h</span> : B ⟦ z, w ⟧)
+    : pr1 (LRB_associator (η_{x,y} f) (η_{y,z} g) (η (hom z w) h)) = LRB_associator_pre_simpl_mor f g h.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f : hom _ _, (g : hom _ _, h : hom _ _))) @ _).
+    <span class="nb">apply</span> (LRB_associator_pre_simpl f g h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prewhisker_LRB_associator</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        (<span class="nv">f</span> : B ⟦ x, y ⟧)
+        (<span class="nv">g</span> : B ⟦ y, z ⟧)
+        (<span class="nv">h</span> : B ⟦ z, w ⟧)
+    : # (LRB_composition x y w) (id₁ (η_{x,y} f) #, pr1 (LRB_composition_comm y z w) (g : hom _ _, h : hom _ _))
+        · pr1 (LRB_composition_comm x y w) (f : hom _ _, g · h : hom _ _) · # (η (hom x w)) (lassociator f g h) =
+        pr1 (pr2 (LRB_associator_nat_z_iso x y z w) (η_{x,y} f, (η_{y,z} g, η (hom z w) h)))
+            · # (LRB_composition x z w)
+            (make_dirprod
+               (pr1 (LRB_composition_comm x y z) (f : hom _ _, g : hom _ _))
+               (id₁ (η (hom z w) h))
+              : R (hom x z) ⊠ R (hom z w) ⟦((pair_functor (η_{x,y}) (η_{y,z}) ∙ LRB_composition x y z) (f : hom _ _, g : hom _ _) ,  η (hom z w) h), ((hcomp_functor ∙ η (hom x z)) (f : hom _ _, g : hom _ _), η (hom z w) h) ⟧
+            )
+            · pr1 (LRB_composition_comm x z w) (f · g : hom _ _, h : hom _ _).
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> assoc.
+
+    use (z_iso_inv_to_left _ _ _ (z_iso_inv (_ ,, pr2 (LRB_associator_nat_z_iso x y z w) (η_{x,y} f, (η_{y,z} g, η (hom z w) h)) : z_iso _ _))).
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f : hom _ _, (g : hom _ _ , h : hom _ _))).
+    }
+
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left, ! id_right.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_id. }
+      <span class="nb">apply</span> functor_id.
+    }
+    <span class="nb">rewrite</span> id_left, id2_left, ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition x y w)).
+    }
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">cbn</span>.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm y z w) (g : hom _ _, h : hom _ _))).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> (functor_id (LRB_composition x y w)).
+    }
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span>  (pr2 (LRB_composition_comm x y w) (f : hom _ _, g · h : hom _ _)).
+    }
+    <span class="nb">rewrite</span> id_left.
+    etrans. { <span class="nb">apply</span> pathsinv0, (functor_comp (η (hom x w))). }
+    etrans. { <span class="nb">apply</span> maponpaths, rassociator_lassociator. }
+    <span class="nb">apply</span> (functor_id (η (hom x w))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prewhisker_LRB_associator_co</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        (<span class="nv">f</span> : B ⟦ x, y ⟧)
+        (<span class="nv">g</span> : B ⟦ y, z ⟧)
+        (<span class="nv">h</span> : B ⟦ z, w ⟧)
+    : # (LRB_composition x z w) (pr1 (LRB_composition_comm x y z) (f : hom _ _, g : hom _ _) #, id₁ (η (hom z w) h) )
+        · pr1 (LRB_composition_comm x z w) (f  · g : hom _ _, h : hom _ _) · # (η (hom x w)) (rassociator f g h) =
+        ((LRB_associator_nat_z_iso x y z w) (η_{x,y} f, (η_{y,z} g, η (hom z w) h)))
+            · # (LRB_composition x y w)
+            (make_dirprod
+               (id₁ (η_{x,y} f))
+               (pr1 (LRB_composition_comm y z w) (g : hom _ _, h : hom _ _))
+              : R (hom x y) ⊠ R (hom y w)⟦(_,_),(_,_)⟧
+            )
+            · pr1 (LRB_composition_comm x y w) (f : hom _ _, g · h: hom _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (l := prewhisker_LRB_associator f g h).
+
+    transparent <span class="nb">assert</span> (l1 : (is_z_isomorphism (#η_{ x, w} (rassociator f g h)))).
+    {
+      use functor_on_is_z_isomorphism.
+      <span class="nb">apply</span> is_z_iso_rassociator.
+    }
+
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (z_iso_inv (_,,l1))).
+
+    transparent <span class="nb">assert</span> (l2 : (is_z_isomorphism (LRB_associator_nat_z_iso x y z w (η_{ x, y} f, (η_{ y, z} g, η_{ z, w} h))))).
+    {
+      <span class="nb">apply</span> LRB_associator_nat_z_iso.
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_right _ _ _ (z_iso_inv (_,,l2))).
+
+    <span class="nb">rewrite</span> ! assoc' <span class="k">in</span> l.
+    <span class="bp">exact</span> l.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_vcomp_lunitor</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : B}
+        {<span class="nv">f</span> <span class="nv">g</span> : R (hom x y)}
+        (<span class="nv">α</span> : R(hom x y)⟦f,g⟧)
+    : LRB_lwhisker (η (hom x x) (identity x)) α · LRB_lunitor g
+       = pr1 (LRB_lunitor f) · α.
+  <span class="kn">Proof</span>.
+    use (factor_through_squash _ _ (eso (hom x y) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom x y) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pg).
+    <span class="nb">clear</span> pf pg.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (toforallpaths _ _ _ (base_paths _ _ (LRB_lunitor_comm _ _)) g0).
+    }
+
+    <span class="nb">assert</span> (α' : ∑ α0 : (hom x y)⟦f0,g0⟧, #(η_{x,y}) α0 = α).
+    { <span class="nb">apply</span> (ff_{x,y} f0 g0). }
+    <span class="nb">induction</span> α' <span class="k">as</span> [α0 αp].
+    <span class="nb">induction</span> αp.
+
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, (! prewhisker_LRB_lunitor f0).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_comp (η_{x,y})).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (vcomp_lunitor f0 g0 α0).
+    }
+
+    etrans. { <span class="nb">apply</span> maponpaths, (LRB_lunitor_pre_simpl g0). }
+
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (functor_comp (η_{x,y})).
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_id (LRB_composition_curry2 x x y (η_{x,y} f0))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (_ @ pr21 (LRB_composition_comm x x y) _ _ (id2 (id₁ x) : (hom _ _)⟦_,_⟧ #, α0) @ _) ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> maponpaths_2, maponpaths, maponpaths_2, pathsinv0, (functor_id (η (hom x x))).
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, lwhisker_hcomp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_vcomp_runitor</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : B}
+        {<span class="nv">f</span> <span class="nv">g</span> : R (hom x y)}
+        (<span class="nv">α</span> : R(hom x y)⟦f,g⟧)
+    : LRB_rwhisker α (η (hom y y) (identity y)) · LRB_runitor g
+      = pr1 (LRB_runitor f) · α.
+  <span class="kn">Proof</span>.
+    use (factor_through_squash _ _ (eso (hom x y) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom x y) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pg).
+    <span class="nb">clear</span> pf pg.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (toforallpaths _ _ _ (base_paths _ _ (LRB_runitor_comm _ _)) g0).
+    }
+
+    <span class="nb">assert</span> (α' : ∑ α0 : (hom x y)⟦f0,g0⟧, #(η_{x,y}) α0 = α).
+    { <span class="nb">apply</span> (ff_{x,y} f0 g0). }
+    <span class="nb">induction</span> α' <span class="k">as</span> [α0 αp].
+    <span class="nb">induction</span> αp.
+
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, (! prewhisker_LRB_runitor f0).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_comp (η_{x,y})).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (vcomp_runitor f0 g0 α0).
+    }
+
+    etrans. { <span class="nb">apply</span> maponpaths, (LRB_runitor_pre_simpl g0). }
+
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, pathsinv0, (functor_comp (η_{x,y})).
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_id (LRB_composition_curry1 x y y (η_{x,y} f0))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">refine</span> (_ @ pr21 (LRB_composition_comm x y y) _ _ (α0 #, id2 (id₁ y) : (hom _ _)⟦_,_⟧ ) @ _) ; <span class="nb">cbn</span>.
+    - <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+      <span class="nb">apply</span> maponpaths_2, maponpaths, maponpaths, pathsinv0, (functor_id (η (hom y y))).
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, rwhisker_hcomp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_lwhisker_lwhisker</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        (<span class="nv">f</span> : R (hom x y)) (<span class="nv">g</span> : R (hom y z))
+        {<span class="nv">h</span> <span class="nv">i</span> : R (hom z w)}
+        (<span class="nv">α</span> : R (hom z w)⟦h,i⟧)
+    : LRB_lwhisker f (LRB_lwhisker g α) · inv_from_z_iso (LRB_associator f g i)
+      = inv_from_z_iso (LRB_associator f g h) · LRB_lwhisker (LRB_composition _ _ _ (f,g)) α.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> z_iso_inv_on_left.
+
+    use (factor_through_squash _ _ (eso (hom x y) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom _ _) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pg).
+    use (factor_through_squash _ _ (eso (hom _ _) h)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [h0 ph].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) ph).
+    use (factor_through_squash _ _ (eso (hom _ _) i)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [i0 pi].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pi).
+    <span class="nb">clear</span> pf pg ph pi.
+
+    <span class="nb">assert</span> (α' : ∑ α0 : (hom _ _)⟦h0,i0⟧, #(η (hom _ _)) α0 = α).
+    { <span class="nb">apply</span> (ff (hom _ _) h0 i0). }
+    <span class="nb">induction</span> α' <span class="k">as</span> [α0 αp].
+    <span class="nb">induction</span> αp.
+
+    <span class="nb">set</span> (t := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f , (g, h))).
+
+    etrans. { <span class="nb">apply</span> maponpaths_2, t. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, t. }
+
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2, (LRB_associator_pre_simpl f0 g0 h0). }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, (! LRB_associator_pre_simpl f0 g0 i0). }
+
+    <span class="nb">assert</span> (p : (LRB_lwhisker (η_{y,z} g0) (# (η (hom z w)) α0))
+                = (LRB_composition_comm y z w (g0 , h0))
+                    · #(η (hom _ _)) (lwhisker g0 α0)
+                    · (nat_z_iso_inv (LRB_composition_comm y z w)) (g0 , i0)).
+    {
+      <span class="nb">cbn</span>.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (pr21 (LRB_composition_comm y z w) _ _ (id2 g0 : (hom _ _)⟦_,_⟧ #, α0) @ _) ; <span class="nb">cbn</span>.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> hcomp_identity_left.
+      }
+
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (pr2 (LRB_composition_comm y z w) (g0, i0)).
+      }
+      <span class="nb">rewrite</span> (functor_id (η_{y,z})).
+      <span class="nb">apply</span> (! id_right _).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> LRB_lwhisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> p.
+    }
+
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+    <span class="nb">cbn</span>.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ pr21 (nat_z_iso_inv (LRB_composition_comm y z w)) _ _  (identity g0 #, α0)).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2, maponpaths, lwhisker_hcomp.
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pr2 ((pr2 (LRB_composition_comm y z w)) (g0, h0))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! pr21 (nat_z_iso_inv (LRB_composition_comm y z w)) _ _ ( (id₂ g0) #, α0)).
+    }
+    <span class="nb">simpl</span>.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> maponpaths, maponpaths_2, (! id_left _). }
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition x y w)).
+    }
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ ! pr21 (nat_z_iso_inv (LRB_composition_comm x y w)) _ _ (id₁ f0 #, (α0 ⋆⋆ id₂ g0) : (hom _ _)⟦_,_⟧)).
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_id (η_{x,y})).
+    }
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> hcomp_identity_left.
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lwhisker_lwhisker_rassociator.
+    }
+    etrans. { <span class="nb">apply</span> maponpaths, (functor_comp (η (hom _ _))). }
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ ! pr21 (LRB_composition_comm x z w) _ _ (id2 (f0 · g0) : (hom _ _)⟦_,_⟧ #, α0)).
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, hcomp_identity_left.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    use total2_paths_f.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (functor_id (η (hom x z))).
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> transportf_const.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_rwhisker_lwhisker</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        (<span class="nv">f</span> : R (hom x y))
+        {<span class="nv">g</span> <span class="nv">h</span> : R (hom y z)}
+        (<span class="nv">α</span> : R (hom y z)⟦g,h⟧)
+        (<span class="nv">i</span> : R (hom z w))
+    : LRB_lwhisker f (LRB_rwhisker α i) · inv_from_z_iso (LRB_associator f h i)
+      = inv_from_z_iso (LRB_associator f g i) · (LRB_rwhisker (LRB_lwhisker f α) i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0, z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> z_iso_inv_on_left.
+
+    use (factor_through_squash _ _ (eso (hom x y) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom _ _) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pg).
+    use (factor_through_squash _ _ (eso (hom _ _) h)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [h0 ph].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) ph).
+    use (factor_through_squash _ _ (eso (hom _ _) i)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [i0 pi].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pi).
+    <span class="nb">clear</span> pf pg ph pi.
+
+    <span class="nb">assert</span> (α' : ∑ α0 : (hom _ _)⟦g0,h0⟧, #(η (hom _ _)) α0 = α).
+    { <span class="nb">apply</span> (ff (hom _ _) g0 h0). }
+    <span class="nb">induction</span> α' <span class="k">as</span> [α0 αp].
+    <span class="nb">induction</span> αp.
+
+    <span class="nb">set</span> (t := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f , (g, h))).
+
+    etrans. { <span class="nb">apply</span> maponpaths_2, t. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, t. }
+
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2, (LRB_associator_pre_simpl f0 g0 i0). }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, (! LRB_associator_pre_simpl f0 h0 i0). }
+
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> id_right.
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (functor_id (η_{x,y})).
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_id (η (hom z w))).
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr21 (LRB_composition_comm x y z) _ _ ((id₁ f0) #, α0)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_left. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+
+      <span class="nb">set</span> (t1 := pr11 (LRB_composition_comm x y z) (f0, g0)).
+      <span class="nb">set</span> (t2 := # (η (hom z w)) (id₂ i0)).
+
+      <span class="nb">set</span> (s1 :=  # (η (hom x z)) (α0 ⋆⋆ id₂ f0)).
+      <span class="nb">set</span> (s2 :=  id₁ (η (hom z w) i0)).
+      <span class="nb">set</span> (t3 := (t1 #, s2)).
+      <span class="nb">set</span> (s3 := (s1 #, t2)).
+      <span class="bp">exact</span> (functor_comp (LRB_composition x z w) t3 s3).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr21 (LRB_composition_comm x z w) _ _ ( (α0 ⋆⋆ id₂ f0) : (hom _ _)⟦_,_⟧ #, id2 i0)).
+    }
+
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (rwhisker_lwhisker_rassociator _ _ _ _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> hcomp_identity_right.
+      <span class="bp">now</span> <span class="nb">rewrite</span> hcomp_identity_left.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_comp (η (hom x w))).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ ! pr21 (nat_z_iso_inv (LRB_composition_comm y z w)) _ _ (α0 #, id2 i0)).
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (functor_id (η (hom z w))).
+    }
+    <span class="nb">cbn</span>.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2, pathsinv0, id_right.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ functor_comp (LRB_composition x y w) (id₁ (η_{x,y} f0) #, # (η (hom y w)) (id₂ i0 ⋆⋆ α0)) (_ #,  is_z_isomorphism_mor (pr2 (LRB_composition_comm y z w) (h0, i0)))).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, id_right.
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans. {
+      <span class="nb">refine</span> (_ @ ! pr21 (nat_z_iso_inv (LRB_composition_comm x y w)) _ _ (id2 f0 #, (id₂ i0 ⋆⋆ α0) : (hom _ _)⟦_,_⟧)).
+      <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_id (η_{x,y})).
+    }
+
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> hcomp_identity_right.
+    <span class="bp">now</span> <span class="nb">rewrite</span> hcomp_identity_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_rwhisker_rwhisker</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : B}
+        {<span class="nv">f</span> <span class="nv">g</span> : R (hom x y)}
+        (<span class="nv">α</span> : R (hom x y)⟦f,g⟧)
+        (<span class="nv">h</span> : R (hom y z))
+        (<span class="nv">i</span> : R (hom z w))
+    : inv_from_z_iso (LRB_associator f h i) · LRB_rwhisker (LRB_rwhisker α h) i
+      = LRB_rwhisker α (LRB_composition _ _ _ (h, i)) · inv_from_z_iso (LRB_associator g h i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> z_iso_inv_on_left.
+
+    use (factor_through_squash _ _ (eso (hom _ _) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom _ _) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pg).
+    use (factor_through_squash _ _ (eso (hom _ _) h)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [h0 ph].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) ph).
+    use (factor_through_squash _ _ (eso (hom _ _) i)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [i0 pi].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pi).
+    <span class="nb">clear</span> pf pg ph pi.
+
+    <span class="nb">assert</span> (α' : ∑ α0 : (hom _ _)⟦f0,g0⟧, #(η (hom _ _)) α0 = α).
+    { <span class="nb">apply</span> (ff (hom _ _) f0 g0). }
+    <span class="nb">induction</span> α' <span class="k">as</span> [α0 αp].
+    <span class="nb">induction</span> αp.
+
+    <span class="nb">set</span> (t := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, toforallpaths _ _ _ (base_paths _ _ (LRB_associator_comm x y z w)) (f , (g, h))).
+
+    etrans. { <span class="nb">apply</span> maponpaths_2, t. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, t. }
+
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2, (LRB_associator_pre_simpl f0 h0 i0). }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, (! LRB_associator_pre_simpl g0 h0 i0). }
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> id_right.
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_id (η_{y,z})).
+      }
+
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_id (η (hom z w))).
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr21 (LRB_composition_comm x y z) _ _ (α0 #, (id₁ h0))).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_left. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0.
+
+      <span class="nb">set</span> (t1 := pr11 (LRB_composition_comm x y z) (f0, h0)).
+      <span class="nb">set</span> (t2 := # (η (hom z w)) (id₂ i0)).
+
+      <span class="nb">set</span> (s1 :=  # (η (hom x z)) (id₂ h0 ⋆⋆ α0)).
+      <span class="nb">set</span> (s2 :=  id₁ (η (hom z w) i0)).
+      <span class="nb">set</span> (t3 := (t1 #, s2)).
+      <span class="nb">set</span> (s3 := (s1 #, t2)).
+      <span class="bp">exact</span> (functor_comp (LRB_composition x z w) t3 s3).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! pr21 (LRB_composition_comm x z w) _ _ ( (id₂ h0 ⋆⋆ α0) : (hom _ _)⟦_,_⟧ #, id2 i0)).
+    }
+
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! rwhisker_rwhisker_alt _ _ _  @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> hcomp_identity_right.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_comp (η (hom x w))).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+      <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    }
+
+    <span class="nb">rewrite</span> id_left.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+
+
+
+      <span class="nb">refine</span> (! pr21 (nat_z_iso_inv (LRB_composition_comm x y w)) _ _ (α0 #, id2 (h0 · i0) : (hom _ _)⟦_,_⟧) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      <span class="bp">now</span> <span class="nb">rewrite</span> hcomp_identity_right.
+    }
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> functor_comp. }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> (functor_id (η (hom y w))).
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_runitor_rwhisker</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+        (<span class="nv">f</span> : R (hom x y))
+        (<span class="nv">g</span> : R (hom y z))
+    : inv_from_z_iso (LRB_associator f (η (hom y y) (identity y)) g) · (LRB_rwhisker (LRB_runitor f) g)
+      = LRB_lwhisker f (LRB_lunitor g).
+  <span class="kn">Proof</span>.
+    use z_iso_inv_on_right.
+    use (factor_through_squash _ _ (eso (hom _ _) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom x y))) pf).
+    use (factor_through_squash _ _ (eso (hom _ _) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pg).
+    <span class="nb">clear</span> pf pg.
+
+    etrans. {
+      <span class="nb">unfold</span> LRB_rwhisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> prewhisker_LRB_runitor.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">unfold</span> LRB_lwhisker.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, prewhisker_LRB_lunitor.
+    }
+
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> maponpaths_2, pathsinv0, prewhisker_LRB_associator'.
+
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, binprod_id. }
+      <span class="nb">apply</span> pathsinv0, (functor_id (LRB_composition y y z)).
+    }
+    <span class="nb">rewrite</span> id_left.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition x y z)).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm y y z) (id₁ y : hom _ _, g0))).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> (! functor_id  (η_{x,y}) _).
+      <span class="nb">apply</span> (pr21 (nat_z_iso_inv (LRB_composition_comm x y z)) _ _ (_ #, lunitor g0 : (hom _ _)⟦_,_⟧)).
+    }
+    <span class="nb">simpl</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! lunitor_lwhisker _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, hcomp_identity_left.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_id (LRB_composition x y y)).
+    }
+    <span class="nb">rewrite</span> id_left.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (! id_right _).
+    }
+
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition x y z)).
+    }
+
+    <span class="nb">apply</span> maponpaths.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- hcomp_identity_right.
+      <span class="bp">exact</span> (! pr21 (nat_z_iso_inv (LRB_composition_comm x y z)) _ _ (runitor f0 : (hom _ _)⟦_,_⟧ #, id2 g0)).
+    }
+
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm x y z) (f0 · id₁ y : hom _ _, g0))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, (functor_id (η_{y,z})).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_l</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f</span> : hom a b)
+        (<span class="nv">g</span> : hom b c)
+        (<span class="nv">h</span> : hom c d)
+        (<span class="nv">i</span> : hom d e)
+    :  R (hom a e) ⟦ LRB_composition a d e (LRB_composition a c d (LRB_composition a b c (η (hom a b) f, η (hom b c) g), η (hom c d) h), η (hom d e) i), η (hom a e) ((f · g) · h · i) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition a c d)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">4</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm a b c) (f,g)).
+          }
+        }
+      }
+    }
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm a c d) (f·g : hom _ _,h)).
+      }
+    }
+    <span class="bp">exact</span> (pr1 (LRB_composition_comm a d e) (f·g·h : hom _ _,i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_l'</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    : R (hom a e) ⟦ η (hom a e) (f0 · g0 · (h0 · i0)), LRB_composition a c e (LRB_composition a b c (η (hom a b) f0, η (hom b c) g0), LRB_composition c d e (η (hom c d) h0, η (hom d e) i0)) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a c e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm a b c)) (f0,g0)).
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm c d e)) (h0,i0)).
+      }
+    }
+    <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm a c e)) (f0·g0 : hom _ _, h0·i0 : hom _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_l_on</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    :  pr1 (LRB_associator (LRB_composition a b c (η (hom a b) f0, η (hom b c) g0))
+                           (η (hom c d) h0) (η (hom d e) i0))
+       = LRB_associator_comp_l f0 g0 h0 i0 · #(η (hom a e)) (pr1 (rassociator_transf _ _ _ _) ((f0 · g0 : hom _ _),(h0,i0))) · LRB_associator_comp_l' f0 g0 h0 i0.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> LRB_associator_comp_l, LRB_associator_comp_l'.
+
+    <span class="nb">set</span> (n2 := LRB_composition_comm a b c).
+    <span class="nb">set</span> (n1 := LRB_associator_comm a c d e).
+
+    <span class="nb">set</span> (q := toforallpaths _ _ _ (base_paths _ _ n1) (f0 · g0 : hom _ _, (h0, i0))).
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> n2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! prewhisker_LRB_associator_co (f0 · g0) h0 i0).
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm a c e) (f0 · g0 : hom _ _, h0 · i0 : hom _ _))).
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">unfold</span> n2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a c e)).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> maponpaths, pathsinv0,  (pr2 (LRB_composition_comm c d e) (h0, i0)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      <span class="bp">exact</span> (! prewhisker_LRB_associator' (f0 · g0) h0 i0).
+    }
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> functor_comp.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (id_left (id₁ (η (hom d e) i0))).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, binprod_comp.
+      }
+
+      <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition a d e)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! prewhisker_LRB_associator_co (f0 · g0) h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm a c e) (f0 · g0 : hom _ _, h0 · i0 : hom _ _))).
+    }
+    <span class="nb">rewrite</span> id_right.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a c e)).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> binprod_comp.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm c d e) (h0, i0))).
+    }
+
+    transparent <span class="nb">assert</span> (i1 : (is_z_isomorphism (# (LRB_composition a c e)
+         (is_z_isomorphism_mor (pr2 (LRB_composition_comm a b c) (f0, g0))
+                               #, id₁ ((pair_functor (η (hom c d)) (η (hom d e)) ∙ LRB_composition c d e) (h0, i0)))))).
+    {
+      <span class="nb">apply</span> functor_on_is_z_isomorphism.
+      <span class="nb">apply</span> is_z_iso_binprod_z_iso.
+      - <span class="nb">apply</span> (pr2 (z_iso_inv (_ ,, pr2 (LRB_composition_comm a b c) (f0, g0)))).
+      - <span class="nb">apply</span> identity_is_z_iso.
+    }
+
+
+    <span class="nb">rewrite</span> assoc.
+    use (z_iso_inv_on_left _ _ _ _ (z_iso_inv (_ ,, i1))).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">simpl</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    }
+
+    <span class="nb">set</span> (t := pr21 (LRB_associator_nat_z_iso a c d e)).
+    <span class="nb">unfold</span> is_nat_trans <span class="k">in</span> t.
+
+    <span class="nb">set</span> (tt := t _ _ (pr1 (LRB_composition_comm a b c) (f0, g0) #, (id₁ (η_{ c, d} h0) #, id₁ (η_{ d, e} i0)))).
+
+    <span class="nb">refine</span> (tt @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="c">(* Opaque LRB_composition. *)</span>
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_id (LRB_composition c d e)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_m</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f</span> : hom a b)
+        (<span class="nv">g</span> : hom b c)
+        (<span class="nv">h</span> : hom c d)
+        (<span class="nv">i</span> : hom d e)
+    : R (hom a e) ⟦LRB_composition a d e (LRB_composition a b d (η (hom a b) f, LRB_composition b c d (η (hom b c) g, η (hom c d) h)), η (hom d e) i), η (hom a e) (f · (g · h) · i) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition a b d)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">3</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm b c d) (g,h)).
+          }
+        }
+      }
+    }
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm a b d) (f,g·h : hom _ _)).
+      }
+    }
+
+    <span class="bp">exact</span> (pr1 (LRB_composition_comm a d e) ( (f · (g · h)) : hom _ _ , i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_m'</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f</span> : hom a b)
+             (<span class="nv">g</span> : hom b c)
+             (<span class="nv">h</span> : hom c d)
+             (<span class="nv">i</span> : hom d e)
+    :  R (hom a e) ⟦ η (hom a e) (f · (g · h · i)),
+  LRB_composition a b e
+    (η (hom a b) f,
+      LRB_composition b d e (LRB_composition b c d (η (hom b c) g, η (hom c d) h), η (hom d e) i)) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition b d e)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">4</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm b c d)) (g,h)).
+          }
+        }
+      }
+    }
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm b d e)) (g · h : hom _ _ , i)).
+      }
+    }
+
+    <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm a b e)) (f , (g · h · i) : hom _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_associator_comp_m_on</span>
+        {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f</span> : hom a b)
+        (<span class="nv">g</span> : hom b c)
+        (<span class="nv">h</span> : hom c d)
+        (<span class="nv">i</span> : hom d e)
+    : pr1 (LRB_associator (η (hom a b) f) (LRB_composition b c d (η (hom b c) g, η (hom c d) h))
+                          (η (hom d e) i))
+      = LRB_associator_comp_m f g h i · #(η (hom a e)) (pr1 (rassociator_transf _ _ _ _) (f , ((g · h : hom _ _),i))) · LRB_associator_comp_m' f g h i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> LRB_associator_comp_m, LRB_associator_comp_m'.
+
+    <span class="nb">set</span> (n2 := LRB_composition_comm a d e ).
+    <span class="nb">set</span> (n1 := LRB_associator_comm a b d e).
+
+    <span class="nb">set</span> (q := toforallpaths _ _ _ (base_paths _ _ n1) (f, (g·h : hom _ _, i))).
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> n2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! prewhisker_LRB_associator_co _ _ _).
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm a b e) (f, g · h · i : hom _ _))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> binprod_comp.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0,  (pr2 (pr2 (LRB_composition_comm b d e) (g · h : hom _ _, i))).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (functor_id (LRB_composition a b e)).
+    }
+    <span class="nb">rewrite</span> id_right.
+
+    <span class="nb">set</span> (t := pr21 (LRB_associator_nat_z_iso a b d e)).
+    <span class="nb">unfold</span> is_nat_trans <span class="k">in</span> t.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! (t _ _ (id₁ (η_{ a, b} f) #, (pr1 (LRB_composition_comm b c d) (g, h) #, id₁ (η_{ d, e} i))))).
+    }
+
+    <span class="kn">Opaque</span> LRB_composition.
+    <span class="kn">Opaque</span> LRB_composition_comm.
+    <span class="kn">Opaque</span> LRB_associator_nat_z_iso.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, binprod_comp.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition b d e)).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> binprod_comp.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm b c d) (g, h))).
+      }
+      <span class="nb">rewrite</span> binprod_id.
+      <span class="nb">rewrite</span> (functor_id (LRB_composition b d e)).
+      <span class="bp">now</span> <span class="nb">rewrite</span> (functor_id (LRB_composition a b e)).
+    }
+    <span class="nb">apply</span> pathsinv0, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_r</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    : R (hom a e)⟦ LRB_composition a c e (LRB_composition a b c (η (hom a b) f0, η (hom b c) g0), LRB_composition c d e (η (hom c d) h0, η (hom d e) i0)), η (hom a e) (f0 · g0 · (h0 · i0)) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a c e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm c d e) (h0,i0)).
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm a b c) (f0,g0)).
+      }
+    }
+    <span class="bp">exact</span> (pr1 (LRB_composition_comm a c e) (f0 · g0 : hom _ _ ,h0 · i0 : hom _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_r'</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    : R (hom a e) ⟦ η (hom a e) (f0 · (g0 · (h0 · i0))), LRB_composition a b e (η (hom a b) f0, LRB_composition b c e (η (hom b c) g0, LRB_composition c d e (η (hom c d) h0, η (hom d e) i0)))⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition b c e)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">3</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm c d e)) (h0,i0)).
+          }
+        }
+      }
+    }
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm b c e)) (g0,h0 · i0 : hom _ _)).
+      }
+    }
+    <span class="bp">exact</span> (pr1 (nat_z_iso_inv (LRB_composition_comm a b e)) (f0, g0 · (h0 · i0) : hom _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_associator_comp_r_on</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    : pr1 (LRB_associator (η (hom a b) f0) (η (hom b c) g0)
+                          (LRB_composition c d e (η (hom c d) h0, η (hom d e) i0)))
+      =  LRB_associator_comp_r f0 g0 h0 i0 · #(η (hom a e)) (pr1 (rassociator_transf _ _ _ _) (f0 , (g0, (h0 · i0 : hom _ _)))) · LRB_associator_comp_r' f0 g0 h0 i0.
+  <span class="kn">Proof</span>.
+
+    <span class="nb">unfold</span> LRB_associator_comp_r, LRB_associator_comp_r'.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, binprod_comp.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> id_left.
+      }
+
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp.
+      <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition a c e)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="bp">exact</span> (! prewhisker_LRB_associator_co f0 g0 (h0 · i0)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm a b e) (f0, g0 · (h0 · i0) : hom _ _))).
+    }
+    <span class="nb">rewrite</span> id_right.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, binprod_comp.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm b c e) (g0, h0 · i0 : hom _ _))).
+      }
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    }
+
+    <span class="nb">set</span> (t := pr21 (LRB_associator_nat_z_iso a b c e)).
+    <span class="nb">set</span> (tt := ((t _ _ (id₁ (η_{ a, b} f0) #, (id₁ (η_{ b, c} g0) #, (pr1 (LRB_composition_comm _ _ _) (h0, i0))))))).
+    <span class="nb">cbn</span> <span class="k">in</span> tt.
+
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (! tt @ _).
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_id (LRB_composition a b c)).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> maponpaths, binprod_comp.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> (functor_comp (LRB_composition b c e)).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        <span class="mi">2</span>: <span class="nb">apply</span> binprod_comp.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (pr2 (pr2 (LRB_composition_comm c d e) (h0, i0))).
+      }
+      <span class="nb">rewrite</span> binprod_id.
+      <span class="nb">rewrite</span> (functor_id (LRB_composition b c e)).
+      <span class="bp">now</span> <span class="nb">rewrite</span> (functor_id (LRB_composition a b e)).
+    }
+    <span class="nb">apply</span> pathsinv0, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lassociator_rwhisker</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f0</span> : hom a b)
+        (<span class="nv">g0</span> : hom b c)
+        (<span class="nv">h0</span> : hom c d)
+        (<span class="nv">i0</span> : hom d e)
+    : R (hom a e)
+ ⟦ LRB_composition a d e
+     (LRB_composition a c d
+        (LRB_composition a b c (η (hom a b) f0, η (hom b c) g0), η (hom c d) h0),
+       η (hom d e) i0), η (hom a e) (f0 · g0 · h0 · i0) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition a c d)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">4</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> ((LRB_composition_comm a b c) (f0,g0)).
+          }
+        }
+      }
+    }
+
+    <span class="nb">simpl</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> ((LRB_composition_comm a c d) (f0 · g0 : hom _ _, h0)).
+      }
+    }
+    <span class="bp">exact</span> ((LRB_composition_comm a d e) (f0 · g0 · h0 : hom _ _, i0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lassociator_rwhisker'</span>
+               {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f0</span> : hom a b)
+        (<span class="nv">g0</span> : hom b c)
+        (<span class="nv">h0</span> : hom c d)
+        (<span class="nv">i0</span> : hom d e)
+    : R (hom a e) ⟦ η (hom a e) (f0 · (g0 · h0) · i0),
+ LRB_composition a d e
+   (LRB_composition a b d (η (hom a b) f0, LRB_composition b c d (η (hom b c) g0, η (hom c d) h0)),
+     η (hom d e) i0) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition a b d)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">3</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (nat_z_iso_inv (LRB_composition_comm b c d) (g0,h0)).
+          }
+        }
+      }
+    }
+
+    <span class="nb">simpl</span>.
+    use (_ · _).
+    <span class="mi">3</span>: {
+      use (#(LRB_composition a d e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">4</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (nat_z_iso_inv (LRB_composition_comm a b d) (f0,g0 · h0 : hom _ _)).
+      }
+    }
+    <span class="bp">exact</span> (nat_z_iso_inv (LRB_composition_comm a d e) (f0 · (g0 · h0) : hom _ _, i0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_lassociator_rwhisker_on</span>
+  {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f0</span> : hom a b)
+        (<span class="nv">g0</span> : hom b c)
+        (<span class="nv">h0</span> : hom c d)
+        (<span class="nv">i0</span> : hom d e)
+    : LRB_rwhisker (LRB_associator (η (hom a b) f0) (η (hom b c) g0) (η (hom c d) h0))
+                   (η (hom d e) i0) = LRB_lassociator_rwhisker f0 g0 h0 i0 · #(η (hom a e)) (rassociator f0 g0 h0 ▹ i0) · LRB_lassociator_rwhisker' f0 g0 h0 i0.
+  <span class="kn">Proof</span>.
+
+    etrans. {
+      <span class="nb">unfold</span> LRB_rwhisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (prewhisker_LRB_associator' f0 g0 h0).
+    }
+
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+    <span class="nb">unfold</span> LRB_lassociator_rwhisker, LRB_lassociator_rwhisker'.
+    <span class="nb">simpl</span>.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom d e) i0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a d e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom d e) i0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a d e)).
+    }
+
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom d e) i0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a d e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom d e) i0))).
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a d e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+
+      <span class="nb">refine</span> (pr21 (LRB_composition_comm a d e) _ _ ((rassociator f0 g0 h0 : (hom _ _)⟦_,_⟧) #,  id₁ i0) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hcomp_identity_right.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm a d e) (f0 · (g0 · h0) : hom _ _, i0))).
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, (functor_id (η (hom d e))).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lassociator_lwhisker</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f0</span> : hom a b)
+        (<span class="nv">g0</span> : hom b c)
+        (<span class="nv">h0</span> : hom c d)
+        (<span class="nv">i0</span> : hom d e)
+    : R (hom a e) ⟦ LRB_composition a b e (η (hom a b) f0, LRB_composition b d e (LRB_composition b c d (η (hom b c) g0, η (hom c d) h0), η (hom d e) i0)), η (hom a e) (f0 · (g0 · h0 · i0)) ⟧.
+  <span class="kn">Proof</span>.
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: {
+          use (#(LRB_composition b d e)).
+          <span class="mi">2</span>: {
+            use catbinprodmor.
+            <span class="mi">4</span>: <span class="nb">apply</span> identity.
+            <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm b c d) (g0,h0)).
+          }
+        }
+      }
+    }
+    use (_ · _).
+    <span class="mi">2</span>: {
+      use (#(LRB_composition a b e)).
+      <span class="mi">2</span>: {
+        use catbinprodmor.
+        <span class="mi">3</span>: <span class="nb">apply</span> identity.
+        <span class="mi">2</span>: <span class="bp">exact</span> (pr1 (LRB_composition_comm b d e) (g0·h0 : hom _ _ , i0)).
+      }
+    }
+    <span class="bp">exact</span> (pr1 (LRB_composition_comm a b e) (f0, (g0 · h0 · i0) : hom _ _ )).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_lassociator_lwhisker'</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+             (<span class="nv">f0</span> : hom a b)
+             (<span class="nv">g0</span> : hom b c)
+             (<span class="nv">h0</span> : hom c d)
+             (<span class="nv">i0</span> : hom d e)
+    : R (hom a e) ⟦ η (hom a e) (f0 · (g0 · (h0 · i0))), LRB_composition a b e (η (hom a b) f0, LRB_composition b c e (η (hom b c) g0, LRB_composition c d e (η (hom c d) h0, η (hom d e) i0)))⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (LRB_associator_comp_r' f0 g0 h0 i0).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_lassociator_lwhisker_on</span>
+        {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f0</span> : hom a b)
+        (<span class="nv">g0</span> : hom b c)
+        (<span class="nv">h0</span> : hom c d)
+        (<span class="nv">i0</span> : hom d e)
+    :  LRB_lwhisker (η (hom a b) f0)
+                    (LRB_associator (η (hom b c) g0) (η (hom c d) h0) (η (hom d e) i0))
+       = LRB_lassociator_lwhisker f0 g0 h0 i0 · #(η (hom _ _)) (f0 ◃ rassociator g0 h0 i0) · LRB_lassociator_lwhisker' f0 g0 h0 i0.
+  <span class="kn">Proof</span>.
+    etrans. {
+      <span class="nb">unfold</span> LRB_lwhisker.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (prewhisker_LRB_associator' g0 h0 i0).
+    }
+
+    <span class="nb">unfold</span> LRB_associator_pre_simpl_mor.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> functor_fix_snd_arg_mor.
+    <span class="nb">unfold</span> LRB_lassociator_lwhisker, LRB_lassociator_lwhisker'.
+    <span class="nb">simpl</span>.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom a b) f0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom a b) f0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+    }
+
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom a b) f0))).
+    }
+    etrans. {
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! id_left (id₁ (η (hom a b) f0))).
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> maponpaths, binprod_comp. }
+      <span class="nb">apply</span> (functor_comp (LRB_composition a b e)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (pr21 (LRB_composition_comm a b e) _ _ (id₁ f0 #, (rassociator g0 h0 i0 : (hom _ _)⟦_,_⟧)) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hcomp_identity_left.
+    }
+    <span class="nb">cbn</span>.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_id (η (hom _ _))).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> LRB_associator_comp_r'.
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm a b e) (f0, g0 · (h0 · i0) : hom _ _))).
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_lassociator_lassociator</span>
+        {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : B}
+        (<span class="nv">f</span> : R (hom a b))
+        (<span class="nv">g</span> : R (hom b c))
+        (<span class="nv">h</span> : R (hom c d))
+        (<span class="nv">i</span> : R (hom d e))
+    : LRB_lwhisker f (inv_from_z_iso (LRB_associator g h i))
+                   · (inv_from_z_iso (LRB_associator f (LRB_composition _ _ _ (g, h)) i))
+                   · (LRB_rwhisker (inv_from_z_iso (LRB_associator f g h)) i)
+      = inv_from_z_iso (LRB_associator f g (LRB_composition _ _ _ (h,i)))
+                       · inv_from_z_iso (LRB_associator (LRB_composition _ _ _ (f,g)) h i).
+  <span class="kn">Proof</span>.
+    use z_iso_inv_on_left.
+
+    transparent <span class="nb">assert</span> (f_lw_a : (is_z_isomorphism (LRB_lwhisker f (inv_from_z_iso (LRB_associator g h i))))).
+    {
+      use functor_on_is_z_isomorphism.
+      use is_z_iso_binprod_z_iso.
+      - <span class="nb">apply</span> identity_is_z_iso.
+      - <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+    }
+
+    transparent <span class="nb">assert</span> (r_a_i : (is_z_isomorphism  (LRB_rwhisker (inv_from_z_iso (LRB_associator f g h)) i))).
+    {
+      use functor_on_is_z_isomorphism.
+      use is_z_iso_binprod_z_iso.
+      - <span class="nb">apply</span> is_z_iso_inv_from_z_iso.
+      - <span class="nb">apply</span> identity_is_z_iso.
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    use (z_iso_inv_to_left _ _ _ (_ ,, f_lw_a)).
+    <span class="nb">apply</span> pathsinv0, z_iso_inv_on_left.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    use z_iso_inv_on_right.
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ (_ ,, r_a_i)).
+
+    <span class="nb">assert</span> (p : inv_from_z_iso (LRB_rwhisker (inv_from_z_iso (LRB_associator f g h)) i,, r_a_i)
+                = LRB_rwhisker (LRB_associator f g h) i).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> p.
+    <span class="nb">clear</span> p.
+    <span class="nb">assert</span> (p : inv_from_z_iso (LRB_lwhisker f (inv_from_z_iso (LRB_associator g h i)),, f_lw_a)
+                = LRB_lwhisker f (LRB_associator g h i)).
+    { <span class="nb">apply</span> idpath. }
+    <span class="nb">rewrite</span> p.
+    <span class="nb">clear</span> p.
+
+    use (factor_through_squash _ _ (eso (hom _ _) f)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [f0 pf].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pf).
+    use (factor_through_squash _ _ (eso (hom _ _) g)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [g0 pg].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pg).
+    use (factor_through_squash _ _ (eso (hom _ _) h)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [h0 ph].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) ph).
+    use (factor_through_squash _ _ (eso (hom _ _) i)).
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> [i0 pi].
+    <span class="nb">induction</span> (isotoid _ (pr2 (R (hom _ _))) pi).
+    <span class="nb">clear</span> pf pg ph pi.
+
+    <span class="nb">clear</span> f_lw_a r_a_i.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      <span class="bp">exact</span> (LRB_associator_comp_m_on f0 g0 h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! LRB_associator_comp_r_on f0 g0 h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! LRB_associator_comp_l_on f0 g0 h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths, pathsinv0.
+      <span class="nb">unfold</span> LRB_associator_comp_l', LRB_associator_comp_r.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition a c e)).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">simpl</span>.
+        <span class="nb">cbn</span>.
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm c d e) (h0, i0))).
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm a b c) (f0, g0))).
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2, maponpaths.
+        <span class="nb">apply</span> (functor_id (LRB_composition a c e)).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (pr2 (LRB_composition_comm a c e) (f0 · g0 : hom _ _, h0 · i0 : hom _ _)).
+    }
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_comp (η (hom a e))).
+    }
+    <span class="nb">unfold</span> LRB_associator_comp_l.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (LRB_lassociator_rwhisker_on f0 g0 h0 i0).
+    }
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">unfold</span> LRB_lassociator_rwhisker', LRB_associator_comp_m.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans. {
+        <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition a d e)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths, maponpaths_2.
+      etrans. {
+        <span class="nb">apply</span> pathsinv0, (functor_comp (LRB_composition a b d)).
+      }
+
+      <span class="nb">rewrite</span> &lt;- binprod_comp.
+      <span class="nb">rewrite</span> id_right.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm b c d) (g0, h0))).
+      }
+      <span class="nb">apply</span> (functor_id (LRB_composition a b d)).
+    }
+
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (LRB_lassociator_lwhisker_on f0 g0 h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2, maponpaths, maponpaths.
+      <span class="bp">exact</span> (rassociator_rassociator f0 g0 h0 i0).
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2, maponpaths.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> pathsinv0, (functor_comp (η (hom _ _))).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (functor_comp (η (hom _ _))).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+
+    <span class="nb">assert</span> (q :  # (η (hom a e)) (pr1 (rassociator_transf a b d e) (f0, (g0 · h0 : hom _ _, i0)))
+               · LRB_associator_comp_m' f0 g0 h0 i0 · LRB_lassociator_lwhisker f0 g0 h0 i0 =  # (η (hom a e)) (rassociator f0 (g0 · h0) i0)).
+    {
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> LRB_associator_comp_m'.
+      <span class="nb">unfold</span> LRB_lassociator_lwhisker.
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+        etrans. { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+        <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+      }
+
+      etrans. {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+        etrans. { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+        <span class="nb">rewrite</span> id_right.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+        etrans. { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+        <span class="nb">rewrite</span> id_right.
+        etrans. {
+          <span class="nb">apply</span> maponpaths, maponpaths_2.
+          <span class="nb">apply</span> (pr2 (LRB_composition_comm b c d)).
+        }
+        <span class="nb">apply</span> (functor_id (LRB_composition b d e)).
+      }
+      <span class="nb">rewrite</span> id_right.
+
+      etrans. {
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> pathsinv0, functor_comp. }
+        etrans. { <span class="nb">apply</span> maponpaths, pathsinv0, binprod_comp. }
+        <span class="nb">rewrite</span> id_right.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr2 (LRB_composition_comm b d e)).
+      }
+
+      <span class="nb">rewrite</span> (functor_id (LRB_composition a b e)).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (pr2 (LRB_composition_comm a b e)).
+    }
+
+    <span class="nb">rewrite</span> &lt;- q.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">unfold</span> LRB_lassociator_rwhisker.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (functor_id (LRB_composition a d e)).
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- (functor_comp (LRB_composition a d e)).
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- binprod_comp.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm a b d) (f0 , g0 · h0 : hom _ _))).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> (functor_id (LRB_composition a d e)).
+    }
+
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> (pr2 (pr2 (LRB_composition_comm a d e) (f0 · (g0 · h0) : hom _ _ , i0))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_laws</span> : prebicat_laws LRB_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> assoc.
+    - <span class="bp">exact</span> (functor_id (LRB_composition_curry1 a b c f) g).
+    - <span class="bp">exact</span> (functor_id (LRB_composition_curry2 a b c g) f).
+    - <span class="bp">exact</span> (! functor_comp (LRB_composition_curry1 _ _ _ _) _ _).
+    - <span class="bp">exact</span> (! functor_comp (LRB_composition_curry2 _ _ _ _) _ _).
+    - <span class="nb">apply</span> LRB_vcomp_lunitor.
+    - <span class="nb">apply</span> LRB_vcomp_runitor.
+    - <span class="nb">apply</span> LRB_lwhisker_lwhisker.
+    - <span class="nb">apply</span> LRB_rwhisker_lwhisker.
+    - <span class="nb">apply</span> LRB_rwhisker_rwhisker.
+    - <span class="nb">refine</span> (! functor_comp (LRB_composition a b c) (x #, id2 h) (id2 g #, y) @ _).
+      <span class="nb">refine</span> (_ @ functor_comp (LRB_composition a b c) (id2 f #, y) (x #, id2 i)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- binprod_comp.
+      <span class="bp">now</span> <span class="nb">rewrite</span> ! id_left, ! id_right.
+    - <span class="nb">apply</span> (pr22 (LRB_lunitor f)).
+    - <span class="nb">apply</span> (pr22 (LRB_lunitor f)).
+    - <span class="nb">apply</span> (pr22 (LRB_runitor f)).
+    - <span class="nb">apply</span> (pr22 (LRB_runitor f)).
+    - <span class="nb">apply</span> (pr22 (LRB_associator f g h)).
+    - <span class="nb">apply</span> (pr22 (LRB_associator f g h)).
+    - <span class="nb">apply</span> LRB_runitor_rwhisker.
+    - <span class="nb">apply</span> LRB_lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LRB_pre</span> : prebicat
+    := LRB_data ,, LRB_laws.
+
+  <span class="kn">Definition</span> <span class="nf">LRB</span> : bicat.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">LRB_pre</span>.
+    <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">locally_univalent_lemma</span> (<span class="nv">x</span> <span class="nv">y</span> : B)
+    : is_univalent (R (hom (C := B) x y)) -&gt; is_univalent (hom (C := LRB) x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> u.
+    <span class="nb">intros</span> f g.
+
+    <span class="nb">assert</span> (p : (<span class="k">λ</span> <span class="nv">p</span> : f = g, @idtoiso (R (@hom B x y)) f g p)
+            = (<span class="k">λ</span> <span class="nv">p</span> : f = g, @idtoiso (@hom LRB x y) f g p)).
+    {
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use total2_paths_f.
+      <span class="mi">2</span>: <span class="nb">apply</span> isaprop_is_z_isomorphism.
+      <span class="nb">apply</span> idpath.
+    }
+
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> u.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">LRB_is_locally_univalent</span>
+    : is_univalent_2_1 LRB.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_1_if_hom_is_univ.
+    <span class="nb">intros</span> x y f g.
+    <span class="nb">assert</span> (p : (<span class="k">λ</span> <span class="nv">p</span> : f = g, @idtoiso (R (@hom B x y)) f g p)
+            = (<span class="k">λ</span> <span class="nv">p</span> : f = g, @idtoiso (@hom LRB x y) f g p)).
+    {
+      <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use total2_paths_f.
+      <span class="mi">2</span>: <span class="nb">apply</span> isaprop_is_z_isomorphism.
+      <span class="nb">apply</span> idpath.
+    }
+
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> R.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_B_to_LRB_data</span>
+    : psfunctor_data B LRB.
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (idfun B).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, η_{x,y}).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, #(η_{x,y}) α).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> identity.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, pr1 (LRB_composition_comm x y z) (make_catbinprod (C := hom x y) (D := hom y z) f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psfunctor_B_to_LRB_laws</span>
+    : psfunctor_laws psfunctor_B_to_LRB_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, functor_id (η_{x,y}) f).
+    - <span class="nb">intros</span> x y f g h α β.
+      <span class="nb">apply</span> (functor_comp (η_{x,y})).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, prewhisker_LRB_lunitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, prewhisker_LRB_runitor f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, prewhisker_LRB_associator f g h).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">set</span> (t := <span class="k">λ</span> <span class="nv">fg</span>, ! pr21 (LRB_composition_comm a b c)
+            (make_catbinprod (C:=hom _ _) (D:=hom _ _) f g₁)
+            (make_catbinprod (C:=hom _ _) (D:=hom _ _) f g₂) fg).
+      <span class="nb">cbn</span> <span class="k">in</span> t.
+
+      <span class="nb">refine</span> (_ @ t (catbinprodmor (C:=hom _ _) (D:=hom _ _) (id2 f) η0) @ _).
+      + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lwhisker_hcomp.
+      + <span class="bp">now</span> <span class="nb">rewrite</span> (functor_id (η (hom a b))).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">unfold</span> psfunctor_B_to_LRB_data.
+      <span class="nb">set</span> (t := <span class="k">λ</span> <span class="nv">fg</span>, ! pr21 (LRB_composition_comm a b c)
+            (make_catbinprod (C:=hom _ _) (D:=hom _ _) f₁ g)
+            (make_catbinprod (C:=hom _ _) (D:=hom _ _) f₂ g) fg).
+      <span class="nb">cbn</span> <span class="k">in</span> t.
+
+      <span class="nb">refine</span> (_ @ t (catbinprodmor (C:=hom _ _) (D:=hom _ _) η0 (id2 g)) @ _).
+      + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> rwhisker_hcomp.
+      + <span class="bp">now</span> <span class="nb">rewrite</span> (functor_id (η (hom b c))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_B_to_LRB_invertible_cells</span>
+    : invertible_cells psfunctor_B_to_LRB_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, is_invertible_2cell_id₂ (C := LRB)  (η (hom x x) (id₁ x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, pr2 (lift_functor_along_comm (R (hom x z)) (pair_functor (η_{x,y}) (η_{y,z})) (pair_functor_eso (η_{x,y}) (η_{y,z}) (eso (hom x y)) (eso_{y,z})) (pair_functor_ff (η_{x,y}) (η_{y,z}) (ff_{x,y}) (ff_{y,z})) (hcomp_functor ∙ η_{x,z})) (make_catbinprod (C := hom x y) (D := hom y z) f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_B_to_LRB</span>
+    : psfunctor B LRB.
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> psfunctor_B_to_LRB_data.
+    - <span class="bp">exact</span> psfunctor_B_to_LRB_laws.
+    - <span class="bp">exact</span> psfunctor_B_to_LRB_invertible_cells.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_B_to_LRB_is_weak_biequivalence</span>
+    : weak_biequivalence psfunctor_B_to_LRB.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> <span class="nv">x</span>.
+      <span class="nb">apply</span> internal_adjoint_equivalence_identity.
+    - <span class="nb">intros</span> x y.
+      <span class="k">exists</span> <span class="nv">eso_</span>{<span class="nv">x</span>,<span class="nv">y</span>}.
+      <span class="bp">exact</span> ff_{x,y}.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LocalUnivalenceRezk</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/RezkCompletions/BicatToLocalUnivalentBicat.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; As a consequence, we can conclude that any bicategory admits a Rezk completion (this is formulated in Bicategories/RezkCompletions/RezkCompletion.v
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Examples.ListDataType</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Examples.ListDataType</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab300"></a><h1 class="section">Example of lists</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#"><span class="id" title="library">UniMath.Combinatorics.MoreLists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.Algebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.Terms.html#"><span class="id" title="library">UniMath.Algebra.Universal.Terms</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Indexes for the sorts. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="elem_sort_idx" class="idref" href="#elem_sort_idx"><span class="id" title="definition">elem_sort_idx</span></a>: <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 2 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0.<br/>
+<span class="id" title="keyword">Definition</span> <a id="list_sort_idx" class="idref" href="#list_sort_idx"><span class="id" title="definition">list_sort_idx</span></a>: <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟦</span></a> 2 <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5a48e5ee9aa3c558dbcb967b1340e7a0"><span class="id" title="notation">⟧</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Signature for lists with two symbols: nil and cons constructors. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="list_signature" class="idref" href="#list_signature"><span class="id" title="definition">list_signature</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#signature_simple"><span class="id" title="definition">signature_simple</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_simple"><span class="id" title="definition">make_signature_simple</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_sort_idx"><span class="id" title="definition">list_sort_idx</span></a><a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">(</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#elem_sort_idx"><span class="id" title="definition">elem_sort_idx</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_sort_idx"><span class="id" title="definition">list_sort_idx</span></a><a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_sort_idx"><span class="id" title="definition">list_sort_idx</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a>%<span class="id" title="var">list</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Names for the constructors. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nil_idx" class="idref" href="#nil_idx"><span class="id" title="definition">nil_idx</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_signature"><span class="id" title="definition">list_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0.<br/>
+<span class="id" title="keyword">Definition</span> <a id="cons_idx" class="idref" href="#cons_idx"><span class="id" title="definition">cons_idx</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_signature"><span class="id" title="definition">list_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="list_algebra" class="idref" href="#list_algebra"><span class="id" title="definition">list_algebra</span></a> (<a id="A:1" class="idref" href="#A:1"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#algebra"><span class="id" title="definition">algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_signature"><span class="id" title="definition">list_signature</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple'"><span class="id" title="definition">make_algebra_simple'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_signature"><span class="id" title="definition">list_signature</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Combinatorics.Vectors.html#d0a656f792834b7bdca0bf5eaf3d7640"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Combinatorics.Vectors.html#d0a656f792834b7bdca0bf5eaf3d7640"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Combinatorics.Vectors.html#d0a656f792834b7bdca0bf5eaf3d7640"><span class="id" title="notation">)]</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Correspondence between structures and operations in the universal algebra
+of lists and standard structures and operations on lists. 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="elem_sort_id" class="idref" href="#elem_sort_id"><span class="id" title="lemma">elem_sort_id</span></a> (<a id="A:2" class="idref" href="#A:2"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#support"><span class="id" title="definition">support</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_algebra"><span class="id" title="definition">list_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:2"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#elem_sort_idx"><span class="id" title="definition">elem_sort_idx</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:2"><span class="id" title="variable">A</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="list_sort_id" class="idref" href="#list_sort_id"><span class="id" title="lemma">list_sort_id</span></a> (<a id="A:3" class="idref" href="#A:3"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#support"><span class="id" title="definition">support</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_algebra"><span class="id" title="definition">list_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:3"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_sort_idx"><span class="id" title="definition">list_sort_idx</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#listset"><span class="id" title="definition">listset</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:3"><span class="id" title="variable">A</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="list_nil" class="idref" href="#list_nil"><span class="id" title="definition">list_nil</span></a> (<a id="A:4" class="idref" href="#A:4"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) : <a class="idref" href="UniMath.Combinatorics.MoreLists.html#listset"><span class="id" title="definition">listset</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:4"><span class="id" title="variable">A</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops'"><span class="id" title="definition">ops'</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_algebra"><span class="id" title="definition">list_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:4"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#nil_idx"><span class="id" title="definition">nil_idx</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="list_nil_id" class="idref" href="#list_nil_id"><span class="id" title="lemma">list_nil_id</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_nil"><span class="id" title="definition">list_nil</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> @<a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="list_cons_dom_id" class="idref" href="#list_cons_dom_id"><span class="id" title="lemma">list_cons_dom_id</span></a> (<a id="A:5" class="idref" href="#A:5"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#dom"><span class="id" title="definition">dom</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_algebra"><span class="id" title="definition">list_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:5"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#cons_idx"><span class="id" title="definition">cons_idx</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dirprod"><span class="id" title="definition">dirprod</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:5"><span class="id" title="variable">A</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#dirprod"><span class="id" title="definition">dirprod</span></a> (<a class="idref" href="UniMath.Combinatorics.MoreLists.html#listset"><span class="id" title="definition">listset</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:5"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="list_cons" class="idref" href="#list_cons"><span class="id" title="definition">list_cons</span></a> (<a id="A:6" class="idref" href="#A:6"><span class="id" title="binder">A</span></a>: <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) : <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:6"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#listset"><span class="id" title="definition">listset</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:6"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#listset"><span class="id" title="definition">listset</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:6"><span class="id" title="variable">A</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ops'"><span class="id" title="definition">ops'</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_algebra"><span class="id" title="definition">list_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#A:6"><span class="id" title="variable">A</span></a>) <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#cons_idx"><span class="id" title="definition">cons_idx</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="cons_nil_id" class="idref" href="#cons_nil_id"><span class="id" title="lemma">cons_nil_id</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.ListDataType.html#list_cons"><span class="id" title="definition">list_cons</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> @<a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

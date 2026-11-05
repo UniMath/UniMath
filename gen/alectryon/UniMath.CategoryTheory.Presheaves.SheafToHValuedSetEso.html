@@ -1,0 +1,924 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SheafToHValuedSetEso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The adjoint equivalence between H-valued sets and sheaves</span>
+
+<span class="sd"> To finish the proof that the topos of sheaves on a complete Heyting algebra `H`</span>
+<span class="sd"> and H-valued sets are equivalent, we show that the functor from sheaves to H-valued</span>
+<span class="sd"> sets is essentially surjective. Concretely, we construct the sheafification of</span>
+<span class="sd"> each H-valued set `X`, and we show that the H-valued set associated to the</span>
+<span class="sd"> sheafification is isomorphic to `X`. Note the difference with the sheafification</span>
+<span class="sd"> of presheaves, because presheaves are not necessarily isomorphic to their</span>
+<span class="sd"> sheafifications.</span>
+
+<span class="sd"> If we have an H-valued set `(X, ~)`, then we construct its sheafification as the</span>
+<span class="sd"> sheaf of all singletons, where a singleton is defined to be a function `f` from</span>
+<span class="sd"> `X` to `H` such that</span>
+<span class="sd"> - If `f x` and `x ~ y`, then `f y` (i.e., `f` respects equality)</span>
+<span class="sd"> - If `f x` and `f y`, then `x ~ y` (i.e., `f` is a singleton)</span>
+<span class="sd"> In essence, `f` represents a predicate on `X` valued in `H` and that predicate is</span>
+<span class="sd"> a singleton. We also keep track of the extent: we have `ω : H`, and we require</span>
+<span class="sd"> - We have `f x ≤ ω`</span>
+<span class="sd"> - We have `ω ≤ \/_{ x : X } (f x)`</span>
+<span class="sd"> The reason for keeping track of the extent, is so that we can nicely construct the</span>
+<span class="sd"> corresponding sheaf: we have the construct the set of singletons on `X` for each</span>
+<span class="sd"> `ω : H`, which represents the extent of the singleton.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Singletons in an H-valued set</span>
+<span class="sd"> 2. The sheaf arising from an H-valued set</span>
+<span class="sd"> 2.1. The presheaf</span>
+<span class="sd"> 2.2. The sheaf condition</span>
+<span class="sd"> 3. The isomorphism</span>
+<span class="sd"> 4. Split essential surjectivity and the adjoint equivalence</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ExamplesSites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SheafToHValuedSet.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SheafToHValuedSetFF.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.HValuedSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SheafToHValuedSetEso</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : complete_heyting_algebra}.
+
+  <span class="kn">Let</span> <span class="nf">C</span> : site := cha_to_site H.
+
+  <span class="sd">(** * 1. Singletons in an H-valued set *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_singleton_h_valued_set</span>
+             {<span class="nv">X</span> : h_valued_set H}
+             (<span class="nv">f</span> : X → H)
+             (<span class="nv">ω</span> : H)
+    : hProp
+    := hconj
+         (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X), (f x ∧ (x ~_{X} y)) ≤ f y)
+         (hconj
+            (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X), (f x ∧ f y) ≤ (x ~_{X} y))
+            (hconj
+               (<span class="k">∀</span> (<span class="nv">x</span> : X), f x ≤ ω)
+               (ω ≤ \/_{ x : X } (f x)))).
+
+  <span class="kn">Definition</span> <span class="nf">singleton_h_valued_set</span>
+             (<span class="nv">X</span> : h_valued_set H)
+             (<span class="nv">ω</span> : H)
+    : UU
+    := ∑ (f : X → H), is_singleton_h_valued_set f ω.
+
+  <span class="kn">Definition</span> <span class="nf">make_singleton_h_valued_set</span>
+             {<span class="nv">X</span> : h_valued_set H}
+             {<span class="nv">ω</span> : H}
+             (<span class="nv">f</span> : X → H)
+             (<span class="nv">Hf</span> : is_singleton_h_valued_set f ω)
+    : singleton_h_valued_set X ω
+    := f ,, Hf.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_h_valued_set_fun</span>
+             {<span class="nv">X</span> : h_valued_set H}
+             {<span class="nv">ω</span> : H}
+             (<span class="nv">f</span> : singleton_h_valued_set X ω)
+    : X → H
+    := pr1 f.
+
+  <span class="kn">Coercion</span> <span class="nf">singleton_h_valued_set_fun</span> : singleton_h_valued_set &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_h_valued_set_on_eq</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">f</span> : singleton_h_valued_set X ω)
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : (f x ∧ (x ~_{X} y)) ≤ f y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 f x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_h_valued_set_unique</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">f</span> : singleton_h_valued_set X ω)
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : (f x ∧ f y) ≤ (x ~_{X} y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 f x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_h_valued_set_extent_le</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">f</span> : singleton_h_valued_set X ω)
+              (<span class="nv">x</span> : X)
+    : f x ≤ ω.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 f) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_h_valued_set_extent</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">f</span> : singleton_h_valued_set X ω)
+    : ω ≤ \/_{ x : X } (f x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr222 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_singleton_h_valued_set</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              {<span class="nv">ω</span> : H}
+              {<span class="nv">f</span> <span class="nv">g</span> : singleton_h_valued_set X ω}
+              (<span class="nv">p</span> : ∏ (x : X), f x = g x)
+    : f = g.
+  <span class="kn">Proof</span>.
+    use subtypePath_prop.
+    use funextsec.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_singleton_h_valued_set</span>
+              (<span class="nv">X</span> : h_valued_set H)
+              (<span class="nv">ω</span> : H)
+    : isaset (singleton_h_valued_set X ω).
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_h_valued_set_hSet</span>
+             (<span class="nv">X</span> : h_valued_set H)
+             (<span class="nv">ω</span> : H)
+    : hSet
+    := make_hSet
+         (singleton_h_valued_set X ω)
+         (isaset_singleton_h_valued_set X ω).
+
+  <span class="kn">Proposition</span> <span class="nf">el_to_singleton_h_valued_laws</span>
+              {<span class="nv">X</span> : h_valued_set H}
+              (<span class="nv">x</span> : X)
+    : is_singleton_h_valued_set (<span class="k">λ</span> <span class="nv">y</span>, y ~_{X} x) (x ~_{X} x).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> y₁ y₂.
+      <span class="nb">refine</span> (cha_le_trans _ (trans_per_of_h_valued_set H y₂ y₁ x)).
+      <span class="nb">rewrite</span> cha_min_comm.
+      use cha_and_monotone_l.
+      use cha_eq_to_refl.
+      <span class="bp">exact</span> (sym_per_of_h_valued_set H y₁ y₂).
+    - <span class="nb">intros</span> y₁ y₂.
+      <span class="nb">refine</span> (cha_le_trans _ (trans_per_of_h_valued_set H y₁ x y₂)).
+      use cha_and_monotone_r.
+      use cha_eq_to_refl.
+      <span class="bp">exact</span> (sym_per_of_h_valued_set H y₂ x).
+    - <span class="nb">intro</span> y.
+      use refl_r_per_of_h_valued_set.
+    - use cha_le_lub.
+      {
+        <span class="bp">exact</span> x.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">el_to_singleton_h_valued</span>
+             {<span class="nv">X</span> : h_valued_set H}
+             (<span class="nv">x</span> : X)
+    : singleton_h_valued_set X (x ~_{X} x).
+  <span class="kn">Proof</span>.
+    use make_singleton_h_valued_set.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, y ~_{X} x).
+    - <span class="bp">exact</span> (el_to_singleton_h_valued_laws x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The sheaf arising from an H-valued set *)</span>
+  <span class="kn">Section</span> <span class="nf">HValuedSetToSheaf</span>.
+    <span class="kn">Context</span> (<span class="nv">X</span> : h_valued_set H).
+
+    <span class="sd">(** * 2.1. The presheaf *)</span>
+    <span class="kn">Proposition</span> <span class="nf">is_singleton_h_valued_set_le</span>
+                {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+                (<span class="nv">p</span> : ω₂ ≤ ω₁)
+                (<span class="nv">f</span> : singleton_h_valued_set X ω₁)
+      : is_singleton_h_valued_set (<span class="k">λ</span> <span class="nv">x</span>, f x ∧ ω₂) ω₂.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> x y.
+        use cha_min_le_case.
+        + <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_on_eq f x y)).
+          use cha_min_le_case.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">apply</span> cha_min_le_r.
+        + <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+          <span class="nb">apply</span> cha_min_le_r.
+      - <span class="nb">intros</span> x y.
+        <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_unique f x y)).
+        use cha_min_le_case.
+        + <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+          <span class="nb">apply</span> cha_min_le_l.
+        + <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+          <span class="nb">apply</span> cha_min_le_l.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> cha_min_le_r.
+      - <span class="nb">refine</span> (cha_le_trans _ _).
+        {
+          use cha_eq_to_refl.
+          <span class="bp">exact</span> (!(cha_min_le_eq_l p)).
+        }
+        <span class="nb">refine</span> (cha_le_trans _ _).
+        {
+          <span class="nb">refine</span> (cha_and_monotone_r _).
+          <span class="bp">exact</span> (singleton_h_valued_set_extent f).
+        }
+        <span class="nb">rewrite</span> cha_frobenius.
+        use cha_lub_le.
+        <span class="nb">intros</span> x.
+        <span class="nb">cbn</span>.
+        use cha_le_lub.
+        + <span class="bp">exact</span> x.
+        + <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">singleton_h_valued_set_le</span>
+               {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+               (<span class="nv">p</span> : ω₂ ≤ ω₁)
+               (<span class="nv">f</span> : singleton_h_valued_set X ω₁)
+      : singleton_h_valued_set X ω₂.
+    <span class="kn">Proof</span>.
+      use make_singleton_h_valued_set.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, f x ∧ ω₂).
+      - <span class="bp">exact</span> (is_singleton_h_valued_set_le p f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">h_valued_set_to_psh_data</span>
+      : functor_data C^op SET.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">ω</span> : H), singleton_h_valued_set_hSet X ω).
+      - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H)
+                 (<span class="nv">p</span> : ω₂ ≤ ω₁)
+                 (<span class="nv">f</span> : singleton_h_valued_set X ω₁),
+               singleton_h_valued_set_le p f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_psh_laws</span>
+      : is_functor h_valued_set_to_psh_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> ω.
+        use funextsec.
+        <span class="nb">intro</span> f.
+        <span class="nb">cbn</span> <span class="k">in</span> ω, f.
+        use eq_singleton_h_valued_set.
+        <span class="nb">cbn</span>.
+        <span class="nb">intro</span> x.
+        use cha_min_le_eq_l.
+        <span class="nb">apply</span> singleton_h_valued_set_extent_le.
+      - <span class="nb">intros</span> ω₁ ω₂ ω₃ p q.
+        <span class="nb">cbn</span> <span class="k">in</span> ω₁, ω₂, ω₃, p, q.
+        use funextsec.
+        <span class="nb">intro</span> f.
+        use eq_singleton_h_valued_set.
+        <span class="nb">cbn</span>.
+        <span class="nb">intro</span> x.
+        <span class="nb">rewrite</span> cha_min_assoc.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> cha_min_comm.
+        <span class="bp">exact</span> (!(cha_min_le_eq_l q)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">h_valued_set_to_psh</span>
+      : C^op ⟶ SET.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> h_valued_set_to_psh_data.
+      - <span class="bp">exact</span> h_valued_set_to_psh_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 2.2. The sheaf condition *)</span>
+    <span class="kn">Section</span> <span class="nf">SheafCondition</span>.
+      <span class="kn">Context</span> {<span class="nv">ω</span> : C}
+              (<span class="nv">P</span> : sieve ω)
+              (<span class="nv">HP</span> : C ω P)
+              (<span class="nv">z</span> : matching_family h_valued_set_to_psh P).
+
+      <span class="kn">Definition</span> <span class="nf">matching_family_to_singleton</span>
+                 {<span class="nv">y</span> : H}
+                 {<span class="nv">f</span> : y ≤ ω}
+                 (<span class="nv">p</span> : P y f)
+        : singleton_h_valued_set X y
+        := pr1 z y f p.
+
+      <span class="kn">Proposition</span> <span class="nf">matching_family_to_singleton_eq</span>
+                  {<span class="nv">y</span> : H}
+                  {<span class="nv">f</span> <span class="nv">f'</span> : y ≤ ω}
+                  (<span class="nv">p</span> : P y f)
+                  (<span class="nv">p'</span> : P y f')
+        : matching_family_to_singleton p = matching_family_to_singleton p'.
+      <span class="kn">Proof</span>.
+        <span class="nb">assert</span> (r : f = f').
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">induction</span> r.
+        <span class="nb">assert</span> (r : p = p').
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">induction</span> r.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">matching_family_to_singleton_restr</span>
+                  {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+                  (<span class="nv">p₁</span> : ω₁ ≤ ω)
+                  (<span class="nv">p₂</span> : ω₂ ≤ ω₁)
+                  (<span class="nv">q₁</span> : P ω₂ (cha_le_trans p₂ p₁))
+                  (<span class="nv">q₂</span> : P ω₁ p₁)
+                  (<span class="nv">x</span> : X)
+        : (matching_family_to_singleton q₂ x ∧ ω₂) = matching_family_to_singleton q₁ x.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">h</span>, pr1 h x)
+                 (pr2 z _ _ (cha_le_trans p₂ p₁) p₁ p₂ (idpath _) q₁ q₂)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">φ</span> : X → H
+        := <span class="k">λ</span> <span class="nv">x</span>, \/_{ p : ∑ (y : H) (f : y ≤ ω), P y f }
+                matching_family_to_singleton (pr22 p) x.
+
+      <span class="kn">Proposition</span> <span class="nf">h_valued_set_amalgamation_singleton_laws</span>
+        : is_singleton_h_valued_set φ ω.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> φ.
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        - <span class="nb">intros</span> x y.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">rewrite</span> cha_frobenius.
+          use cha_lub_le.
+          <span class="nb">intros</span> ( ω' &amp; f &amp; p ).
+          <span class="nb">cbn</span>.
+          use cha_le_lub.
+          {
+            <span class="bp">exact</span> (ω' ,, f ,, p).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">apply</span> singleton_h_valued_set_on_eq.
+        - <span class="nb">intros</span> x y.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">rewrite</span> cha_frobenius.
+          use cha_lub_le.
+          <span class="nb">intros</span> ( ω' &amp; f &amp; p ).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">rewrite</span> cha_frobenius.
+          use cha_lub_le.
+          <span class="nb">intros</span> ( ω'' &amp; f' &amp; p' ).
+          <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (ωm := ω' ∧ ω'').
+          <span class="nb">assert</span> (pm : P ωm (cha_le_trans (cha_min_le_l _ _) f)).
+          {
+            <span class="nb">refine</span> (#ω P (cha_min_le_l _ _) _ p).
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">assert</span> (pm' : P ωm (cha_le_trans (cha_min_le_r _ _) f')).
+          {
+            <span class="nb">refine</span> (#ω P (cha_min_le_l _ _) _ p).
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">refine</span> (cha_le_trans
+                    _
+                    (singleton_h_valued_set_unique (matching_family_to_singleton pm) x y)).
+          <span class="nb">assert</span> ((matching_family_to_singleton pm x ∧ matching_family_to_singleton pm y)
+                  =
+                  (matching_family_to_singleton p x ∧ matching_family_to_singleton p' y ∧ ωm))
+            <span class="k">as</span> q.
+          {
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="bp">exact</span> (!(matching_family_to_singleton_restr _ _ pm p x)).
+            }
+            <span class="nb">rewrite</span> cha_min_assoc.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (!(cha_min_id _)).
+            }
+            <span class="nb">rewrite</span> &lt;- cha_min_assoc.
+            <span class="nb">refine</span> (_ @ cha_min_comm _ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (matching_family_to_singleton_restr _ _ pm' p' y @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> matching_family_to_singleton_eq.
+          }
+          <span class="nb">refine</span> (cha_le_trans _ (cha_eq_to_refl (!q))).
+          <span class="kp">repeat</span> use cha_min_le_case.
+          + <span class="nb">apply</span> cha_min_le_l.
+          + <span class="nb">apply</span> cha_min_le_r.
+          + <span class="nb">refine</span> (cha_le_trans _ _).
+            {
+              <span class="nb">refine</span> (cha_and_monotone_l _).
+              <span class="nb">apply</span> singleton_h_valued_set_extent_le.
+            }
+            <span class="nb">apply</span> cha_min_le_l.
+          + <span class="nb">refine</span> (cha_le_trans _ _).
+            {
+              <span class="nb">refine</span> (cha_and_monotone_r _).
+              <span class="nb">apply</span> singleton_h_valued_set_extent_le.
+            }
+            <span class="nb">apply</span> cha_min_le_r.
+        - <span class="nb">intro</span> x.
+          use cha_lub_le.
+          <span class="nb">intros</span> ( ω' &amp; f &amp; p ).
+          <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (cha_le_trans (singleton_h_valued_set_extent_le _ _) f).
+        - <span class="nb">refine</span> (cha_le_trans HP _).
+          use cha_lub_le.
+          <span class="nb">intros</span> ( ω' &amp; f &amp; p ).
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (cha_le_trans
+                    (singleton_h_valued_set_extent (matching_family_to_singleton p))
+                    _).
+          use cha_lub_le.
+          <span class="nb">intro</span> x.
+          use cha_le_lub.
+          {
+            <span class="bp">exact</span> x.
+          }
+          <span class="nb">cbn</span>.
+          use cha_le_lub.
+          {
+            <span class="bp">exact</span> (ω' ,, f ,, p).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> cha_le_refl.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">h_valued_set_amalgamation_singleton</span>
+        : singleton_h_valued_set X ω.
+      <span class="kn">Proof</span>.
+        use make_singleton_h_valued_set.
+        - <span class="bp">exact</span> φ.
+        - <span class="bp">exact</span> h_valued_set_amalgamation_singleton_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">h_valued_set_amalgamation_singleton_law</span>
+        : amalgamation_law z h_valued_set_amalgamation_singleton.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> ω' p Hp.
+        <span class="nb">cbn</span> <span class="k">in</span> ω', p, Hp ; <span class="nb">cbn</span>.
+        use eq_singleton_h_valued_set.
+        <span class="nb">intro</span> x.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> φ.
+        <span class="nb">rewrite</span> cha_min_comm.
+        <span class="nb">rewrite</span> cha_frobenius.
+        use cha_le_antisymm.
+        - use cha_lub_le.
+          <span class="nb">intros</span> ( ω'' &amp; q &amp; Hq ).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> cha_min_comm.
+          <span class="nb">pose</span> (ωm := ω' ∧ ω'').
+          <span class="nb">assert</span> (P ωm (cha_le_trans (cha_min_le_l _ _) p)) <span class="k">as</span> rm.
+          {
+            <span class="nb">simple refine</span> (#ω P (cha_min_le_l _ _) _ Hp).
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">assert</span> (P ωm (cha_le_trans (cha_min_le_r _ _) q)) <span class="k">as</span> rm'.
+          {
+            <span class="nb">simple refine</span> (#ω P (cha_min_le_r _ _) _ Hq).
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">refine</span> (cha_le_trans _ _).
+          {
+            use cha_eq_to_refl.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (!(cha_min_le_eq_l (singleton_h_valued_set_extent_le _ _))).
+          }
+          <span class="nb">rewrite</span> cha_min_assoc.
+          <span class="nb">rewrite</span> (cha_min_comm ω'' ω').
+          <span class="nb">refine</span> (cha_le_trans _ _).
+          {
+            use cha_eq_to_refl.
+            <span class="bp">exact</span> (matching_family_to_singleton_restr _ _ rm' Hq x).
+          }
+          <span class="nb">refine</span> (cha_le_trans _ (cha_min_le_l _ ωm)).
+          use cha_eq_to_refl.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="bp">exact</span> (matching_family_to_singleton_restr _ _ rm Hp x).
+          }
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> matching_family_to_singleton_eq.
+        - use cha_le_lub.
+          + <span class="bp">exact</span> (ω' ,, p ,, Hp).
+          + <span class="nb">cbn</span>.
+            use cha_min_le_case.
+            * <span class="nb">apply</span> singleton_h_valued_set_extent_le.
+            * <span class="nb">apply</span> cha_le_refl.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">h_valued_set_amalgamation</span>
+        : amalgamation z.
+      <span class="kn">Proof</span>.
+        use make_amalgamation.
+        - <span class="bp">exact</span> h_valued_set_amalgamation_singleton.
+        - <span class="bp">exact</span> h_valued_set_amalgamation_singleton_law.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">h_valued_set_amalgamation_eq</span>
+                  (<span class="nv">a</span> : amalgamation z)
+        : a = h_valued_set_amalgamation.
+      <span class="kn">Proof</span>.
+        use amalgamation_eq.
+        use eq_singleton_h_valued_set.
+        <span class="nb">intro</span> x.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> φ.
+        use cha_le_antisymm.
+        - <span class="nb">refine</span> (cha_le_trans _ _).
+          {
+            use cha_eq_to_refl.
+            <span class="bp">exact</span> (!(cha_min_le_eq_l (singleton_h_valued_set_extent_le (pr1 a) x))).
+          }
+          <span class="nb">refine</span> (cha_le_trans _ _).
+          {
+            <span class="nb">refine</span> (cha_and_monotone_r _).
+            <span class="bp">exact</span> HP.
+          }
+          <span class="nb">rewrite</span> cha_frobenius.
+          use cha_lub_le.
+          <span class="nb">intros</span> i.
+          use cha_le_lub.
+          + <span class="bp">exact</span> i.
+          + <span class="nb">cbn</span>.
+            <span class="nb">induction</span> i <span class="k">as</span> [ ω' [ f p ] ].
+            <span class="nb">cbn</span>.
+            <span class="nb">unfold</span> matching_family_to_singleton.
+            use cha_eq_to_refl.
+            <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, pr1 h x) (amalgamation_restr a f p)).
+        - use cha_lub_le.
+          <span class="nb">intros</span> ( ω' &amp; f &amp; p ).
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (cha_le_trans _ _).
+          {
+            use cha_eq_to_refl.
+            <span class="bp">exact</span> (!(cha_min_le_eq_l (singleton_h_valued_set_extent_le _ x))).
+          }
+          <span class="nb">refine</span> (cha_le_trans
+                    _
+                    (cha_eq_to_refl
+                       (cha_min_le_eq_l (singleton_h_valued_set_extent_le _ _)))).
+          <span class="nb">refine</span> (cha_le_trans
+                    _
+                    (cha_and_monotone_r f)).
+          <span class="nb">pose proof</span> (maponpaths
+                        (<span class="k">λ</span> <span class="nv">h</span>, pr1 h x)
+                        (amalgamation_restr h_valued_set_amalgamation f p
+                         @ !(amalgamation_restr a f p)))
+            <span class="k">as</span> q.
+          <span class="nb">cbn</span> <span class="k">in</span> q.
+          <span class="nb">refine</span> (cha_le_trans _ (cha_eq_to_refl q)).
+          use cha_and_monotone_l.
+          use cha_le_lub.
+          {
+            <span class="bp">exact</span> (ω' ,, f ,, p).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> cha_le_refl.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">SheafCondition</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_sheaf_h_valued_set_to_psh</span>
+      : is_sheaf h_valued_set_to_psh.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> ω P HP z.
+      use make_iscontr.
+      - <span class="bp">exact</span> (h_valued_set_amalgamation P HP z).
+      - <span class="bp">exact</span> (h_valued_set_amalgamation_eq P HP z).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">h_valued_set_to_sheaf</span>
+      : sheaf C.
+    <span class="kn">Proof</span>.
+      use make_sheaf.
+      - <span class="bp">exact</span> h_valued_set_to_psh.
+      - <span class="bp">exact</span> is_sheaf_h_valued_set_to_psh.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 3. The isomorphism *)</span>
+    <span class="kn">Definition</span> <span class="nf">h_valued_set_to_sheaf_mor_rel</span>
+               {<span class="nv">ω</span> : H}
+               (<span class="nv">f</span> : singleton_h_valued_set X ω)
+               (<span class="nv">x</span> : X)
+      : H
+      := ω ∧ f x.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_rel_dom</span>
+                {<span class="nv">ω</span> : H}
+                (<span class="nv">f</span> : singleton_h_valued_set X ω)
+                (<span class="nv">x</span> : X)
+      : h_valued_set_to_sheaf_mor_rel f x
+        ≤
+        cha_sheaf_rel (F := h_valued_set_to_sheaf) f f.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      use cha_le_lub.
+      - <span class="nb">refine</span> (ω ,, cha_le_refl _ ,, cha_le_refl _ ,, _).
+        use eq_singleton_h_valued_set.
+        <span class="nb">cbn</span>.
+        <span class="nb">intro</span> y.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_min_le_l.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_rel_cod</span>
+                {<span class="nv">ω</span> : H}
+                (<span class="nv">f</span> : singleton_h_valued_set X ω)
+                (<span class="nv">x</span> : X)
+      : h_valued_set_to_sheaf_mor_rel f x
+        ≤
+        (x ~_{X} x).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_unique f x x)).
+      <span class="nb">rewrite</span> cha_min_id.
+      <span class="nb">apply</span> cha_min_le_r.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_eq</span>
+                {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+                (<span class="nv">f₁</span> : singleton_h_valued_set X ω₁)
+                (<span class="nv">f₂</span> : singleton_h_valued_set X ω₂)
+                (<span class="nv">x₁</span> <span class="nv">x₂</span> : X)
+      : (cha_sheaf_rel (F := h_valued_set_to_sheaf) f₁ f₂
+         ∧ x₁ ~_{X} x₂
+         ∧ h_valued_set_to_sheaf_mor_rel f₁ x₁)
+        ≤
+        h_valued_set_to_sheaf_mor_rel f₂ x₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      <span class="nb">unfold</span> cha_sheaf_rel.
+      <span class="nb">rewrite</span> cha_min_comm.
+      <span class="nb">rewrite</span> cha_frobenius.
+      use cha_lub_le.
+      <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !cha_min_assoc.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        use cha_eq_to_refl.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span>, pr1 h x₁) r).
+      }
+      <span class="nb">cbn</span>.
+      use cha_min_le_case.
+      - <span class="nb">refine</span> (cha_le_trans _ q).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+        <span class="bp">exact</span> (cha_min_le_r _ _).
+      - <span class="nb">refine</span> (cha_le_trans _ _).
+        + <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_on_eq f₂ x₁ x₂)).
+          use cha_min_le_case.
+          * <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_le_refl.
+        + <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_unique</span>
+                {<span class="nv">ω</span> : H}
+                (<span class="nv">f</span> : singleton_h_valued_set X ω)
+                (<span class="nv">x₁</span> <span class="nv">x₂</span> : X)
+      : (h_valued_set_to_sheaf_mor_rel f x₁ ∧ h_valued_set_to_sheaf_mor_rel f x₂)
+        ≤
+        (x₁ ~_{X} x₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_unique f _ _)).
+      use cha_min_le_case.
+      - <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+        <span class="nb">apply</span> cha_min_le_r.
+      - <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+        <span class="nb">apply</span> cha_min_le_r.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_im</span>
+                {<span class="nv">ω</span> : H}
+                (<span class="nv">f</span> : singleton_h_valued_set X ω)
+      : cha_sheaf_rel (F := h_valued_set_to_sheaf) f f
+        ≤
+        \/_{ x : X } h_valued_set_to_sheaf_mor_rel f x.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        use cha_eq_to_refl.
+        <span class="bp">exact</span> (!(cha_sheaf_rel_partial_refl (F := h_valued_set_to_sheaf) f)).
+      }
+      <span class="nb">refine</span> (cha_le_trans _ _).
+      {
+        use cha_eq_to_refl.
+        <span class="bp">exact</span> (!(cha_min_le_eq_l (singleton_h_valued_set_extent f))).
+      }
+      <span class="nb">rewrite</span> cha_frobenius.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">h_valued_set_to_sheaf_mor</span>
+      : h_valued_morphism
+          H
+          (sheaf_to_h_valued_set_functor _ h_valued_set_to_sheaf)
+          X.
+    <span class="kn">Proof</span>.
+      use make_h_valued_morphism.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωf</span> <span class="nv">x</span>, h_valued_set_to_sheaf_mor_rel (pr2 ωf) x).
+      - <span class="nb">intros</span> ωf x.
+        <span class="nb">apply</span> h_valued_set_to_sheaf_mor_rel_dom.
+      - <span class="nb">intros</span> ωf x.
+        <span class="nb">apply</span> h_valued_set_to_sheaf_mor_rel_cod.
+      - <span class="nb">intros</span> ωf₁ ωf₂ x₁ x₂.
+        <span class="nb">apply</span> h_valued_set_to_sheaf_mor_eq.
+      - <span class="nb">intros</span> ωf x₁ x₂.
+        <span class="nb">apply</span> h_valued_set_to_sheaf_mor_unique.
+      - <span class="nb">intro</span> ωf.
+        <span class="nb">apply</span> h_valued_set_to_sheaf_mor_im.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_surjective</span>
+                (<span class="nv">x</span> : X)
+      : (x ~_{X} x) ≤ \/_{ f } h_valued_set_to_sheaf_mor f x.
+    <span class="kn">Proof</span>.
+      use cha_le_lub.
+      - <span class="nb">refine</span> ((x ~_{X} x) ,, _).
+        <span class="bp">exact</span> (el_to_singleton_h_valued x).
+      - <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> cha_min_id.
+        <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">h_valued_set_to_sheaf_mor_injective</span>
+                {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+                (<span class="nv">f₁</span> : singleton_h_valued_set X ω₁)
+                (<span class="nv">f₂</span> : singleton_h_valued_set X ω₂)
+                (<span class="nv">x</span> : X)
+      : (h_valued_set_to_sheaf_mor_rel f₁ x ∧ h_valued_set_to_sheaf_mor_rel f₂ x)
+        ≤
+        cha_sheaf_rel (F := h_valued_set_to_sheaf) f₁ f₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> h_valued_set_to_sheaf_mor_rel.
+      use cha_le_lub.
+      - <span class="nb">simple refine</span> (((ω₁ ∧ f₁ x) ∧ ω₂ ∧ f₂ x) ,, _ ,, _ ,, _).
+        + <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+          <span class="nb">apply</span> cha_min_le_l.
+        + <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+          <span class="nb">apply</span> cha_min_le_l.
+        + <span class="nb">cbn</span>.
+          use eq_singleton_h_valued_set.
+          <span class="nb">intro</span> y.
+          <span class="nb">cbn</span>.
+          use cha_le_antisymm ; <span class="kp">repeat</span> use cha_min_le_case.
+          * <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_on_eq f₂ x y)).
+            use cha_min_le_case.
+            ** <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+               <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+               <span class="nb">apply</span> cha_min_le_r.
+            ** <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_unique f₁ x y)).
+               use cha_min_le_case.
+               *** <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+                   <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+                   <span class="nb">apply</span> cha_min_le_r.
+               *** <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_min_le_r.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">apply</span> cha_min_le_r.
+          * <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_on_eq f₁ x y)).
+            use cha_min_le_case.
+            ** <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+               <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+               <span class="nb">apply</span> cha_min_le_r.
+            ** <span class="nb">refine</span> (cha_le_trans _ (singleton_h_valued_set_unique f₂ x y)).
+               use cha_min_le_case.
+               *** <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+                   <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+                   <span class="nb">apply</span> cha_min_le_r.
+               *** <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="nb">apply</span> cha_min_le_r.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">apply</span> cha_min_le_l.
+          * <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_r _ _) _).
+            <span class="nb">apply</span> cha_min_le_r.
+      - <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">HValuedSetToSheaf</span>.
+
+  <span class="sd">(** * 4. Split essential surjectivity and the adjoint equivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">split_eso_sheaf_to_h_valued_set_functor</span>
+    : split_essentially_surjective (sheaf_to_h_valued_set_functor H).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : h_valued_set H), _).
+    <span class="nb">refine</span> (h_valued_set_to_sheaf X ,, _).
+    use make_h_valued_isomorphism.
+    - <span class="bp">exact</span> (h_valued_set_to_sheaf_mor X).
+    - <span class="bp">exact</span> (h_valued_set_to_sheaf_mor_surjective X).
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> h_valued_set_to_sheaf_mor_injective.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_of_cats_sheaf_to_h_valued_set_functor</span>
+    : adj_equivalence_of_cats (sheaf_to_h_valued_set_functor H).
+  <span class="kn">Proof</span>.
+    use rad_equivalence_of_cats'.
+    - <span class="bp">exact</span> fully_faithful_sheaf_to_h_valued_set_functor.
+    - <span class="bp">exact</span> split_eso_sheaf_to_h_valued_set_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SheafToHValuedSetEso</span>.
+
+<span class="kn">Arguments</span> adj_equivalence_of_cats_sheaf_to_h_valued_set_functor : <span class="kn">clear implicits</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheaves_h_valued_set_adj_equiv</span>
+           (<span class="nv">H</span> : complete_heyting_algebra)
+  : adj_equiv
+      (cat_of_sheaves (cha_to_site H))
+      (topos_of_h_valued_sets H)
+  := _ ,, adj_equivalence_of_cats_sheaf_to_h_valued_set_functor H.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/SheafToHValuedSetEso.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Split essential surjectivity and the adjoint equivalence
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
+  &gt; Require Import UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

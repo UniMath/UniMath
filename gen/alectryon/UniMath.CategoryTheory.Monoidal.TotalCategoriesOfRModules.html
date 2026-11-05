@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TotalCategoriesOfRModules.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************</span>
+
+<span class="sd"> Total categories of right modules</span>
+
+<span class="sd"> In this file, the total category of right modules in some fixed monoidal</span>
+<span class="sd"> category C. Objects are pairs (R, M) where R is a monoid in C and M is</span>
+<span class="sd"> a right module over R.</span>
+
+<span class="sd"> Given R --&gt; R' a morphism of monoids, the pullback functor transforms modules</span>
+<span class="sd"> over R' into modules over R.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Pullback functor</span>
+<span class="sd"> 2. Total category of right modules</span>
+<span class="sd"> ***************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RModules.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">TotalCategoryOfRModules</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : monoidal_cat}.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x ⊗l f"</span> := (x ⊗^{C}_{l} f) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⊗r y"</span> := (f ⊗^{C}_{r} y) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Pullback functor</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_functor_funct_unit</span>
+    {<span class="nv">R</span> <span class="nv">R'</span> : C} {<span class="nv">R_m</span> : monoid C R} {<span class="nv">R'_m</span> : monoid C R'}
+    (<span class="nv">M'</span> : C) (<span class="nv">p'</span> : module R' R'_m M')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : module_laws_unit R R_m (M' ⊗l f · p').
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> module_laws_unit; <span class="nb">rewrite</span> assoc.
+    <span class="nb">induction</span> p' <span class="k">as</span> [p' [w H]]; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- H.
+    use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)); <span class="nb">induction</span> f_m <span class="k">as</span> [_ H2].
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp C); <span class="bp">now</span> use maponpaths.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_functor_funct_assoc</span>
+    {<span class="nv">R</span> <span class="nv">R'</span> : C} {<span class="nv">R_m</span> : monoid C R} {<span class="nv">R'_m</span> : monoid C R'}
+    (<span class="nv">M'</span> : C) (<span class="nv">p'</span> : module R' R'_m M')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : module_laws_assoc R R_m (M' ⊗l f · p').
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> module_laws_assoc; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="nb">rewrite</span> (bifunctor_rightcomp C).
+    etrans; [etrans; etrans|].
+    - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) _).
+      <span class="nb">rewrite</span> &lt;- assoc, &lt;- (bifunctor_leftcomp C).
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> (maponpaths _ _)).
+      <span class="nb">symmetry</span>; use (pr1 f_m).
+    - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · M' ⊗l (x · _) · _) _).
+      <span class="nb">assert</span> (f #⊗ f = f ⊗r R · R' ⊗l f) <span class="k">as</span> H <span class="bp">by</span>
+      <span class="bp">now</span> <span class="nb">rewrite</span> tensor_split', @tensor_mor_right, @tensor_mor_left.
+      use H.
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (bifunctor_leftcomp C), assoc.
+      <span class="nb">rewrite</span> (monoidal_associatornatleftright C).
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (maponpaths _ _).
+      <span class="bp">now</span> <span class="nb">rewrite</span> assoc, (monoidal_associatornatleft C).
+    - <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">refine</span> (maponpaths _ _); <span class="nb">rewrite</span> assoc.
+      use (module_laws_assoc_from_module _ R'_m p').
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right.
+      use tensor_swap'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor_funct</span>
+    {<span class="nv">R</span> <span class="nv">R'</span> : C} {<span class="nv">R_m</span> : monoid C R} {<span class="nv">R'_m</span> : monoid C R'}
+    (<span class="nv">M'</span> : C) (<span class="nv">p'</span> : module R' R'_m M')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : module R R_m M'.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">M'</span> ⊗l f · p').
+    <span class="nb">split</span>; [<span class="bp">now</span> use pullback_functor_funct_assoc | <span class="bp">now</span> use pullback_functor_funct_unit].
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_functor_on_morphisms_is_module_morphism</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : C) (<span class="nv">R_m</span> : monoid C R) (<span class="nv">R'_m</span> : monoid C R')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    (<span class="nv">M</span> <span class="nv">M'</span> : C) (<span class="nv">p</span> : module R' R'_m M) (<span class="nv">p'</span> : module R' R'_m M')
+    (<span class="nv">r</span> : M --&gt; M') (<span class="nv">r_m</span> : is_module_mor _ _ p p' r)
+    : is_module_mor R R_m (pullback_functor_funct M p f f_m)
+      (pullback_functor_funct M' p' f f_m) r.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_module_mor; <span class="nb">cbn</span>; <span class="nb">symmetry</span>; etrans.
+    + <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ r_m).
+    + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right.
+      use tensor_swap'.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor_data</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : C) (<span class="nv">R_m</span> : monoid C R) (<span class="nv">R'_m</span> : monoid C R')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : functor_data (MOD R' R'_m) (MOD R R_m).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> M; <span class="nb">induction</span> M <span class="k">as</span> [M p].
+      <span class="k">exists</span> <span class="nv">M</span>; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (pullback_functor_funct _ p _ f_m).
+    - <span class="nb">intros</span> [M p] [M' p']; <span class="nb">cbn</span> <span class="k">in</span> *; <span class="nb">intros</span> [ r r_m ].
+      <span class="k">exists</span> <span class="nv">r</span>.
+      <span class="bp">now</span> use pullback_functor_on_morphisms_is_module_morphism.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor_is_functor</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : C) (<span class="nv">R_m</span> : monoid C R) (<span class="nv">R'_m</span> : monoid C R')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : is_functor (pullback_functor_data R R' R_m R'_m f f_m).
+  <span class="kn">Proof</span>.
+    use make_is_functor.
+    - <span class="nb">intros</span> [M p]. <span class="nb">apply</span> MOD_mor_eq; <span class="bp">easy</span>.
+    - <span class="nb">intros</span> M M' M'' u v.
+      <span class="nb">apply</span> MOD_mor_eq; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : C) (<span class="nv">R_m</span> : monoid C R) (<span class="nv">R'_m</span> : monoid C R')
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    : (MOD R' R'_m) ⟶ (MOD R R_m).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">now</span> use pullback_functor_data.
+    - <span class="bp">now</span> use pullback_functor_is_functor.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">pullback_functor'</span> (<span class="nv">R</span> <span class="nv">R'</span> : MON C) (<span class="nv">f</span> : R --&gt; R')
+    : MOD (pr1 R') (pr2 R') ⟶ MOD (pr1 R) (pr2 R).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> R <span class="k">as</span> [R R_m].
+    <span class="nb">induction</span> R' <span class="k">as</span> [R' R'_m].
+    <span class="nb">induction</span> f <span class="k">as</span> [f f_m].
+    <span class="bp">now</span> use pullback_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Total category of right modules</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_modules_disp_cat_ob_mor</span> : disp_cat_ob_mor (MON C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> [R R_m]; <span class="bp">now</span> use MOD.
+    - <span class="nb">intros</span> R R' M M' f; <span class="bp">exact</span> (M --&gt; pullback_functor' R R' f M').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_is_monoid_with_module_mor</span> (<span class="nv">R</span> : C) (<span class="nv">R_m</span> : monoid C R)
+    (<span class="nv">M</span> : C) (<span class="nv">p</span> : module R R_m M) (<span class="nv">q</span> : is_monoid_mor C R_m R_m (identity R))
+    : is_module_mor R R_m p (pullback_functor_funct M p (identity R) q) (identity M).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_module_mor, pullback_functor_funct; <span class="nb">cbn</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right, assoc, @tensor_mor_right, @tensor_mor_left, tensor_id_id, id_left, id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_is_monoid_with_module_mor</span>
+    {<span class="nv">R</span> <span class="nv">R'</span> <span class="nv">R''</span> : C}
+    {<span class="nv">R_m</span> : _} {<span class="nv">R'_m</span> : _} {<span class="nv">R''_m</span> : _}
+    (<span class="nv">f</span> : R --&gt; R') (<span class="nv">f_m</span> : is_monoid_mor C R_m R'_m f)
+    (<span class="nv">g</span> : R' --&gt; R'') (<span class="nv">g_m</span> : is_monoid_mor C R'_m R''_m g)
+    (<span class="nv">M</span> : MOD R R_m) (<span class="nv">M'</span> : MOD R' R'_m) (<span class="nv">M''</span> : MOD R'' R''_m)
+    (<span class="nv">r</span> : M --&gt; pullback_functor' (R ,, R_m) (R' ,, R'_m) (f ,, f_m) M')
+    (<span class="nv">t</span> : M' --&gt; pullback_functor' (R' ,, R'_m) (R'' ,, R''_m) (g ,, g_m) M'')
+    (<span class="nv">u</span> : is_monoid_mor C R_m R''_m (f · g))
+    : is_module_mor R R_m (pr2 M)
+      (pullback_functor_funct (pr1 M'') (pr2 M'') (f · g) u)
+      (pr1 r · pr1 t).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> r <span class="k">as</span> [r r_m]; <span class="nb">simpl</span> <span class="k">in</span> r_m.
+    <span class="nb">induction</span> t <span class="k">as</span> [t t_m]; <span class="nb">simpl</span> <span class="k">in</span> t_m.
+    <span class="nb">unfold</span> is_module_mor <span class="k">in</span> *; <span class="nb">cbn</span> <span class="k">in</span> *;
+    <span class="nb">rewrite</span> (bifunctor_leftcomp C), (bifunctor_rightcomp C), assoc, assoc, assoc.
+    <span class="nb">symmetry</span>; etrans.
+    - <span class="nb">rewrite</span> &lt;- r_m, assoc, &lt;- assoc.
+      <span class="nb">refine</span> (!maponpaths _ t_m).
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc; <span class="kp">do</span> <span class="mi">2</span> use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> @tensor_mor_left, @tensor_mor_right.
+      use tensor_swap'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_modules_disp_cat_id_comp</span>
+    : disp_cat_id_comp (MON C) total_category_of_modules_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> [R R_m] [M p]; <span class="nb">eexists</span>; use id_is_monoid_with_module_mor.
+    - <span class="nb">intros</span> [R R_m] [R' R'_m] [R'' R''_m] [f f_m] [g g_m] [M p] [M' p'] [M'' p''] r t.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">r</span> · pr1 t); use (comp_is_monoid_with_module_mor _ _ _ _ _ _ _ r t _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_modules_disp_cat_data</span> : disp_cat_data (MON C)
+    := total_category_of_modules_disp_cat_ob_mor ,, total_category_of_modules_disp_cat_id_comp.
+
+  <span class="kn">Lemma</span> <span class="nf">total_category_of_modules_disp_cat_axioms</span> : disp_cat_axioms _ total_category_of_modules_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="kp">try</span> use homset_property; <span class="nb">apply</span> MOD_mor_eq;
+      <span class="nb">unfold</span> mor_disp, transportb;
+    <span class="nb">rewrite</span> functtransportf; <span class="nb">cbn</span>;
+    <span class="nb">rewrite</span> transportf_total2; <span class="nb">cbn</span>;
+    <span class="nb">rewrite</span> transportf_const.
+    - use id_left.
+    - use id_right.
+    - use assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_modules_disp_cat</span> : disp_cat (MON C)
+    := total_category_of_modules_disp_cat_data ,, total_category_of_modules_disp_cat_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">total_category_of_modules</span> : category
+    := total_category total_category_of_modules_disp_cat.
+<span class="kn">End</span> <span class="nf">TotalCategoryOfRModules</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/TotalCategoriesOfRModules.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Total category of right modules
+  &gt;  ***************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

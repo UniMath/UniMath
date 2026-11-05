@@ -1,0 +1,1047 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructureEnrichedLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Limits in categories enriched over structures</span>
+
+<span class="sd"> In this file we characterize limits in categories enriched over</span>
+<span class="sd"> structures. The proofs and characterizations are in essence the</span>
+<span class="sd"> same as for posets. A category enriched over structures inherits</span>
+<span class="sd"> its limits from the underlying category if projections and the</span>
+<span class="sd"> maps arising from the universal property are structure</span>
+<span class="sd"> preserving.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Terminal object</span>
+<span class="sd"> 2. Binary products</span>
+<span class="sd"> 3. Equalizers</span>
+<span class="sd"> 4. Type indexed products</span>
+<span class="sd"> 5. Powers</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.StructureEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">StructureEnrichmentLimits</span>.
+  <span class="kn">Context</span> {<span class="nv">P</span> : hset_cartesian_closed_struct}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : struct_enrichment P C).
+
+  <span class="kn">Let</span> <span class="nf">E'</span> : enrichment C (sym_mon_closed_cat_of_hset_struct P)
+    := make_enrichment_over_struct P C E.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Terminal object</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">StructureEnrichedTerminal</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C}
+            (<span class="nv">Hx</span> : isTerminal C x).
+
+    <span class="kn">Let</span> <span class="nf">T</span> : Terminal C := make_Terminal x Hx.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_is_terminal</span>
+      : is_terminal_enriched E' x.
+    <span class="kn">Proof</span>.
+      use make_is_terminal_enriched.
+      - <span class="nb">intros</span> X y.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, TerminalArrow T y).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> hset_struct_const).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> X y f g ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intros</span> z ;
+           <span class="nb">apply</span> (@TerminalArrowEq _ T)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">StructureEnrichedTerminal</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_terminal</span>
+             (<span class="nv">HC</span> : Terminal C)
+    : terminal_enriched E'
+    := pr1 HC ,, structure_enrichment_is_terminal (pr2 HC).
+
+  <span class="kn">Definition</span> <span class="nf">structure_terminal_enriched_weq_Terminal</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : terminal_enriched E' ≃ Terminal C.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">T</span>, terminal_underlying E' T).
+    - <span class="bp">exact</span> make_structure_enrichment_terminal.
+    - <span class="nb">apply</span> (isaprop_terminal_enriched _ HC).
+    - <span class="nb">apply</span> (isaprop_Terminal _ HC).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Binary products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">structure_enrichment_binary_prod</span>
+    : UU
+    := ∑ (BC : BinProducts C),
+       ∏ (x y z : C),
+       mor_hset_struct
+         P
+         (hset_struct_prod P (E z x) (E z y))
+         (E z (BC x y))
+         (<span class="k">λ</span> <span class="nv">fg</span>, BinProductArrow _ (BC x y) (pr1 fg) (pr2 fg)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_structure_enrichment_binary_prod</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop structure_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+    - <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (isaprop_BinProduct HC).
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">StructureEnrichedProdAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">EBC</span> : structure_enrichment_binary_prod).
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_binary_prod</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : C
+      := pr1 EBC x y.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_pr1</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : structure_enrichment_obj_binary_prod x y --&gt; x
+      := BinProductPr1 _ (pr1 EBC x y).
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_pr2</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : structure_enrichment_obj_binary_prod x y --&gt; y
+      := BinProductPr2 _ (pr1 EBC x y).
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_pair</span>
+               {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> : z --&gt; x)
+               (<span class="nv">g</span> : z --&gt; y)
+      : z --&gt; structure_enrichment_obj_binary_prod x y
+      := BinProductArrow _ (pr1 EBC x y) f g.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_enrichment_obj_pair_pr1</span>
+                {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : z --&gt; x)
+                (<span class="nv">g</span> : z --&gt; y)
+      : structure_enrichment_obj_pair f g · structure_enrichment_obj_pr1 x y
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> BinProductPr1Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_enrichment_obj_pair_pr2</span>
+                {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : z --&gt; x)
+                (<span class="nv">g</span> : z --&gt; y)
+      : structure_enrichment_obj_pair f g · structure_enrichment_obj_pr2 x y
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> BinProductPr2Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_enrichment_binary_prod_arr_eq</span>
+                {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; structure_enrichment_obj_binary_prod x y}
+                (<span class="nv">p</span> : f · structure_enrichment_obj_pr1 x y
+                     =
+                     g · structure_enrichment_obj_pr1 x y)
+                (<span class="nv">q</span> : f · structure_enrichment_obj_pr2 x y
+                     =
+                     g · structure_enrichment_obj_pr2 x y)
+      : f = g.
+    <span class="kn">Proof</span>.
+      use (BinProductArrowsEq _ _ _ (pr1 EBC x y)).
+      - <span class="bp">exact</span> p.
+      - <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_binary_prod_pair</span>
+               (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+      : E' ⦃ z , x ⦄ ⊗ (E' ⦃ z , y ⦄)
+        --&gt;
+        E' ⦃ z , structure_enrichment_obj_binary_prod x y ⦄
+      := _ ,, pr2 EBC x y z.
+  <span class="kn">End</span> <span class="nf">StructureEnrichedProdAccessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">StructureProd</span>.
+    <span class="kn">Context</span> (<span class="nv">EBC</span> : structure_enrichment_binary_prod)
+            (<span class="nv">x</span> <span class="nv">y</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">make_structure_enriched_binary_prod_cone</span>
+      : enriched_binary_prod_cone E' x y.
+    <span class="kn">Proof</span>.
+      use make_enriched_binary_prod_cone.
+      - <span class="bp">exact</span> (structure_enrichment_obj_binary_prod EBC x y).
+      - <span class="bp">exact</span> (enriched_from_arr E' (structure_enrichment_obj_pr1 EBC x y)).
+      - <span class="bp">exact</span> (enriched_from_arr E' (structure_enrichment_obj_pr2 EBC x y)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_binary_prod_is_prod</span>
+      : is_binary_prod_enriched E' x y make_structure_enriched_binary_prod_cone.
+    <span class="kn">Proof</span>.
+      use make_is_binary_prod_enriched.
+      - <span class="nb">intros</span> z X f g.
+        <span class="nb">refine</span> (_ · structure_enrichment_binary_prod_pair _ _ _ _).
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (prodtofuntoprod (pr1 f ,, pr1 g)).
+        + <span class="nb">apply</span> hset_struct_pair.
+          * <span class="bp">exact</span> (pr2 f).
+          * <span class="bp">exact</span> (pr2 g).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z X f g ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> structure_enrichment_obj_pair_pr1).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z X f g ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> structure_enrichment_obj_pair_pr2).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z X φ₁ φ₂ q₁ q₂ ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> w ;
+           use structure_enrichment_binary_prod_arr_eq ;
+           [ <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) q₁) w)
+           | <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) q₂) w) ]).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">StructureProd</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_binary_prod</span>
+             (<span class="nv">EBC</span> : structure_enrichment_binary_prod)
+    : enrichment_binary_prod E'
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>,
+       make_structure_enriched_binary_prod_cone EBC x y
+       ,,
+       structure_enrichment_binary_prod_is_prod EBC x y.
+
+  <span class="kn">Section</span> <span class="nf">ToStructureProduct</span>.
+    <span class="kn">Context</span> (<span class="nv">EP</span> : enrichment_binary_prod E')
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}.
+
+    <span class="kn">Let</span> <span class="nf">prod</span> : sym_monoidal_cat_of_hset_struct P
+      := (E' ⦃ x , y ⦄) ⊗ (E' ⦃ x , z ⦄).
+
+    <span class="kn">Let</span> <span class="nf">prod_pr1</span> : prod --&gt; E' ⦃ x , y ⦄
+      := _ ,, hset_struct_pr1 _ _ _.
+
+    <span class="kn">Let</span> <span class="nf">prod_pr2</span> : prod --&gt; E' ⦃ x , z ⦄
+      := _ ,, hset_struct_pr2 _ _ _.
+
+    <span class="kn">Definition</span> <span class="nf">structure_to_underlying_binary_prod_map</span>
+               (<span class="nv">f</span> : x --&gt; y)
+               (<span class="nv">g</span> : x --&gt; z)
+      : x --&gt; underlying_BinProduct E' y z (pr2 (EP y z))
+      := pr1 (BinProductArrow
+                (sym_monoidal_cat_of_hset_struct P)
+                (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y z)) x)
+                prod_pr1
+                prod_pr2)
+             (f ,, g).
+
+    <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_binary_prod_map_pr1</span>
+                (<span class="nv">f</span> : x --&gt; y)
+                (<span class="nv">g</span> : x --&gt; z)
+      : structure_to_underlying_binary_prod_map f g
+        · enriched_prod_cone_pr1 E' y z (pr1 (EP y z))
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (eqtohomot
+              (maponpaths
+                 pr1
+                 (BinProductPr1Commutes
+                    _
+                    _ _
+                    (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y z)) x)
+                    _
+                    prod_pr1
+                    prod_pr2))
+              (f ,, g))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_binary_prod_map_pr2</span>
+                (<span class="nv">f</span> : x --&gt; y)
+                (<span class="nv">g</span> : x --&gt; z)
+      : structure_to_underlying_binary_prod_map f g
+        · enriched_prod_cone_pr2 E' y z (pr1 (EP y z))
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (eqtohomot
+              (maponpaths
+                 pr1
+                 (BinProductPr2Commutes
+                    _
+                    _ _
+                    (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y z)) x)
+                    _
+                    prod_pr1
+                    prod_pr2))
+              (f ,, g))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_binary_prod_map_eq</span>
+      : (<span class="k">λ</span> <span class="nv">fg</span>, BinProductArrow
+                 C
+                 (underlying_BinProduct E' y z (pr2 (EP y z)))
+                 (pr1 fg)
+                 (pr2 fg))
+        =
+        (<span class="k">λ</span> <span class="nv">fg</span>, structure_to_underlying_binary_prod_map
+                 (pr1 fg)
+                 (dirprod_pr2 fg)).
+    <span class="kn">Proof</span>.
+      use funextsec.
+      <span class="nb">intros</span> fg.
+      use is_binary_prod_enriched_arrow_eq.
+      - <span class="bp">exact</span> (pr2 (EP y z)).
+      - <span class="nb">refine</span> (_ @ !(structure_to_underlying_binary_prod_map_pr1 _ _)).
+        <span class="nb">apply</span> (BinProductPr1Commutes
+                 C
+                 _ _
+                 (underlying_BinProduct E' y z (pr2 (EP y z)))
+                 _
+                 _ _).
+      - <span class="nb">refine</span> (_ @ !(structure_to_underlying_binary_prod_map_pr2 _ _)).
+        <span class="nb">apply</span> (BinProductPr2Commutes
+                 C
+                 _ _
+                 (underlying_BinProduct E' y z (pr2 (EP y z)))
+                 _
+                 _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_binary_prod_map_structure_preserving</span>
+      : mor_hset_struct
+          P
+          (hset_struct_prod P (E x y) (E x z))
+          (E x (underlying_BinProduct E' y z (pr2 (EP y z))))
+          (<span class="k">λ</span> <span class="nv">fg</span>,
+            BinProductArrow
+              C
+              (underlying_BinProduct E' y z (pr2 (EP y z)))
+              (pr1 fg)
+              (pr2 fg)).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (transportb
+                _
+                structure_to_underlying_binary_prod_map_eq
+                (pr2 (@BinProductArrow
+                         _ _ _
+                         (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y z)) x)
+                         prod
+                         prod_pr1
+                         prod_pr2))).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ToStructureProduct</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_structure_enrichment_binary_prod</span>
+             (<span class="nv">EP</span> : enrichment_binary_prod E')
+    : structure_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, underlying_BinProduct E' x y (pr2 (EP x y))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z ;
+         <span class="nb">apply</span> structure_to_underlying_binary_prod_map_structure_preserving).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structure_enrichment_binary_prod_weq</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : enrichment_binary_prod E' ≃ structure_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">apply</span> to_structure_enrichment_binary_prod.
+    - <span class="nb">apply</span> make_structure_enrichment_binary_prod.
+    - <span class="nb">apply</span> (isaprop_enrichment_binary_prod HC).
+    - <span class="nb">apply</span> (isaprop_structure_enrichment_binary_prod HC).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">EqualizerStructures</span>.
+    <span class="kn">Context</span> (<span class="nv">HP</span> : hset_equalizer_struct P).
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_equalizers</span>
+      : UU
+      := ∑ (EC : Equalizers C),
+         ∏ (w x y : C)
+           (f g : x --&gt; y),
+         mor_hset_struct
+           P
+           (hset_struct_equalizer
+              HP
+              (pr2 (postcomp_arr E' w f))
+              (pr2 (postcomp_arr E' w g)))
+           (E w (EC x y f g))
+           (<span class="k">λ</span> <span class="nv">h</span>, EqualizerIn (EC x y f g) w (pr1 h) (pr2 h)).
+
+    <span class="kn">Proposition</span> <span class="nf">isaprop_structure_enrichment_equalizers</span>
+                (<span class="nv">HC</span> : is_univalent C)
+      : isaprop structure_enrichment_equalizers.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_Equalizer.
+        <span class="bp">exact</span> HC.
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">StructureEnrichedEqualizerAccessors</span>.
+      <span class="kn">Context</span> (<span class="nv">EEC</span> : structure_enrichment_equalizers).
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_equalizer</span>
+                 {<span class="nv">x</span> <span class="nv">y</span> : C}
+                 (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        : C
+        := pr1 EEC x y f g.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_equalizer_pr</span>
+                 {<span class="nv">x</span> <span class="nv">y</span> : C}
+                 (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        : structure_enrichment_obj_equalizer f g --&gt; x
+        := EqualizerArrow (pr1 EEC x y f g).
+
+      <span class="kn">Proposition</span> <span class="nf">structure_enrichment_obj_pr_eq</span>
+                  {<span class="nv">x</span> <span class="nv">y</span> : C}
+                  (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        : structure_enrichment_obj_equalizer_pr f g · f
+          =
+          structure_enrichment_obj_equalizer_pr f g · g.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> EqualizerEqAr.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_to_equalizer</span>
+                 {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                 {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+                 (<span class="nv">h</span> : w --&gt; x)
+                 (<span class="nv">q</span> : h · f = h · g)
+        : w --&gt; structure_enrichment_obj_equalizer f g
+        := EqualizerIn (pr1 EEC x y f g) w h q.
+
+      <span class="kn">Proposition</span> <span class="nf">structure_enrichment_obj_to_equalizer_pr</span>
+                  {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                  {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+                  (<span class="nv">h</span> : w --&gt; x)
+                  (<span class="nv">q</span> : h · f = h · g)
+        : structure_enrichment_obj_to_equalizer h q
+          · structure_enrichment_obj_equalizer_pr f g
+          =
+          h.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> EqualizerCommutes.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">structure_enrichment_equalizer_arr_eq</span>
+                  {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                  {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+                  {<span class="nv">h₁</span> <span class="nv">h₂</span> : w --&gt; structure_enrichment_obj_equalizer f g}
+                  (<span class="nv">q</span> : h₁ · structure_enrichment_obj_equalizer_pr f g
+                       =
+                       h₂ · structure_enrichment_obj_equalizer_pr f g)
+        : h₁ = h₂.
+      <span class="kn">Proof</span>.
+        use EqualizerInsEq.
+        <span class="bp">exact</span> q.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_to_equalizer</span>
+                 {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                 (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+        : hset_struct_equalizer_ob
+            HP
+            (pr2 (postcomp_arr E' w f))
+            (pr2 (postcomp_arr E' w g))
+           --&gt;
+           E' ⦃ w , structure_enrichment_obj_equalizer f g ⦄
+        := _ ,, pr2 EEC w x y f g.
+    <span class="kn">End</span> <span class="nf">StructureEnrichedEqualizerAccessors</span>.
+
+    <span class="kn">Section</span> <span class="nf">StructureEqualizer</span>.
+      <span class="kn">Context</span> (<span class="nv">EEC</span> : structure_enrichment_equalizers)
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y).
+
+      <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_equalizer_cone</span>
+        : enriched_equalizer_cone E' f g.
+      <span class="kn">Proof</span>.
+        use make_enriched_equalizer_cone.
+        - <span class="bp">exact</span> (structure_enrichment_obj_equalizer EEC f g).
+        - <span class="bp">exact</span> (enriched_from_arr E' (structure_enrichment_obj_equalizer_pr EEC f g)).
+        - <span class="bp">exact</span> (structure_enrichment_obj_pr_eq EEC f g).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_equalizer_is_equalizer</span>
+        : is_equalizer_enriched
+            E'
+            f g
+            make_structure_enrichment_equalizer_cone.
+      <span class="kn">Proof</span>.
+        use make_is_equalizer_enriched.
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> w X φ₁ φ₂ q ;
+             use eq_mor_hset_struct ;
+             <span class="nb">intro</span> z ;
+             use structure_enrichment_equalizer_arr_eq ;
+             <span class="bp">exact</span> (eqtohomot (maponpaths pr1 q) z)).
+        - <span class="nb">intros</span> w X h q.
+          <span class="nb">refine</span> (_ · structure_enrichment_to_equalizer EEC f g).
+          <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 h z ,, _).
+            <span class="bp">exact</span> (eqtohomot (maponpaths pr1 q) z).
+          + <span class="kp">abstract</span>
+              (<span class="nb">apply</span> hset_equalizer_arrow_struct ;
+               <span class="bp">exact</span> (pr2 h)).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> w X h q ;
+             use eq_mor_hset_struct ;
+             <span class="nb">intros</span> z ;
+             <span class="nb">apply</span> structure_enrichment_obj_to_equalizer_pr).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">StructureEqualizer</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_equalizers</span>
+               (<span class="nv">EEC</span> : structure_enrichment_equalizers)
+      : enrichment_equalizers E'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f g.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (make_structure_enrichment_equalizer_cone EEC f g).
+      - <span class="bp">exact</span> (make_structure_enrichment_equalizer_is_equalizer EEC f g).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Section</span> <span class="nf">ToStructureEqualizer</span>.
+      <span class="kn">Context</span> (<span class="nv">EEC</span> : enrichment_equalizers E')
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y).
+
+      <span class="kn">Let</span> <span class="nf">Eq</span> : Equalizer _ _
+        := Equalizers_category_of_hset_struct
+             HP
+             _
+             _
+             (postcomp_arr E' w f)
+             (postcomp_arr E' w g).
+
+      <span class="kn">Let</span> <span class="nf">Eq_pr</span> : Eq --&gt; E' ⦃ w , x ⦄
+        := EqualizerArrow _.
+
+      <span class="kn">Let</span> <span class="nf">Eq_path</span> : Eq_pr · postcomp_arr E' w f
+                    =
+                    Eq_pr · postcomp_arr E' w g
+        := EqualizerEqAr _.
+
+      <span class="kn">Definition</span> <span class="nf">structure_to_underlying_equalizer_map</span>
+                 (<span class="nv">h</span> : w --&gt; x)
+                 (<span class="nv">q</span> : h · f = h · g)
+        : w --&gt; underlying_Equalizer E' f g (pr2 (EEC x y f g))
+        := pr1 (EqualizerIn
+                  (is_equalizer_enriched_to_Equalizer E' f g (pr2 (EEC x y f g)) w)
+                  Eq
+                  Eq_pr
+                  Eq_path)
+             (h ,, q).
+
+      <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_equalizer_map_pr</span>
+                  (<span class="nv">h</span> : w --&gt; x)
+                  (<span class="nv">q</span> : h · f = h · g)
+        : structure_to_underlying_equalizer_map h q
+            · enriched_equalizer_cone_pr E' f g (pr1 (EEC x y f g))
+          =
+          h.
+      <span class="kn">Proof</span>.
+        <span class="nb">pose</span> (eqtohomot
+                (maponpaths
+                   pr1
+                   (EqualizerCommutes
+                      (is_equalizer_enriched_to_Equalizer E' f g (pr2 (EEC x y f g)) w)
+                      Eq
+                      Eq_pr
+                      Eq_path))
+                (h ,, q))
+          <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">to_structure_enrichment_equalizer_structure_preserving</span>
+        : mor_hset_struct
+            P
+            (hset_struct_equalizer
+               HP
+               (pr2 (postcomp_arr E' w f))
+               (pr2 (postcomp_arr E' w g)))
+            (E w (underlying_Equalizer E' f g (pr2 (EEC x y f g))))
+            (<span class="k">λ</span> <span class="nv">h</span>, EqualizerIn
+                    (underlying_Equalizer E' f g (pr2 (EEC x y f g)))
+                    w
+                    (pr1 h)
+                    (pr2 h)).
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportb
+                  _
+                  _
+                  (pr2 (EqualizerIn
+                          (is_equalizer_enriched_to_Equalizer E' _ _ (pr2 (EEC x y f g)) w)
+                          Eq
+                          Eq_pr
+                          Eq_path))).
+        use funextsec.
+        <span class="nb">intros</span> fg.
+        use underlying_Equalizer_arr_eq.
+        - <span class="bp">exact</span> (pr2 (EEC x y f g)).
+        - <span class="nb">refine</span> (_ @ !(structure_to_underlying_equalizer_map_pr (pr1 fg) (pr2 fg))).
+          <span class="nb">apply</span> (EqualizerCommutes
+                   (underlying_Equalizer E' f g (pr2 (EEC x y f g)))).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">ToStructureEqualizer</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_structure_enrichment_equalizer</span>
+               (<span class="nv">EEC</span> : enrichment_equalizers E')
+      : structure_enrichment_equalizers.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, underlying_Equalizer E' f g (pr2 (EEC x y f g))).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> w x y f g ;
+           <span class="nb">apply</span> to_structure_enrichment_equalizer_structure_preserving).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_equalizer_weq</span>
+               (<span class="nv">HC</span> : is_univalent C)
+      : enrichment_equalizers E' ≃ structure_enrichment_equalizers.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> to_structure_enrichment_equalizer.
+      - <span class="nb">apply</span> make_structure_enrichment_equalizers.
+      - <span class="nb">apply</span> (isaprop_enrichment_equalizers HC).
+      - <span class="nb">apply</span> (isaprop_structure_enrichment_equalizers HC).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EqualizerStructures</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Type indexed products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">StructureTypeIndexedProducts</span>.
+    <span class="kn">Context</span> {<span class="nv">J</span> : UU}
+            (<span class="nv">HP</span> : hset_struct_type_prod P J).
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_prod</span>
+      : UU
+      := ∑ (PC : Products J C),
+         ∏ (x : C)
+           (ys : J → C),
+         mor_hset_struct
+           P
+           (HP _ (<span class="k">λ</span> <span class="nv">j</span>, pr2 (E' ⦃ x , ys j ⦄)))
+           (E x (PC ys))
+           (<span class="k">λ</span> <span class="nv">h</span>, ProductArrow _ _ (PC ys) (<span class="k">λ</span> <span class="nv">i</span>, h i)).
+
+    <span class="kn">Proposition</span> <span class="nf">isaprop_structure_enrichment_prod</span>
+                (<span class="nv">HC</span> : is_univalent C)
+      : isaprop structure_enrichment_prod.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_Product.
+        <span class="bp">exact</span> HC.
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">StructureEnrichedProdAccessors</span>.
+      <span class="kn">Context</span> (<span class="nv">EC</span> : structure_enrichment_prod).
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_prod</span>
+                 (<span class="nv">ys</span> : J → C)
+        : C
+        := pr1 EC ys.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_prod_pr</span>
+                 (<span class="nv">ys</span> : J → C)
+                 (<span class="nv">j</span> : J)
+        : structure_enrichment_obj_prod ys --&gt; ys j
+        := ProductPr _ _ (pr1 EC ys) j.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_obj_prod_pair</span>
+                 {<span class="nv">x</span> : C}
+                 {<span class="nv">ys</span> : J → C}
+                 (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+        : x --&gt; structure_enrichment_obj_prod ys
+        := ProductArrow _ _ (pr1 EC ys) fs.
+
+      <span class="kn">Proposition</span> <span class="nf">structure_enrichment_obj_prod_pair_pr</span>
+                  {<span class="nv">x</span> : C}
+                  {<span class="nv">ys</span> : J → C}
+                  (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+                  (<span class="nv">j</span> : J)
+        : structure_enrichment_obj_prod_pair fs · structure_enrichment_obj_prod_pr ys j
+          =
+          fs j.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> ProductPrCommutes.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">structure_enrichment_prod_arr_eq</span>
+                  {<span class="nv">x</span> : C}
+                  {<span class="nv">ys</span> : J → C}
+                  {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; structure_enrichment_obj_prod ys}
+                  (<span class="nv">p</span> : ∏ (j : J),
+                       f · structure_enrichment_obj_prod_pr ys j
+                       =
+                       g · structure_enrichment_obj_prod_pr ys j)
+        : f = g.
+      <span class="kn">Proof</span>.
+        use (ProductArrow_eq _ _ _ (pr1 EC ys)).
+        <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_prod_pair</span>
+                 (<span class="nv">x</span> : C)
+                 (<span class="nv">ys</span> : J → C)
+        : hset_struct_type_prod_ob HP _ (<span class="k">λ</span> <span class="nv">j</span>, pr2 (E' ⦃ x , ys j ⦄))
+          --&gt;
+          E' ⦃ x , pr1 EC ys ⦄
+        := _ ,, pr2 EC x ys.
+    <span class="kn">End</span> <span class="nf">StructureEnrichedProdAccessors</span>.
+
+    <span class="kn">Section</span> <span class="nf">StructureProd</span>.
+      <span class="kn">Context</span> (<span class="nv">EBC</span> : structure_enrichment_prod)
+              (<span class="nv">ys</span> : J → C).
+
+      <span class="kn">Definition</span> <span class="nf">make_structure_enriched_prod_cone</span>
+        : enriched_prod_cone E' ys.
+      <span class="kn">Proof</span>.
+        use make_enriched_prod_cone.
+        - <span class="bp">exact</span> (structure_enrichment_obj_prod EBC ys).
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, enriched_from_arr E' (structure_enrichment_obj_prod_pr EBC ys j)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">structure_enrichment_prod_is_prod</span>
+        : is_prod_enriched E' ys make_structure_enriched_prod_cone.
+      <span class="kn">Proof</span>.
+        use make_is_prod_enriched.
+        - <span class="nb">intros</span> z X fs.
+          <span class="nb">refine</span> (_ · structure_enrichment_prod_pair _ _ _).
+          <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">j</span>, pr1 (fs j) x).
+          + <span class="kp">abstract</span>
+              (use hset_struct_type_prod_pair ;
+               <span class="nb">intro</span> j ;
+               <span class="bp">exact</span> (pr2 (fs j))).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z X f g ;
+             use eq_mor_hset_struct ;
+             <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> structure_enrichment_obj_prod_pair_pr).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z X φ₁ φ₂ q ;
+             use eq_mor_hset_struct ;
+             <span class="nb">intro</span> w ;
+             use structure_enrichment_prod_arr_eq ;
+             <span class="nb">intro</span> j ;
+             <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) (q j)) w)).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">StructureProd</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_structure_enrichment_prod</span>
+               (<span class="nv">EBC</span> : structure_enrichment_prod)
+      : enrichment_prod E' J
+      := <span class="k">λ</span> <span class="nv">ys</span>,
+         make_structure_enriched_prod_cone EBC ys
+         ,,
+         structure_enrichment_prod_is_prod EBC ys.
+
+    <span class="kn">Section</span> <span class="nf">ToStructureProduct</span>.
+      <span class="kn">Context</span> (<span class="nv">EP</span> : enrichment_prod E' J)
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ys</span> : J → C).
+
+      <span class="kn">Let</span> <span class="nf">prod</span> : Product _ _ _
+        := Products_category_of_hset_struct_type_prod HP (<span class="k">λ</span> <span class="nv">j</span>, E' ⦃ x , ys j ⦄).
+
+      <span class="kn">Let</span> <span class="nf">prod_pr</span> : ∏ (j : J), prod --&gt; E' ⦃ x , ys j ⦄
+        := <span class="k">λ</span> <span class="nv">j</span>, _ ,, hset_struct_type_prod_pr HP (<span class="k">λ</span> <span class="nv">j</span>, pr2 (E' ⦃ x , ys j ⦄)) j.
+
+      <span class="kn">Definition</span> <span class="nf">structure_to_underlying_prod_map</span>
+                 (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+        : x --&gt; underlying_Product E' ys (pr2 (EP ys))
+        := pr1 (ProductArrow
+                  _ _
+                  (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                  prod_pr)
+             fs.
+
+      <span class="kn">Proposition</span> <span class="nf">structure_to_underlying_prod_map_pr</span>
+                  (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+                  (<span class="nv">j</span> : J)
+        : structure_to_underlying_prod_map fs
+          · enriched_prod_cone_pr E' ys (pr1 (EP ys)) j
+          =
+          fs j.
+      <span class="kn">Proof</span>.
+        <span class="nb">pose</span> (eqtohomot
+                (maponpaths
+                   pr1
+                   (ProductPrCommutes
+                      J _ _
+                      (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                      _
+                      prod_pr
+                      j))
+                fs)
+          <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">to_structure_enrichment_prod_structure_preserving</span>
+        : mor_hset_struct
+            P
+            (HP (<span class="k">λ</span> <span class="nv">j</span>, pr1 (E' ⦃ x, ys j ⦄)) (<span class="k">λ</span> <span class="nv">j</span> : J, pr2 (E' ⦃ x, ys j ⦄)))
+            (E x (underlying_Product E' ys (pr2 (EP ys))))
+            (<span class="k">λ</span> <span class="nv">h</span>, ProductArrow
+                    J C
+                    (underlying_Product E' ys (pr2 (EP ys)))
+                    (<span class="k">λ</span> <span class="nv">i</span>, h i)).
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (transportb
+                  _
+                  _
+                  (pr2 (@ProductArrow
+                      _ _ _
+                      (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                      prod
+                      prod_pr))).
+        use funextsec.
+        <span class="nb">intros</span> fg.
+        use is_prod_enriched_arrow_eq.
+        - <span class="bp">exact</span> (pr2 (EP ys)).
+        - <span class="nb">intro</span> j.
+          <span class="nb">refine</span> (_ @ !(structure_to_underlying_prod_map_pr _ j)).
+          <span class="nb">apply</span> (ProductPrCommutes _ _ _ (underlying_Product E' ys (pr2 (EP ys)))).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">ToStructureProduct</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_structure_enrichment_prod</span>
+               (<span class="nv">EP</span> : enrichment_prod E' J)
+      : structure_enrichment_prod.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ys</span>, underlying_Product E' ys (pr2 (EP ys))).
+      - <span class="nb">intros</span> x ys.
+        <span class="nb">apply</span> to_structure_enrichment_prod_structure_preserving.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_enrichment_prod_weq</span>
+               (<span class="nv">HC</span> : is_univalent C)
+      : enrichment_prod E' J ≃ structure_enrichment_prod.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> to_structure_enrichment_prod.
+      - <span class="nb">apply</span> make_structure_enrichment_prod.
+      - <span class="nb">apply</span> (isaprop_enrichment_prod HC).
+      - <span class="nb">apply</span> (isaprop_structure_enrichment_prod HC).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">StructureTypeIndexedProducts</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Powers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">structure_enrichment_pows</span>
+    : UU
+    := ∑ (prods : ∏ (X : category_of_hset_struct P), Products (pr11 X) C),
+       ∏ (X : category_of_hset_struct P)
+         (x : C),
+       mor_hset_struct
+         P
+         (pr2 X)
+         (E (prods X (<span class="k">λ</span> <span class="nv">_</span>, x)) x)
+         (ProductPr _ _ (prods X (<span class="k">λ</span> <span class="nv">_</span>, x)))
+       ×
+       (∏ (y : C),
+        mor_hset_struct
+          P
+          (hset_struct_fun P (pr2 X) (E y x))
+          (E y (prods X (<span class="k">λ</span> <span class="nv">_</span>, x)))
+          (<span class="k">λ</span> <span class="nv">f</span>, ProductArrow _ _ (prods X (<span class="k">λ</span> <span class="nv">_</span>, x)) (pr1 f))).
+
+  <span class="kn">Section</span> <span class="nf">StructureEnrichmentPowersAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">HE</span> : structure_enrichment_pows).
+
+    <span class="kn">Definition</span> <span class="nf">structure_pows_prod</span>
+               (<span class="nv">X</span> : category_of_hset_struct P)
+               (<span class="nv">x</span> : C)
+      : Product (pr11 X) C (<span class="k">λ</span> <span class="nv">_</span>, x)
+      := pr1 HE X (<span class="k">λ</span> <span class="nv">_</span>, x).
+
+    <span class="kn">Definition</span> <span class="nf">structure_pows_pr</span>
+               {<span class="nv">X</span> : category_of_hset_struct P}
+               {<span class="nv">x</span> : C}
+               (<span class="nv">i</span> : pr11 X)
+      : structure_pows_prod X x --&gt; x
+      := ProductPr _ _ (structure_pows_prod X x) i.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_pows_mor_pr</span>
+                (<span class="nv">X</span> : category_of_hset_struct P)
+                (<span class="nv">x</span> : C)
+      : mor_hset_struct
+          P
+          (pr2 X)
+          (E (structure_pows_prod X x) x)
+          structure_pows_pr.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr1 (pr2 HE X x)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">structure_pows_mor_product_arr</span>
+                (<span class="nv">X</span> : category_of_hset_struct P)
+                (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : mor_hset_struct
+          P
+          (hset_struct_fun P (pr2 X) (E y x))
+          (E y (structure_pows_prod X x))
+          (<span class="k">λ</span> <span class="nv">f</span>, ProductArrow _ _ (structure_pows_prod X x) (pr1 f)).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr2 (pr2 HE X x) y).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">StructureEnrichmentPowersAccessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">StructureEnrichmentPowers</span>.
+    <span class="kn">Context</span> (<span class="nv">HE</span> : structure_enrichment_pows)
+            (<span class="nv">X</span> : sym_mon_closed_cat_of_hset_struct P)
+            (<span class="nv">x</span> : C).
+
+    <span class="kn">Let</span> <span class="nf">pow</span> : Product _ C (<span class="k">λ</span> <span class="nv">_</span>, x) := structure_pows_prod HE X x.
+    <span class="kn">Let</span> <span class="nf">pow_pr</span> : ∏ (_ : pr11 X), pow --&gt; x := <span class="k">λ</span> <span class="nv">i</span>, structure_pows_pr HE i.
+
+    <span class="kn">Definition</span> <span class="nf">structure_power_cone</span>
+      : power_cone E' X x.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> pow.
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> pow_pr.
+        + <span class="bp">exact</span> (structure_pows_mor_pr HE X x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_power_map</span>
+               (<span class="nv">y</span> : C)
+      : X ⊸ (E' ⦃ y , x ⦄) --&gt; E' ⦃ y , structure_power_cone ⦄.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="nb">intro</span> f.
+        <span class="bp">exact</span> (ProductArrow _ _ pow (pr1 f)).
+      - <span class="bp">exact</span> (structure_pows_mor_product_arr HE X x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">structure_power_is_power</span>
+      : is_power_enriched E' X x structure_power_cone.
+    <span class="kn">Proof</span>.
+      use make_is_power_enriched.
+      - <span class="bp">exact</span> structure_power_map.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> y ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> f ;
+           <span class="nb">cbn</span> <span class="k">in</span> f ;
+           use ProductArrow_eq ;
+           <span class="nb">intro</span> i ;
+           <span class="nb">apply</span> (ProductPrCommutes _ _ _ pow)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> y ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> f ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> i ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> (ProductPrCommutes _ _ _ pow)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">StructureEnrichmentPowers</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structure_enrichment_powers_from_products</span>
+             (<span class="nv">HE</span> : structure_enrichment_pows)
+    : enrichment_power E'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X x.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (structure_power_cone HE X x).
+    - <span class="nb">apply</span> structure_power_is_power.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StructureEnrichmentLimits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Limits/Examples/StructureEnrichedLimits.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Powers
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

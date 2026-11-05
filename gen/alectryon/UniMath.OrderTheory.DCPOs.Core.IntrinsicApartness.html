@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IntrinsicApartness.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> The intrinsic apartness relation of a DCPO</span>
+
+<span class="sd"> Every DCPO gives rise to an intrinsic apartness relation. To define it, we</span>
+<span class="sd"> take the following steps</span>
+<span class="sd"> 1. We define the specialization preorder. An element `x` is a specialization of</span>
+<span class="sd">    an element `y` if every open set that contains `x` also contains `y`.</span>
+<span class="sd"> 2. We define the `does not specialize` relation. Classically, this relation is</span>
+<span class="sd">    equivalent to the negation of the specialization preorder, but</span>
+<span class="sd">    constructively, that is not true.</span>
+<span class="sd"> 3. We define the intrinsic apartness relation.</span>
+
+<span class="sd"> Note that in general, the intrinsic apartness relation is neither tight nor</span>
+<span class="sd"> cotransitive in constructive foundations. See Theorem 5.6 in</span>
+<span class="sd">     https://arxiv.org/pdf/2106.05064.pdf</span>
+
+<span class="sd"> We also prove some properties of every relation that we define in this file.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The specialization preorder</span>
+<span class="sd"> 2. Properties of the specialization preorder</span>
+<span class="sd"> 3. The 'does not specialize' relation</span>
+<span class="sd"> 4. Properties of the 'does not specialize' relation</span>
+<span class="sd"> 5. The intrinsic apartness relation</span>
+<span class="sd"> 6. Properties of the intrinsic apartness relation</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The specialization preorder</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">dcpo_specialization</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">P</span> : X → hProp), is_scott_open P ⇒ P x ⇒ P y)%logic.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊑s y"</span> := (dcpo_specialization x y) (<span class="kn">at level</span> <span class="mi">70</span>) : dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Properties of the specialization preorder</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PropertiesSpecialization</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="kn">Proposition</span> <span class="nf">refl_dcpo_specialization</span>
+              (<span class="nv">x</span> : X)
+    : x ⊑s x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P HP Px.
+    <span class="bp">exact</span> Px.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">trans_dcpo_specialization</span>
+              {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+              (<span class="nv">p</span> : x ⊑s y)
+              (<span class="nv">q</span> : y ⊑s z)
+    : x ⊑s z.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P HP Px.
+    <span class="nb">apply</span> (q P HP).
+    <span class="nb">apply</span> (p P HP Px).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">le_dcpo_specialization</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x ⊑ y)
+    : x ⊑s y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P HP Px.
+    <span class="bp">exact</span> (is_scott_open_upper_set HP Px p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">le_dcpo_specialization_equiv</span>
+              (<span class="nv">CX</span> : continuous_dcpo_struct X)
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊑ y ≃ x ⊑s y.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> le_dcpo_specialization.
+    - <span class="nb">intros</span> p.
+      use (invmap (continuous_dcpo_struct_le_via_approximation CX x y)).
+      <span class="nb">intro</span> z.
+      <span class="nb">intro</span> q.
+      <span class="bp">exact</span> (p _ (upper_set_is_scott_open CX z) q).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesSpecialization</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The 'does not specialize' relation</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">dcpo_not_specialization</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : hProp
+  := (<span class="k">∃</span> (<span class="nv">P</span> : X → hProp), is_scott_open P ∧ P x ∧ ¬(P y))%logic.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊄ y"</span> := (dcpo_not_specialization x y) (<span class="kn">at level</span> <span class="mi">70</span>) : dcpo. <span class="c">(* \nsubset *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Properties of the 'does not specialize' relation</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PropertiesNotSpecialization</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="kn">Proposition</span> <span class="nf">irrefl_dcpo_not_specialization</span>
+              (<span class="nv">x</span> : X)
+    : ¬(x ⊄ x).
+  <span class="kn">Proof</span>.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropempty.
+    }
+    <span class="nb">intro</span> P.
+    <span class="nb">induction</span> P <span class="k">as</span> [ P [ HP [ p n ]]].
+    <span class="bp">exact</span> (n p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dcpo_not_specialization_le</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x ⊄ y)
+    : ¬(x ⊑ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    <span class="nb">revert</span> p.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropempty.
+    }
+    <span class="nb">intros</span> P.
+    <span class="nb">induction</span> P <span class="k">as</span>  [ P [ HP [ Px Py ]]].
+    <span class="nb">refine</span> (Py _).
+    <span class="bp">exact</span> (is_scott_open_upper_set HP Px q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">continuous_not_specialization_weq</span>
+              (<span class="nv">CX</span> : continuous_dcpo_struct X)
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊄ y ≃ (<span class="k">∃</span> (<span class="nv">b</span> : X), b ≪ x ∧ ¬(b ⊑ y))%logic.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> P.
+      <span class="nb">induction</span> P <span class="k">as</span> [ P [ HP [ p₁ p₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> p₂.
+      <span class="nb">pose</span> (D := approximating_family CX x).
+      <span class="nb">assert</span> (HD : P (⨆ D)).
+      {
+        <span class="nb">unfold</span> D.
+        <span class="nb">rewrite</span> approximating_family_lub.
+        <span class="bp">exact</span> p₁.
+      }
+      <span class="nb">assert</span> (H := is_scott_open_lub_inaccessible HP D HD).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i Pi ].
+      <span class="nb">refine</span> (hinhpr (D i ,, _ ,, _)).
+      + <span class="nb">apply</span> approximating_family_way_below.
+      + <span class="nb">intro</span> n.
+        <span class="nb">apply</span> p₂.
+        <span class="nb">apply</span> (is_scott_open_upper_set HP Pi n).
+    - use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> b.
+      <span class="nb">induction</span> b <span class="k">as</span> [ b [ p₁ p₂ ]] ; <span class="nb">cbn</span> <span class="k">in</span> p₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">refine</span> (_ ,, upper_set_is_scott_open CX b ,, p₁ ,, _).
+      <span class="nb">intro</span> p.
+      <span class="nb">apply</span> p₂.
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesNotSpecialization</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The intrinsic apartness relation</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">dcpo_intrinsic_apartness</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : hProp
+  := dcpo_not_specialization x y ∨ dcpo_not_specialization y x.
+
+<span class="kn">Notation</span> <span class="s2">"x # y"</span> := (dcpo_intrinsic_apartness x y).
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Properties of the intrinsic apartness relation</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PropertiesApartness</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="kn">Proposition</span> <span class="nf">irrefl_intrinsic_apartness</span>
+              (<span class="nv">x</span> : X)
+    : ¬(x # x).
+  <span class="kn">Proof</span>.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropempty.
+    }
+    <span class="nb">intros</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    - <span class="nb">apply</span> (irrefl_dcpo_not_specialization x).
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> (irrefl_dcpo_not_specialization x).
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">symmetric_intrinsic_apartness</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x # y)
+    : y # x.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> p.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    - <span class="bp">exact</span> (hinhpr (inr p)).
+    - <span class="bp">exact</span> (hinhpr (inl p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">intrinsic_apartness_not_eq</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x # y)
+    : ¬(x = y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    <span class="nb">induction</span> q.
+    <span class="bp">exact</span> (irrefl_intrinsic_apartness x p).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesApartness</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/IntrinsicApartness.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Properties of the intrinsic apartness relation
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

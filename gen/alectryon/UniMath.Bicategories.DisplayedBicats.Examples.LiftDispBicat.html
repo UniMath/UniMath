@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftDispBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Lifting displayed bicategories</span>
+
+<span class="sd"> In this file, we construct the lift of a displayed bicategory. Suppose, that we have a</span>
+<span class="sd"> bicategory `B` and two displayed bicategories `D₁` and `D₂` over `B`. There are multiple</span>
+<span class="sd"> ways to form the total bicategory where we combine `D₁` and `D₂`. The first way is by</span>
+<span class="sd"> taking the product.</span>
+
+<span class="sd"> However, in some situations, one would like to take another approach. Instead of viewing</span>
+<span class="sd"> `D₂` as a displayed bicategory over `D₁`, we view `D₂` as a displayed bicategory over the</span>
+<span class="sd"> total bicategory `∫ D₁` of `D₁`. We call this construct the lift of `D₂` along `D₁`, and</span>
+<span class="sd"> in fact, it is the reindexing of `D₂` along the forgetful pseudofunctor `∫ D₁ ⟶ B`.</span>
+
+<span class="sd"> One reason why one might to use this construction, can be seen in the study of comprehension</span>
+<span class="sd"> categories. On top of the bicategory of comprehension categories, one could define numerous</span>
+<span class="sd"> displayed bicategories, which represent a variety of type formers. However, in some cases,</span>
+<span class="sd"> one would study full comprehension categories instead. One could define full comprehension</span>
+<span class="sd"> categories via a displayed bicategory over the bicategory of comprehension categories, and</span>
+<span class="sd"> the lifting construction defined in this file, allows one to lift the displayed bicategories</span>
+<span class="sd"> (that represent type formers) to full comprehension categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The lift of a displayed bicategory</span>
+<span class="sd"> 2. Invertible 2-cells in the lift</span>
+<span class="sd"> 3. Adjoints equivalences in the lift</span>
+<span class="sd"> 4. The univalence of the lift</span>
+<span class="sd"> 5. Properties of the lift</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">LiftDispBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_bicat B).
+
+  <span class="kn">Let</span> <span class="nf">E</span> : bicat := total_bicat D₁.
+
+  <span class="sd">(** * 1. The lift of a displayed bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">lift_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, D₂ (pr1 x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span>, xx --&gt;[ pr1 f ] yy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_cat_id_comp</span>
+    : disp_cat_id_comp E lift_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span> <span class="nv">ff</span> <span class="nv">gg</span>, ff ;; gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_cat_data</span>
+    : disp_cat_data E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> lift_disp_cat_ob_mor.
+    - <span class="bp">exact</span> lift_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_prebicat_1_id_comp_cells</span>
+    : disp_prebicat_1_id_comp_cells E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> lift_disp_cat_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">τ</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span> <span class="nv">gg</span>, ff ==&gt;[ pr1 τ ] gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_prebicat_ops</span>
+    : disp_prebicat_ops lift_disp_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_id2.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_lunitor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_runitor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_linvunitor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_rinvunitor.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_rassociator.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> disp_lassociator.
+    - <span class="nb">intros</span> x y f g h τ θ xx yy zz ff gg ττ θθ.
+      <span class="bp">exact</span> (ττ •• θθ).
+    - <span class="nb">intros</span> x y z f g₁ g₂ τ xx yy zz ff gg₁ gg₂ ττ.
+      <span class="bp">exact</span> (ff ◃◃ ττ).
+    - <span class="nb">intros</span> x y z f₁ f₂ g τ xx yy zz ff₁ ff₂ gg ττ.
+      <span class="bp">exact</span> (ττ ▹▹ gg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_prebicat_data</span>
+    : disp_prebicat_data E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> lift_disp_prebicat_1_id_comp_cells.
+    - <span class="bp">exact</span> lift_disp_prebicat_ops.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lift_transportf</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : E}
+              {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+              {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : f ==&gt; g}
+              (<span class="nv">p</span> : τ₁ = τ₂)
+              {<span class="nv">xx</span> : lift_disp_prebicat_data x}
+              {<span class="nv">yy</span> : lift_disp_prebicat_data y}
+              {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+              {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+              (<span class="nv">ττ</span> : ff ==&gt;[ τ₁ ] gg)
+    : transportf (<span class="k">λ</span> (<span class="nv">τ</span> : f ==&gt; g), ff ==&gt;[ τ ] gg) p ττ
+      =
+      transportf (<span class="k">λ</span> (<span class="nv">τ</span> : pr1 f ==&gt; pr1 g), ff ==&gt;[ τ ] gg) (maponpaths pr1 p) ττ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lift_transportb</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : E}
+              {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+              {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : f ==&gt; g}
+              (<span class="nv">p</span> : τ₁ = τ₂)
+              {<span class="nv">xx</span> : lift_disp_prebicat_data x}
+              {<span class="nv">yy</span> : lift_disp_prebicat_data y}
+              {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+              {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+              (<span class="nv">ττ</span> : ff ==&gt;[ τ₂ ] gg)
+    : transportb (<span class="k">λ</span> (<span class="nv">τ</span> : f ==&gt; g), ff ==&gt;[ τ ] gg) p ττ
+      =
+      transportb (<span class="k">λ</span> (<span class="nv">τ</span> : pr1 f ==&gt; pr1 g), ff ==&gt;[ τ ] gg) (maponpaths pr1 p) ττ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">lift_disp_prebicat_laws</span>
+    : disp_prebicat_laws lift_disp_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">rewrite</span> lift_transportb.
+    - <span class="nb">refine</span> (disp_id2_left _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_id2_right _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_id2 _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_id2_rwhisker _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_vcomp _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_vcomp _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_lunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_runitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_lwhisker _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_lwhisker _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_rwhisker _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_whisker _ _ _ _ _ _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lunitor_linvunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_linvunitor_lunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_runitor_rinvunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rinvunitor_runitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lassociator_rassociator _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rassociator_lassociator _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_runitor_rwhisker _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lassociator_lassociator _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_prebicat</span>
+    : disp_prebicat E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> lift_disp_prebicat_data.
+    - <span class="bp">exact</span> lift_disp_prebicat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_disp_bicat</span>
+    : disp_bicat E.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (lift_disp_prebicat ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f g τ xx yy ff gg ;
+       <span class="nb">apply</span> disp_cellset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Invertible 2-cells in the lift *)</span>
+  <span class="kn">Section</span> <span class="nf">DispInvertibleCell</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : E}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            (<span class="nv">τ</span> : f ==&gt; g)
+            (<span class="nv">Hτ</span> : is_invertible_2cell τ)
+            {<span class="nv">xx</span> : lift_disp_bicat x}
+            {<span class="nv">yy</span> : lift_disp_bicat y}
+            {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+            {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+            (<span class="nv">ττ</span> : ff ==&gt;[ τ ] gg).
+
+    <span class="kn">Definition</span> <span class="nf">to_is_disp_invertible_2cell_lift</span>
+               (<span class="nv">Hττ</span> : is_disp_invertible_2cell
+                        (D := D₂)
+                        (pr1_invertible_2cell_total _ Hτ)
+                        ττ)
+      : is_disp_invertible_2cell Hτ ττ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 Hττ ,, _ ,, _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> lift_transportb ;
+           <span class="bp">exact</span> (pr12 Hττ)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> lift_transportb ;
+           <span class="bp">exact</span> (pr22 Hττ)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_is_disp_invertible_2cell_lift</span>
+               (<span class="nv">Hττ</span> : is_disp_invertible_2cell Hτ ττ)
+      : is_disp_invertible_2cell
+          (D := D₂)
+          (pr1_invertible_2cell_total _ Hτ)
+          ττ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 Hττ ,, _ ,, _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (pr12 Hττ @ _) ;
+           <span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (pr22 Hττ @ _) ;
+           <span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_weq_lift</span>
+      : is_disp_invertible_2cell
+          (D := D₂)
+          (pr1_invertible_2cell_total _ Hτ)
+          ττ
+        ≃
+        is_disp_invertible_2cell Hτ ττ.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> to_is_disp_invertible_2cell_lift.
+      - <span class="nb">apply</span> from_is_disp_invertible_2cell_lift.
+      - use (isaprop_is_disp_invertible_2cell (x := (_ ,, _))).
+      - use (isaprop_is_disp_invertible_2cell (x := (_ ,, _))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispInvertibleCell</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell_weq_lift</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">τ</span> : invertible_2cell f g)
+             {<span class="nv">xx</span> : lift_disp_bicat x}
+             {<span class="nv">yy</span> : lift_disp_bicat y}
+             (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+             (<span class="nv">gg</span> : xx --&gt;[ g ] yy)
+    : disp_invertible_2cell
+        (D := D₂)
+        (make_invertible_2cell (pr1_invertible_2cell_total _ τ))
+        ff gg
+      ≃
+      disp_invertible_2cell τ ff gg.
+  <span class="kn">Proof</span>.
+    use weqfibtototal.
+    <span class="nb">intro</span> ττ.
+    <span class="nb">apply</span> is_disp_invertible_2cell_weq_lift.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">DispInvertibleCellOverId</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : E}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx</span> : lift_disp_bicat x}
+            {<span class="nv">yy</span> : lift_disp_bicat y}
+            {<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy}
+            (<span class="nv">ττ</span> : ff ==&gt;[ id2 _ ] gg).
+
+    <span class="kn">Definition</span> <span class="nf">to_is_disp_invertible_2cell_over_id_lift</span>
+               (<span class="nv">Hττ</span> : is_disp_invertible_2cell
+                        (D := D₂)
+                        (id2_invertible_2cell _)
+                        ττ)
+      : is_disp_invertible_2cell (id2_invertible_2cell _) ττ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 Hττ ,, _ ,, _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">refine</span> (pr12 Hττ @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">refine</span> (pr22 Hττ @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">from_is_disp_invertible_2cell_over_id_lift</span>
+               (<span class="nv">Hττ</span> : is_disp_invertible_2cell (id2_invertible_2cell _) ττ)
+      : is_disp_invertible_2cell
+          (D := D₂)
+          (id2_invertible_2cell _)
+          ττ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr1 Hττ ,, _ ,, _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (pr12 Hττ @ _) ;
+           <span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (pr22 Hττ @ _) ;
+           <span class="nb">rewrite</span> lift_transportb ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_over_id_weq_lift</span>
+      : is_disp_invertible_2cell
+          (D := D₂)
+          (id2_invertible_2cell _)
+          ττ
+        ≃
+        is_disp_invertible_2cell (id2_invertible_2cell _) ττ.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> to_is_disp_invertible_2cell_over_id_lift.
+      - <span class="nb">apply</span> from_is_disp_invertible_2cell_over_id_lift.
+      - use isaprop_is_disp_invertible_2cell.
+      - use isaprop_is_disp_invertible_2cell.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispInvertibleCellOverId</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_invertible_2cell_over_id_weq_lift</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : E}
+             {<span class="nv">f</span> : x --&gt; y}
+             {<span class="nv">xx</span> : lift_disp_bicat x}
+             {<span class="nv">yy</span> : lift_disp_bicat y}
+             (<span class="nv">ff</span> <span class="nv">gg</span> : xx --&gt;[ f ] yy)
+    : disp_invertible_2cell
+        (D := D₂)
+        (id2_invertible_2cell _)
+        ff gg
+      ≃
+      disp_invertible_2cell (id2_invertible_2cell f) ff gg.
+  <span class="kn">Proof</span>.
+    use weqfibtototal.
+    <span class="nb">intro</span> ττ.
+    <span class="nb">apply</span> is_disp_invertible_2cell_over_id_weq_lift.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Adjoints equivalences in the lift *)</span>
+  <span class="kn">Section</span> <span class="nf">DispAdjEquivOverId</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : E}
+            {<span class="nv">xx</span> <span class="nv">yy</span> : lift_disp_bicat x}
+            (<span class="nv">ff</span> : xx --&gt;[ identity _ ] yy).
+
+    <span class="kn">Section</span> <span class="nf">ToLift</span>.
+      <span class="kn">Context</span> (<span class="nv">Hff</span> : disp_left_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity (pr1 x))
+                       ff).
+
+      <span class="kn">Definition</span> <span class="nf">to_disp_left_adjoint_equivalence_over_id_lift_data</span>
+        : disp_left_adjoint_data (internal_adjoint_equivalence_identity x) ff
+        := pr11 Hff ,, (pr121 Hff ,, pr221 Hff).
+
+      <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjoint_equivalence_over_id_lift_axioms</span>
+        : disp_left_adjoint_axioms
+            (internal_adjoint_equivalence_identity x)
+            to_disp_left_adjoint_equivalence_over_id_lift_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">refine</span> (pr112 Hff @ _).
+          <span class="nb">rewrite</span> lift_transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cellset_property.
+        - <span class="nb">refine</span> (pr212 Hff @ _).
+          <span class="nb">rewrite</span> lift_transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cellset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjoint_equivalence_over_id_lift_inv</span>
+        : disp_left_equivalence_axioms
+            (internal_adjoint_equivalence_identity x)
+            to_disp_left_adjoint_equivalence_over_id_lift_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">pose</span> (H := pr122 Hff).
+          <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          + <span class="bp">exact</span> (pr1 H).
+          + <span class="nb">refine</span> (pr12 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+          + <span class="nb">refine</span> (pr22 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+        - <span class="nb">pose</span> (H := pr222 Hff).
+          <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          + <span class="bp">exact</span> (pr1 H).
+          + <span class="nb">refine</span> (pr12 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+          + <span class="nb">refine</span> (pr22 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">to_disp_left_adjoint_equivalence_over_id_lift</span>
+        : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity x) ff.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (to_disp_left_adjoint_equivalence_over_id_lift_data ,, _).
+        <span class="nb">split</span>.
+        - <span class="bp">exact</span> to_disp_left_adjoint_equivalence_over_id_lift_axioms.
+        - <span class="bp">exact</span> to_disp_left_adjoint_equivalence_over_id_lift_inv.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">ToLift</span>.
+
+    <span class="kn">Section</span> <span class="nf">FromLift</span>.
+      <span class="kn">Context</span> (<span class="nv">Hff</span> : disp_left_adjoint_equivalence
+                       (internal_adjoint_equivalence_identity x)
+                       ff).
+
+      <span class="kn">Definition</span> <span class="nf">from_disp_left_adjoint_equivalence_over_id_lift_data</span>
+        : disp_left_adjoint_data (internal_adjoint_equivalence_identity (pr1 x)) ff
+        := pr11 Hff ,, (pr121 Hff ,, pr221 Hff).
+
+      <span class="kn">Proposition</span> <span class="nf">from_disp_left_adjoint_equivalence_over_id_lift_axioms</span>
+        : disp_left_adjoint_axioms
+            (internal_adjoint_equivalence_identity (pr1 x))
+            from_disp_left_adjoint_equivalence_over_id_lift_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">refine</span> (pr112 Hff @ _).
+          <span class="nb">rewrite</span> lift_transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cellset_property.
+        - <span class="nb">refine</span> (pr212 Hff @ _).
+          <span class="nb">rewrite</span> lift_transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cellset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">from_disp_left_adjoint_equivalence_over_id_lift_inv</span>
+        : disp_left_equivalence_axioms
+            (internal_adjoint_equivalence_identity (pr1 x))
+            from_disp_left_adjoint_equivalence_over_id_lift_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">pose</span> (H := pr122 Hff).
+          <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          + <span class="bp">exact</span> (pr1 H).
+          + <span class="nb">refine</span> (pr12 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+          + <span class="nb">refine</span> (pr22 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+        - <span class="nb">pose</span> (H := pr222 Hff).
+          <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          + <span class="bp">exact</span> (pr1 H).
+          + <span class="nb">refine</span> (pr12 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+          + <span class="nb">refine</span> (pr22 H @ _).
+            <span class="nb">rewrite</span> lift_transportb.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> cellset_property.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">from_disp_left_adjoint_equivalence_over_id_lift</span>
+        : disp_left_adjoint_equivalence
+            (internal_adjoint_equivalence_identity (pr1 x))
+            ff.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (from_disp_left_adjoint_equivalence_over_id_lift_data ,, _).
+        <span class="nb">split</span>.
+        - <span class="bp">exact</span> from_disp_left_adjoint_equivalence_over_id_lift_axioms.
+        - <span class="bp">exact</span> from_disp_left_adjoint_equivalence_over_id_lift_inv.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">FromLift</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">disp_left_adjoint_equivalence_over_id_weq_lift_left</span>
+                (<span class="nv">Hff</span> : disp_left_adjoint_equivalence
+                         (internal_adjoint_equivalence_identity (pr1 x))
+                         ff)
+      : from_disp_left_adjoint_equivalence_over_id_lift
+          (to_disp_left_adjoint_equivalence_over_id_lift Hff)
+        =
+        Hff.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isapropdirprod.
+        - use isapropdirprod ; <span class="nb">apply</span> disp_cellset_property.
+        - use isapropdirprod ; use isaprop_is_disp_invertible_2cell.
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">disp_left_adjoint_equivalence_over_id_weq_lift_right</span>
+                (<span class="nv">Hff</span> : disp_left_adjoint_equivalence
+                         (internal_adjoint_equivalence_identity x)
+                         ff)
+      : to_disp_left_adjoint_equivalence_over_id_lift
+          (from_disp_left_adjoint_equivalence_over_id_lift Hff)
+        =
+        Hff.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isapropdirprod.
+        - use isapropdirprod ; <span class="nb">apply</span> disp_cellset_property.
+        - use isapropdirprod ; use isaprop_is_disp_invertible_2cell.
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_left_adjoint_equivalence_over_id_weq_lift</span>
+      : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity (pr1 x)) ff
+        ≃
+        disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity x) ff.
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> to_disp_left_adjoint_equivalence_over_id_lift.
+      - <span class="bp">exact</span> from_disp_left_adjoint_equivalence_over_id_lift.
+      - <span class="bp">exact</span> disp_left_adjoint_equivalence_over_id_weq_lift_left.
+      - <span class="bp">exact</span> disp_left_adjoint_equivalence_over_id_weq_lift_right.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispAdjEquivOverId</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjequiv_over_id_weq_lift</span>
+             {<span class="nv">x</span> : E}
+             (<span class="nv">xx</span> <span class="nv">yy</span> : lift_disp_bicat x)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity (pr1 x)) xx yy
+      ≃
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) xx yy.
+  <span class="kn">Proof</span>.
+    use weqfibtototal.
+    <span class="nb">intro</span> ff.
+    <span class="bp">exact</span> (disp_left_adjoint_equivalence_over_id_weq_lift ff).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The univalence of the lift *)</span>
+  <span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_lift_disp_bicat</span>
+              (<span class="nv">HD</span> : disp_univalent_2_1 D₂)
+    : disp_univalent_2_1 lift_disp_bicat.
+  <span class="kn">Proof</span>.
+    use fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> x y f xx yy ff gg.
+    use weqhomot.
+    - <span class="bp">exact</span> (disp_invertible_2cell_over_id_weq_lift ff gg
+             ∘ make_weq _ (HD _ _ _ _ (idpath _) _ _ ff gg))%weq.
+    - <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isaprop_is_disp_invertible_2cell.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_lift_disp_bicat</span>
+              (<span class="nv">HD₁</span> : disp_univalent_2_0 D₂)
+              (<span class="nv">HD₂</span> : disp_univalent_2_1 D₂)
+              (<span class="nv">HB</span> : is_univalent_2_1 B)
+              (<span class="nv">HD'</span> : disp_univalent_2_1 D₁)
+    : disp_univalent_2_0 lift_disp_bicat.
+  <span class="kn">Proof</span>.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> x xx yy.
+    use weqhomot.
+    - <span class="bp">exact</span> (disp_adjequiv_over_id_weq_lift xx yy
+             ∘ make_weq _ (HD₁ _ _ (idpath _) xx yy))%weq.
+    - <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use (isaprop_disp_left_adjoint_equivalence).
+        - <span class="bp">exact</span> (total_is_univalent_2_1 _ HB HD').
+        - use disp_univalent_2_1_lift_disp_bicat.
+          <span class="bp">exact</span> HD₂.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Properties of the lift *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_lift_disp_bicat</span>
+             (<span class="nv">HD</span> : disp_2cells_isaprop D₂)
+    : disp_2cells_isaprop lift_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g τ xx yy ff gg.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_lift_disp_bicat</span>
+             (<span class="nv">HD</span> : disp_locally_groupoid D₂)
+    : disp_locally_groupoid lift_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g τ xx yy ff gg ττ.
+    use to_is_disp_invertible_2cell_lift.
+    use (HD _ _ _ _ (_ ,, _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_lift_disp_bicat</span>
+             (<span class="nv">HD</span> : disp_2cells_iscontr D₂)
+    : disp_2cells_iscontr lift_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g τ xx yy ff gg.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">LiftDispBicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/LiftDispBicat.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Properties of the lift
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

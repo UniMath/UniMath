@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DecidableDedekindCuts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * A library about decidable Dedekind Cuts *)</span>
+<span class="sd">(** Author: Catherine LELAY. Oct 2015 - *)</span>
+<span class="sd">(** Additional results about Dedekind cuts which cannot be proved *)</span>
+<span class="sd">(** without decidability *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.RealNumbers.Prelim.
+<span class="kn">Require Import</span> UniMath.RealNumbers.Sets.
+<span class="kn">Require Import</span> UniMath.RealNumbers.NonnegativeRationals.
+<span class="kn">Require Export</span> UniMath.RealNumbers.NonnegativeReals.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> Dcuts_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> DC_scope.
+
+<span class="sd">(** ** Definition *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isboolDcuts_isaprop</span> (<span class="nv">x</span> : Dcuts) :
+  isaprop (∏ r, (r ∈ x) ∨ (neg (r ∈ x))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intros</span> r.
+  <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">isboolDcuts</span> : hsubtype Dcuts :=
+  (<span class="k">λ</span> <span class="nv">x</span> : Dcuts, make_hProp _ (isboolDcuts_isaprop x)).
+
+<span class="kn">Lemma</span> <span class="nf">isaset_boolDcuts</span> : isaset isboolDcuts.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isasetsubset <span class="k">with</span> pr1.
+  - <span class="nb">apply</span> pr2.
+  - <span class="nb">apply</span> isinclpr1.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">boolDcuts</span> : hSet.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_hSet (carrier isboolDcuts)).
+  <span class="bp">exact</span> isaset_boolDcuts.
+<span class="kn">Defined</span>.
+<span class="kn">Definition</span> <span class="nf">make_boolDcuts</span> (<span class="nv">x</span> : Dcuts) (<span class="nv">Hdec</span> : ∏ r : NonnegativeRationals, (r ∈ x) ⨿ ¬ (r ∈ x)) : boolDcuts :=
+  x,, (<span class="k">λ</span> <span class="nv">r</span> : NonnegativeRationals, hinhpr (Hdec r)).
+
+<span class="kn">Lemma</span> <span class="nf">is_zero_dec</span> :
+  ∏ x : Dcuts, isboolDcuts x -&gt; (x = <span class="mi">0</span>) ∨ (¬ (x = <span class="mi">0</span>)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">generalize</span> (Hx <span class="mi">0</span>%NRat) ; <span class="nb">apply</span> hinhfun ; <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> Hx0.
+  - <span class="nb">right</span> ; <span class="nb">intro</span> H.
+    <span class="nb">rewrite</span> H <span class="k">in</span> Hx0.
+    <span class="bp">now</span> <span class="nb">apply</span> Dcuts_zero_empty <span class="k">in</span> Hx0.
+  - <span class="nb">left</span> ; <span class="nb">apply</span> Dcuts_eq_is_eq.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> Hr.
+      <span class="nb">apply</span> fromempty.
+      <span class="nb">apply</span> Hx0.
+      <span class="nb">apply</span> (is_Dcuts_bot x r).
+      * <span class="bp">now</span> <span class="nb">apply</span> Hr.
+      * <span class="nb">apply</span> isnonnegative_NonnegativeRationals.
+    + <span class="nb">intros</span> Hr.
+      <span class="bp">now</span> <span class="nb">apply</span> Dcuts_zero_empty <span class="k">in</span> Hr.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/RealNumbers/DecidableDedekindCuts.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Additional results about Dedekind cuts which cannot be proved *)
+  &gt; (** without decidability *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

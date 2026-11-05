@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedNatTrans.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Natural transformations of two-sided displayed categories</span>
+
+<span class="sd"> We define natural transformations between functors on two-sided diplayed</span>
+<span class="sd"> categories. In addition, we prove an equality principle (if two such natural</span>
+<span class="sd"> transformations are pointwise equal, then they are actually equal), and we give</span>
+<span class="sd"> the necessary constructions.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Natural transformations of two-sided displayed categories</span>
+<span class="sd"> 2. Equality principle</span>
+<span class="sd"> 3. The total natural transformation</span>
+<span class="sd"> 4. The identity transformation</span>
+<span class="sd"> 5. Composition of transformations</span>
+<span class="sd"> 6. Prewhiskering</span>
+<span class="sd"> 7. Postwhiskering</span>
+<span class="sd"> 8. Displayed two-sided natural transformations versus one-sided ones</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Natural transformations of two-sided displayed categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DisplayedNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+          (<span class="nv">τ</span> : F ⟹ F')
+          {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+          (<span class="nv">θ</span> : G ⟹ G')
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          (<span class="nv">FG</span> : twosided_disp_functor_data F G D D')
+          (<span class="nv">FG'</span> : twosided_disp_functor_data F' G' D D').
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_data</span>
+    : UU
+    := ∏ (x : C₁) (y : C₂) (xy : D x y), FG _ _ xy --&gt;[ τ x ][ θ y ] FG' _ _ xy.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_laws</span>
+             (<span class="nv">τθ</span> : twosided_disp_nat_trans_data)
+    : UU
+    := ∏ (x₁ x₂ : C₁)
+         (y₁ y₂ : C₂)
+         (f : x₁ --&gt; x₂)
+         (g : y₁ --&gt; y₂)
+         (xy₁ : D x₁ y₁)
+         (xy₂ : D x₂ y₂)
+         (fg : xy₁ --&gt;[ f ][ g ] xy₂),
+       #<span class="mi">2</span> FG fg ;;<span class="mi">2</span> τθ _ _ xy₂
+       =
+       transportb_disp_mor2
+         (nat_trans_ax τ _ _ f)
+         (nat_trans_ax θ _ _ g)
+         (τθ _ _ xy₁ ;;<span class="mi">2</span> #<span class="mi">2</span> FG' fg).
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans</span>
+    : UU
+    := ∑ (τθ : twosided_disp_nat_trans_data), twosided_disp_nat_trans_laws τθ.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_ob</span>
+             (<span class="nv">τθ</span> : twosided_disp_nat_trans)
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : D x y)
+    : FG _ _ xy --&gt;[ τ x ][ θ y ] FG' _ _ xy
+    := pr1 τθ x y xy.
+
+  <span class="kn">Coercion</span> <span class="nf">twosided_disp_nat_trans_ob</span> : twosided_disp_nat_trans &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">twosided_disp_nat_trans_ax</span>
+              (<span class="nv">τθ</span> : twosided_disp_nat_trans)
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+              {<span class="nv">f</span> : x₁ --&gt; x₂}
+              {<span class="nv">g</span> : y₁ --&gt; y₂}
+              {<span class="nv">xy₁</span> : D x₁ y₁}
+              {<span class="nv">xy₂</span> : D x₂ y₂}
+              (<span class="nv">fg</span> : xy₁ --&gt;[ f ][ g ] xy₂)
+    : #<span class="mi">2</span> FG fg ;;<span class="mi">2</span> τθ _ _ xy₂
+      =
+      transportb_disp_mor2
+        (nat_trans_ax τ _ _ f)
+        (nat_trans_ax θ _ _ g)
+        (τθ _ _ xy₁ ;;<span class="mi">2</span> #<span class="mi">2</span> FG' fg).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (pr2 τθ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_twosided_disp_nat_trans_laws</span>
+              (<span class="nv">τθ</span> : twosided_disp_nat_trans_data)
+    : isaprop (twosided_disp_nat_trans_laws τθ).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> D'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_twosided_disp_nat_trans</span>
+    : isaset twosided_disp_nat_trans.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - use impred_isaset ; <span class="nb">intro</span> x.
+      use impred_isaset ; <span class="nb">intro</span> y.
+      use impred_isaset ; <span class="nb">intro</span> xy.
+      <span class="nb">apply</span> D'.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="bp">exact</span> (isaprop_twosided_disp_nat_trans_laws _).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">DisplayedNatTrans</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Equality principle</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">eq_twosided_disp_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+           {<span class="nv">τ</span> : F ⟹ F'}
+           {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+           {<span class="nv">θ</span> : G ⟹ G'}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+           {<span class="nv">FG</span> : twosided_disp_functor_data F G D D'}
+           {<span class="nv">FG'</span> : twosided_disp_functor_data F' G' D D'}
+           {<span class="nv">τθ</span> <span class="nv">τθ'</span> : twosided_disp_nat_trans τ θ FG FG'}
+           (<span class="nv">p</span> : ∏ (x : C₁) (y : C₂) (xy : D x y), τθ x y xy = τθ' x y xy)
+  : τθ = τθ'.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaset_disp_mor.
+  }
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> xy.
+  <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The total natural transformation</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TotalNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+          {<span class="nv">τ</span> : F ⟹ F'}
+          {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+          {<span class="nv">θ</span> : G ⟹ G'}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          {<span class="nv">FG</span> : twosided_disp_functor F G D D'}
+          {<span class="nv">FG'</span> : twosided_disp_functor F' G' D D'}
+          (<span class="nv">τθ</span> : twosided_disp_nat_trans τ θ FG FG').
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_nat_trans_data</span>
+    : nat_trans_data
+        (total_twosided_disp_functor FG)
+        (total_twosided_disp_functor FG')
+    := <span class="k">λ</span> <span class="nv">x</span>, τ (pr1 x) ,, θ (pr12 x) ,, τθ _ _ (pr22 x).
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_nat_trans_laws</span>
+    : is_nat_trans
+        _ _
+        total_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use total2_paths_2_b.
+    - <span class="nb">apply</span> nat_trans_ax.
+    - <span class="nb">apply</span> nat_trans_ax.
+    - <span class="nb">apply</span> τθ.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_twosided_disp_nat_trans</span>
+    : total_twosided_disp_functor FG ⟹ total_twosided_disp_functor FG'.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> total_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> total_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TotalNatTrans</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The identity transformation</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">IdNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D D').
+
+  <span class="kn">Definition</span> <span class="nf">id_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_data (nat_trans_id F) (nat_trans_id G) FG FG
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, id_two_disp _.
+
+  <span class="kn">Arguments</span> id_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Definition</span> <span class="nf">id_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_laws
+        _ _ _ _
+        id_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_two_disp_right, id_two_disp_left.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans (nat_trans_id F) (nat_trans_id G) FG FG.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> id_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> id_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IdNatTrans</span>.
+
+<span class="kn">Arguments</span> id_twosided_disp_nat_trans_data {C₁ C₁' C₂ C₂' F G D D'} FG /.
+<span class="kn">Arguments</span> id_twosided_disp_nat_trans {C₁ C₁' C₂ C₂' F G D D'} FG /.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Composition of transformations</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CompNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : C₁ ⟶ C₁'}
+          {<span class="nv">τ</span> : F ⟹ F'}
+          {<span class="nv">τ'</span> : F' ⟹ F''}
+          {<span class="nv">G</span> <span class="nv">G'</span> <span class="nv">G''</span> : C₂ ⟶ C₂'}
+          {<span class="nv">θ</span> : G ⟹ G'}
+          {<span class="nv">θ'</span> : G' ⟹ G''}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          {<span class="nv">FG</span> : twosided_disp_functor F G D D'}
+          {<span class="nv">FG'</span> : twosided_disp_functor F' G' D D'}
+          {<span class="nv">FG''</span> : twosided_disp_functor F'' G'' D D'}
+          (<span class="nv">τθ</span> : twosided_disp_nat_trans τ θ FG FG')
+          (<span class="nv">τθ'</span> : twosided_disp_nat_trans τ' θ' FG' FG'').
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_data
+        (nat_trans_comp _ _ _ τ τ')
+        (nat_trans_comp _ _ _ θ θ')
+        FG FG''
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, τθ _ _ xy ;;<span class="mi">2</span> τθ' _ _ xy.
+
+  <span class="kn">Arguments</span> comp_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_laws
+        _ _ _ _
+        comp_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">rewrite</span> (pr2 τθ).
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (pr2 τθ').
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (nat_trans_comp _ _ _ τ τ')
+        (nat_trans_comp _ _ _ θ θ')
+        FG FG''.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> comp_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> comp_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CompNatTrans</span>.
+
+
+<span class="kn">Arguments</span> comp_twosided_disp_nat_trans_data {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
+<span class="kn">Arguments</span> comp_twosided_disp_nat_trans {C₁ C₁' C₂ C₂' F F' F'' τ τ' G G' G'' θ θ' D D' FG FG' FG''} _ _ /.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Prewhiskering</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Prewhisker</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₁''</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> <span class="nv">C₂''</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          {<span class="nv">H</span> <span class="nv">H'</span> : C₁' ⟶ C₁''}
+          {<span class="nv">τ</span> : H ⟹ H'}
+          {<span class="nv">K</span> <span class="nv">K'</span> : C₂' ⟶ C₂''}
+          {<span class="nv">θ</span> : K ⟹ K'}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          {<span class="nv">D''</span> : twosided_disp_cat C₁'' C₂''}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D D')
+          {<span class="nv">HK</span> : twosided_disp_functor H K D' D''}
+          {<span class="nv">HK'</span> : twosided_disp_functor H' K' D' D''}
+          (<span class="nv">τθ</span> : twosided_disp_nat_trans τ θ HK HK').
+
+  <span class="kn">Definition</span> <span class="nf">pre_whisker_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_data
+        (pre_whisker F τ : F ∙ H ⟹ F ∙ H')
+        (pre_whisker G θ : G ∙ K ⟹ G ∙ K')
+        (comp_twosided_disp_functor FG HK)
+        (comp_twosided_disp_functor FG HK')
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, τθ _ _ (FG _ _ xy).
+
+  <span class="kn">Arguments</span> pre_whisker_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Definition</span> <span class="nf">pre_whisker_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_laws
+        _ _ _ _
+        pre_whisker_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (pr2 τθ).
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pre_whisker_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (pre_whisker F τ : F ∙ H ⟹ F ∙ H')
+        (pre_whisker G θ : G ∙ K ⟹ G ∙ K')
+        (comp_twosided_disp_functor FG HK)
+        (comp_twosided_disp_functor FG HK').
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> pre_whisker_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> pre_whisker_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Prewhisker</span>.
+
+<span class="kn">Arguments</span> pre_whisker_twosided_disp_nat_trans_data {C₁ C₁' C₁'' C₂ C₂' C₂'' F G H H' τ K K' θ D D' D''} FG {HK HK'} _ /.
+<span class="kn">Arguments</span> pre_whisker_twosided_disp_nat_trans {C₁ C₁' C₁'' C₂ C₂' C₂'' F G H H' τ K K' θ D D' D''} FG {HK HK'} _ /.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Postwhiskering</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Postwhisker</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₁''</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> <span class="nv">C₂''</span> : category}
+          {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+          {<span class="nv">τ</span> : F ⟹ F'}
+          {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+          {<span class="nv">θ</span> : G ⟹ G'}
+          {<span class="nv">H</span> : C₁' ⟶ C₁''}
+          {<span class="nv">K</span> : C₂' ⟶ C₂''}
+          {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+          {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+          {<span class="nv">D''</span> : twosided_disp_cat C₁'' C₂''}
+          (<span class="nv">FG</span> : twosided_disp_functor F G D D')
+          (<span class="nv">FG'</span> : twosided_disp_functor F' G' D D')
+          {<span class="nv">HK</span> : twosided_disp_functor H K D' D''}
+          (<span class="nv">τθ</span> : twosided_disp_nat_trans τ θ FG FG').
+
+  <span class="kn">Definition</span> <span class="nf">post_whisker_twosided_disp_nat_trans_data</span>
+    : twosided_disp_nat_trans_data
+        (post_whisker τ H : F ∙ H ⟹ F' ∙ H)
+        (post_whisker θ K : G ∙ K ⟹ G' ∙ K)
+        (comp_twosided_disp_functor FG HK)
+        (comp_twosided_disp_functor FG' HK)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, #<span class="mi">2</span> HK (τθ _ _ xy).
+
+  <span class="kn">Arguments</span> post_whisker_twosided_disp_nat_trans_data /.
+
+  <span class="kn">Definition</span> <span class="nf">post_whisker_twosided_disp_nat_trans_laws</span>
+    : twosided_disp_nat_trans_laws
+        _ _ _ _
+        post_whisker_twosided_disp_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !twosided_disp_functor_comp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (pr2 τθ).
+    <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">post_whisker_twosided_disp_nat_trans</span>
+    : twosided_disp_nat_trans
+        (post_whisker τ H : F ∙ H ⟹ F' ∙ H)
+        (post_whisker θ K : G ∙ K ⟹ G' ∙ K)
+        (comp_twosided_disp_functor FG HK)
+        (comp_twosided_disp_functor FG' HK).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> post_whisker_twosided_disp_nat_trans_data.
+    - <span class="bp">exact</span> post_whisker_twosided_disp_nat_trans_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Postwhisker</span>.
+
+<span class="kn">Arguments</span> post_whisker_twosided_disp_nat_trans_data {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
+<span class="kn">Arguments</span> post_whisker_twosided_disp_nat_trans {C₁ C₁' C₁'' C₂ C₂' C₂'' F F' τ G G' θ H K D D' D'' FG FG'} HK _ /.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Displayed two-sided natural transformations versus one-sided ones</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_to_disp_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+           {<span class="nv">τ</span> : F ⟹ F'}
+           {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+           {<span class="nv">θ</span> : G ⟹ G'}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+           {<span class="nv">FG</span> : twosided_disp_functor F G D D'}
+           {<span class="nv">FG'</span> : twosided_disp_functor F' G' D D'}
+           (<span class="nv">τθ</span> : twosided_disp_nat_trans τ θ FG FG')
+  : disp_nat_trans
+      (pair_nat_trans τ θ)
+      (two_sided_disp_functor_to_disp_functor FG)
+      (two_sided_disp_functor_to_disp_functor FG').
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, τθ (pr1 x) (pr2 x) xx) ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intros</span> x y xx yy f ff ;
+     <span class="nb">cbn</span> ;
+     <span class="nb">rewrite</span> twosided_disp_nat_trans_ax ;
+     <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2 ;
+     <span class="nb">rewrite</span> twosided_prod_transport ;
+     <span class="nb">unfold</span> transportb ;
+     <span class="nb">apply</span> maponpaths_2 ;
+     <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_from_disp_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+           {<span class="nv">τ</span> : F ⟹ F'}
+           {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+           {<span class="nv">θ</span> : G ⟹ G'}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+           {<span class="nv">FG</span> : twosided_disp_functor F G D D'}
+           {<span class="nv">FG'</span> : twosided_disp_functor F' G' D D'}
+           (<span class="nv">τθ</span> : disp_nat_trans
+                   (pair_nat_trans τ θ)
+                   (two_sided_disp_functor_to_disp_functor FG)
+                   (two_sided_disp_functor_to_disp_functor FG'))
+  : twosided_disp_nat_trans τ θ FG FG'.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>, τθ (x ,, y) xy) ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intros</span> x₁ x₂ y₁ y₂ f g xy₁ xy₂ fg ; <span class="nb">cbn</span> ;
+     <span class="nb">pose</span> (@disp_nat_trans_ax
+              _ _ _ _ _ _ _ _ _
+              τθ
+              (x₁ ,, y₁)
+              (x₂ ,, y₂)
+              (f ,, g)
+              xy₁ xy₂
+              fg)
+       <span class="k">as</span> p ;
+     <span class="nb">cbn</span> <span class="k">in</span> p ;
+     <span class="nb">rewrite</span> p ;
+     <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2 ;
+     <span class="nb">rewrite</span> twosided_prod_transport ;
+     <span class="nb">unfold</span> transportb ;
+     <span class="nb">apply</span> maponpaths_2 ;
+     <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_weq_disp_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₁'}
+           (<span class="nv">τ</span> : F ⟹ F')
+           {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+           (<span class="nv">θ</span> : G ⟹ G')
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           {<span class="nv">D'</span> : twosided_disp_cat C₁' C₂'}
+           (<span class="nv">FG</span> : twosided_disp_functor F G D D')
+           (<span class="nv">FG'</span> : twosided_disp_functor F' G' D D')
+  : twosided_disp_nat_trans τ θ FG FG'
+    ≃
+    disp_nat_trans
+      (pair_nat_trans τ θ)
+      (two_sided_disp_functor_to_disp_functor FG)
+      (two_sided_disp_functor_to_disp_functor FG').
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> twosided_disp_nat_trans_to_disp_nat_trans.
+  - <span class="bp">exact</span> twosided_disp_nat_trans_from_disp_nat_trans.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> τθ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_twosided_disp_nat_trans_laws | ] ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> τθ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_disp_nat_trans_axioms | ] ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/DisplayedNatTrans.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Displayed two-sided natural transformations versus one-sided ones
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

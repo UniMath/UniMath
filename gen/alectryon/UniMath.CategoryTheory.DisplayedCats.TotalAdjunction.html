@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TotalAdjunction.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we show how any displayed adjunction (resp. equivalence) induces an adjunction (resp. equivalence) between the corresponding total categories.</span>
+<span class="c">Created by Kobe Wullaert at 06/12/2022.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Adjunctions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Equivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Section</span> <span class="nf">TotalFunctorCompositeIdentity</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_functor_identity_inv</span>
+             {<span class="nv">C</span> : category} (<span class="nv">D</span> : disp_cat C)
+    : nat_trans (total_functor (disp_functor_identity D))
+                (functor_identity (total_category D)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trans_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : category}
+          {<span class="nv">F</span> : functor C1 C2} {<span class="nv">G</span> : functor C2 C3}
+          {<span class="nv">D1</span> : disp_cat C1} {<span class="nv">D2</span> : disp_cat C2} {<span class="nv">D3</span> : disp_cat C3}
+          (<span class="nv">FF</span> : disp_functor F D1 D2) (<span class="nv">GG</span> : disp_functor G D2 D3).
+
+  <span class="kn">Definition</span> <span class="nf">total_functor_comp_inv</span>
+    : nat_trans (total_functor (disp_functor_composite FF GG))
+                (total_functor FF ∙ total_functor GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> nat_trans_id.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TotalFunctorCompositeIdentity</span>.
+
+<span class="kn">Section</span> <span class="nf">TotalAdjunction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> : category}
+          {<span class="nv">F</span> : adjunction C1 C2}.
+
+  <span class="kn">Let</span> <span class="nf">L</span> := left_functor F.
+  <span class="kn">Let</span> <span class="nf">R</span> := right_functor F.
+  <span class="kn">Let</span> <span class="nf">η</span> := adjunit F.
+  <span class="kn">Let</span> <span class="nf">ε</span> := adjcounit F.
+
+  <span class="kn">Context</span> {<span class="nv">D1</span> : disp_cat C1} {<span class="nv">D2</span> : disp_cat C2}
+          (<span class="nv">FF</span> : disp_adjunction F D1 D2).
+
+  <span class="kn">Let</span> <span class="nf">LL</span> := left_adj_over FF.
+  <span class="kn">Let</span> <span class="nf">RR</span> := right_adj_over FF.
+  <span class="kn">Let</span> <span class="nf">ηη</span> := unit_over FF.
+  <span class="kn">Let</span> <span class="nf">εε</span> := counit_over FF.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_data</span>
+    : adjunction_data (total_category D1) (total_category D2).
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> (total_functor LL).
+    - <span class="bp">exact</span> (total_functor RR).
+    - use (nat_trans_comp _ _ _ (total_functor_identity D1)).
+      use (nat_trans_comp _ _ _ _ (total_functor_comp_inv _ _)).
+      use total_nat_trans.
+      + <span class="bp">exact</span> η.
+      + <span class="bp">exact</span> ηη.
+    - use (nat_trans_comp _ _ _ (total_functor_comp _ _)).
+      use (nat_trans_comp _ _ _ _ (total_functor_identity_inv _)).
+      use total_nat_trans.
+      + <span class="bp">exact</span> ε.
+      + <span class="bp">exact</span> εε.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_triangle1</span>
+    : triangle_1_statement total_adjunction_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> id_left. }
+        <span class="nb">apply</span> id_right.
+      }
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> id_left. }
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="bp">exact</span> (triangle_1_statement_from_adjunction F (pr1 x)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">set</span> (t := triangle_1_over FF (pr1 x) (pr2 x)).
+      <span class="nb">unfold</span> triangle_1_statement_over <span class="k">in</span> t.
+      <span class="nb">cbn</span> <span class="k">in</span> t.
+
+      <span class="nb">set</span> (a1_goal := (id_disp (pr2 x) ;; (ηη (pr1 x) (pr2 x) ;; id_disp
+                                                                   (RR (left_functor F (pr1 x)) (LL (pr1 x) (pr2 x)))))).
+      <span class="nb">set</span> (a1_t :=  (unit_over FF (pr1 x) (pr2 x))).
+
+      <span class="nb">assert</span> (p : a1_goal = transportb _   (id_left (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))) @ id_right (η (pr1 x))) a1_t).
+      {
+        <span class="nb">unfold</span> a1_goal.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="bp">now</span> <span class="nb">rewrite</span> transport_b_b.
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2, maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">clear</span> p.
+
+      <span class="nb">set</span> (a2_t :=  counit_over FF (left_functor F (pr1 x)) (left_adj_over FF (pr1 x) (pr2 x))).
+      <span class="nb">set</span> (a2_goal := (id_disp (LL (right_functor F (left_functor F (pr1 x)))
+                                   (RR (left_functor F (pr1 x)) (LL (pr1 x) (pr2 x)))) ;;
+                       (εε (left_functor F (pr1 x)) (LL (pr1 x) (pr2 x)) ;; id_disp (LL (pr1 x) (pr2 x))))).
+
+      <span class="nb">assert</span> (p : a2_goal = transportb _  (id_left (ε (left_functor F (pr1 x)) · identity (left_functor F (pr1 x))) @ id_right (ε (left_functor F (pr1 x)))) a2_t).
+      {
+        <span class="nb">unfold</span> a2_goal.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="bp">now</span> <span class="nb">rewrite</span> transport_b_b.
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">clear</span> p.
+
+      <span class="nb">assert</span> (q : (# (left_functor F))
+   (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))
+ · (identity (left_functor F (right_functor F (left_functor F (pr1 x))))
+    · (ε (left_functor F (pr1 x)) · identity (left_functor F (pr1 x)))) =
+                    (# (left_functor F)) (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
+      {
+        <span class="nb">rewrite</span> ! id_left.
+        <span class="bp">now</span> <span class="nb">rewrite</span> ! id_right.
+      }
+
+      use pathscomp0.
+      {
+        <span class="bp">exact</span> (transportb _ q  (♯ (left_adj_over FF) (unit_over FF (pr1 x) (pr2 x)) ;; counit_over FF (left_functor F (pr1 x)) (left_adj_over FF (pr1 x) (pr2 x)))).
+      }
+
+      +  <span class="nb">cbn</span>.
+         etrans. { <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+
+         <span class="nb">assert</span> (hh : (# (left_functor F))
+   (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))
+ · ε (left_functor F (pr1 x)) =
+                        (# (left_functor F)) (adjunit F (pr1 x)) · adjcounit F (left_functor F (pr1 x))).
+         {
+           <span class="nb">apply</span> maponpaths_2.
+           <span class="nb">apply</span> maponpaths.
+           <span class="nb">refine</span> (id_left _ @ _).
+           <span class="nb">apply</span> id_right.
+         }
+
+         <span class="nb">assert</span> (h : (maponpaths
+       (compose
+          ((# (left_functor F))
+             (identity (pr1 x) · (η (pr1 x) · identity (right_functor F (left_functor F (pr1 x)))))))
+       (! (id_left (ε (left_functor F (pr1 x)) · identity (left_functor F (pr1 x))) @
+                   id_right (ε (left_functor F (pr1 x)))))) = hh @ ! q).
+         {
+           <span class="nb">apply</span> homset_property.
+         }
+
+         etrans. {
+           <span class="nb">apply</span> maponpaths_2.
+           <span class="bp">exact</span> h.
+         }
+         <span class="nb">unfold</span> a2_t.
+         <span class="nb">unfold</span> transportb.
+         use transportf_transpose_left.
+         <span class="nb">unfold</span> transportb.
+         <span class="nb">rewrite</span> transport_f_f.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> pathscomp_inv.
+         <span class="nb">rewrite</span> path_assoc.
+         <span class="nb">rewrite</span> pathsinv0r.
+         <span class="nb">simpl</span>.
+         <span class="nb">rewrite</span> disp_functor_transportf.
+         use transportf_transpose_right.
+         <span class="nb">unfold</span> transportb.
+         <span class="nb">unfold</span> a1_t.
+         <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+         <span class="nb">rewrite</span> transport_f_f.
+         use transportf_set.
+         <span class="nb">apply</span> homset_property.
+      + <span class="nb">cbn</span>.
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> t.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        use transportf_paths.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_triangle2</span>
+    : triangle_2_statement total_adjunction_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="nb">cbn</span>.
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans. { <span class="nb">apply</span> id_left. }
+        <span class="nb">apply</span> id_right.
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans. { <span class="nb">apply</span> id_left. }
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="bp">exact</span> (triangle_2_statement_from_adjunction F (pr1 x)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">set</span> (t := triangle_2_over FF (pr1 x) (pr2 x)).
+      <span class="nb">unfold</span> triangle_2_statement_over <span class="k">in</span> t.
+      <span class="nb">cbn</span> <span class="k">in</span> t.
+
+      <span class="nb">set</span> (q := (id_left (ε (pr1 x) · identity (pr1 x)) @ id_right (ε (pr1 x)))).
+
+      <span class="nb">assert</span> (p : (id_disp (LL (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x))) ;; (εε (pr1 x) (pr2 x) ;; id_disp (pr2 x))) = transportb _ q (counit_over FF (pr1 x) (pr2 x))).
+      {
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="bp">now</span> <span class="nb">rewrite</span> transport_b_b.
+      }
+
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">clear</span> p.
+      <span class="nb">unfold</span> q.
+      <span class="nb">clear</span> q.
+
+      <span class="nb">assert</span> (p : identity (right_functor F (pr1 x))
+ · (η (right_functor F (pr1 x)) · identity (right_functor F (left_functor F (right_functor F (pr1 x)))))
+ · (# (right_functor F))
+     (identity (left_functor F (right_functor F (pr1 x))) · (ε (pr1 x) · identity (pr1 x))) =
+ unit_from_are_adjoints F (right_functor F (pr1 x))
+                        · (# (right_functor F)) (counit_from_are_adjoints F (pr1 x))).
+      {
+        <span class="nb">rewrite</span> ! id_left.
+        <span class="bp">now</span> <span class="nb">rewrite</span> ! id_right.
+      }
+
+      use pathscomp0.
+      {
+        <span class="bp">exact</span> (transportb _ p (transportb (mor_disp (right_adj_over FF (pr1 x) (pr2 x)) (right_adj_over FF (pr1 x) (pr2 x))) (triangle_id_right_ad F (pr1 x)) (id_disp (right_adj_over FF (pr1 x) (pr2 x))))).
+      }
+
+      <span class="mi">2</span>: {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> disp_functor_transportf.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      use transportf_transpose_left.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+
+      <span class="nb">assert</span> (qq : identity (right_functor F (pr1 x))
+ · (adjunit F (right_functor F (pr1 x))
+    · identity (right_functor F (left_functor F (right_functor F (pr1 x)))))
+ · (# (right_functor F)) (adjcounit F (pr1 x)) =
+                    adjunit F (right_functor F (pr1 x)) · (# (right_functor F)) (adjcounit F (pr1 x))).
+      {
+        <span class="nb">rewrite</span> ! id_left.
+        <span class="bp">now</span> <span class="nb">rewrite</span> ! id_right.
+      }
+
+
+      <span class="nb">assert</span> (q :  id_disp (RR (pr1 x) (pr2 x)) ;; (ηη (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x)) ;; id_disp (RR (left_functor F (right_functor F (pr1 x))) (LL (right_functor F (pr1 x)) (RR (pr1 x) (pr2 x))))) ;; ♯ RR (counit_over FF (pr1 x) (pr2 x)) = transportb _ qq ( unit_over FF (right_functor F (pr1 x)) (right_adj_over FF (pr1 x) (pr2 x)) ;; ♯ (right_adj_over FF) (counit_over FF (pr1 x) (pr2 x)))).
+      {
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> transport_b_b.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+      }
+
+      <span class="nb">refine</span> (q @ _).
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> t.
+      }
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      use maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction</span>
+    : adjunction (total_category D1) (total_category D2).
+  <span class="kn">Proof</span>.
+    use make_adjunction.
+    - <span class="bp">exact</span> total_adjunction_data.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> total_adjunction_triangle1.
+      + <span class="nb">apply</span> total_adjunction_triangle2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TotalAdjunction</span>.
+
+<span class="kn">Section</span> <span class="nf">TotalEquivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C1</span> <span class="nv">C2</span> : category}
+          {<span class="nv">F</span> : adj_equiv C1 C2}.
+
+  <span class="kn">Let</span> <span class="nf">L</span> := left_functor F.
+  <span class="kn">Let</span> <span class="nf">R</span> := right_functor F.
+  <span class="kn">Let</span> <span class="nf">η</span> := adjunit F.
+  <span class="kn">Let</span> <span class="nf">ε</span> := adjcounit F.
+
+  <span class="kn">Context</span> {<span class="nv">D1</span> : disp_cat C1}
+          {<span class="nv">D2</span> : disp_cat C2}
+          (<span class="nv">FF</span> : equiv_over F D1 D2).
+
+  <span class="kn">Let</span> <span class="nf">LL</span> := left_adj_over FF.
+  <span class="kn">Let</span> <span class="nf">RR</span> := right_adj_over FF.
+  <span class="kn">Let</span> <span class="nf">ηη</span> := unit_over FF.
+  <span class="kn">Let</span> <span class="nf">εε</span> := counit_over FF.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence1_base</span>
+    : ∏ x : total_category D1, is_z_isomorphism (pr1 (adjunit (total_adjunction FF) x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use is_z_isomorphism_comp.
+    - <span class="nb">apply</span> Isos.identity_is_z_iso.
+    - use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (adj_equiv_of_cats_from_adj F).
+      + <span class="nb">apply</span> Isos.identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence1_disp_inv</span>
+    : ∏ x : total_category D1,
+        RR (F (pr1 x)) (LL (pr1 x) (pr2 x))
+           --&gt;[identity (R (F (pr1 x))) · is_z_isomorphism_mor ((pr122 F) (pr1 x)) · identity (pr1 x)]
+           pr2 x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">set</span> (f := pr1 (pr12 FF (pr1 x) (pr2 x))).
+    <span class="nb">assert</span> (p : identity (right_adjoint F (F (pr1 x))) · Isos.is_z_isomorphism_mor ((pr122 F) (pr1 x)) · identity (pr1 x) = Isos.is_z_isomorphism_mor ((pr122 F) (pr1 x))).
+    {
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">now</span> <span class="nb">apply</span> id_right.
+    }
+    <span class="bp">exact</span> (transportf (mor_disp _ _) (! p) f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_adjunction_forms_equivalence1_disp_inv_is_inv</span>
+    : ∏ x : total_category D1,
+        is_disp_inverse
+          (z_iso_is_inverse_in_precat
+             (pr1 (adjunit (total_adjunction FF) x),, total_adjunction_forms_equivalence1_base x))
+          (pr2 (adjunit (total_adjunction FF) x))
+          (total_adjunction_forms_equivalence1_disp_inv x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> total_adjunction_forms_equivalence1_base.
+    <span class="nb">unfold</span> total_adjunction_forms_equivalence1_disp_inv.
+    <span class="nb">split</span>.
+    - <span class="nb">cbn</span>.
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">cbn</span>.
+
+      <span class="nb">set</span> (ff := pr12 (pr12 FF (pr1 x) (pr2 x))).
+      <span class="nb">cbn</span> <span class="k">in</span> ff.
+      <span class="nb">set</span> (fff := transportf_transpose_left ff).
+      <span class="nb">refine</span> (_ @ fff).
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">cbn</span>.
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">cbn</span>.
+
+      <span class="nb">set</span> (ff := pr22 (pr12 FF (pr1 x) (pr2 x))).
+      <span class="nb">cbn</span> <span class="k">in</span> ff.
+      <span class="nb">set</span> (fff := transportf_transpose_left ff).
+      <span class="nb">refine</span> (_ @ fff).
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence1</span>
+    : ∏ a : total_category D1, Isos.is_z_isomorphism (adjunit (total_adjunction FF) a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use is_z_iso_total.
+    - <span class="bp">exact</span> (total_adjunction_forms_equivalence1_base x).
+    - <span class="k">exists</span> (<span class="nv">total_adjunction_forms_equivalence1_disp_inv</span> <span class="nv">x</span>).
+      <span class="bp">exact</span> (total_adjunction_forms_equivalence1_disp_inv_is_inv x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence2_base</span>
+    :  ∏ b : total_category D2, Isos.is_z_isomorphism (pr1 (adjcounit (total_adjunction FF) b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    use is_z_isomorphism_comp.
+    - <span class="nb">apply</span> Isos.identity_is_z_iso.
+    - use is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (adj_equiv_of_cats_from_adj F).
+      + <span class="nb">apply</span> Isos.identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence2_disp_inv</span>
+    : ∏ x : total_category D2,
+          pr2 (functor_identity (total_category D2) x) --&gt;[
+  inv_from_z_iso (pr1 (adjcounit (total_adjunction FF) x),, total_adjunction_forms_equivalence2_base x)]
+              pr2 ((pr121 (total_adjunction FF) ∙ pr11 (total_adjunction FF)) x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">set</span> (f := pr1 (pr22 FF (pr1 x) (pr2 x))).
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (p :  identity (pr1 x) · Isos.is_z_isomorphism_mor ((pr222 F) (pr1 x))
+                          · identity (F (right_adjoint F (pr1 x))) = Isos.is_z_isomorphism_mor ((pr222 F) (pr1 x))).
+    {
+      <span class="nb">rewrite</span> id_left.
+      <span class="bp">now</span> <span class="nb">apply</span> id_right.
+    }
+    <span class="bp">exact</span> (transportf (mor_disp _ _) (! p) f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_adjunction_forms_equivalence2_disp_inv_is_inv</span>
+    : ∏ x : total_category D2,
+         is_disp_inverse
+           (z_iso_is_inverse_in_precat
+              (pr1 (adjcounit (total_adjunction FF) x),, total_adjunction_forms_equivalence2_base x))
+           (pr2 (adjcounit (total_adjunction FF) x))
+           (total_adjunction_forms_equivalence2_disp_inv x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> total_adjunction_forms_equivalence2_base.
+    <span class="nb">unfold</span> total_adjunction_forms_equivalence2_disp_inv.
+    <span class="nb">split</span>.
+    - <span class="nb">cbn</span>.
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">cbn</span>.
+
+      <span class="nb">set</span> (ff := pr12 (pr22 FF (pr1 x) (pr2 x))).
+      <span class="nb">cbn</span> <span class="k">in</span> ff.
+      <span class="nb">set</span> (fff := transportf_transpose_left ff).
+      <span class="nb">refine</span> (_ @ fff).
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">cbn</span>.
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">cbn</span>.
+
+      <span class="nb">set</span> (ff := pr22 (pr22 FF (pr1 x) (pr2 x))).
+      <span class="nb">cbn</span> <span class="k">in</span> ff.
+      <span class="nb">set</span> (fff := transportf_transpose_left ff).
+      <span class="nb">refine</span> (_ @ fff).
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">rewrite</span> transport_b_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      use transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence2</span>
+    :  ∏ b : total_category D2, Isos.is_z_isomorphism (adjcounit (total_adjunction FF) b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use is_z_iso_total.
+    - <span class="bp">exact</span> (total_adjunction_forms_equivalence2_base x).
+    - <span class="k">exists</span> (<span class="nv">total_adjunction_forms_equivalence2_disp_inv</span> <span class="nv">x</span>).
+      <span class="bp">exact</span> (total_adjunction_forms_equivalence2_disp_inv_is_inv x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adjunction_forms_equivalence</span>
+    : forms_equivalence (total_adjunction FF).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> total_adjunction_forms_equivalence1.
+    - <span class="bp">exact</span> total_adjunction_forms_equivalence2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_adj_equivalence_of_cats</span>
+    : adj_equivalence_of_cats (total_functor LL).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">total_adjunction</span> <span class="nv">FF</span>).
+    <span class="bp">exact</span> total_adjunction_forms_equivalence.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_equivalence</span>
+    : adj_equiv (total_category D1) (total_category D2).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">left_functor</span> (total_adjunction FF)).
+    <span class="bp">exact</span> total_adj_equivalence_of_cats.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TotalEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/TotalAdjunction.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Created by Kobe Wullaert at 06/12/2022.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

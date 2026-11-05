@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PresheafEquivalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The equivalence between presheaves on the monoid L1 and on the Lawvere theory L</span>
+
+<span class="sd">  Let L be a λ-theory. The set L 1 of terms with one free variable form a monoid under substitution,</span>
+<span class="sd">  with unit x1, which gives a one-object category [algebraic_theory_monoid_category] and we will</span>
+<span class="sd">  denote this with L1. We also have a category [algebraic_theory_to_lawvere], with objects {0, 1, …}</span>
+<span class="sd">  and morphisms from m to n given by (L n)^m. We will denote this with LL.</span>
+
+<span class="sd">  The embedding L1 ↪ LL gives a precomposition functor on functor categories [LL, D] ⟶ [L1, D]. In</span>
+<span class="sd">  this file, we will show that this functor is an equivalence.</span>
+
+<span class="sd">  We first show that we have an equivalence F: R ≃ K between the Karoubi envelope K of L1 and the</span>
+<span class="sd">  category of retracts R from Scott's representation theorem.</span>
+<span class="sd">  Then, by Scott's representation theorem, we can embed LL into the Karoubi envelope K, sending n to</span>
+<span class="sd">  F(U^n).</span>
+<span class="sd">  The composition L1 ⟶ LL ⟶ K equals the embedding of L1 into its Karoubi envelope. Therefore, the</span>
+<span class="sd">  precomposition [K, D] ⟶ [L1, D] is an equivalence.</span>
+<span class="sd">  If D has colimits, the statements above suffice to show that the individual precompositions</span>
+<span class="sd">  [K, D] ⟶ [LL, D] and [LL, D] ⟶ [L1, D] are equivalences, which concludes the proof.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The equivalence between R and K [algebraic_theory_retracts_equiv_set_karoubi]</span>
+<span class="sd">  2. The fully faithful functor from LL to K [algebraic_theory_lawvere_to_karoubi]</span>
+<span class="sd">  2.1. The isomorphism between the composed functor and the embedding from L1 to K</span>
+<span class="sd">    [algebraic_theory_lawvere_to_karoubi_after_theory_monoid_to_lawvere]</span>
+<span class="sd">  3. The equivalence [lawvere_theory_presheaf_equiv_monoid_presheaf]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.SetKaroubi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.EquivalenceFromComp.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.CategoryOfRetracts.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Combinators.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryToMonoid.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.OriginalRepresentationTheorem.
+
+<span class="kn">Require Import</span> <span class="kn">Ltac2</span>.<span class="kn">Ltac2</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The equivalence between R and K *)</span>
+
+<span class="kn">Definition</span> <span class="nf">algebraic_theory_retracts_equiv_set_karoubi</span>
+  (<span class="nv">L</span> : β_lambda_theory)
+  : adj_equiv
+    (R (n := <span class="mi">0</span>) L (β_lambda_theory_has_β L))
+    (set_set_karoubi (algebraic_theory_monoid_category L))
+  := comp_adj_equiv
+    (lambda_theory_to_monoid_cat_equiv L)
+    (lambda_theory_to_monoid_karoubi_equiv L).
+
+<span class="sd">(** * 2. The fully faithful functor from LL to K *)</span>
+
+<span class="kn">Section</span> <span class="nf">Functors</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : β_lambda_theory).
+
+  <span class="kn">Let</span> <span class="nf">Lβ</span> : has_β L := β_lambda_theory_has_β L.
+
+  <span class="kn">Let</span> <span class="nf">φ</span>
+    : z_iso (E L) L
+    := representation_theorem_iso L.
+
+  <span class="kn">Let</span> <span class="nf">Pn</span>
+    (<span class="nv">n</span> : nat)
+    := bin_product_power
+          (R (n := <span class="mi">0</span>) L Lβ)
+          (U L Lβ)
+          (R_chosen_terminal L Lβ)
+          (R_binproducts L Lβ)
+          n.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_data</span>
+    : functor_data
+      (algebraic_theory_to_lawvere (L : algebraic_theory) : setcategory)
+      (set_set_karoubi (algebraic_theory_monoid_category L)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> '(make_functor_data _ _).
+    - <span class="nb">intro</span> n.
+      <span class="nb">refine</span> '(algebraic_theory_retracts_equiv_set_karoubi L _).
+      <span class="bp">exact</span> (ProductObject _ _ (Pn n)).
+    - <span class="nb">intros</span> m n f.
+      <span class="nb">apply</span> (#(algebraic_theory_retracts_equiv_set_karoubi L)).
+      <span class="nb">apply</span> ProductArrow.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> ((inv_from_z_iso φ : β_lambda_theory_morphism _ _) m).
+      <span class="bp">exact</span> (f i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_is_functor</span>
+    : is_functor algebraic_theory_lawvere_to_set_karoubi_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> '(make_is_functor _ _).
+    - <span class="nb">intro</span> n.
+      <span class="nb">refine</span> '(_ @ functor_id (algebraic_theory_retracts_equiv_set_karoubi _) _).
+      <span class="nb">apply</span> (maponpaths (#(algebraic_theory_retracts_equiv_set_karoubi L))).
+      <span class="nb">refine</span> '(!ProductArrowUnique _ _ _ _ _ _ _ _).
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> '(id_left _ @ _).
+      <span class="bp">exact</span> (!mor_var (inv_from_z_iso φ : β_lambda_theory_morphism _ _) i).
+    - <span class="nb">intros</span> l m n f g.
+      <span class="nb">refine</span> '(_ @ functor_comp (algebraic_theory_retracts_equiv_set_karoubi _) _ _).
+      <span class="nb">apply</span> (maponpaths (#(algebraic_theory_retracts_equiv_set_karoubi L))).
+      <span class="nb">refine</span> '(!ProductArrowUnique _ _ _ _ _ _ _ _).
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> '(assoc' _ _ _ @ _).
+      <span class="nb">refine</span> '(maponpaths _ (ProductPrCommutes _ _ _ _ _ _ _) @ _).
+      <span class="bp">exact</span> (!mor_subst (inv_from_z_iso φ : β_lambda_theory_morphism _ _) (g i) f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi</span>
+    : (algebraic_theory_to_lawvere (L : algebraic_theory) : setcategory)
+      ⟶ set_set_karoubi (algebraic_theory_monoid_category L)
+    := make_functor
+      algebraic_theory_lawvere_to_set_karoubi_data
+      algebraic_theory_lawvere_to_set_karoubi_is_functor.
+
+  <span class="kn">Lemma</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_fully_faithful</span>
+    : fully_faithful algebraic_theory_lawvere_to_set_karoubi.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n.
+    <span class="nb">refine</span> '(isweq_iso _ _ _ _).
+    - <span class="nb">intros</span> f i.
+      <span class="nb">apply</span> ((z_iso_mor φ : β_lambda_theory_morphism _ _) _).
+      <span class="nb">refine</span> '(_ · ProductPr _ _ (Pn n) i).
+      <span class="nb">apply</span> (weq_from_fully_faithful (fully_faithful_from_equivalence _ _ _
+        (algebraic_theory_retracts_equiv_set_karoubi L))).
+      <span class="bp">exact</span> f.
+    - <span class="nb">intro</span> f.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : β_lambda_theory_morphism _ _), x _ _) (z_iso_after_z_iso_inv φ)).
+      <span class="nb">apply</span> (maponpaths ((z_iso_mor φ : β_lambda_theory_morphism _ _) m)).
+      <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _) (homotinvweqweq (weq_from_fully_faithful _ _ _) _) @ _).
+      <span class="bp">exact</span> (ProductPrCommutes _ _ _ (Pn n) _ _ _).
+    - <span class="nb">intro</span> f.
+      <span class="nb">refine</span> '(_ @ homotweqinvweq (weq_from_fully_faithful (fully_faithful_from_equivalence _ _ _
+        (algebraic_theory_retracts_equiv_set_karoubi L)) _ _) _).
+      <span class="nb">apply</span> (maponpaths (# (algebraic_theory_retracts_equiv_set_karoubi L))).
+      <span class="nb">refine</span> '(!ProductArrowUnique _ _ _ (Pn n) _ _ _ _).
+      <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (!maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : β_lambda_theory_morphism _ _), x _ _) (z_iso_inv_after_z_iso φ)).
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** * 2.1. The isomorphism between the composed functor and the embedding from L1 to K *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">U_iso_algebraic_theory_to_unit</span>
+    : z_iso
+      (algebraic_theory_retracts_equiv_set_karoubi L (U L Lβ))
+      (set_karoubi_inclusion (algebraic_theory_monoid_category L) tt).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> '(make_z_iso _ _ _).
+    - <span class="nb">refine</span> '(make_set_karoubi_mor _ _ _ _).
+      + <span class="bp">exact</span> (set_karoubi_ob_idempotent _ (set_karoubi_inclusion (algebraic_theory_monoid_category L) tt)).
+      + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> '(_ @ idempotent_is_idempotent _);
+          <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _));
+          <span class="nb">apply</span> Lβ
+        ).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> idempotent_is_idempotent).
+    - <span class="nb">refine</span> '(make_set_karoubi_mor _ _ _ _).
+      + <span class="bp">exact</span> (set_karoubi_ob_idempotent _ (set_karoubi_inclusion (algebraic_theory_monoid_category L) tt)).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> idempotent_is_idempotent).
+      + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> '(_ @ idempotent_is_idempotent _);
+          <span class="nb">apply</span> maponpaths;
+          <span class="nb">apply</span> Lβ
+        ).
+    - <span class="nb">refine</span> '(make_is_inverse_in_precat _ _).
+      + <span class="kp">abstract</span> (
+          <span class="nb">apply</span> set_karoubi_mor_eq;
+          <span class="nb">refine</span> '(_ @ !Lβ _ _);
+          <span class="bp">exact</span> (var_subst _ _ _)
+        ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">apply</span> set_karoubi_mor_eq;
+          <span class="bp">exact</span> (var_subst _ _ _)
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">ψ</span>
+    : z_iso
+    (algebraic_theory_lawvere_to_set_karoubi (theory_monoid_to_lawvere L tt))
+    (set_karoubi_inclusion (algebraic_theory_monoid_category L) tt)
+    := z_iso_comp
+      (functor_on_z_iso (algebraic_theory_retracts_equiv_set_karoubi L) (make_z_iso' _
+        (terminal_binprod_unit_l_z (R_chosen_terminal L Lβ) (R_binproducts _ _) (U L Lβ))))
+      U_iso_algebraic_theory_to_unit.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_nat_trans_data</span>
+    : nat_trans_data
+      (theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_set_karoubi)
+      (set_karoubi_inclusion (algebraic_theory_monoid_category L))
+    := <span class="k">λ</span> <span class="nv">t</span>, ψ.
+
+  <span class="kn">Lemma</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_is_nat_trans</span>
+    : is_nat_trans _ _ algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> t1 t2 f.
+    <span class="nb">apply</span> set_karoubi_mor_eq.
+    <span class="nb">refine</span> '(_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (Lβ _ _)).
+    <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (var_subst _ _ _) @ _).
+    <span class="nb">refine</span> '(subst_is_compose _ Lβ _ _ @ _).
+    <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ • (<span class="k">λ</span> <span class="nv">_</span>, x)) (var_subst _ _ _)).
+    <span class="nb">refine</span> '(_ @ !subst_is_compose _ Lβ (abs f) _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> '(maponpaths (<span class="k">λ</span> (<span class="nv">x</span> : R_mor _ _ _), (x : L <span class="mi">0</span>)) (p2_commutes _ Lβ _ _ _ _ _) @ _).
+    <span class="nb">refine</span> '(_ @ !abs_compose _ Lβ _ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (f • x))).
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> (!iscontr_uniqueness iscontrstn1 i).
+    <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (inflate x) _) (abs_compose _ Lβ _ _)).
+    <span class="nb">refine</span> '(_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (inflate (abs x)) _) (var_subst _ _ _)).
+    <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app x _) (inflate_n_π _ _) @ _).
+    <span class="nb">refine</span> '(!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (inflate x) _) (functional_equation_eta Lβ (idpath π2)) @ _).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (inflate (abs x)) _) (appx_to_app _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_nat_trans</span>
+    : theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_set_karoubi
+      ⟹ set_karoubi_inclusion (algebraic_theory_monoid_category L)
+    := make_nat_trans _ _
+      algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_nat_trans_data
+      algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_is_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere</span>
+    : z_iso
+      (C := [_, _])
+      (theory_monoid_to_lawvere L ∙ algebraic_theory_lawvere_to_set_karoubi)
+      (set_karoubi_inclusion (algebraic_theory_monoid_category L)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> z_iso_is_nat_z_iso.
+    <span class="nb">refine</span> '(make_nat_z_iso _ _ _ _).
+    - <span class="bp">exact</span> algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere_nat_trans.
+    - <span class="nb">intro</span> t.
+      <span class="nb">induction</span> t.
+      <span class="bp">exact</span> (z_iso_is_z_isomorphism ψ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Functors</span>.
+
+<span class="sd">(** * 3. The equivalence *)</span>
+
+<span class="kn">Section</span> <span class="nf">Equivalence</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : β_lambda_theory).
+  <span class="kn">Context</span> (<span class="nv">D</span> : category).
+  <span class="kn">Context</span> (<span class="nv">HD</span> : Colims D).
+
+  <span class="kn">Definition</span> <span class="nf">lawvere_theory_presheaf_equiv_monoid_presheaf</span>
+    : adj_equiv
+      [(algebraic_theory_to_lawvere (L : algebraic_theory) : setcategory), D]
+      [algebraic_theory_monoid_category L, D].
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> '(_ ,, _).
+    - <span class="bp">exact</span> (pre_comp_functor (theory_monoid_to_lawvere L)).
+    - <span class="nb">refine</span> '(adjoint_equivalence_2_from_comp _ _ (algebraic_theory_lawvere_to_set_karoubi_fully_faithful L) _ HD _).
+      <span class="nb">apply</span> (adj_equivalence_of_cats_closed_under_iso (pre_comp_functor_assoc _ _)).
+      <span class="nb">refine</span> '(adj_equivalence_of_cats_closed_under_iso ((functor_on_z_iso
+        (pre_comp_functor_functor _ _ _)
+        (z_iso_inv (algebraic_theory_lawvere_to_set_karoubi_after_theory_monoid_to_lawvere _)))) _).
+      <span class="bp">exact</span> (karoubi_pullback_equivalence (set_karoubi _) _ HD).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Equivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/PresheafEquivalence.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. The equivalence [lawvere_theory_presheaf_equiv_monoid_presheaf]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OneStepMonad.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.ComonadCoalgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Retract.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Lifting.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFSisWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LiftingWithClass.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonadAlgebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+
+<span class="kn">Arguments</span> CoproductArrow {_} {_} {_} _ {_}.
+<span class="kn">Arguments</span> CoproductIn {_} {_} {_} _.
+<span class="kn">Arguments</span> CoproductInCommutes {_} {_} {_} _ {_}.
+
+
+<span class="c">(* We have to do this special stuff, because we come across</span>
+<span class="c">   a lot of equalities between coproduct inclusions, where</span>
+<span class="c">   the indexed objects are not the same (map, lifting problem map --&gt; f)</span>
+<span class="c">   only because the lifting problems are not the same, the maps are</span>
+<span class="c">   in fact the same.</span>
+
+<span class="c">   In fact, all the inclusions we do are based on the (co)domain of the</span>
+<span class="c">   map of the lifting problem, and entirely independent of the lifting</span>
+<span class="c">   problem itself. This means that indeed, the inclusions should just</span>
+<span class="c">   be equal.</span>
+
+<span class="c">   In theory though, in a general case, the inclusions would not be equal,</span>
+<span class="c">   and differ by some idtoiso (see CoproductIn_idtoiso), since the</span>
+<span class="c">   objects that the inclusions originate from theoretically do not have</span>
+<span class="c">   to be the same.</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">CoproductInLiftingProblemsEq</span>
+    {<span class="nv">C</span> : category} {<span class="nv">J</span> : morphism_class C} {<span class="nv">f</span> : arrow C}
+    {<span class="nv">a</span> : total_category (morcls_disp J) -&gt; C} {<span class="nv">CCa</span> : Coproduct _ _ (<span class="k">λ</span> <span class="nv">lp</span>, a (morcls_lp_map lp))}
+    {<span class="nv">g</span> : total_category (morcls_disp J)} {<span class="nv">S</span> <span class="nv">S'</span> : (pr1 g) --&gt; f} :
+    S = S' -&gt; CoproductIn CCa (g,, S) = CoproductIn CCa (g,, S').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* specialize domain / codomain cases *)</span>
+<span class="kn">Lemma</span> <span class="nf">CoproductInLiftingProblemsEqDom</span>
+    {<span class="nv">C</span> : category} {<span class="nv">J</span> : morphism_class C} {<span class="nv">f</span> : arrow C}
+    {<span class="nv">CCa</span> : Coproduct _ _ (<span class="k">λ</span> <span class="nv">lp</span>, arrow_dom (pr1 (morcls_lp_map lp)))}
+    {<span class="nv">g</span> : total_category (morcls_disp J)} {<span class="nv">S</span> <span class="nv">S'</span> : (pr1 g) --&gt; f} :
+    S = S' -&gt; CoproductIn CCa (g,, S) = CoproductIn CCa (g,, S').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (CoproductInLiftingProblemsEq (a := <span class="k">λ</span> <span class="nv">f</span>, arrow_dom (pr1 f))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoproductInLiftingProblemsEqCod</span>
+    {<span class="nv">C</span> : category} {<span class="nv">J</span> : morphism_class C} {<span class="nv">f</span> : arrow C}
+    {<span class="nv">CCa</span> : Coproduct _ _ (<span class="k">λ</span> <span class="nv">lp</span>, arrow_cod (pr1 (morcls_lp_map lp)))}
+    {<span class="nv">g</span> : total_category (morcls_disp J)} {<span class="nv">S</span> <span class="nv">S'</span> : (pr1 g) --&gt; f} :
+    S = S' -&gt; CoproductIn CCa (g,, S) = CoproductIn CCa (g,, S').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (CoproductInLiftingProblemsEq (a := <span class="k">λ</span> <span class="nv">f</span>, arrow_cod (pr1 f))).
+<span class="kn">Qed</span>.
+
+<span class="c">(* first try basic apply / use, the more expensive match statement *)</span>
+<span class="kn">Ltac</span> <span class="nf">morcls_lp_coproduct_in_eq</span> :=
+  <span class="nb">apply</span> (CoproductInLiftingProblemsEqCod) ||
+  <span class="nb">apply</span> (CoproductInLiftingProblemsEqDom) ||
+  use (CoproductInLiftingProblemsEqCod) ||
+  use (CoproductInLiftingProblemsEqDom) ||
+    <span class="k">match goal with</span>
+    |- CoproductIn _ <span class="nl">?S</span> = CoproductIn _ <span class="nl">?S'</span>
+      =&gt; <span class="nb">apply</span> (CoproductInLiftingProblemsEqCod (S:=pr2 S)) ||
+         <span class="nb">apply</span> (CoproductInLiftingProblemsEqCod (S':=pr2 S')) ||
+         <span class="nb">apply</span> (CoproductInLiftingProblemsEqDom (S:=pr2 S)) ||
+         <span class="nb">apply</span> (CoproductInLiftingProblemsEqDom (S':=pr2 S'))
+    <span class="k">end</span>.
+
+<span class="kn">Section</span> <span class="nf">one_step_monad</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">J</span> : morphism_class C).
+<span class="kn">Context</span> (<span class="nv">CC</span> : Colims C).
+
+<span class="c">(* Garner 2008, section 5.2 (functor K) *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_functor_data</span> : functor_data (arrow C) (arrow C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="c">(* sending f to ∑_{x ∈ S_f} g_x*)</span>
+    <span class="nb">intro</span> f.
+    <span class="bp">exact</span> (morcls_lp_coprod CC J f).
+  - <span class="c">(* map γ: f --&gt; f' gives map of lifting problems *)</span>
+    <span class="nb">intros</span> f f' γ.
+    use mors_to_arrow_mor.
+    * use CoproductOfArrowsInclusion.
+      + <span class="c">(* inclusion of lifting problems S_f into S_f' with γ *)</span>
+        <span class="nb">intro</span> lpJf.
+        <span class="nb">destruct</span> lpJf <span class="k">as</span> [g S].
+        <span class="k">exists</span> <span class="nv">g</span>.
+        <span class="bp">exact</span> (S · γ).
+      + <span class="c">(* map from lifting problem of S_f's left hand domain into that of S_f'</span>
+<span class="c">           The lifting problems have the same domain on the left, as f is the</span>
+<span class="c">           same. *)</span>
+        <span class="nb">intro</span>. <span class="bp">exact</span> (identity _).
+    * use CoproductOfArrowsInclusion.
+      + <span class="c">(* the same map here *)</span>
+        <span class="nb">intro</span> lpJf.
+        <span class="nb">destruct</span> lpJf <span class="k">as</span> [g S].
+        <span class="k">exists</span> <span class="nv">g</span>.
+        <span class="bp">exact</span> (S · γ).
+      + <span class="nb">intro</span>. <span class="bp">exact</span> (identity _).
+    * <span class="c">(* commutativity of coproduct arrow inclusion with</span>
+<span class="c">         ∑_{x∈S_f} g_x and ∑_{x∈S_f'} g_x *)</span>
+      <span class="kp">abstract</span> (
+        <span class="c">(* simpl; *)</span>
+        <span class="c">(* unfold morcls_lp_coprod; *)</span>
+        <span class="c">(* simpl; *)</span>
+        etrans; [use CoproductOfArrowsInclusion_comp|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [use CoproductOfArrowsInclusion_comp|];
+        <span class="c">(* simpl; *)</span>
+        <span class="c">(* equality of coproduct of arrows *)</span>
+        <span class="nb">apply</span> maponpaths;
+        <span class="nb">apply</span> funextsec;
+        <span class="nb">intro</span>;
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="bp">reflexivity</span>
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_functor_is_functor</span> : is_functor morcls_coprod_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    use arrow_mor_eq; <span class="nb">apply</span> pathsinv0, Coproduct_endo_is_identity; <span class="nb">intro</span>.
+    * etrans.
+      <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_dom_coprod CC J f)).
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="c">(* unfold morcls_lp_dom_coprod. *)</span>
+      <span class="c">(* apply (CoproductInLiftingProblemsEqDom (S := pr2 i · _)). *)</span>
+      morcls_lp_coproduct_in_eq.
+      etrans. <span class="nb">apply</span> id_right.
+      <span class="bp">reflexivity</span>.
+    * etrans.
+      <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> id_left.
+      morcls_lp_coproduct_in_eq.
+      <span class="c">(* apply (CoproductInLiftingProblemsEqCod (S := pr2 i · _)). *)</span>
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> g f h S T.
+    use arrow_mor_eq; <span class="nb">apply</span> pathsinv0.
+    * etrans. use CoproductOfArrowsInclusion_comp.
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> funextsec.
+              <span class="nb">intro</span>.
+              <span class="nb">apply</span> id_right.
+
+      <span class="nb">apply</span> CoproductArrowUnique.
+      <span class="nb">intro</span>.
+      etrans. use (CoproductOfArrowsInclusionIn _ _ _ _ i).
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="c">(* apply (CoproductInLiftingProblemsEqDom (S := pr2 i · _)). *)</span>
+      morcls_lp_coproduct_in_eq.
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="bp">reflexivity</span>.
+    * etrans. use CoproductOfArrowsInclusion_comp.
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> funextsec.
+              <span class="nb">intro</span>.
+              <span class="nb">apply</span> id_right.
+
+      <span class="nb">apply</span> CoproductArrowUnique.
+      <span class="nb">intro</span>.
+      etrans. use (CoproductOfArrowsInclusionIn _ _ _ _ i).
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> id_left.
+      morcls_lp_coproduct_in_eq.
+      <span class="c">(* apply (CoproductInLiftingProblemsEqCod (S := pr2 i · _)). *)</span>
+      <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="c">(* K in Garner *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_functor</span> : functor (arrow C) (arrow C) :=
+    (_,, morcls_coprod_functor_is_functor).
+
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_nat_trans_data</span> :
+    nat_trans_data morcls_coprod_functor (functor_identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="bp">exact</span> (morcls_lp_coprod_diagram CC J f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_nat_trans_is_nat_trans</span> :
+    is_nat_trans _ _ morcls_coprod_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  use arrow_mor_eq.
+  - etrans. use precompWithCoproductArrowInclusion.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> postcompWithCoproductArrow.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - etrans. use precompWithCoproductArrowInclusion.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> postcompWithCoproductArrow.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> i.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* φ in Garner 2007, p23 *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_coprod_nat_trans</span> :
+    nat_trans morcls_coprod_functor (functor_identity _) :=
+  (_,, morcls_coprod_nat_trans_is_nat_trans).
+
+<span class="kn">Arguments</span> CoproductObject {_} {_} {_}.
+<span class="kn">Lemma</span> <span class="nf">commuting_cube_construction</span> {<span class="nv">f</span> <span class="nv">f'</span> : arrow C}
+    {<span class="nv">aa</span> : CoproductObject (morcls_lp_dom_coprod CC J _)
+          --&gt; CoproductObject (morcls_lp_dom_coprod CC J _)}
+    {<span class="nv">bb</span> : CoproductObject (morcls_lp_cod_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_cod_coprod CC J f')}
+    {<span class="nv">cc</span> : arrow_dom f --&gt; arrow_dom f'}
+    (<span class="nv">leftface</span> : (morcls_coprod_functor f) · bb = aa · (morcls_coprod_functor f'))
+    (<span class="nv">topface</span>  : arrow_mor00 (morcls_lp_coprod_diagram CC J f) · cc =
+                aa · arrow_mor00 (morcls_lp_coprod_diagram CC J f')) :
+  E1 CC J f --&gt; E1 CC J f'.
+<span class="kn">Proof</span>.
+  <span class="c">(* The map induced by pushouts on the front and back face</span>
+<span class="c">     (only the front face is drawn)</span>
+<span class="c">          ∑h</span>
+<span class="c">      ∑A ------&gt; C</span>
+<span class="c">       |\ aa       \  cc</span>
+<span class="c">  ∑f=Kg|  \     ∑h'  \</span>
+<span class="c">       |    ∑A' -----&gt; C</span>
+<span class="c">       v    |</span>
+<span class="c">      ∑B    |Kg'       |</span>
+<span class="c">        \   |=     PO    λ1f'</span>
+<span class="c">      bb  \ v∑f'       v</span>
+<span class="c">           ∑B' - - - &gt; E1f'</span>
+<span class="c">  *)</span>
+  <span class="nb">set</span> (CE1f' := cc · (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f'</span>)).
+  <span class="nb">set</span> (BE1f' := bb · (PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J f'))).
+
+  use (PushoutArrow
+       (morcls_lp_coprod_diagram_pushout CC J f)
+       _ BE1f' CE1f').
+
+  <span class="kp">abstract</span> (
+    <span class="c">(* Left to show commutativity of (outer) pushout diagram *)</span>
+    <span class="c">(* Kg · (arrow_mor11 Kγ) · (PushoutIn1 f') = (PushoutIn f) · γ00 · λ1f *)</span>
+    <span class="c">(* unfold CE1f', BE1f'; *)</span>
+    etrans; [<span class="nb">apply</span> assoc|];
+
+    <span class="c">(* first rewrite commutativity of left face *)</span>
+    etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> leftface|];
+    etrans; [<span class="nb">apply</span> assoc'|];
+
+    <span class="c">(* rewrite commutativity in top face *)</span>
+    <span class="nb">apply</span> pathsinv0;
+    etrans; [<span class="nb">apply</span> assoc|];
+    etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> topface|];
+
+    <span class="c">(* cancel precomposition with aa: ∑A --&gt; ∑A' arrow *)</span>
+    etrans; [<span class="nb">apply</span> assoc'|];
+    <span class="nb">apply</span> cancel_precomposition;
+
+    <span class="c">(* all that's left is commutativity in the pushout square of f' *)</span>
+    <span class="nb">apply</span> pathsinv0;
+    <span class="bp">exact</span> (PushoutSqrCommutes (morcls_lp_coprod_diagram_pushout CC J f'))
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">commuting_cube_bottom_face</span> {<span class="nv">f</span> <span class="nv">f'</span> : arrow C}
+    {<span class="nv">aa</span> : CoproductObject (morcls_lp_dom_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_dom_coprod  CC J f')}
+    {<span class="nv">bb</span> : CoproductObject (morcls_lp_cod_coprod  CC J f)
+          --&gt; CoproductObject (morcls_lp_cod_coprod  CC J f')}
+    {<span class="nv">cc</span> : arrow_dom f --&gt; arrow_dom f'}
+    {<span class="nv">leftface</span> : (morcls_coprod_functor f) · bb = aa · (morcls_coprod_functor f')}
+    {<span class="nv">topface</span>  : arrow_mor00 (morcls_lp_coprod_diagram  CC J f) · cc =
+                aa · arrow_mor00 (morcls_lp_coprod_diagram  CC J f')} :
+  PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J f) · commuting_cube_construction leftface topface =
+  bb · PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J f').
+<span class="kn">Proof</span>.
+  etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">commuting_cube_right_face</span> {<span class="nv">f</span> <span class="nv">f'</span> : arrow C}
+    {<span class="nv">aa</span> : CoproductObject (morcls_lp_dom_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_dom_coprod CC J f')}
+    {<span class="nv">bb</span> : CoproductObject (morcls_lp_cod_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_cod_coprod CC J f')}
+    {<span class="nv">cc</span> : arrow_dom f --&gt; arrow_dom f'}
+    {<span class="nv">leftface</span> : (morcls_coprod_functor f) · bb = aa · (morcls_coprod_functor f')}
+    {<span class="nv">topface</span>  : arrow_mor00 (morcls_lp_coprod_diagram CC J f) · cc =
+                aa · arrow_mor00 (morcls_lp_coprod_diagram CC J f')} :
+  cc · <span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f'</span> =
+  <span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span> · commuting_cube_construction leftface topface.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">commuting_cube_construction_eq</span> {<span class="nv">f</span> <span class="nv">f'</span> : arrow C}
+    {<span class="nv">aa</span> : CoproductObject (morcls_lp_dom_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_dom_coprod CC J f')}
+    {<span class="nv">bb</span> : CoproductObject (morcls_lp_cod_coprod CC J f)
+          --&gt; CoproductObject (morcls_lp_cod_coprod CC J f')}
+    {<span class="nv">cc</span> : arrow_dom f --&gt; arrow_dom f'}
+    {<span class="nv">aa'</span> : CoproductObject (morcls_lp_dom_coprod CC J f)
+           --&gt; CoproductObject (morcls_lp_dom_coprod CC J f')}
+    {<span class="nv">bb'</span> : CoproductObject (morcls_lp_cod_coprod CC J f)
+           --&gt; CoproductObject (morcls_lp_cod_coprod CC J f')}
+    {<span class="nv">cc'</span> : arrow_dom f --&gt; arrow_dom f'}
+    (<span class="nv">leftface</span> : (morcls_coprod_functor f) · bb = aa · (morcls_coprod_functor f'))
+    (<span class="nv">topface</span>  : arrow_mor00 (morcls_lp_coprod_diagram CC J f) · cc =
+                aa · arrow_mor00 (morcls_lp_coprod_diagram CC J f'))
+    (<span class="nv">leftface'</span> : (morcls_coprod_functor f) · bb' = aa' · (morcls_coprod_functor f'))
+    (<span class="nv">topface'</span>  : arrow_mor00 (morcls_lp_coprod_diagram CC J f) · cc' =
+                 aa' · arrow_mor00 (morcls_lp_coprod_diagram CC J f')) :
+  bb = bb' -&gt; cc = cc' -&gt; commuting_cube_construction leftface topface = commuting_cube_construction leftface' topface'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hb Hc.
+  <span class="c">(* unfold commuting_cube_construction. *)</span>
+  use PushoutArrowUnique.
+  - etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="bp">exact</span> Hb.
+  - etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="bp">exact</span> Hc.
+<span class="kn">Qed</span>.
+
+<span class="c">(* one step comonad functor L1 sends f to λ1f *)</span>
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_functor_data</span> : functor_data (arrow C) (arrow C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> f.
+    <span class="bp">exact</span> (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>).
+  - <span class="nb">intros</span> f f' γ.
+    <span class="c">(* The map on morphisms becomes the right face from the cube induced by</span>
+<span class="c">          ∑h</span>
+<span class="c">      ∑A ------&gt; C</span>
+<span class="c">       |\          \  γ00</span>
+<span class="c">  ∑f=Kg|  \     ∑h'  \</span>
+<span class="c">       |    ∑A' -----&gt; C</span>
+<span class="c">       v Kγ |</span>
+<span class="c">      ∑B    |Kg'       |</span>
+<span class="c">        \   |=     PO    λ1f'</span>
+<span class="c">          \ v∑f'       v</span>
+<span class="c">           ∑B' - - - &gt; E1f'</span>
+<span class="c">    *)</span>
+    <span class="c">(* the morphism E1f --&gt; E1f' we will need arises from the pushout</span>
+<span class="c">         property with the following maps. *)</span>
+    <span class="nb">set</span> (Kγ := (#morcls_coprod_functor)%cat γ).
+    <span class="nb">set</span> (φγ := nat_trans_ax morcls_coprod_nat_trans f f' γ).
+    <span class="nb">set</span> (φγ00 := arrow_mor00_eq φγ).
+
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (arrow_mor00 γ).
+    * use commuting_cube_construction.
+      + <span class="bp">exact</span> (arrow_mor00 Kγ).
+      + <span class="bp">exact</span> (arrow_mor11 Kγ).
+      + <span class="bp">exact</span> (arrow_mor00 γ).
+      + <span class="kp">abstract</span> (<span class="bp">exact</span> (pathsinv0 (arrow_mor_comm Kγ))).
+      + <span class="kp">abstract</span> (<span class="bp">exact</span> (pathsinv0 φγ00)).
+    * <span class="c">(* commutativity of right face *)</span>
+      <span class="c">(* γ00 · λ1f' = λ1f · ccc *)</span>
+      <span class="c">(* This follows simply from the properties of a pushout *)</span>
+      <span class="kp">abstract</span> (
+        <span class="nb">apply</span> commuting_cube_right_face
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_functor_is_functor</span> : is_functor one_step_comonad_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    use arrow_mor_eq.
+    * <span class="c">(* top map is identity simply because it comes from a functor *)</span>
+      <span class="bp">reflexivity</span>.
+    * <span class="c">(* bottom map is identity because the pushout arrow is unique *)</span>
+      <span class="nb">apply</span> pathsinv0, PushoutArrowUnique.
+      + etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> functor_id.
+        <span class="nb">apply</span> id_left.
+      + etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> g f h S T.
+    use arrow_mor_eq.
+    * <span class="bp">reflexivity</span>.
+    * <span class="nb">apply</span> pathsinv0, PushoutArrowUnique.
+      <span class="c">(* Gotta keep in mind that (# one_step_comonad_functor_data) S</span>
+<span class="c">         is a PushoutArrow and we can then use pushout properties. *)</span>
+      + <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> functor_comp.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="c">(* PushoutIn1 · (PushoutArrow · PushoutArrow) = arrow_mor11 · PushoutIn *)</span>
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                use PushoutArrow_PushoutIn1.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                use PushoutArrow_PushoutIn1.
+        <span class="nb">apply</span> assoc.
+      + <span class="c">(* PushoutIn2 (PushoutArrow · PushoutArrow) = arrow_mor00 (S T) · PushoutIn *)</span>
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                use PushoutArrow_PushoutIn2.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                use PushoutArrow_PushoutIn2.
+        <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_functor</span> : functor (arrow C) (arrow C) :=
+    (_,, one_step_comonad_functor_is_functor).
+
+<span class="kn">Lemma</span> <span class="nf">one_step_comonad_ρ1_compat</span> {<span class="nv">f</span> <span class="nv">f'</span> : arrow C} (<span class="nv">γ</span> : f --&gt; f') :
+    arrow_mor11 (#(one_step_comonad_functor) γ)%cat · ρ1 CC J f' =
+      ρ1 CC J f · arrow_mor11 γ.
+<span class="kn">Proof</span>.
+  use (MorphismsOutofPushoutEqual
+        (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
+  -
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            use PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> precompWithCoproductArrowInclusion.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> postcompWithCoproductArrow.
+
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use PushoutArrow_PushoutIn2.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            use PushoutArrow_PushoutIn2.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (arrow_mor_comm γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_factorization_data</span> : section_disp_data (three_disp C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> f.
+    <span class="k">exists</span> (<span class="nv">E1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>).
+    <span class="k">exists</span> (<span class="nv">λ1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>), (ρ1 CC J f).
+    <span class="kp">abstract</span> (
+      <span class="nb">apply</span> <span class="k">λ</span><span class="mi">1_</span><span class="nv">ρ1_compat</span>
+    ).
+  - <span class="nb">intros</span> f f' γ.
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">set</span> (L1γ := (#(one_step_comonad_functor) γ)%cat).
+    <span class="k">exists</span> (<span class="nv">arrow_mor11</span> <span class="nv">L1γ</span>).
+    <span class="kp">abstract</span> (
+      <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0; [
+        <span class="c">(* commutativity of λ1 and arrow_mor11 (#L1 γ) *)</span>
+        <span class="bp">exact</span> (arrow_mor_comm L1γ)
+      | <span class="c">(* commutativity of ρ1 and arrow_mor11 (#L1 γ) = arrow_mor00 (#R1 γ) *)</span>
+        <span class="nb">apply</span> one_step_comonad_ρ1_compat
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_factorization_axioms</span> : section_disp_axioms one_step_factorization_data.
+<span class="kn">Proof</span>.
+  <span class="c">(* these identities follow from the functorality of f -&gt; λ1f (one_step_comonad_functor)</span>
+<span class="c">  *)</span>
+
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="c">(* cbn. *)</span>
+    <span class="c">(* behavior of commuting cube construction on identity follows from</span>
+<span class="c">       identity axiom of the one_step_comonad_functor *)</span>
+    <span class="nb">set</span> (one_step_comonad_id := functor_id (one_step_comonad_functor) f).
+    <span class="nb">set</span> (bottom := arrow_mor11_eq one_step_comonad_id).
+    <span class="bp">exact</span> bottom.
+  - <span class="nb">intros</span> g1 g2 g3 γ12 γ23.
+    <span class="c">(* behavior of commuting cube construction on composition follows from</span>
+<span class="c">      identity axiom of the one_step_comonad_functor *)</span>
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="nb">set</span> (one_step_comonad_comp := functor_comp (one_step_comonad_functor) γ12 γ23).
+    <span class="nb">set</span> (bottom := arrow_mor11_eq one_step_comonad_comp).
+    <span class="bp">exact</span> bottom.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_factorization</span> : functorial_factorization C :=
+    (_,, one_step_factorization_axioms).
+
+<span class="c">(* Lemma E1_compat (f : arrow C) : E1 CC J f = E1 J (opp_mor f) (CC _) POs.</span>
+<span class="c">Proof.</span>
+<span class="c">  reflexivity.</span>
+<span class="c">Qed.</span>
+
+<span class="c">Context (CCopp : ∏ (f : arrow (op_cat C)), Coproducts (morcls_lp (morphism_class_opp J) f) (op_cat C)) (POsopp : Pushouts (op_cat C)).</span>
+
+<span class="c">Lemma λ1_ρ1_opp_compat (f : arrow C) :</span>
+<span class="c">    arrow_cod (λ1 CC J f) = arrow_dom (ρ1 (morphism_class_opp J) (opp_arrow f) (CCopp _) POsopp).</span>
+<span class="c">Proof.</span>
+<span class="c">  cbn.</span>
+<span class="c">Defined. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_functor_data</span> : functor_data (arrow C) (arrow C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> f.
+    <span class="bp">exact</span> (ρ1 CC J f).
+  - <span class="nb">intros</span> f f' γ.
+
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (arrow_mor11 (#one_step_comonad_functor γ)%cat).
+    * <span class="bp">exact</span> (arrow_mor11 γ).
+    * <span class="kp">abstract</span> (
+        <span class="bp">exact</span> (one_step_comonad_ρ1_compat _)
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_functor_is_functor</span> : is_functor one_step_monad_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> f.
+    use arrow_mor_eq.
+    * <span class="c">(* bottom map is identity because the pushout arrow is unique *)</span>
+      <span class="nb">apply</span> pathsinv0, PushoutArrowUnique.
+      + etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> functor_id.
+        <span class="nb">apply</span> id_left.
+      + etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> id_left.
+    * <span class="c">(* bottom map is identity simply because it comes from a functor *)</span>
+      <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> g f h S T.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod.
+    * etrans. <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (functor_comp one_step_comonad_functor).
+      <span class="bp">reflexivity</span>.
+    * <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_functor</span> : functor (arrow C) (arrow C) :=
+    (_,, one_step_monad_functor_is_functor).
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_counit_data</span> : nat_trans_data (one_step_comonad_functor) (functor_identity _).
+<span class="kn">Proof</span>.
+  <span class="c">(* Send λ1 f --&gt; f along</span>
+<span class="c">      C ====== C</span>
+<span class="c">      |        |</span>
+<span class="c">  λ1f |   L1   | f</span>
+<span class="c">      v        v</span>
+<span class="c">    E1f ----&gt; D</span>
+<span class="c">          ρ1f</span>
+<span class="c">  *)</span>
+  <span class="nb">intro</span> f.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> (ρ1 CC J f).
+  - <span class="kp">abstract</span> (<span class="bp">exact</span> (arrow_mor_comm (morcls_lp_coprod_diagram_red CC J f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_counit_is_nat_trans</span> : is_nat_trans _ _ one_step_comonad_counit_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  use arrow_mor_eq.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - <span class="c">(* PushoutArrow (morcls_lp_coprod_diagram_pushout f (CC f) POs) ...</span>
+<span class="c">       · ρ1f' = ρ1f · γ11 *)</span>
+    <span class="c">(* We are trying to prove an equality of maps E1f --&gt; arrow_cod f' *)</span>
+    use (MorphismsOutofPushoutEqual
+          (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
+    * <span class="c">(* todo: this is a really common strategy, generalize this? *)</span>
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              use PushoutArrow_PushoutIn1.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn1.
+
+      <span class="c">(* simplify left hand side *)</span>
+      <span class="c">(* etrans. { simpl. reflexivity. } *)</span>
+      <span class="c">(* k_x · γ11 = arrow_mor11 (Kγ) · k_x' *)</span>
+      <span class="c">(* this is just the commutativity of the bottom square of the</span>
+<span class="c">         commutative cube of φ *)</span>
+      <span class="nb">set</span> (φax := nat_trans_ax morcls_coprod_nat_trans f f' γ).
+      <span class="nb">set</span> (bottom_square := arrow_mor11_eq φax).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (bottom_square).
+    *
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn2.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              use PushoutArrow_PushoutIn2.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn2.
+
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (arrow_mor_comm γ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_counit</span> : nat_trans (one_step_comonad_functor) (functor_identity _) :=
+    (_,, one_step_comonad_counit_is_nat_trans).
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_unit_data</span> : nat_trans_data (functor_identity _) (one_step_monad_functor).
+<span class="kn">Proof</span>.
+  <span class="c">(* Send f --&gt; ρ1 f along</span>
+<span class="c">         λ1f</span>
+<span class="c">      C ----&gt; E1f</span>
+<span class="c">      |        |</span>
+<span class="c">  f   |   R1   | ρ1f</span>
+<span class="c">      v        v</span>
+<span class="c">      D ====== D</span>
+<span class="c">  *)</span>
+  <span class="nb">intro</span> f.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span> (<span class="bp">exact</span> (arrow_mor_comm (morcls_lp_coprod_diagram_red_flipped CC J f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_unit_is_nat_trans</span> : is_nat_trans _ _ one_step_monad_unit_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  use arrow_mor_eq.
+  - <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_monad_unit</span> : nat_trans (functor_identity _) (one_step_monad_functor) :=
+    (_,, one_step_monad_unit_is_nat_trans).
+
+<span class="c">(* ψf in Garner *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_lp_coprod_L1_inclusion</span> (<span class="nv">f</span> : arrow C) :
+    morcls_lp J f -&gt; morcls_lp J (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>).
+<span class="kn">Proof</span>.
+  <span class="c">(* The inclusion of lifting problems is induced by</span>
+<span class="c">    S_f → S_{L1f} : x ↦ (g_x -- in_x -&gt; Kf = ∑f -- ϵf -&gt; L1f)</span>
+<span class="c">    where ϵf is morcls_lp_coprod_diagram_red:</span>
+<span class="c">              ∑h</span>
+<span class="c">    A ---&gt; ∑A ---&gt; X</span>
+<span class="c">    |      |       |</span>
+<span class="c">  g |    ∑g|       | λ1f</span>
+<span class="c">    v      v       v</span>
+<span class="c">    B ---&gt; ∑B ---&gt; E1f</span>
+<span class="c">    *)</span>
+  <span class="nb">intro</span> S.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">S</span>).
+  <span class="c">(* right hand square *)</span>
+  transparent <span class="nb">assert</span> (rhs_mor : (morcls_lp_coprod CC J f --&gt; <span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>)).
+  {
+    use mors_to_arrow_mor.
+    - <span class="bp">exact</span> (arrow_mor00 (morcls_lp_coprod_diagram CC J f)).
+    - <span class="bp">exact</span> (PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J f)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">set</span> (rhs := PushoutSqrCommutes (morcls_lp_coprod_diagram_pushout CC J f));
+        <span class="bp">exact</span> (pathsinv0 rhs)
+      ).
+  }
+  <span class="nb">apply</span> (postcompose rhs_mor).
+
+  <span class="c">(* left hand square *)</span>
+  <span class="c">(* todo: generalize this *)</span>
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (CoproductIn (morcls_lp_dom_coprod CC J f) S).
+  - <span class="bp">exact</span> (CoproductIn (morcls_lp_cod_coprod CC J f) S).
+  - <span class="kp">abstract</span> (<span class="bp">exact</span> (CoproductInCommutes _ _ S)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* δf in Garner *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_lp_coprod_L1_map</span> (<span class="nv">f</span> : arrow C) :
+    (morcls_lp_coprod CC J f) --&gt; (morcls_lp_coprod CC J (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>)).
+<span class="kn">Proof</span>.
+  <span class="c">(* the inclusion of the objects are just identity on themselves *)</span>
+  use mors_to_arrow_mor;
+    <span class="kp">try</span> <span class="bp">exact</span> (CoproductOfArrowsInclusion
+              (morcls_lp_coprod_L1_inclusion f) _ _
+              (<span class="k">λ</span> <span class="nv">_</span>, (identity _))).
+
+  <span class="c">(* commutativity *)</span>
+  <span class="kp">abstract</span> (
+    etrans; [use precompWithCoproductArrowInclusion|];
+    <span class="c">(* simpl; *)</span>
+    <span class="nb">apply</span> pathsinv0;
+    etrans; [use postcompWithCoproductArrow|];
+    <span class="c">(* simpl; *)</span>
+    <span class="nb">apply</span> maponpaths;
+    <span class="nb">apply</span> funextsec;
+    <span class="nb">intro</span> S;
+    <span class="nb">apply</span> pathsinv0;
+    etrans; [<span class="nb">apply</span> id_left|];
+    <span class="nb">apply</span> pathsinv0;
+    etrans; [<span class="nb">apply</span> assoc'|];
+    etrans; [<span class="nb">apply</span> cancel_precomposition; <span class="bp">exact</span> (CoproductOfArrowsInclusionIn _ _ _ _ S)|];
+    etrans; [<span class="nb">apply</span> cancel_precomposition; <span class="nb">apply</span> id_left|];
+    <span class="bp">reflexivity</span>
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_mul_data</span> :
+    nat_trans_data
+      (fact_L one_step_factorization)
+      (functor_composite (fact_L one_step_factorization) (fact_L one_step_factorization)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="c">(* The map on morphisms becomes the right face from the cube induced by</span>
+<span class="c">          ∑h</span>
+<span class="c">      ∑A ------&gt; C</span>
+<span class="c">       |\          =</span>
+<span class="c">  ∑f=Kg|  \     ∑h'  =</span>
+<span class="c">       |    ∑A' -----&gt; C</span>
+<span class="c">       v δf |</span>
+<span class="c">      ∑B    |Kλf       |</span>
+<span class="c">        \   |=     PO    λ1f</span>
+<span class="c">          \ v∑λf f     v</span>
+<span class="c">           ∑B  - - - &gt; E1f</span>
+<span class="c">    *)</span>
+  <span class="nb">set</span> (δf := morcls_lp_coprod_L1_map f).
+
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - use commuting_cube_construction.
+    * <span class="c">(* aa *)</span> <span class="bp">exact</span> (arrow_mor00 δf).
+    * <span class="c">(* bb *)</span> <span class="bp">exact</span> (arrow_mor11 δf).
+    * <span class="c">(* cc *)</span> <span class="bp">exact</span> (identity _).
+    * <span class="c">(* left face *)</span>
+      <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm δf)).
+    * <span class="c">(* top face *)</span>
+      <span class="kp">abstract</span> (
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> precompWithCoproductArrowInclusion|];
+        <span class="c">(* cbn. *)</span>
+        <span class="nb">apply</span> (maponpaths (CoproductArrow _));
+        <span class="nb">apply</span> funextsec;
+        <span class="nb">intro</span> S;
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="bp">exact</span> (CoproductInCommutes _ _ S)
+      ).
+  - <span class="c">(* commutativity in right face *)</span>
+    <span class="kp">abstract</span> (
+      use commuting_cube_right_face
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_mul_is_nat_trans</span> : is_nat_trans _ _ one_step_comonad_mul_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  use arrow_mor_eq.
+  - <span class="c">(* simpl. *)</span>
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - <span class="c">(* equality of arrows E1 f --&gt; E1 (λ1f) *)</span>
+    use (MorphismsOutofPushoutEqual
+      (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
+    *
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc.
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc.
+
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="c">(* cbn. *)</span>
+      etrans. use CoproductOfArrowsInclusion_comp.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. use CoproductOfArrowsInclusion_comp.
+
+      <span class="c">(* unfold CoproductOfArrowsInclusion. *)</span>
+      use CoproductArrowUnique.
+      <span class="nb">intro</span>.
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_cod_coprod CC J f)).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> (etrans; [<span class="nb">apply</span> id_left|]).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> (etrans; [<span class="nb">apply</span> id_left|]).
+
+      morcls_lp_coproduct_in_eq.
+
+      use arrow_mor_eq.
+      + etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f') _ (_,, _)).
+        <span class="bp">reflexivity</span>.
+      + etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span>  (CoproductInCommutes (morcls_lp_cod_coprod CC J f)).
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              use PushoutArrow_PushoutIn2.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      etrans. etrans. <span class="nb">apply</span> assoc'.
+              <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_mul</span> :
+    nat_trans
+      (fact_L one_step_factorization)
+      (functor_composite (fact_L one_step_factorization) (fact_L one_step_factorization)) :=
+  (_,, one_step_comonad_mul_is_nat_trans).
+
+<span class="c">(* Definition one_step_comonad_functor_with_μ : functor_with_μ (op_cat (arrow C)) :=</span>
+<span class="c">    (functor_opp one_step_comonad_functor,, op_nt one_step_comonad_mul). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_data</span> : disp_Comonad_data _ :=
+    L_monad_data one_step_factorization one_step_comonad_mul.
+
+<span class="kn">Local Lemma</span> <span class="nf">one_step_comonad_assoc_law11</span> (<span class="nv">f</span> : arrow C) :
+  arrow_mor11 (
+    disp_δ one_step_comonad_data f
+    · (# (fact_L one_step_factorization))%cat (disp_δ one_step_comonad_data f)
+  ) =
+  arrow_mor11 (
+    disp_δ one_step_comonad_data f
+    · disp_δ one_step_comonad_data (fact_L one_step_factorization f)
+  ).
+<span class="kn">Proof</span>.
+  use (MorphismsOutofPushoutEqual (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
+  - etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> assoc.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    <span class="c">(* show_id_type. *)</span>
+    use CoproductArrow_eq.
+    <span class="nb">intro</span> S.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> id_left.
+    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (fact_L one_step_factorization f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. use (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (fact_L one_step_factorization f)) _ _ (morcls_lp_coprod_L1_inclusion f S)).
+    etrans. <span class="nb">apply</span> id_left.
+    morcls_lp_coproduct_in_eq.
+    use arrow_mor_eq.
+    * etrans. <span class="nb">apply</span> id_right.
+      etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J (<span class="k">λ</span><span class="mi">1</span> <span class="nv">CC</span> <span class="nv">J</span> <span class="nv">f</span>)) _ (morcls_lp_coprod_L1_inclusion f S)).
+      etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
+      <span class="bp">reflexivity</span>.
+    * etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
+      <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad_laws</span> :
+    disp_Comonad_laws one_step_comonad_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> f; use arrow_mor_eq.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> pathsinv0.
+    use PushoutEndo_is_identity.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> precompWithCoproductArrowInclusion.
+      <span class="nb">apply</span> pathsinv0.
+
+      use CoproductArrowUnique.
+      <span class="nb">intro</span>.
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> pathsinv0.
+    use PushoutEndo_is_identity.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+      etrans. <span class="nb">apply</span> assoc.
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="bp">exact</span> (pathsinv0 (id_left _)).
+      <span class="nb">apply</span> cancel_postcomposition.
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. use CoproductOfArrowsInclusion_comp.
+      <span class="nb">apply</span> pathsinv0.
+
+      use Coproduct_endo_is_identity.
+      <span class="nb">intro</span> S.
+      etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J f)).
+      <span class="c">(* simpl. *)</span>
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> id_left.
+      etrans. <span class="nb">apply</span> id_left.
+      morcls_lp_coproduct_in_eq.
+
+      use arrow_mor_eq.
+      + etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> id_right.
+        etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f) _ S).
+        <span class="bp">reflexivity</span>.
+      + etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+
+        etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_cod_coprod CC J f) _ S).
+        <span class="bp">reflexivity</span>.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+      etrans. <span class="nb">apply</span> assoc.
+
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> id_left.
+  - <span class="bp">reflexivity</span>.
+  - <span class="bp">exact</span> (one_step_comonad_assoc_law11 f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">one_step_comonad</span> :
+    lnwfs_over one_step_factorization :=
+  (one_step_comonad_mul,, one_step_comonad_laws).
+
+<span class="kn">End</span> <span class="nf">one_step_monad</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/OneStepMonad.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1492 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Integers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Generalities on the type of integers and integer arithmetic. Vladimir Voevodsky . Aug. - Sep. 2011.</span>
+
+<span class="sd">In this file we introduce the type [ hz ] of integers defined as the quotient set of [ dirprod nat nat ] by the standard equivalence relation and develop the main notions of the integer arithmetic using this definition .</span>
+
+
+<span class="sd">*)</span>
+
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Settings *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.NegativePropositions.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Export</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Export</span> UniMath.NumberSystems.NaturalNumbersAlgebra.
+
+
+<span class="sd">(** Upstream *)</span>
+
+
+
+
+<span class="sd">(** ** The commutative ring [ hz ] of integres *)</span>
+
+<span class="sd">(** *** General definitions *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hz</span> : commring := commrigtocommring natcommrig .
+<span class="kn">Definition</span> <span class="nf">hzaddabgr</span> : abgr := hz .
+<span class="kn">Definition</span> <span class="nf">hzmultabmonoid</span> : abmonoid := ringmultabmonoid hz .
+
+<span class="kn">Definition</span> <span class="nf">natnattohz</span> : nat -&gt; nat -&gt; hz := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, setquotpr _ ( make_dirprod n m ) .
+
+<span class="kn">Definition</span> <span class="nf">hzplus</span> : hz -&gt; hz -&gt; hz := @op1 hz.
+<span class="kn">Definition</span> <span class="nf">hzsign</span> : hz -&gt; hz := grinv hzaddabgr .
+<span class="kn">Definition</span> <span class="nf">hzminus</span> : hz -&gt; hz -&gt; hz := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, hzplus x ( hzsign y ) .
+<span class="kn">Definition</span> <span class="nf">hzzero</span> : hz := unel hzaddabgr .
+
+<span class="kn">Definition</span> <span class="nf">hzmult</span> : hz -&gt; hz -&gt; hz := @op2 hz .
+<span class="kn">Definition</span> <span class="nf">hzone</span> : hz := unel hzmultabmonoid .
+
+<span class="kn">Declare Scope</span> hz_scope.
+<span class="kn">Bind Scope</span> hz_scope <span class="k">with</span> hz .
+<span class="kn">Notation</span> <span class="s2">" x + y "</span> := ( hzplus x y ) : hz_scope .
+<span class="kn">Notation</span> <span class="s2">" 0 "</span> := hzzero : hz_scope .
+<span class="kn">Notation</span> <span class="s2">" 1 "</span> := hzone : hz_scope .
+<span class="kn">Notation</span> <span class="s2">" - x "</span> := ( hzsign x ) : hz_scope .
+<span class="kn">Notation</span> <span class="s2">" x - y "</span> := ( hzminus x y ) : hz_scope .
+<span class="kn">Notation</span> <span class="s2">" x * y "</span> := ( hzmult x y ) : hz_scope .
+
+<span class="kn">Delimit Scope</span> hz_scope <span class="k">with</span> hz .
+
+
+<span class="sd">(** *** Properties of equlaity on [ hz ] *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">isdeceqhz</span> : isdeceq hz .
+<span class="kn">Proof</span> . <span class="nb">change</span> ( isdeceq ( abgrdiff ( rigaddabmonoid natcommrig ) ) ) . <span class="nb">apply</span> isdeceqabgrdiff . <span class="nb">apply</span> isinclnatplusr .  <span class="nb">apply</span> isdeceqnat .  <span class="kn">Defined</span> .
+<span class="kn">Opaque</span> isdeceqhz.
+
+<span class="kn">Lemma</span> <span class="nf">isasethz</span> : isaset hz .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( setproperty hzaddabgr ) . <span class="kn">Defined</span> .
+<span class="kn">Opaque</span> isasethz.
+
+<span class="kn">Definition</span> <span class="nf">hzeq</span> ( <span class="nv">x</span> <span class="nv">y</span> : hz ) : hProp := make_hProp ( x = y ) ( isasethz _ _  )  .
+<span class="kn">Definition</span> <span class="nf">isdecrelhzeq</span> : isdecrel hzeq  := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, isdeceqhz a b .
+<span class="kn">Definition</span> <span class="nf">hzdeceq</span> : decrel hz := make_decrel isdecrelhzeq .
+
+<span class="c">(* Canonical Structure hzdeceq. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzbooleq</span> := decreltobrel hzdeceq .
+
+<span class="kn">Definition</span> <span class="nf">hzneq</span> ( <span class="nv">x</span> <span class="nv">y</span> : hz ) : hProp := make_hProp ( neg ( x = y ) ) ( isapropneg _  )  .
+<span class="kn">Definition</span> <span class="nf">isdecrelhzneq</span> : isdecrel hzneq  := isdecnegrel _ isdecrelhzeq .
+<span class="kn">Definition</span> <span class="nf">hzdecneq</span> : decrel hz := make_decrel isdecrelhzneq .
+
+<span class="c">(* Canonical Structure hzdecneq. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzboolneq</span> := decreltobrel hzdecneq .
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope .
+
+
+<span class="sd">(** *** [ hz ] is a non-zero ring *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isnonzerorighz</span> : isnonzerorig hz .
+<span class="kn">Proof</span> . <span class="nb">apply</span>  ( ct ( hzneq , isdecrelhzneq, <span class="mi">1</span> , <span class="mi">0</span> ) ) . <span class="kn">Defined</span> .
+
+
+<span class="sd">(** *** Properties of addition and subtraction on [ hz ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzminuszero</span> : ( - <span class="mi">0</span> ) = <span class="mi">0</span> := ringinvunel1 hz .
+
+<span class="kn">Lemma</span> <span class="nf">hzplusr0</span> ( <span class="nv">x</span> : hz ) : ( x + <span class="mi">0</span> ) = x .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringrunax1 _ x ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzplusl0</span> ( <span class="nv">x</span> : hz ) : ( <span class="mi">0</span> + x ) = x .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringlunax1 _ x ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzplusassoc</span> ( <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : hz ) : ( ( x + y ) + z ) = ( x + ( y + z ) ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringassoc1 hz x y z ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzpluscomm</span> ( <span class="nv">x</span> <span class="nv">y</span> : hz ) : ( x + y ) = ( y + x ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">apply</span> ( ringcomm1 hz x y ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzlminus</span> ( <span class="nv">x</span> : hz ) : ( -x + x ) = <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringlinvax1 hz x ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzrminus</span>  ( <span class="nv">x</span> : hz ) : ( x - x ) = <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringrinvax1 hz x ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isinclhzplusr</span> ( <span class="nv">n</span> : hz ) : isincl ( <span class="k">λ</span> <span class="nv">m</span> : hz, m + n ) .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( pr2 ( weqtoincl ( weqrmultingr hzaddabgr n ) ) ) . <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclhzplusl</span> ( <span class="nv">n</span> : hz ) : isincl ( <span class="k">λ</span> <span class="nv">m</span> : hz, n + m ) .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( pr2 ( weqtoincl ( weqlmultingr hzaddabgr n ) ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzpluslcan</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) ( <span class="nv">isc</span> : ( c + a ) = ( c + b ) ) : a = b .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( @grlcan hzaddabgr a b c isc ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzplusrcan</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) ( <span class="nv">isc</span> : ( a + c ) = ( b + c ) ) : a = b .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( @grrcan hzaddabgr a b c isc ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzinvmaponpathsminus</span> { <span class="nv">a</span> <span class="nv">b</span> : hz } ( <span class="nv">e</span> : ( - a ) = ( - b ) ) : a = b := grinvmaponpathsinv hzaddabgr e .
+
+<span class="kn">Lemma</span> <span class="nf">hzrplusminus</span> (<span class="nv">n</span> <span class="nv">m</span> : hz) : n + m - m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hzminus, hzplus, hzplus. <span class="nb">rewrite</span> ringassoc1.
+  <span class="nb">set</span> (tmp := hzrminus m). <span class="nb">unfold</span> hzminus, hzplus <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+  <span class="nb">apply</span> hzplusr0.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> hzrplusminus.
+
+<span class="kn">Lemma</span> <span class="nf">hzrplusminus'</span> (<span class="nv">n</span> <span class="nv">m</span> : hz) : n = n + m - m.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> hzrplusminus.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> hzrplusminus'.
+
+<span class="kn">Lemma</span> <span class="nf">hzrminusplus</span> (<span class="nv">n</span> <span class="nv">m</span> : hz) : n - m + m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hzplus, hzminus. <span class="nb">rewrite</span> ringassoc1.
+  <span class="nb">rewrite</span> hzlminus. <span class="nb">apply</span> hzplusr0.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> hzrminusplus.
+
+
+<span class="kn">Lemma</span> <span class="nf">hzrminusplus'</span> (<span class="nv">n</span> <span class="nv">m</span> : hz) : n = n - m + m.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> hzrminusplus.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> hzrminusplus'.
+
+<span class="sd">(** *** Properties of multiplication on [ hz ] *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultr1</span> ( <span class="nv">x</span> : hz ) : ( x * <span class="mi">1</span> ) = x .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringrunax2 _ x ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultl1</span> ( <span class="nv">x</span> : hz ) : ( <span class="mi">1</span> * x ) = x .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringlunax2 _ x ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmult0x</span> ( <span class="nv">x</span> : hz ) : ( <span class="mi">0</span> * x ) = <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringmult0x _ x ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultx0</span> ( <span class="nv">x</span> : hz ) : ( x * <span class="mi">0</span> ) = <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( ringmultx0 _ x ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultassoc</span> ( <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : hz ) : ( ( x * y ) * z ) = ( x * ( y * z ) ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringassoc2 hz x y z ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultcomm</span> ( <span class="nv">x</span> <span class="nv">y</span> : hz ) : ( x * y ) = ( y * x ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">apply</span> ( ringcomm2 hz  x y ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzneq0andmultlinv</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">isnm</span> : hzneq ( n * m ) <span class="mi">0</span> ) : hzneq n <span class="mi">0</span> := ringneq0andmultlinv hz n m isnm .
+
+<span class="kn">Definition</span> <span class="nf">hzneq0andmultrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">isnm</span> : hzneq ( n * m ) <span class="mi">0</span> ) : hzneq m <span class="mi">0</span> := ringneq0andmultrinv hz n m isnm .
+
+
+
+<span class="sd">(** ** Definition and properties of "greater", "less", "greater or equal" and "less or equal" on [ hz ] . *)</span>
+
+
+<span class="sd">(** *** Definitions and notations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzgth</span> : hrel hz := rigtoringrel natcommrig isplushrelnatgth .
+
+<span class="kn">Definition</span> <span class="nf">hzlth</span> : hrel hz := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, hzgth b a .
+
+<span class="kn">Definition</span> <span class="nf">hzleh</span> : hrel hz := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, make_hProp ( neg ( hzgth a b ) ) ( isapropneg _ )  .
+
+<span class="kn">Definition</span> <span class="nf">hzgeh</span> : hrel hz := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, make_hProp ( neg ( hzgth b a ) ) ( isapropneg _ )  .
+
+<span class="sd">(** *** Decidability *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelhzgth</span> : isdecrel hzgth .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( isdecrigtoringrel natcommrig isplushrelnatgth  ) .  <span class="nb">apply</span> isinvplushrelnatgth . <span class="nb">apply</span> isdecrelnatgth . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthdec</span> := make_decrel isdecrelhzgth .
+
+<span class="c">(* Canonical Structure hzgthdec . *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isdecrelhzlth</span> : isdecrel hzlth := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, isdecrelhzgth x' x .
+
+<span class="kn">Definition</span> <span class="nf">hzlthdec</span> := make_decrel isdecrelhzlth .
+
+<span class="c">(* Canonical Structure hzlthdec . *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isdecrelhzleh</span> : isdecrel hzleh := isdecnegrel _ isdecrelhzgth .
+
+<span class="kn">Definition</span> <span class="nf">hzlehdec</span> := make_decrel isdecrelhzleh .
+
+<span class="c">(* Canonical Structure hzlehdec . *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isdecrelhzgeh</span> : isdecrel hzgeh := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span>, isdecrelhzleh x' x .
+
+<span class="kn">Definition</span> <span class="nf">hzgehdec</span> := make_decrel isdecrelhzgeh .
+
+<span class="c">(* Canonical Structure hzgehdec . *)</span>
+
+
+<span class="sd">(** *** Properties of individual relations *)</span>
+
+<span class="sd">(** [ hzgth ] *)</span>
+
+
+
+<span class="kn">Lemma</span> <span class="nf">istranshzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth n m -&gt; hzgth m k -&gt; hzgth n k .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( istransabgrdiffrel nataddabmonoid isplushrelnatgth )  .  <span class="nb">unfold</span> istrans .  <span class="nb">apply</span> istransnatgth .  <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflhzgth</span> ( <span class="nv">n</span> : hz ) : neg ( hzgth n n ) .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( isirreflabgrdiffrel nataddabmonoid isplushrelnatgth )  . <span class="nb">unfold</span> isirrefl .  <span class="nb">apply</span> isirreflnatgth .   <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzgthtoneq</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">g</span> : hzgth n m ) : neg ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">intro</span> e . <span class="nb">rewrite</span> e <span class="k">in</span> g . <span class="nb">apply</span> ( isirreflhzgth _ g ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isasymmhzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; hzgth m n -&gt; empty .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( isasymmabgrdiffrel nataddabmonoid isplushrelnatgth )  . <span class="nb">unfold</span> isasymm .  <span class="nb">apply</span> isasymmnatgth .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmneghzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzgth n m ) -&gt; neg ( hzgth m n ) -&gt; n = m .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( isantisymmnegabgrdiffrel nataddabmonoid isplushrelnatgth )  . <span class="nb">unfold</span> isantisymmneg .  <span class="nb">apply</span> isantisymmnegnatgth .   <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isnegrelhzgth</span> : isnegrel hzgth .
+<span class="kn">Proof</span> . <span class="nb">apply</span> isdecreltoisnegrel . <span class="nb">apply</span> isdecrelhzgth . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">iscoantisymmhzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzgth n m ) -&gt; ( hzgth m n ) ⨿ ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">revert</span> n m. <span class="nb">apply</span> isantisymmnegtoiscoantisymm . <span class="nb">apply</span> isdecrelhzgth .  <span class="nb">intros</span> n m . <span class="nb">apply</span> isantisymmneghzgth . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">iscotranshzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth n k -&gt; hdisj ( hzgth n m ) ( hzgth m k ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> gxz .  <span class="nb">destruct</span> ( isdecrelhzgth n m ) <span class="k">as</span> [ gxy | ngxy ] . <span class="nb">apply</span> ( hinhpr ( ii1 gxy ) ) . <span class="nb">apply</span> hinhpr .   <span class="nb">apply</span> ii2 .  <span class="nb">destruct</span> ( isdecrelhzgth m n ) <span class="k">as</span> [ gyx | ngyx ] . <span class="nb">apply</span> ( istranshzgth _ _ _ gyx gxz ) .  <span class="nb">set</span> ( e := isantisymmneghzgth _ _ ngxy ngyx ) . <span class="nb">rewrite</span> e <span class="k">in</span> gxz .  <span class="nb">apply</span> gxz .  <span class="kn">Defined</span> .
+
+
+
+
+<span class="sd">(** [ hzlth ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">istranshzlth</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span>  : hz ) : hzlth n m -&gt; hzlth m k -&gt; hzlth n k := <span class="k">λ</span> <span class="nv">lnm</span> <span class="nv">lmk</span>, istranshzgth _ _ _ lmk lnm .
+
+<span class="kn">Definition</span> <span class="nf">isirreflhzlth</span> ( <span class="nv">n</span> : hz ) : neg ( hzlth n n ) := isirreflhzgth n .
+
+<span class="kn">Lemma</span> <span class="nf">hzlthtoneq</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">g</span> : hzlth n m ) : neg ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">intro</span> e . <span class="nb">rewrite</span> e <span class="k">in</span> g . <span class="nb">apply</span> ( isirreflhzlth _ g ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">isasymmhzlth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; hzlth m n -&gt; empty := <span class="k">λ</span> <span class="nv">lnm</span> <span class="nv">lmn</span>, isasymmhzgth _ _ lmn lnm .
+
+<span class="kn">Definition</span> <span class="nf">isantisymmneghztth</span>  ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzlth n m ) -&gt; neg ( hzlth m n ) -&gt; n = m := <span class="k">λ</span> <span class="nv">nlnm</span> <span class="nv">nlmn</span>, isantisymmneghzgth _ _ nlmn nlnm .
+
+<span class="kn">Definition</span> <span class="nf">isnegrelhzlth</span> : isnegrel hzlth := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isnegrelhzgth m n .
+
+<span class="kn">Definition</span> <span class="nf">iscoantisymmhzlth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzlth n m ) -&gt; ( hzlth m n ) ⨿ ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> nlnm . <span class="nb">destruct</span> ( iscoantisymmhzgth m n nlnm ) <span class="k">as</span> [ l | e ] . <span class="nb">apply</span> ( ii1 l ) . <span class="nb">apply</span> ( ii2 ( pathsinv0 e ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">iscotranshzlth</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzlth n k -&gt; hdisj ( hzlth n m ) ( hzlth m k ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> lnk . <span class="nb">apply</span> ( ( pr1 islogeqcommhdisj ) ( iscotranshzgth _ _ _ lnk ) )  .  <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(**  [ hzleh ] *)</span>
+
+
+<span class="kn">Definition</span>  <span class="nf">istranshzleh</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzleh n m -&gt; hzleh m k -&gt; hzleh n k .
+<span class="kn">Proof</span>. <span class="nb">apply</span> istransnegrel . <span class="nb">unfold</span> iscotrans. <span class="nb">apply</span> iscotranshzgth .  <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isreflhzleh</span> ( <span class="nv">n</span> : hz ) : hzleh n n := isirreflhzgth n .
+
+<span class="kn">Definition</span> <span class="nf">isantisymmhzleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzleh n m -&gt; hzleh m n -&gt; n = m := isantisymmneghzgth n m .
+
+<span class="kn">Definition</span> <span class="nf">isnegrelhzleh</span> : isnegrel hzleh .
+<span class="kn">Proof</span> . <span class="nb">apply</span> isdecreltoisnegrel . <span class="nb">apply</span> isdecrelhzleh . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">iscoasymmhzleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">nl</span> : neg ( hzleh n m ) ) : hzleh m n := negf ( isasymmhzgth _ _ ) nl .
+
+<span class="kn">Definition</span> <span class="nf">istotalhzleh</span> : istotal hzleh .
+<span class="kn">Proof</span> . <span class="nb">intros</span> x y . <span class="nb">destruct</span> ( isdecrelhzleh x y ) <span class="k">as</span> [ lxy | lyx ] . <span class="nb">apply</span> ( hinhpr ( ii1 lxy ) ) . <span class="nb">apply</span> hinhpr .   <span class="nb">apply</span> ii2 . <span class="nb">apply</span> ( iscoasymmhzleh _ _ lyx ) .   <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(**  [ hzgeh ] . *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">istranshzgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgeh n m -&gt; hzgeh m k -&gt; hzgeh n k := <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">gmk</span>, istranshzleh _ _ _ gmk gnm .
+
+<span class="kn">Definition</span> <span class="nf">isreflhzgeh</span> ( <span class="nv">n</span> : hz ) : hzgeh n n := isreflhzleh _ .
+
+<span class="kn">Definition</span> <span class="nf">isantisymmhzgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgeh n m -&gt; hzgeh m n -&gt; n = m := <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">gmn</span>, isantisymmhzleh _ _ gmn gnm .
+
+<span class="kn">Definition</span> <span class="nf">isnegrelhzgeh</span> : isnegrel hzgeh := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, isnegrelhzleh m n .
+
+<span class="kn">Definition</span> <span class="nf">iscoasymmhzgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">nl</span> : neg ( hzgeh n m ) ) : hzgeh m n := iscoasymmhzleh _ _ nl .
+
+<span class="kn">Definition</span> <span class="nf">istotalhzgeh</span> : istotal hzgeh := <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, istotalhzleh m n .
+
+
+
+
+<span class="sd">(** *** Simple implications between comparisons *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzgthtogeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; hzgeh n m .
+<span class="kn">Proof</span>. <span class="nb">intros</span> g . <span class="nb">apply</span> iscoasymmhzgeh . <span class="nb">apply</span> ( todneg _ g ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzlthtoleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; hzleh n m := hzgthtogeh _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlehtoneghzgth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzleh n m -&gt; neg ( hzgth n m )  .
+<span class="kn">Proof</span>. <span class="nb">intros</span> isc is' . <span class="nb">apply</span> ( isc is' ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span>  <span class="nf">hzgthtoneghzleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; neg ( hzleh n m ) := <span class="k">λ</span> <span class="nv">g</span> <span class="nv">l</span> , hzlehtoneghzgth _ _ l g .
+
+<span class="kn">Definition</span> <span class="nf">hzgehtoneghzlth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgeh n m -&gt; neg ( hzlth n m ) := <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">lnm</span>, hzlehtoneghzgth _ _ gnm lnm .
+
+<span class="kn">Definition</span> <span class="nf">hzlthtoneghzgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; neg ( hzgeh n m ) := <span class="k">λ</span> <span class="nv">gnm</span> <span class="nv">lnm</span>, hzlehtoneghzgth _ _ lnm gnm .
+
+<span class="kn">Definition</span> <span class="nf">neghzlehtogth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzleh n m ) -&gt; hzgth n m := isnegrelhzgth n m .
+
+<span class="kn">Definition</span> <span class="nf">neghzgehtolth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzgeh n m ) -&gt; hzlth n m := isnegrelhzlth n m .
+
+<span class="kn">Definition</span> <span class="nf">neghzgthtoleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzgth n m ) -&gt; hzleh n m .
+<span class="kn">Proof</span> . <span class="nb">intros</span> ng . <span class="nb">destruct</span> ( isdecrelhzleh n m ) <span class="k">as</span> [ l | nl ] . <span class="nb">apply</span> l . <span class="nb">destruct</span> ( nl ng ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">neghzlthtogeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : neg ( hzlth n m ) -&gt; hzgeh n m := <span class="k">λ</span> <span class="nv">nl</span>, neghzgthtoleh _ _ nl .
+
+
+
+<span class="sd">(** *** Comparison alternatives *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzgthorleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : ( hzgth n m ) ⨿ ( hzleh n m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( isdecrelhzgth n m ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzlthorgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : ( hzlth n m ) ⨿ ( hzgeh n m ) := hzgthorleh _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzneqchoice</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">ne</span> : neg ( n = m ) ) : ( hzgth n m ) ⨿ ( hzlth n m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzgthorleh n m ) <span class="k">as</span> [ g | l ]  .  <span class="nb">destruct</span> ( hzlthorgeh n m ) <span class="k">as</span> [ g' | l' ] . <span class="nb">destruct</span> ( isasymmhzgth _ _ g g' )  .  <span class="nb">apply</span> ( ii1 g ) . <span class="nb">destruct</span> ( hzlthorgeh n m ) <span class="k">as</span> [ l' | g' ] . <span class="nb">apply</span> ( ii2 l' ) . <span class="nb">destruct</span> ( ne ( isantisymmhzleh _ _ l g' ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzlehchoice</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">l</span> : hzleh n m ) : ( hzlth n m ) ⨿ ( n = m ) .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzlthorgeh n m ) <span class="k">as</span> [ l' | g ] .   <span class="nb">apply</span> ( ii1 l' ) . <span class="nb">apply</span> ( ii2 ( isantisymmhzleh _ _ l g ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgehchoice</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">g</span> : hzgeh n m ) : ( hzgth n m ) ⨿ ( n = m ) .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzgthorleh n m ) <span class="k">as</span> [ g' | l ] .  <span class="nb">apply</span> ( ii1 g' ) .  <span class="nb">apply</span> ( ii2 ( isantisymmhzleh _ _ l g ) ) .  <span class="kn">Defined</span> .
+
+
+
+
+<span class="sd">(** *** Mixed transitivities *)</span>
+
+
+
+<span class="kn">Lemma</span> <span class="nf">hzgthgehtrans</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth n m -&gt; hzgeh m k -&gt; hzgth n k .
+<span class="kn">Proof</span>. <span class="nb">intros</span> gnm gmk . <span class="nb">destruct</span> ( hzgehchoice m k gmk ) <span class="k">as</span> [ g' | e ] . <span class="nb">apply</span> ( istranshzgth _ _ _ gnm g' ) .  <span class="nb">rewrite</span> e <span class="k">in</span> gnm  .  <span class="nb">apply</span> gnm . <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzgehgthtrans</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgeh n m -&gt; hzgth m k -&gt; hzgth n k .
+<span class="kn">Proof</span>. <span class="nb">intros</span> gnm gmk . <span class="nb">destruct</span> ( hzgehchoice n m gnm ) <span class="k">as</span> [ g' | e ] . <span class="nb">apply</span> ( istranshzgth _ _ _ g' gmk ) .  <span class="nb">rewrite</span> e .  <span class="nb">apply</span> gmk . <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzlthlehtrans</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzlth n m -&gt; hzleh m k -&gt; hzlth n k .
+<span class="kn">Proof</span> . <span class="nb">intros</span> l1 l2 . <span class="nb">apply</span> ( hzgehgthtrans k m n l2 l1 ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzlehlthtrans</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzleh n m -&gt; hzlth m k -&gt; hzlth n k .
+<span class="kn">Proof</span> . <span class="nb">intros</span> l1 l2 . <span class="nb">apply</span> ( hzgthgehtrans k m n l2 l1 ) . <span class="kn">Defined</span> .
+
+
+
+
+<span class="sd">(** *** Addition and comparisons  *)</span>
+
+
+
+<span class="sd">(** [ hzgth ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzgthandplusl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth n m -&gt; hzgth ( k + n ) ( k + m ) .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( pr1 ( isbinopabgrdiffrel nataddabmonoid isplushrelnatgth ) ) .   <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthandplusr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth n m -&gt; hzgth ( n + k ) ( m + k ) .
+<span class="kn">Proof</span>. <span class="nb">apply</span> ( pr2 ( isbinopabgrdiffrel nataddabmonoid isplushrelnatgth ) ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthandpluslinv</span>  ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgth ( k + n ) ( k + m ) -&gt; hzgth n m  .
+<span class="kn">Proof</span>. <span class="nb">intros</span> g . <span class="nb">set</span> ( g' := hzgthandplusl _ _ ( - k ) g ) . <span class="nb">clearbody</span> g' . <span class="nb">rewrite</span> ( pathsinv0 ( hzplusassoc _ _ n ) ) <span class="k">in</span> g' . <span class="nb">rewrite</span> ( pathsinv0 ( hzplusassoc _ _ m ) ) <span class="k">in</span> g' .  <span class="nb">rewrite</span> ( hzlminus k ) <span class="k">in</span> g' . <span class="nb">rewrite</span> ( hzplusl0 _ ) <span class="k">in</span> g' .   <span class="nb">rewrite</span> ( hzplusl0 _ ) <span class="k">in</span> g' . <span class="nb">apply</span> g' .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthandplusrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) :  hzgth ( n + k ) ( m + k ) -&gt; hzgth n m  .
+<span class="kn">Proof</span>. <span class="nb">intros</span> l . <span class="nb">rewrite</span> ( hzpluscomm n k ) <span class="k">in</span> l . <span class="nb">rewrite</span> ( hzpluscomm m k ) <span class="k">in</span> l . <span class="nb">apply</span> ( hzgthandpluslinv _ _ _ l )  . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzgthsnn</span> ( <span class="nv">n</span> : hz ) : hzgth ( n + <span class="mi">1</span> ) n .
+<span class="kn">Proof</span> . <span class="nb">set</span> ( int := hzgthandplusl _ _ n ( ct ( hzgth , isdecrelhzgth, <span class="mi">1</span> , <span class="mi">0</span> ) ) ) . <span class="nb">clearbody</span> int . <span class="nb">rewrite</span> ( hzplusr0 _ ) <span class="k">in</span> int .   <span class="nb">apply</span> int . <span class="kn">Defined</span> .
+
+
+<span class="sd">(** [ hzlth ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzlthandplusl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzlth n m -&gt; hzlth ( k + n ) ( k + m )  := hzgthandplusl _ _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandplusr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzlth n m -&gt; hzlth ( n + k ) ( m + k ) := hzgthandplusr _ _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandpluslinv</span>  ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzlth ( k + n ) ( k + m ) -&gt; hzlth n m := hzgthandpluslinv _ _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandplusrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) :  hzlth ( n + k ) ( m + k ) -&gt; hzlth n m := hzgthandplusrinv _ _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlthnsn</span> ( <span class="nv">n</span> : hz ) : hzlth n ( n + <span class="mi">1</span> ) := hzgthsnn n .
+
+
+
+<span class="sd">(** [ hzleh ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzlehandplusl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzleh n m -&gt; hzleh ( k + n ) ( k + m ) := negf ( hzgthandpluslinv n m k )  .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandplusr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzleh n m -&gt; hzleh ( n + k ) ( m + k ) := negf ( hzgthandplusrinv n m k )  .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandpluslinv</span>  ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzleh ( k + n ) ( k + m ) -&gt; hzleh n m := negf ( hzgthandplusl n m k )  .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandplusrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) :  hzleh ( n + k ) ( m + k ) -&gt; hzleh n m :=  negf ( hzgthandplusr n m k ) .
+
+
+
+<span class="sd">(** [ hzgeh ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzgehandplusl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgeh n m -&gt; hzgeh ( k + n ) ( k + m ) := negf ( hzgthandpluslinv m n k ) .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandplusr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgeh n m -&gt; hzgeh ( n + k ) ( m + k ) := negf ( hzgthandplusrinv m n k )  .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandpluslinv</span>  ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) : hzgeh ( k + n ) ( k + m ) -&gt; hzgeh n m := negf ( hzgthandplusl m n k )  .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandplusrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) :  hzgeh ( n + k ) ( m + k ) -&gt; hzgeh n m :=  negf ( hzgthandplusr m n k ) .
+
+
+
+
+<span class="sd">(** *** Properties of [ hzgth ] in the terminology of  algebra1.v (continued below)</span>
+
+<span class="sd">Note: at the moment we do not need properties of [ hzlth ] , [ hzleh ] and [ hzgeh ] in terminology of algebra1 since the corresponding relations on [ hq ] are bulid from [ hqgth ] . *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isplushrelhzgth</span> : @isbinophrel hzaddabgr hzgth .
+<span class="kn">Proof</span> . <span class="nb">split</span> . <span class="nb">apply</span>  hzgthandplusl .  <span class="nb">apply</span> hzgthandplusr .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isinvplushrelhzgth</span> : @isinvbinophrel hzaddabgr hzgth .
+<span class="kn">Proof</span> . <span class="nb">split</span> . <span class="nb">apply</span>  hzgthandpluslinv .  <span class="nb">apply</span> hzgthandplusrinv .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isringmulthzgth</span> : isringmultgt _ hzgth .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( isringrigtoringmultgt natcommrig isplushrelnatgth isrigmultgtnatgth )  . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span>  <span class="nf">isinvringmulthzgth</span> : isinvringmultgt _ hzgth .
+<span class="kn">Proof</span> . <span class="nb">apply</span> ( isinvringrigtoringmultgt natcommrig isplushrelnatgth isinvplushrelnatgth isinvrigmultgtnatgth ) . <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** *** Negation and comparisons *)</span>
+
+<span class="sd">(** [ hzgth ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzgth0andminus</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzgth n <span class="mi">0</span> ) : hzlth ( - n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringfromgt0 hz isplushrelhzgth ) . <span class="nb">apply</span> isc . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzminusandgth0</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzgth ( - n ) <span class="mi">0</span> ) : hzlth n <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringtolt0 hz isplushrelhzgth ) . <span class="nb">apply</span> isc . <span class="kn">Defined</span> .
+
+
+<span class="sd">(** [ hzlth ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzlth0andminus</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzlth n <span class="mi">0</span> ) : hzgth ( - n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringfromlt0 hz isplushrelhzgth ) . <span class="nb">apply</span> isc . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzminusandlth0</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzlth ( - n ) <span class="mi">0</span> ) : hzgth n <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">apply</span> ( ringtogt0 hz isplushrelhzgth ) . <span class="nb">apply</span> isc . <span class="kn">Defined</span> .
+
+<span class="c">(* ??? Coq slows down on the proofs of these two lemmas for no good reason. *)</span>
+
+
+<span class="sd">(** [ hzleh ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzleh0andminus</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzleh n <span class="mi">0</span> ) : hzgeh ( - n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">revert</span> isc. <span class="nb">apply</span> ( negf ( @hzminusandlth0 n ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzminusandleh0</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzleh ( - n ) <span class="mi">0</span> ) : hzgeh n <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">revert</span> isc. <span class="nb">apply</span> ( negf ( @hzlth0andminus n ) ) . <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** [ hzgeh ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzgeh0andminus</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzgeh n <span class="mi">0</span> ) : hzleh ( - n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">revert</span> isc . <span class="nb">apply</span> ( negf ( @hzminusandgth0 n ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzminusandgeh0</span>  { <span class="nv">n</span> : hz } ( <span class="nv">isc</span> : hzgeh ( - n ) <span class="mi">0</span> ) : hzleh n <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">revert</span> isc . <span class="nb">apply</span> ( negf ( @hzgth0andminus n ) ) . <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** *** Multiplication and comparisons  *)</span>
+
+
+<span class="sd">(** [ hzgth ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzgthandmultl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k hzzero ) : hzgth n m -&gt; hzgth ( k * n ) ( k * m ) .
+<span class="kn">Proof</span>. <span class="nb">revert</span> n m k isc. <span class="nb">apply</span> ( isringmultgttoislringmultgt _ isplushrelhzgth isringmulthzgth ) .   <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthandmultr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k hzzero ) : hzgth n m -&gt; hzgth ( n * k ) ( m * k )  .
+<span class="kn">Proof</span> . <span class="nb">revert</span> n m k isc. <span class="nb">apply</span> ( isringmultgttoisrringmultgt _ isplushrelhzgth isringmulthzgth ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span>  <span class="nf">hzgthandmultlinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k hzzero ) : hzgth ( k * n ) ( k * m ) -&gt; hzgth n m .
+<span class="kn">Proof</span> . <span class="nb">intros</span> is' .  <span class="nb">apply</span> ( isinvringmultgttoislinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k isc is' ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgthandmultrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k hzzero ) : hzgth ( n * k ) ( m * k ) -&gt; hzgth n m .
+<span class="kn">Proof</span>.   <span class="nb">intros</span> is' .  <span class="nb">apply</span> ( isinvringmultgttoisrinvringmultgt hz isplushrelhzgth isinvringmulthzgth n m k isc is' ) .  <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** [ hzlth ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzlthandmultl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzlth n m -&gt; hzlth ( k * n ) ( k * m )  := hzgthandmultl _ _ _ isc .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandmultr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzlth n m -&gt; hzlth ( n * k ) ( m * k ) := hzgthandmultr _ _ _ isc .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandmultlinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzlth ( k * n ) ( k * m ) -&gt; hzlth n m := hzgthandmultlinv _ _ _ isc .
+
+<span class="kn">Definition</span> <span class="nf">hzlthandmultrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzlth ( n * k ) ( m * k ) -&gt; hzlth n m := hzgthandmultrinv _ _ _ isc .
+
+
+<span class="sd">(** [ hzleh ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzlehandmultl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzleh n m -&gt; hzleh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ isc ) .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandmultr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzleh n m -&gt; hzleh ( n * k ) ( m * k ) := negf ( hzgthandmultrinv _ _ _ isc ) .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandmultlinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzleh ( k * n ) ( k * m ) -&gt; hzleh n m := negf ( hzgthandmultl _ _ _ isc )  .
+
+<span class="kn">Definition</span> <span class="nf">hzlehandmultrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzleh ( n * k ) ( m * k ) -&gt; hzleh n m := negf ( hzgthandmultr _ _ _ isc ) .
+
+
+<span class="sd">(** [ hzgeh ] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">hzgehandmultl</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzgeh n m -&gt; hzgeh ( k * n ) ( k * m ) := negf ( hzgthandmultlinv _ _ _ isc ) .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandmultr</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzgeh n m -&gt; hzgeh ( n * k ) ( m * k )  := negf ( hzgthandmultrinv _ _ _ isc ) .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandmultlinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzgeh ( k * n ) ( k * m ) -&gt; hzgeh n m := negf ( hzgthandmultl _ _ _ isc )   .
+
+<span class="kn">Definition</span> <span class="nf">hzgehandmultrinv</span> ( <span class="nv">n</span> <span class="nv">m</span> <span class="nv">k</span> : hz ) ( <span class="nv">isc</span> : hzgth k <span class="mi">0</span> ) : hzgeh ( n * k ) ( m * k ) -&gt; hzgeh n m := negf ( hzgthandmultr _ _ _ isc )  .
+
+
+
+<span class="sd">(** Multiplication of positive with positive, positive with negative, negative with positive, two negatives etc. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgth0gth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgth n <span class="mi">0</span> ) : hzgth ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> isringmulthzgth . <span class="nb">apply</span> ism . <span class="nb">apply</span> isn . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgth0geh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgeh n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzgehchoice _ _ isn ) <span class="k">as</span> [ gn | en ] .
+
+<span class="nb">apply</span> ( hzgthtogeh _ _ ( hzmultgth0gth0  ism gn ) ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzgeh . <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgeh0gth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgeh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgth n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzgehchoice _ _ ism ) <span class="k">as</span> [ gm | em ] .
+
+<span class="nb">apply</span> ( hzgthtogeh _ _ ( hzmultgth0gth0 gm isn ) ) .
+
+<span class="nb">rewrite</span> em .  <span class="nb">rewrite</span> ( hzmult0x _ ) . <span class="nb">apply</span> isreflhzgeh . <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgeh0geh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgeh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgeh n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .   <span class="nb">destruct</span> ( hzgehchoice _ _ isn ) <span class="k">as</span> [ gn | en ] .
+
+<span class="nb">apply</span> ( hzmultgeh0gth0 ism gn ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzgeh . <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgth0lth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzlth n <span class="mi">0</span> ) : hzlth ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( ringmultgt0lt0 hz isplushrelhzgth isringmulthzgth ) . <span class="nb">apply</span> ism . <span class="nb">apply</span> isn . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgth0leh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzleh n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzlehchoice _ _ isn ) <span class="k">as</span> [ ln | en ] .
+
+<span class="nb">apply</span> ( hzlthtoleh _ _ ( hzmultgth0lth0  ism ln ) ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzleh . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgeh0lth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgeh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzlth n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzlehchoice _ _ ism ) <span class="k">as</span> [ lm | em ] .
+
+<span class="nb">apply</span> ( hzlthtoleh _ _ ( hzmultgth0lth0 lm isn ) ) .
+
+<span class="nb">destruct</span> em .  <span class="nb">rewrite</span> ( hzmult0x _ ) . <span class="nb">apply</span> isreflhzleh . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultgeh0leh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzgeh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzleh n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .   <span class="nb">destruct</span> ( hzlehchoice _ _ isn ) <span class="k">as</span> [ ln | en ] .
+
+<span class="nb">apply</span> ( hzmultgeh0lth0 ism ln ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzleh . <span class="kn">Defined</span> .
+
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultlth0gth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzlth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgth n <span class="mi">0</span> ) : hzlth ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">rewrite</span> ( hzmultcomm ) .  <span class="nb">apply</span> hzmultgth0lth0 . <span class="nb">apply</span> isn . <span class="nb">apply</span> ism .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultlth0geh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzlth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgeh n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">rewrite</span> ( hzmultcomm ) .  <span class="nb">apply</span> hzmultgeh0lth0 . <span class="nb">apply</span> isn . <span class="nb">apply</span> ism .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultleh0gth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzleh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgth n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">rewrite</span> ( hzmultcomm ) .  <span class="nb">apply</span> hzmultgth0leh0 . <span class="nb">apply</span> isn . <span class="nb">apply</span> ism .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultleh0geh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzleh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzgeh n <span class="mi">0</span> ) : hzleh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">rewrite</span> ( hzmultcomm ) .  <span class="nb">apply</span> hzmultgeh0leh0 . <span class="nb">apply</span> isn . <span class="nb">apply</span> ism .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzmultlth0lth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzlth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzlth n <span class="mi">0</span> ) : hzgth ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">assert</span> ( ism' := hzlth0andminus ism ) .  <span class="nb">assert</span> ( isn' := hzlth0andminus isn ) . <span class="nb">assert</span> ( int := isringmulthzgth _ _ ism' isn' ) . <span class="nb">rewrite</span> ( ringmultminusminus hz ) <span class="k">in</span> int .  <span class="nb">apply</span> int . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultlth0leh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzlth m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzleh n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzlehchoice _ _ isn ) <span class="k">as</span> [ ln | en ] .
+
+<span class="nb">apply</span> ( hzgthtogeh _ _ ( hzmultlth0lth0  ism ln ) ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzgeh . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultleh0lth0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzleh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzlth n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzlehchoice _ _ ism ) <span class="k">as</span> [ lm | em ] .
+
+<span class="nb">apply</span> ( hzgthtogeh _ _ ( hzmultlth0lth0 lm isn ) ) .
+
+<span class="nb">rewrite</span> em .  <span class="nb">rewrite</span> ( hzmult0x _ ) . <span class="nb">apply</span> isreflhzgeh .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultleh0leh0</span> { <span class="nv">m</span> <span class="nv">n</span> : hz } ( <span class="nv">ism</span> : hzleh m <span class="mi">0</span> ) ( <span class="nv">isn</span> : hzleh n <span class="mi">0</span> ) : hzgeh ( m * n ) <span class="mi">0</span> .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">destruct</span> ( hzlehchoice _ _ isn ) <span class="k">as</span> [ ln | en ] .
+
+<span class="nb">apply</span> ( hzmultleh0lth0 ism ln ) .
+
+<span class="nb">rewrite</span> en .  <span class="nb">rewrite</span> ( hzmultx0 m ) . <span class="nb">apply</span> isreflhzgeh .   <span class="kn">Defined</span> .
+
+
+
+
+<span class="sd">(** *** [ hz ] as an integral domain *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">isintdomhz</span> : isintdom hz .
+<span class="kn">Proof</span> . <span class="nb">split with</span> isnonzerorighz .  <span class="nb">intros</span> a b e0 .  <span class="nb">destruct</span> ( isdeceqhz a <span class="mi">0</span> ) <span class="k">as</span> [ ea | nea ] .  <span class="nb">apply</span> ( hinhpr ( ii1 ea ) ) . <span class="nb">destruct</span> ( isdeceqhz b <span class="mi">0</span> ) <span class="k">as</span> [ eb | neb ] . <span class="nb">apply</span> ( hinhpr ( ii2 eb ) ) .  <span class="nb">destruct</span> ( hzneqchoice _ _ nea ) <span class="k">as</span> [ ga | la ] .  <span class="nb">destruct</span> ( hzneqchoice _ _ neb ) <span class="k">as</span> [ gb | lb ] . <span class="nb">destruct</span> ( hzgthtoneq _ _ ( hzmultgth0gth0 ga gb ) e0 ) .  <span class="nb">destruct</span> ( hzlthtoneq _ _ ( hzmultgth0lth0 ga lb ) e0 ) .  <span class="nb">destruct</span> ( hzneqchoice _ _ neb ) <span class="k">as</span> [ gb | lb ] .  <span class="nb">destruct</span> ( hzlthtoneq _ _ ( hzmultlth0gth0 la gb ) e0 ) .  <span class="nb">destruct</span> ( hzgthtoneq _ _ ( hzmultlth0lth0 la lb ) e0 ) .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Definition</span> <span class="nf">hzintdom</span> : intdom := tpair _ _ isintdomhz .
+
+<span class="kn">Definition</span> <span class="nf">hzneq0andmult</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) ( <span class="nv">isn</span> : hzneq n <span class="mi">0</span> ) ( <span class="nv">ism</span> : hzneq m <span class="mi">0</span> ) : hzneq ( n * m ) <span class="mi">0</span> := intdomneq0andmult hzintdom n m isn ism .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultlcan</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) ( <span class="nv">ne</span> : neg ( c = <span class="mi">0</span> ) ) ( <span class="nv">e</span> : ( c * a ) = ( c * b ) ) : a = b .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( intdomlcan hzintdom _ _ _ ne e ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzmultrcan</span> ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : hz ) ( <span class="nv">ne</span> : neg ( c = <span class="mi">0</span> ) ) ( <span class="nv">e</span> : ( a * c ) = ( b * c ) ) : a = b .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( intdomrcan hzintdom _ _ _ ne e ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isinclhzmultl</span> ( <span class="nv">n</span> : hz )( <span class="nv">ne</span> : neg ( n = <span class="mi">0</span> ) ) : isincl ( <span class="k">λ</span> <span class="nv">m</span> : hz, n * m ) .
+<span class="kn">Proof</span>.  <span class="nb">intros</span> .  <span class="nb">apply</span> ( pr1 ( intdomiscancelable hzintdom n ne ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">isinclhzmultr</span> ( <span class="nv">n</span> : hz )( <span class="nv">ne</span> : neg ( n = <span class="mi">0</span> ) ) : isincl ( <span class="k">λ</span> <span class="nv">m</span> : hz, m * n ) .
+<span class="kn">Proof</span>. <span class="nb">intros</span> . <span class="nb">apply</span> ( pr2 ( intdomiscancelable hzintdom n ne ) ) . <span class="kn">Defined</span>.
+
+
+
+
+
+
+<span class="sd">(** *** Comparisons and [ n -&gt; n + 1 ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzgthtogths</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; hzgth ( n + <span class="mi">1</span> ) m  .
+<span class="kn">Proof</span>. <span class="nb">intros</span> isc . <span class="nb">apply</span> ( istranshzgth _ _ _ ( hzgthsnn n ) isc ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzlthtolths</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; hzlth n ( m + <span class="mi">1</span> ) := hzgthtogths _ _ .
+
+<span class="kn">Definition</span> <span class="nf">hzlehtolehs</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzleh n m -&gt; hzleh n ( m + <span class="mi">1</span> ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> isc . <span class="nb">apply</span> ( istranshzleh _ _ _ isc ( hzlthtoleh _ _ ( hzlthnsn _ ) ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzgehtogehs</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgeh n m -&gt; hzgeh ( n + <span class="mi">1</span> ) m := hzlehtolehs _ _  .
+
+
+
+<span class="sd">(** *** Two comparisons and [ n -&gt; n + 1 ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzgthtogehsn</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; hzgeh n ( m + <span class="mi">1</span> ) .
+<span class="kn">Proof</span>. <span class="nb">assert</span> ( int : ∏ n m , isaprop ( hzgth n m -&gt; hzgeh n ( m + <span class="mi">1</span> )  ) ) .
+       { <span class="nb">intros</span> . <span class="nb">apply</span> impred . <span class="nb">intro</span> . <span class="nb">apply</span> ( pr2 _ ) . }
+       <span class="nb">unfold</span> hzgth <span class="k">in</span> * .  <span class="nb">apply</span> ( setquotuniv2prop _ ( <span class="k">λ</span> <span class="nv">n</span> <span class="nv">m</span>, make_hProp _ ( int n m ) ) ) . <span class="nb">set</span> ( R := abgrdiffrelint nataddabmonoid natgth ) .
+       <span class="nb">intros</span> x x' .  <span class="nb">change</span> ( R x x' -&gt; ( neg ( R ( @op ( abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig) ) x' ( make_dirprod <span class="mi">1</span>%nat <span class="mi">0</span>%nat ) ) x ) ) ) .
+       <span class="nb">unfold</span> R . <span class="nb">unfold</span> abgrdiffrelint . <span class="nb">simpl</span> .
+       <span class="nb">apply</span> ( @hinhuniv _  (make_hProp ( neg ( ishinh_UU _ ) ) ( isapropneg _ ) ) ) .
+       <span class="nb">intro</span> t2 . <span class="nb">simpl</span> . <span class="nb">unfold</span> neg .  <span class="nb">apply</span> ( @hinhuniv _ ( make_hProp _ isapropempty ) ) .
+       <span class="nb">intro</span> t2' .
+       <span class="nb">set</span> ( x1 := pr1 x ) . <span class="nb">set</span> ( a1 := pr2 x ) . <span class="nb">set</span> ( x2 := pr1 x' ) .
+       <span class="nb">set</span> ( a2 := pr2 x' ) . <span class="nb">set</span> ( c1 := pr1 t2 ) . <span class="nb">assert</span> ( r1 := pr2 t2 ) .
+       <span class="nb">change</span> ( pr1 (  ( x1 + a2 + c1 ) &gt; (  x2 + a1 + c1 ) ) ) <span class="k">in</span> r1 .
+       <span class="nb">set</span> ( c2 := pr1 t2' ) . <span class="nb">assert</span> ( r2 := pr2 t2' ) .
+       <span class="nb">change</span> ( pr1 (  ( ( x2 + <span class="mi">1</span> ) + a1 + c2 ) &gt; ( x1 + ( a2 + <span class="mi">0</span> ) + c2 ) ) ) <span class="k">in</span> r2 .
+       <span class="nb">assert</span> ( r1' := natgthandplusrinv _ _ c1 r1 ) .
+       <span class="nb">assert</span> ( r2' := natgthandplusrinv _ _ c2 r2 ) .
+       <span class="nb">rewrite</span> ( natplusr0 _ ) <span class="k">in</span> r2' .
+       <span class="nb">rewrite</span> ( natpluscomm _ <span class="mi">1</span> ) <span class="k">in</span> r2' .
+       <span class="nb">rewrite</span> ( natplusassoc _ _ _ ) <span class="k">in</span> r2' .
+       <span class="nb">change</span> (<span class="mi">1</span> + (x2 + a1) &gt; x1 + a2) <span class="k">with</span> (x1 + a2 ≤ x2 + a1) <span class="k">in</span> r2'.
+       contradicts (natlehneggth r2') r1'.
+<span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzgthsntogeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth ( n + <span class="mi">1</span> ) m -&gt; hzgeh n m .
+<span class="kn">Proof</span>. <span class="nb">intros</span> a . <span class="nb">apply</span> (hzgehandplusrinv n m <span class="mi">1</span>) . <span class="nb">apply</span> ( hzgthtogehsn ( n + <span class="mi">1</span> ) m a ) . <span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzlehsntolth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzleh ( n + <span class="mi">1</span> )  m -&gt; hzlth n m .
+<span class="kn">Proof</span>.  <span class="nb">intros</span> X . <span class="nb">apply</span> ( hzlthlehtrans _ _ _ ( hzlthnsn n ) X ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzlthtolehsn</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; hzleh ( n + <span class="mi">1</span> )  m .
+<span class="kn">Proof</span>. <span class="nb">intros</span> X . <span class="nb">apply</span> ( hzgthtogehsn m n X ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzlthsntoleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n ( m + <span class="mi">1</span> ) -&gt; hzleh n m .
+<span class="kn">Proof</span>. <span class="nb">intros</span> a . <span class="nb">apply</span> (hzlehandplusrinv n m <span class="mi">1</span>) . <span class="nb">apply</span> ( hzlthtolehsn n ( m + <span class="mi">1</span> ) a ) . <span class="kn">Defined</span>. <span class="c">(* PeWa *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hzgehsntogth</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgeh n ( m + <span class="mi">1</span> ) -&gt; hzgth n m .
+<span class="kn">Proof</span>. <span class="nb">intros</span> X . <span class="nb">apply</span> ( hzlehsntolth m n X ) .  <span class="kn">Defined</span> .
+
+
+<span class="sd">(** *** Comparsion alternatives and [ n -&gt; n + 1 ] *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">hzlehchoice2</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzleh n m -&gt; coprod ( hzleh ( n + <span class="mi">1</span> )  m ) ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> l . <span class="nb">destruct</span> ( hzlehchoice n m l ) <span class="k">as</span> [ l' | e ] .   <span class="nb">apply</span> ( ii1 ( hzlthtolehsn _ _ l' ) ) . <span class="nb">apply</span> ( ii2 e ) .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzgehchoice2</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgeh n m -&gt; coprod ( hzgeh n ( m + <span class="mi">1</span> ) ) ( n = m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> g . <span class="nb">destruct</span> ( hzgehchoice n m g ) <span class="k">as</span> [ g' | e ] .   <span class="nb">apply</span> ( ii1 ( hzgthtogehsn _ _ g' ) ) . <span class="nb">apply</span> ( ii2 e ) . <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzgthchoice2</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzgth n m -&gt; coprod ( hzgth n ( m + <span class="mi">1</span> ) ) ( n = ( m + <span class="mi">1</span> ) ) .
+<span class="kn">Proof</span>.  <span class="nb">intros</span> g . <span class="nb">destruct</span> ( hzgehchoice _ _ ( hzgthtogehsn _ _ g ) ) <span class="k">as</span> [ g' | e ] . <span class="nb">apply</span> ( ii1 g' ) .  <span class="nb">apply</span> ( ii2 e ) .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzlthchoice2</span> ( <span class="nv">n</span> <span class="nv">m</span> : hz ) : hzlth n m -&gt; coprod ( hzlth ( n + <span class="mi">1</span> )  m ) ( ( n + <span class="mi">1</span> ) = m ) .
+<span class="kn">Proof</span>.  <span class="nb">intros</span> l . <span class="nb">destruct</span> ( hzlehchoice _ _ ( hzlthtolehsn _ _ l ) ) <span class="k">as</span> [ l' | e ] . <span class="nb">apply</span> ( ii1 l' ) .  <span class="nb">apply</span> ( ii2 e ) .   <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** *** Operations and comparisons on [ hz ] and [ natnattohz ] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">natnattohzandgth</span> ( <span class="nv">xa1</span> <span class="nv">xa2</span> : dirprod nat nat ) ( <span class="nv">isc</span> : hzgth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natgth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">change</span> ( ishinh_UU ( total2  ( <span class="k">λ</span> <span class="nv">a0</span>, natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) ) <span class="k">in</span> isc .  <span class="nb">generalize</span> isc .  <span class="nb">apply</span> @hinhuniv .  <span class="nb">intro</span> t2 .  <span class="nb">set</span> ( a0 := pr1 t2 ) . <span class="nb">assert</span> ( g := pr2 t2 ) . <span class="nb">change</span> ( pr1 ( natgth (pr1 xa1 + pr2 xa2 + a0) (pr1 xa2 + pr2 xa1 + a0) ) ) <span class="k">in</span> g . <span class="nb">apply</span> ( natgthandplusrinv _ _ a0 g ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">natnattohzandlth</span> ( <span class="nv">xa1</span> <span class="nv">xa2</span> : dirprod nat nat ) ( <span class="nv">isc</span> : hzlth ( setquotpr _ xa1 ) ( setquotpr _ xa2 ) ) : natlth ( ( pr1 xa1 ) + ( pr2 xa2 ) ) ( ( pr1 xa2 ) + ( pr2 xa1 ) ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( natnattohzandgth xa2 xa1 isc ) .  <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** *** Canonical rig homomorphism from [ nat ] to [ hz ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nattohz</span> : nat -&gt; hz := <span class="k">λ</span> <span class="nv">n</span>, setquotpr _ ( make_dirprod n <span class="mi">0</span>%nat ) .
+
+<span class="kn">Definition</span> <span class="nf">isinclnattohz</span> : isincl nattohz := isincltoringdiff natcommrig ( <span class="k">λ</span> <span class="nv">n</span>, isinclnatplusr n ) .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandneq</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natnegpaths n m ) : hzneq ( nattohz n ) ( nattohz m ) := negf ( invmaponpathsincl _ isinclnattohz n m ) isc .
+
+<span class="kn">Definition</span> <span class="nf">nattohzand0</span> : ( nattohz <span class="mi">0</span>%nat ) = <span class="mi">0</span> := idpath _ .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandS</span> ( <span class="nv">n</span> : nat ) : ( nattohz ( S n ) ) = ( <span class="mi">1</span> + nattohz n ) := isbinop1funtoringdiff natcommrig <span class="mi">1</span>%nat n .
+
+<span class="kn">Definition</span> <span class="nf">nattohzand1</span> : ( nattohz <span class="mi">1</span>%nat ) = <span class="mi">1</span> := idpath _ .
+
+<span class="kn">Lemma</span> <span class="nf">nattorig_nattohz</span> :
+  ∏ n : nat, nattorig (X := hz) n = nattohz n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="nb">unfold</span> nattorig, nattohz ; <span class="nb">simpl</span>.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">rewrite</span> nattorigS, IHn.
+    <span class="nb">apply</span> pathsinv0, nattohzandS.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nattohzandplus</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : ( nattohz ( n + m )%nat ) = ( nattohz n + nattohz m ) := isbinop1funtoringdiff natcommrig n m .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandminus</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natgeh n m ) : ( nattohz ( n - m )%nat ) = ( nattohz n - nattohz m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> .  <span class="nb">apply</span> ( hzplusrcan _ _ ( nattohz m ) ) . <span class="nb">unfold</span> hzminus .  <span class="nb">rewrite</span> ( hzplusassoc ( nattohz n ) ( - nattohz m ) ( nattohz m ) ) . <span class="nb">rewrite</span> ( hzlminus _ ) .   <span class="nb">rewrite</span> hzplusr0 .  <span class="nb">rewrite</span> ( pathsinv0 ( nattohzandplus _ _ ) ) .  <span class="nb">rewrite</span> ( minusplusnmm _ _ isc ) . <span class="nb">apply</span> idpath . <span class="kn">Defined</span> .
+
+<span class="kn">Opaque</span> nattohzandminus .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandmult</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) : ( nattohz ( n * m )%nat ) = ( nattohz n * nattohz m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">simpl</span> . <span class="nb">change</span> nattohz <span class="k">with</span> ( toringdiff natcommrig ) . <span class="nb">apply</span> ( isbinop2funtoringdiff natcommrig n m ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandgth</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natgth n m ) : hzgth ( nattohz n ) ( nattohz m ) := iscomptoringdiff natcommrig isplushrelnatgth n m isc .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandlth</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natlth n m ) : hzlth ( nattohz n ) ( nattohz m ) := nattohzandgth m n isc .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandleh</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natleh n m ) : hzleh ( nattohz n ) ( nattohz m ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">destruct</span> ( natlehchoice _ _ isc ) <span class="k">as</span> [ l | e ] .   <span class="nb">apply</span> ( hzlthtoleh _ _ ( nattohzandlth _ _ l ) ) .  <span class="nb">rewrite</span> e .  <span class="nb">apply</span> ( isreflhzleh ) .  <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">nattohzandgeh</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">isc</span> : natgeh n m ) : hzgeh ( nattohz n ) ( nattohz m ) := nattohzandleh _ _ isc .
+
+<span class="sd">(** *** Addition and subtraction on [ nat ] and [ hz ] *)</span>
+
+
+
+<span class="sd">(** *** Absolute value on [ hz ] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hzabsvalint</span> : ( dirprod nat nat ) -&gt; nat .
+<span class="kn">Proof</span> . <span class="nb">intro</span> nm . <span class="nb">destruct</span> ( natgthorleh ( pr1 nm ) ( pr2  nm ) ) .  <span class="nb">apply</span> ( sub ( pr1 nm ) ( pr2 nm ) ) . <span class="nb">apply</span> ( sub ( pr2 nm ) ( pr1 nm ) ) . <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalintcomp</span> : @iscomprelfun ( dirprod nat nat ) nat ( hrelabgrdiff nataddabmonoid )  hzabsvalint .
+<span class="kn">Proof</span> . <span class="nb">unfold</span> iscomprelfun .  <span class="nb">intros</span> x x' . <span class="nb">unfold</span> hrelabgrdiff . <span class="nb">simpl</span> . <span class="nb">apply</span> ( @hinhuniv _ ( make_hProp _ ( isasetnat (hzabsvalint x) (hzabsvalint x') ) ) ) .  <span class="nb">unfold</span> hzabsvalint . <span class="nb">set</span> ( n := ( pr1 x ) : nat  ) . <span class="nb">set</span> ( m := ( pr2 x ) : nat ) . <span class="nb">set</span> ( n' := ( pr1 x' ) : nat ) . <span class="nb">set</span> ( m' := ( pr2 x' ) : nat ) .   <span class="nb">set</span> ( int := natgthorleh n m ) . <span class="nb">set</span> ( int' := natgthorleh n' m' ) .   <span class="nb">intro</span> tt0 . <span class="nb">simpl</span> .  <span class="nb">destruct</span> tt0 <span class="k">as</span> [ x0 eq ] .  <span class="nb">simpl</span> <span class="k">in</span> eq .  <span class="nb">assert</span> ( e' := invmaponpathsincl _ ( isinclnatplusr x0 ) _ _ eq ) .
+
+<span class="nb">destruct</span> int <span class="k">as</span> [isgt | isle ] . <span class="nb">destruct</span> int' <span class="k">as</span> [ isgt' | isle' ] .
+
+<span class="nb">apply</span> ( invmaponpathsincl _ ( isinclnatplusr ( m + m' ) ) ) .  <span class="nb">rewrite</span> ( pathsinv0 ( natplusassoc ( n - m )  m m' ) ) . <span class="nb">rewrite</span> ( natpluscomm m m' ) .  <span class="nb">rewrite</span> ( pathsinv0 ( natplusassoc ( n' - m' ) m' m ) ) . <span class="nb">rewrite</span> ( minusplusnmm n m ( natgthtogeh _ _ isgt ) ) . <span class="nb">rewrite</span> ( minusplusnmm n' m' ( natgthtogeh _ _ isgt' ) ) . <span class="nb">apply</span> e' .
+
+<span class="nb">assert</span> ( e'' := natlehandplusl n' m' n isle' ) .  <span class="nb">assert</span> ( e''' :=  natgthandplusr n m n' isgt )  .  <span class="nb">assert</span> ( e'''' := natlthlehtrans _ _ _ e''' e'' ) .  <span class="nb">rewrite</span> e' <span class="k">in</span> e'''' . <span class="nb">rewrite</span> ( natpluscomm m n' ) <span class="k">in</span> e'''' . <span class="nb">destruct</span> ( isirreflnatgth _ e'''' ) .
+
+<span class="nb">destruct</span> int' <span class="k">as</span> [ isgt' | isle' ] .
+
+<span class="nb">destruct</span> ( natpluscomm m n') . <span class="nb">set</span> ( e'' := natlehandplusr n m m' isle ) .  <span class="nb">set</span> ( e''' :=  natgthandplusl n' m' m isgt' )  .  <span class="nb">set</span> ( e'''' := natlehlthtrans _ _ _ e'' e''' ) .  <span class="nb">rewrite</span> e' <span class="k">in</span> e'''' . <span class="nb">destruct</span> ( isirreflnatgth _ e'''' ) .
+
+<span class="nb">apply</span> ( invmaponpathsincl _ ( isinclnatplusr ( n + n') ) ) . <span class="nb">rewrite</span> ( pathsinv0 ( natplusassoc ( m - n )  n n' ) ) . <span class="nb">rewrite</span> ( natpluscomm n n' ) .  <span class="nb">rewrite</span> ( pathsinv0 ( natplusassoc ( m' - n') n' n ) ) .  <span class="nb">rewrite</span> ( minusplusnmm m n isle ) . <span class="nb">rewrite</span> ( minusplusnmm m' n' isle' ) .  <span class="nb">rewrite</span> ( natpluscomm m' n ) .  <span class="nb">rewrite</span> ( natpluscomm m n' ) .  <span class="nb">apply</span> ( pathsinv0 e' ) .
+<span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzabsval</span> : hz -&gt; nat := setquotuniv _ natset hzabsvalint hzabsvalintcomp .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsval0</span> : ( hzabsval <span class="mi">0</span> ) = <span class="mi">0</span>%nat .
+<span class="kn">Proof</span> .  <span class="nb">apply</span> idpath .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalgth0</span> { <span class="nv">x</span> : hz } ( <span class="nv">isc</span> : hzgth x <span class="mi">0</span> ) : ( nattohz ( hzabsval x ) ) = x .
+<span class="kn">Proof</span> .
+<span class="nb">revert</span> x isc.
+<span class="nb">assert</span> ( int : ∏ x : hz , isaprop ( hzgth x <span class="mi">0</span> -&gt; ( nattohz ( hzabsval x ) ) = x ) ) . <span class="nb">intro</span> . <span class="nb">apply</span> impred . <span class="nb">intro</span> . <span class="nb">apply</span> ( setproperty hz ) .  <span class="nb">apply</span> ( setquotunivprop _ ( <span class="k">λ</span> <span class="nv">x</span>, make_hProp _ ( int x ) ) ) . <span class="nb">intros</span> xa g . <span class="nb">simpl</span> <span class="k">in</span> xa . <span class="nb">assert</span> ( g' := natnattohzandgth _ _ g ) . <span class="nb">simpl</span> <span class="k">in</span> g' .  <span class="nb">simpl</span> .  <span class="nb">change</span> (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) <span class="mi">0</span>%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) xa ) ) . <span class="nb">apply</span> weqpathsinsetquot . <span class="nb">simpl</span> . <span class="nb">apply</span> hinhpr . <span class="nb">split with</span> <span class="mi">0</span>%nat .  <span class="nb">change</span> ( pr1 ( natgth ( pr1 xa + <span class="mi">0</span>%nat ) ( pr2 xa ) ) ) <span class="k">in</span> g' . <span class="nb">rewrite</span> ( natplusr0 _ ) <span class="k">in</span> g' .  <span class="nb">change</span> ((hzabsvalint xa + pr2 xa + <span class="mi">0</span>)%nat = (pr1 xa + <span class="mi">0</span> + <span class="mi">0</span>)%nat ) . <span class="nb">rewrite</span> ( natplusr0 _ ) .  <span class="nb">rewrite</span> ( natplusr0 _ ) .  <span class="nb">rewrite</span> ( natplusr0 _ ) . <span class="nb">unfold</span> hzabsvalint .   <span class="nb">destruct</span> ( natgthorleh (pr1 xa) (pr2 xa)  ) <span class="k">as</span> [ g'' | l ] .
+
+<span class="nb">rewrite</span> ( minusplusnmm _ _ ( natlthtoleh _ _ g'' ) ) . <span class="nb">apply</span> idpath .
+
+contradicts (natlehneggth l) g'.
+<span class="kn">Defined</span> .
+
+<span class="kn">Opaque</span> hzabsvalgth0 .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalgeh0</span> { <span class="nv">x</span> : hz } ( <span class="nv">isc</span> : hzgeh x <span class="mi">0</span> ) : ( nattohz ( hzabsval x ) ) = x .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzgehchoice _ _ isc ) <span class="k">as</span> [ g | e ] .  <span class="nb">apply</span> ( hzabsvalgth0 g ) . <span class="nb">rewrite</span> e .  <span class="nb">apply</span> idpath .  <span class="kn">Defined</span> .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvallth0</span> { <span class="nv">x</span> : hz } ( <span class="nv">isc</span> : hzlth x <span class="mi">0</span> ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
+<span class="kn">Proof</span> .
+<span class="nb">revert</span> x isc.
+<span class="nb">assert</span> ( int : ∏ x : hz , isaprop ( hzlth x <span class="mi">0</span> -&gt; ( nattohz ( hzabsval x ) ) = ( - x ) ) ) . <span class="nb">intro</span> . <span class="nb">apply</span> impred . <span class="nb">intro</span> . <span class="nb">apply</span> ( setproperty hz ) .  <span class="nb">apply</span> ( setquotunivprop _ ( <span class="k">λ</span> <span class="nv">x</span>, make_hProp _ ( int x ) ) ) . <span class="nb">intros</span> xa l . <span class="nb">simpl</span> <span class="k">in</span> xa . <span class="nb">assert</span> ( l' := natnattohzandlth _ _ l ) . <span class="nb">simpl</span> <span class="k">in</span> l' .  <span class="nb">simpl</span> .  <span class="nb">change</span> (( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( hzabsvalint xa ) <span class="mi">0</span>%nat ) ) = ( setquotpr (eqrelabgrdiff (rigaddabmonoid natcommrig)) ( make_dirprod ( pr2 xa ) ( pr1 xa ) ) ) ) . <span class="nb">apply</span> weqpathsinsetquot . <span class="nb">simpl</span> . <span class="nb">apply</span> hinhpr . <span class="nb">split with</span> <span class="mi">0</span>%nat .  <span class="nb">change</span> ( pr1 ( natlth ( pr1 xa + <span class="mi">0</span>%nat ) ( pr2 xa ) ) ) <span class="k">in</span> l' . <span class="nb">rewrite</span> ( natplusr0 _ ) <span class="k">in</span> l' .  <span class="nb">change</span> ((hzabsvalint xa + pr1 xa + <span class="mi">0</span>)%nat = (pr2 xa + <span class="mi">0</span> + <span class="mi">0</span>)%nat). <span class="nb">rewrite</span> ( natplusr0 _ ) .  <span class="nb">rewrite</span> ( natplusr0 _ ) .  <span class="nb">rewrite</span> ( natplusr0 _ ) . <span class="nb">unfold</span> hzabsvalint .   <span class="nb">destruct</span> ( natgthorleh (pr1 xa) (pr2 xa)  ) <span class="k">as</span> [ g | l'' ] .
+
+<span class="nb">destruct</span> ( isasymmnatgth _ _ g l' ) .
+
+<span class="nb">rewrite</span> ( minusplusnmm _ _ l'' ) . <span class="nb">apply</span> idpath . <span class="kn">Defined</span> .
+
+<span class="kn">Opaque</span> hzabsvallth0 .
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalleh0</span> { <span class="nv">x</span> : hz } ( <span class="nv">isc</span> : hzleh x <span class="mi">0</span> ) : ( nattohz ( hzabsval x ) ) = ( - x ) .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> . <span class="nb">destruct</span> ( hzlehchoice _ _ isc ) <span class="k">as</span> [ l | e ] .  <span class="nb">apply</span> ( hzabsvallth0 l ) . <span class="nb">rewrite</span> e .  <span class="nb">apply</span> idpath .  <span class="kn">Defined</span> .
+
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvaleq0</span> { <span class="nv">x</span> : hz } ( <span class="nv">e</span> : ( hzabsval x ) = <span class="mi">0</span>%nat ) : x = <span class="mi">0</span>  .
+<span class="kn">Proof</span> .  <span class="nb">intros</span> . <span class="nb">destruct</span> ( isdeceqhz x <span class="mi">0</span> ) <span class="k">as</span> [ e0 | ne0 ] . <span class="nb">apply</span> e0 .  <span class="nb">destruct</span> ( hzneqchoice _ _ ne0 ) <span class="k">as</span> [ g | l ] .
+
+<span class="nb">assert</span> ( e' := hzabsvalgth0 g ) . <span class="nb">rewrite</span> e <span class="k">in</span> e' . <span class="nb">change</span> ( <span class="mi">0</span> = x ) <span class="k">in</span> e' .  <span class="nb">apply</span> ( pathsinv0 e' ) .
+
+<span class="nb">assert</span> ( e' := hzabsvallth0 l ) . <span class="nb">rewrite</span> e <span class="k">in</span> e' . <span class="nb">change</span> ( <span class="mi">0</span> = ( - x ) ) <span class="k">in</span> e' . <span class="nb">assert</span> ( g := hzlth0andminus l ) .  <span class="nb">rewrite</span> e' <span class="k">in</span> g .  <span class="nb">destruct</span> ( isirreflhzgth _ g ) . <span class="kn">Defined</span> .
+
+<span class="kn">Definition</span> <span class="nf">hzabsvalneq0</span> { <span class="nv">x</span> : hz } <span class="nv">ne</span> := neg_to_negProp (nP := natneq _ _) (negf ( @hzabsvaleq0 x ) ne).
+
+<span class="kn">Lemma</span> <span class="nf">hzabsvalandmult</span> ( <span class="nv">a</span> <span class="nv">b</span> : hz ) : ( ( hzabsval a ) * ( hzabsval b ) )%nat = ( hzabsval ( a * b ) ) .
+<span class="kn">Proof</span> . <span class="nb">intros</span> . <span class="nb">apply</span> ( invmaponpathsincl _ isinclnattohz ) . <span class="nb">rewrite</span> ( nattohzandmult _ _ ) .  <span class="nb">destruct</span> ( hzgthorleh a <span class="mi">0</span> ) <span class="k">as</span> [ ga | lea ] . <span class="nb">destruct</span> ( hzgthorleh b <span class="mi">0</span> ) <span class="k">as</span> [ gb | leb ] .
+
+<span class="nb">rewrite</span> ( hzabsvalgth0 ga ) .  <span class="nb">rewrite</span> ( hzabsvalgth0 gb ) .  <span class="nb">rewrite</span> ( hzabsvalgth0 ( hzmultgth0gth0 ga gb ) ) . <span class="nb">apply</span> idpath .
+
+<span class="nb">rewrite</span> ( hzabsvalgth0 ga ) .  <span class="nb">rewrite</span> ( hzabsvalleh0 leb ) . <span class="nb">rewrite</span> ( hzabsvalleh0 ( hzmultgth0leh0 ga leb ) ) .    <span class="nb">apply</span> ( ringrmultminus hz ) .  <span class="nb">destruct</span> ( hzgthorleh b <span class="mi">0</span> ) <span class="k">as</span> [ gb | leb ] .
+
+<span class="nb">rewrite</span> ( hzabsvalgth0 gb ) .  <span class="nb">rewrite</span> ( hzabsvalleh0 lea ) . <span class="nb">rewrite</span> ( hzabsvalleh0 ( hzmultleh0gth0 lea gb ) ) . <span class="nb">apply</span> ( ringlmultminus hz ) .
+
+<span class="nb">rewrite</span> ( hzabsvalleh0 lea ) . <span class="nb">rewrite</span> ( hzabsvalleh0 leb ) . <span class="nb">rewrite</span> ( hzabsvalgeh0 ( hzmultleh0leh0 lea leb ) ) .  <span class="nb">apply</span> (ringmultminusminus hz ) . <span class="kn">Defined</span> .
+
+
+
+<span class="sd">(** *** Some common equalities on integers *)</span>
+<span class="sd">(** These lemmas are used for example in Complexes.v to construct complexes. *)</span>
+<span class="kn">Local</span> <span class="kn">Opaque</span> hz isdecrelhzeq iscommringops.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqbooleqii</span> (<span class="nv">i</span> : hz) : hzbooleq i i = true.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hzbooleq. <span class="nb">unfold</span> decreltobrel. <span class="nb">induction</span> (pr2 hzdeceq i i) <span class="k">as</span> [T | F].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> F. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzbooleqisi</span> (<span class="nv">i</span> : hz) : hzbooleq i (i + <span class="mi">1</span>) = false.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> negrtopaths.
+  <span class="nb">apply</span> (negf (<span class="k">λ</span> <span class="nv">e</span>, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); <span class="nb">clear</span> i.
+  confirm_not_equal isdecrelhzeq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzbooleqisi'</span> (<span class="nv">i</span> : hz) : hzbooleq i (i + <span class="mi">1</span>) = false.
+<span class="kn">Proof</span>.
+  <span class="c">(* prove it again, to illustrate how to avoid the tactic [confirm_not_equal] *)</span>
+  <span class="nb">apply</span> negrtopaths.
+  <span class="nb">apply</span> (negf (<span class="k">λ</span> <span class="nv">e</span>, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); <span class="nb">clear</span> i.
+  <span class="nb">simple refine</span> (confirm_not_equal isdecrelhzeq _ _ _).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzbooleqissi</span> (<span class="nv">i</span> : hz) : hzbooleq i (i + <span class="mi">1</span> + <span class="mi">1</span>) = false.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> negrtopaths.
+  <span class="nb">rewrite</span> hzplusassoc.
+  <span class="nb">apply</span> (negf (<span class="k">λ</span> <span class="nv">e</span>, hzpluslcan _ _ _ (! (hzplusr0 i @ e)))); <span class="nb">clear</span> i.
+  confirm_not_equal isdecrelhzeq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqeisi</span> {<span class="nv">i</span> <span class="nv">i0</span> : hz} (<span class="nv">e</span> : hzeq i i0) (<span class="nv">e'</span> : hzeq i (i0 + <span class="mi">1</span>)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nopathstruetofalse.
+  use (pathscomp0 _ (hzbooleqisi i0)).
+  <span class="nb">rewrite</span> &lt;- e'. <span class="nb">rewrite</span> &lt;- e.
+  <span class="nb">apply</span> (! (hzeqbooleqii i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqisi</span> {<span class="nv">i</span> : hz} (<span class="nv">e'</span> : hzeq i (i + <span class="mi">1</span>)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nopathstruetofalse. <span class="nb">rewrite</span> &lt;- (hzbooleqisi i). <span class="nb">rewrite</span> &lt;- e'.
+  <span class="nb">apply</span> (! (hzeqbooleqii i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqissi</span> {<span class="nv">i</span> : hz} (<span class="nv">e</span> : hzeq i (i + <span class="mi">1</span> + <span class="mi">1</span>)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (tmp := hzbooleqissi i). <span class="nb">cbn</span> <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- e <span class="k">in</span> tmp.
+  <span class="nb">rewrite</span> (hzeqbooleqii i) <span class="k">in</span> tmp. <span class="nb">apply</span> nopathstruetofalse. <span class="nb">apply</span> tmp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqeissi</span> {<span class="nv">i</span> <span class="nv">i0</span> : hz} (<span class="nv">e</span> : hzeq i i0) (<span class="nv">e'</span> : hzeq i (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> <span class="k">in</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> e'. <span class="nb">apply</span> (hzeqissi e').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqsnmnsm</span> {<span class="nv">n</span> <span class="nv">m</span> : hz} (<span class="nv">e</span> : hzeq (n + <span class="mi">1</span>) m) (<span class="nv">e'</span> : hzeq n (m + <span class="mi">1</span>)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> <span class="k">in</span> e. <span class="nb">rewrite</span> &lt;- e <span class="k">in</span> e'. <span class="nb">apply</span> (hzeqissi e').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqnmplusr</span> {<span class="nv">n</span> <span class="nv">m</span> <span class="nv">i</span> : hz} (<span class="nv">e</span> : n = m) (<span class="nv">e'</span> : ¬ (n + i = m + i)) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> e'. <span class="bp">exact</span> (maponpaths_2 _ e _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqnmplusr'</span> {<span class="nv">n</span> <span class="nv">m</span> <span class="nv">i</span> : hz} (<span class="nv">e</span> : ¬ (n = m)) (<span class="nv">e'</span> : n + i = m + i) : empty.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> e. <span class="bp">exact</span> (hzplusrcan _ _ i e').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelhzeqi</span> (<span class="nv">i</span> : hz) : isdecrelhzeq i i = ii1 (idpath _).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (isdecrelhzeq i i) <span class="k">as</span> [T | F].
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> F. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelhzeqminusplus</span> (<span class="nv">i</span> <span class="nv">j</span> : hz) : isdecrelhzeq i (i - j + j) = ii1 (hzrminusplus' i j).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (isdecrelhzeq i (i - j + j)) <span class="k">as</span> [T | F].
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> F. <span class="nb">apply</span> (hzrminusplus' i j).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelhzeqminusplus'</span> (<span class="nv">i</span> <span class="nv">j</span> : hz) : isdecrelhzeq (i - j + j) i = ii1 (hzrminusplus i j).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (isdecrelhzeq (i - j + j) i) <span class="k">as</span> [T | F].
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> F. <span class="nb">apply</span> (hzrminusplus i j).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzeqpii</span> {<span class="nv">i</span> : hz} : i - <span class="mi">1</span> != i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (negf (<span class="k">λ</span> <span class="nv">e</span>, hzpluslcan _ _ _ (e @ ! hzplusr0 i))); <span class="nb">clear</span> i.
+  confirm_not_equal isdecrelhzeq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdecrelhzeqpii</span> (<span class="nv">i</span> : hz) :
+  isdecrelhzeq (i - <span class="mi">1</span>) i = ii2 (<span class="k">fun</span> (<span class="nv">e</span> : hzeq (i - <span class="mi">1</span>) i) =&gt; hzeqpii e).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) i) <span class="k">as</span> [e | n].
+  - <span class="nb">apply</span> fromempty. <span class="nb">apply</span> (hzeqpii e).
+  - <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> funextfun. <span class="nb">intros</span> e.
+    <span class="nb">apply</span> fromempty. <span class="nb">apply</span> n. <span class="nb">apply</span> e.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Transparent</span> hz isdecrelhzeq iscommringops.
+
+<span class="sd">(** *** [hz] is an archimedean ring *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope .
+
+<span class="kn">Lemma</span> <span class="nf">isarchhz</span> : isarchring (X := hz) hzgth.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (isarchrigtoring _ _ _ _ _ _).
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> n m.
+    <span class="nb">apply</span> istransnatgth.
+  - <span class="nb">apply</span> isarchrig_setquot_aux.
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> natgthandpluslinv.
+      * <span class="nb">apply</span> natgthandplusrinv.
+    + <span class="nb">apply</span> isarchnat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchhz_one</span> :
+  ∏ x : hz, hzgth x <span class="mi">0</span> → <span class="k">∃</span> <span class="nv">n</span> : nat, hzgth (nattohz n * x) <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx.
+  <span class="nb">generalize</span> (isarchring_1 _ isarchhz x Hx).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> n.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+  <span class="nb">rewrite</span> &lt;- nattorig_nattohz.
+  <span class="bp">exact</span> (pr2 n).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isarchhz_gt</span> :
+  ∏ x : hz, <span class="k">∃</span> <span class="nv">n</span> : nat, hzgth (nattohz n) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">generalize</span> (isarchring_2 _ isarchhz x).
+  <span class="nb">apply</span> hinhfun.
+  <span class="nb">intros</span> n.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">n</span>).
+  <span class="nb">rewrite</span> &lt;- nattorig_nattohz.
+  <span class="bp">exact</span> (pr2 n).
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** **** hz -&gt; abgr, 1 ↦ x, n ↦ x + x + ... + x  (n times), [hz_abmonoid_abelian_group_morphism] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nat_to_monoid_fun</span> {<span class="nv">X</span> : monoid} (<span class="nv">x</span> : X) : natset -&gt; X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="bp">exact</span> (unel X).
+  - <span class="bp">exact</span> (@op X x IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_to_monoid_fun_unel</span> {<span class="nv">X</span> : monoid} (<span class="nv">x</span> : X) : nat_to_monoid_fun x O = (unel X).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (idpath (unel X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_to_monoid_fun_S</span> {<span class="nv">X</span> : abmonoid} (<span class="nv">x</span> : X) (<span class="nv">n</span> : nat) :
+  nat_to_monoid_fun x (S n) = (nat_to_monoid_fun x n * x)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="bp">exact</span> (commax X x (unel X)).
+  - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (assocax X). use two_arg_paths.
+    + use idpath.
+    + <span class="bp">exact</span> (commax X x _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_to_abmonoid_fun_plus</span> {<span class="nv">X</span> : monoid} (<span class="nv">x</span> : X) (<span class="nv">n</span> <span class="nv">m</span> : nat) :
+  nat_to_monoid_fun x (n + m)%nat = @op X (nat_to_monoid_fun x n) (nat_to_monoid_fun x m).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="nb">intros</span> m. <span class="nb">rewrite</span> (lunax X). use idpath.
+  - <span class="nb">intros</span> m. <span class="nb">cbn</span>. <span class="nb">rewrite</span> (assocax X). use two_arg_paths.
+    + use idpath.
+    + <span class="bp">exact</span> (IHn m).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_nat_to_monoid_fun</span> {<span class="nv">X</span> : gr} (<span class="nv">x</span> : X) : natset × natset -&gt; X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n.
+  <span class="bp">exact</span> (@op X (nat_to_monoid_fun x (dirprod_pr1 n))
+             (nat_to_monoid_fun (grinv X x) (dirprod_pr2 n))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_to_monoid_unel'</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) (<span class="nv">n</span> : nat) :
+  ((nat_to_monoid_fun x n) * (nat_to_monoid_fun (grinv X x) n))%multmonoid = (unel X).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - use (runax X).
+  - <span class="kn">Opaque</span> nat_to_monoid_fun.
+    <span class="nb">rewrite</span> (@nat_to_monoid_fun_S X x). <span class="nb">rewrite</span> (@nat_to_monoid_fun_S X (grinv X x)).
+    <span class="nb">rewrite</span> (commax X _ x). <span class="nb">rewrite</span> (assocax X).
+    <span class="nb">rewrite</span> &lt;- (assocax X (@nat_to_monoid_fun X x n)).
+    use (pathscomp0 (maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : X, (x * (xx * (grinv X x))))%multmonoid IHn)).
+    <span class="nb">clear</span> IHn. use (pathscomp0 _ (grrinvax X x)).
+    use two_arg_paths.
+    + use idpath.
+    + use (lunax X).
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="kn">Lemma</span> <span class="nf">nat_nat_to_monoid1</span> {<span class="nv">X</span> : gr} (<span class="nv">x</span> : X) {<span class="nv">n1</span> <span class="nv">n2</span> <span class="nv">m2</span> : nat} (<span class="nv">e</span> : n2 = m2) :
+  nat_nat_to_monoid_fun x (make_dirprod n1 n2) = nat_nat_to_monoid_fun x (make_dirprod n1 m2).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. use idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_nat_to_monoid2</span> {<span class="nv">X</span> : gr} (<span class="nv">x</span> : X) {<span class="nv">n1</span> <span class="nv">m1</span> <span class="nv">n2</span> : nat} (<span class="nv">e</span> : n1 = m1) :
+  nat_nat_to_monoid_fun x (make_dirprod n1 n2) = nat_nat_to_monoid_fun x (make_dirprod m1 n2).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. use idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nataddabmonoid_nataddabmonoid_to_monoid_fun</span> {<span class="nv">X</span> : gr} (<span class="nv">x</span> : X) :
+  abmonoiddirprod nataddabmonoid nataddabmonoid -&gt; X := nat_nat_to_monoid_fun x.
+
+<span class="kn">Opaque</span> nat_to_monoid_fun.
+<span class="kn">Lemma</span> <span class="nf">nat_nat_monoid_fun_isbinopfun</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) :
+  isbinopfun (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
+<span class="kn">Proof</span>.
+  use make_isbinopfun. <span class="nb">intros</span> n m. <span class="nb">induction</span> n <span class="k">as</span> [n1 n2]. <span class="nb">induction</span> m <span class="k">as</span> [m1 m2]. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nataddabmonoid_nataddabmonoid_to_monoid_fun. <span class="nb">unfold</span> nat_nat_to_monoid_fun. <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> nat_to_abmonoid_fun_plus. <span class="nb">rewrite</span> nat_to_abmonoid_fun_plus.
+  <span class="nb">rewrite</span> (assocax X). <span class="nb">rewrite</span> (assocax X).
+  use two_arg_paths.
+  - use idpath.
+  - <span class="nb">rewrite</span> &lt;- (assocax X). <span class="nb">rewrite</span> (commax X (nat_to_monoid_fun (grinv X x) n2) _).
+    <span class="nb">rewrite</span> (assocax X). <span class="nb">rewrite</span> (assocax X).
+    use two_arg_paths.
+    + use idpath.
+    + use (commax X).
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="kn">Lemma</span> <span class="nf">nat_nat_to_monoid_plus1</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) {<span class="nv">n1</span> <span class="nv">m1</span> <span class="nv">m2</span>: nat} (<span class="nv">e</span> : m2 = (m1 + n1)%nat) :
+  nat_to_monoid_fun (grinv X x) n1 =
+  (nat_to_monoid_fun x m1 * nat_to_monoid_fun (grinv X x) m2)%multmonoid.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> e. <span class="nb">clear</span> e. <span class="nb">rewrite</span> nat_to_abmonoid_fun_plus.
+  <span class="nb">rewrite</span> &lt;- (assocax X). use pathsinv0.
+  use (pathscomp0 (maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : X, (xx * (nat_to_monoid_fun (grinv X x) n1))%multmonoid)
+                              (nat_to_monoid_unel' x m1))).
+  use (lunax X).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_nat_prod_abmonoid_fun_unel</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) :
+  (nataddabmonoid_nataddabmonoid_to_monoid_fun x)
+    (unel (abmonoiddirprod nataddabmonoid nataddabmonoid)) = (unel X).
+<span class="kn">Proof</span>.
+  use (pathscomp0 (lunax X _)). use idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_nat_prod_abmonoid_abelian_monoid_morphism</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) :
+  abelian_monoid_morphism (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) X.
+<span class="kn">Proof</span>.
+  use make_abelian_monoid_morphism.
+  - <span class="bp">exact</span> (nataddabmonoid_nataddabmonoid_to_monoid_fun x).
+  - <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="bp">exact</span> (nat_nat_monoid_fun_isbinopfun x).
+    + <span class="bp">exact</span> (nat_nat_prod_abmonoid_fun_unel x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hz_abmonoid_is_abelian_monoid_morphism</span> :
+  @ismonoidfun
+    (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig))
+    hzaddabgr (@setquotpr (abmonoiddirprod (rigaddabmonoid natcommrig)
+                                           (rigaddabmonoid natcommrig))
+                          (binopeqrelabgrdiff (rigaddabmonoid natcommrig))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_ismonoidfun.
+  - <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'. use idpath.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hz_abmonoid_abelian_monoid_morphism</span> :
+  abelian_monoid_morphism (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)) hzaddabgr.
+<span class="kn">Proof</span>.
+  use make_abelian_monoid_morphism.
+  - use setquotpr.
+  - <span class="bp">exact</span> hz_abmonoid_is_abelian_monoid_morphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_nat_fun_unel</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) (<span class="nv">n</span> : nat) :
+  nat_nat_to_monoid_fun x (make_dirprod n n) = unel X.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_to_monoid_unel' x n).
+<span class="kn">Qed</span>.
+
+<span class="kn">Opaque</span> nat_to_monoid_fun.
+<span class="kn">Definition</span> <span class="nf">nat_nat_fun_ind</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) (<span class="nv">n</span> <span class="nv">m</span> : nat) :
+  nat_nat_to_monoid_fun x (make_dirprod (n + m)%nat m) = nat_nat_to_monoid_fun x (make_dirprod n O).
+<span class="kn">Proof</span>.
+  use (pathscomp0 (nat_nat_monoid_fun_isbinopfun x (make_dirprod n O) (make_dirprod m m))).
+  <span class="nb">unfold</span> nataddabmonoid_nataddabmonoid_to_monoid_fun.
+  <span class="nb">rewrite</span> (nat_nat_fun_unel x m). <span class="nb">rewrite</span> (runax X). use idpath.
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="kn">Opaque</span> nat_to_monoid_fun.
+<span class="kn">Definition</span> <span class="nf">nat_nat_fun_ind2</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) (<span class="nv">n1</span> <span class="nv">n2</span> <span class="nv">m</span> <span class="nv">k</span> : nat) :
+  nat_nat_to_monoid_fun x (make_dirprod n1 m) = nat_nat_to_monoid_fun x (make_dirprod n2 k) -&gt;
+  nat_nat_to_monoid_fun x (make_dirprod n1 (S m)) = nat_nat_to_monoid_fun x (make_dirprod n2 (S k)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">unfold</span> nat_nat_to_monoid_fun <span class="k">in</span> *.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (@nat_to_monoid_fun_S X (grinv X x)).
+  <span class="nb">rewrite</span> (@nat_to_monoid_fun_S X (grinv X x)).
+  <span class="nb">rewrite</span> &lt;- (assocax X). <span class="nb">rewrite</span> &lt;- (assocax X).
+  use two_arg_paths.
+  - <span class="bp">exact</span> H.
+  - use idpath.
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="kn">Opaque</span> nat_to_monoid_fun.
+<span class="kn">Definition</span> <span class="nf">abgr_precategory_integer_fun_iscomprelfun</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) :
+  iscomprelfun (binopeqrelabgrdiff (rigaddabmonoid natcommrig))
+               (nat_nat_prod_abmonoid_abelian_monoid_morphism x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x1. <span class="nb">induction</span> x1 <span class="k">as</span> [x1 e1].
+  <span class="nb">unfold</span> nat_nat_prod_abmonoid_abelian_monoid_morphism. <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> nataddabmonoid_nataddabmonoid_to_monoid_fun.
+  <span class="nb">unfold</span> nat_nat_to_monoid_fun. <span class="nb">cbn</span>.
+  <span class="nb">induction</span> x1 <span class="k">as</span> [ | x1 IHx1].
+  - <span class="nb">intros</span> x2 H. use (squash_to_prop H (setproperty X _ _)). <span class="nb">intros</span> H'. <span class="nb">cbn</span> <span class="k">in</span> H'.
+    <span class="nb">induction</span> H' <span class="k">as</span> [H1 H2]. <span class="nb">clear</span> H. <span class="nb">induction</span> x2 <span class="k">as</span> [x2 e2].
+    <span class="nb">apply</span> natplusrcan <span class="k">in</span> H2. <span class="nb">rewrite</span> nat_to_monoid_fun_unel. <span class="nb">rewrite</span> (lunax X). <span class="nb">cbn</span>. <span class="nb">cbn</span> <span class="k">in</span> H2.
+    <span class="bp">exact</span> (nat_nat_to_monoid_plus1 x H2).
+  - <span class="nb">intros</span> x2 H. use (squash_to_prop H (setproperty X _ _)). <span class="nb">intros</span> H'. <span class="nb">cbn</span> <span class="k">in</span> H'.
+    <span class="nb">induction</span> H' <span class="k">as</span> [H1 H2]. <span class="nb">clear</span> H. <span class="nb">induction</span> x2 <span class="k">as</span> [x2 e2]. <span class="nb">cbn</span> <span class="k">in</span> H2. <span class="nb">cbn</span>.
+    use (pathscomp0
+           (maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : X, (xx * (nat_to_monoid_fun (grinv X x) e1))%multmonoid)
+                       (@nat_to_monoid_fun_S X x x1))).
+    <span class="nb">rewrite</span> (commax X _ x). <span class="nb">rewrite</span> (assocax X). <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (HH : ishinh_UU(∑ x0 : nat, (x1 + (S e2) + x0)%nat = (x2 + e1 + x0)%nat)).
+    {
+      use hinhpr. use tpair.
+      - <span class="bp">exact</span> O.
+      - <span class="nb">cbn</span>. <span class="nb">rewrite</span> natplusr0. <span class="nb">rewrite</span> natplusr0. <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> natplusassoc <span class="k">in</span> H2.
+        <span class="nb">rewrite</span> plus_n_Sm <span class="k">in</span> H2. <span class="nb">rewrite</span> plus_n_Sm <span class="k">in</span> H2.
+        <span class="nb">rewrite</span> natplusnsm <span class="k">in</span> H2. <span class="nb">rewrite</span> &lt;- natplusassoc <span class="k">in</span> H2.
+        <span class="nb">apply</span> natplusrcan <span class="k">in</span> H2. <span class="bp">exact</span> H2.
+    }
+    <span class="nb">set</span> (tmp := IHx1 (make_dirprod x2 (S e2)) HH). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    use (pathscomp0 (maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : X, (x * xx)%multmonoid) tmp)).
+    <span class="nb">clear</span> tmp. <span class="nb">clear</span> HH. <span class="nb">clear</span> H2. <span class="nb">clear</span> IHx1. <span class="nb">rewrite</span> (commax X x). <span class="nb">rewrite</span> (assocax X).
+    use two_arg_paths.
+    + use idpath.
+    + use (pathscomp0
+             (maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : X, (xx * x)%multmonoid)
+                         (@nat_to_monoid_fun_S X (grinv X x) e2))).
+      <span class="nb">rewrite</span> (assocax X). <span class="nb">rewrite</span> (grlinvax X x). use (runax X).
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="sd">(** Construction of tha map \mathbb{Z} --&gt; A, 1 ↦ x *)</span>
+<span class="kn">Definition</span> <span class="nf">hz_abgr_fun</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) : hzaddabgr -&gt; X.
+<span class="kn">Proof</span>.
+  use setquotuniv.
+  - <span class="bp">exact</span> (nat_nat_prod_abmonoid_abelian_monoid_morphism x).
+  - <span class="bp">exact</span> (abgr_precategory_integer_fun_iscomprelfun x).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Hide isabelian_group_morphism behind Qed. *)</span>
+<span class="kn">Definition</span> <span class="nf">hz_abgr_fun_isbinopfun</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) : isbinopfun (hz_abgr_fun x).
+<span class="kn">Proof</span>.
+  use isbinopfun_twooutof3b.
+  + use (abmonoiddirprod (rigaddabmonoid natcommrig) (rigaddabmonoid natcommrig)).
+  + use (hz_abmonoid_abelian_monoid_morphism).
+  + use issurjsetquotpr.
+  + use binopfunisbinopfun.
+  + use binopfunisbinopfun.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Construction of the abelian_group_morphism \mathbb{Z} --&gt; A, 1 ↦ x *)</span>
+<span class="kn">Definition</span> <span class="nf">hz_abgr_fun_abelian_group_morphism</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) : abelian_group_morphism hzaddabgr X.
+<span class="kn">Proof</span>.
+  use make_abelian_group_morphism.
+  - <span class="bp">exact</span> (hz_abgr_fun x).
+  - <span class="bp">exact</span> (hz_abgr_fun_isbinopfun x).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Commutativity of the following diagram</span>
+
+<span class="sd">                          nat × nat -- nat_nat_prod_abmonoid_abelian_monoid_morphism ---&gt;  X</span>
+<span class="sd">        hz_abgr_fun_abelian_group_morphism |                                               ||</span>
+<span class="sd">                             hz -------- hz_abmonoid_abelian_group_morphism -------------&gt; X</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">abgr_natnat_hz_X_comm</span> {<span class="nv">X</span> : abgr} (<span class="nv">x</span> : X) :
+  composite_abelian_monoid_morphism hz_abmonoid_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism x)) =
+  nat_nat_prod_abmonoid_abelian_monoid_morphism x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> abelian_monoid_morphism_eq. <span class="nb">intros</span> n. use setquotunivcomm.
+<span class="kn">Qed</span>.
+
+<span class="kn">Opaque</span> nat_to_monoid_fun.
+<span class="kn">Lemma</span> <span class="nf">abelian_group_morphism_nat_to_monoid_fun</span> {<span class="nv">X</span> <span class="nv">Y</span> : abgr} (<span class="nv">f</span> : abelian_group_morphism X Y) (<span class="nv">x</span> : X) (<span class="nv">n</span> : nat) :
+  f (nat_to_monoid_fun x n) = nat_to_monoid_fun (f x) n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn].
+  - <span class="nb">apply</span> (monoidfununel f).
+  - <span class="nb">refine</span> (maponpaths f (@nat_to_monoid_fun_S X x n) @ _).
+    <span class="nb">refine</span> (binopfunisbinopfun f _ _ @ _).
+    <span class="nb">refine</span> (_ @ ! @nat_to_monoid_fun_S Y (f x) n).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _)).
+    <span class="bp">exact</span> IHn.
+<span class="kn">Qed</span>.
+<span class="kn">Transparent</span> nat_to_monoid_fun.
+
+<span class="sd">(** Some more facts about integers added by D. Grayson  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ℤ</span> := hzaddabgr.
+<span class="kn">Definition</span> <span class="nf">toℤ</span> (<span class="nv">n</span>:nat) : ℤ := nattohz n.
+<span class="kn">Definition</span> <span class="nf">toℤneg</span> (<span class="nv">n</span>:nat) : ℤ := natnattohz O n.
+<span class="kn">Definition</span> <span class="nf">zero</span> := toℤ <span class="mi">0</span>.
+<span class="kn">Definition</span> <span class="nf">one</span> := toℤ <span class="mi">1</span>.
+
+<span class="kn">Definition</span> <span class="nf">hzabsvalnat</span> <span class="nv">n</span> : hzabsval (natnattohz n <span class="mi">0</span>) = n. <span class="c">(* move to hz.v *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> hzabsval. <span class="nb">unfold</span> setquotuniv. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> hzabsvalint. <span class="nb">simpl</span>. <span class="nb">destruct</span> (natgthorleh n <span class="mi">0</span>).
+  { <span class="nb">apply</span> natminuseqn. } { <span class="bp">exact</span> (! (natleh0tois0 h)). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzsign_natnattohz</span> <span class="nv">m</span> <span class="nv">n</span> : - natnattohz m n = natnattohz n m. <span class="c">(* move to hz.v *)</span>
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.             <span class="c">(* don't change the proof *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzsign_nattohz</span> <span class="nv">m</span> : - nattohz m = natnattohz <span class="mi">0</span> m. <span class="c">(* move to hz.v *)</span>
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.             <span class="c">(* don't change the proof *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzsign_hzsign</span> (<span class="nv">i</span>:hz) : - - i = i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (grinvinv ℤ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hz_normal_form</span> (<span class="nv">i</span>:ℤ) :=
+  coprod (∑ n, natnattohz n <span class="mi">0</span> = i)
+         (∑ n, natnattohz <span class="mi">0</span> (S n) = i).
+
+<span class="kn">Definition</span> <span class="nf">hznf_pos</span> <span class="nv">n</span> := _,, inl (n,,idpath _) : total2 hz_normal_form.
+
+<span class="kn">Definition</span> <span class="nf">hznf_neg</span> <span class="nv">n</span> := _,, inr (n,,idpath _) : total2 hz_normal_form.
+
+<span class="kn">Definition</span> <span class="nf">hznf_zero</span> := hznf_pos <span class="mi">0</span>.
+
+<span class="kn">Definition</span> <span class="nf">hznf_neg_one</span> := hznf_neg <span class="mi">0</span>.
+
+<span class="kn">Definition</span> <span class="nf">hz_to_normal_form</span> (<span class="nv">i</span>:ℤ) : hz_normal_form i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> (hzlthorgeh i <span class="mi">0</span>) <span class="k">as</span> [r|s].
+  { <span class="nb">apply</span> inr. <span class="nb">assert</span> (a := hzabsvallth0 r). <span class="nb">assert</span> (b := hzlthtoneq _ _ r).
+    <span class="nb">assert</span> (c := hzabsvalneq0 b). <span class="nb">assert</span> (d := natneq0togth0 _ c).
+    <span class="nb">assert</span> (f := natgthtogehsn _ _ d). <span class="nb">assert</span> (g := minusplusnmm _ _ f).
+    <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> g. <span class="nb">simpl</span> <span class="k">in</span> g. <span class="k">exists</span> (<span class="nv">hzabsval</span> <span class="nv">i</span> - <span class="mi">1</span>)%nat.
+    <span class="nb">rewrite</span> g. <span class="nb">apply</span> hzinvmaponpathsminus. <span class="bp">exact</span> a. }
+  { <span class="nb">apply</span> inl. <span class="k">exists</span> (<span class="nv">hzabsval</span> <span class="nv">i</span>). <span class="bp">exact</span> (hzabsvalgeh0 s). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nattohz_inj</span> {<span class="nv">m</span> <span class="nv">n</span>} : nattohz m = nattohz n -&gt; m = n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> m n; <span class="bp">exact</span> (invmaponpathsincl _ isinclnattohz).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzdichot</span> {<span class="nv">m</span> <span class="nv">n</span>} : neg (nattohz m = - nattohz (S n)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">assert</span> (d := maponpaths hzsign e); <span class="nb">clear</span> e.
+  <span class="nb">rewrite</span> hzsign_hzsign <span class="k">in</span> d.
+  <span class="nb">assert</span>( f := maponpaths (<span class="k">λ</span> <span class="nv">i</span>, nattohz m + i) d); <span class="nb">simpl</span> <span class="k">in</span> f; <span class="nb">clear</span> d.
+  <span class="nb">change</span> (nattohz m + - nattohz m) <span class="k">with</span> (nattohz m - nattohz m) <span class="k">in</span> f.
+  <span class="nb">rewrite</span> hzrminus <span class="k">in</span> f. <span class="nb">change</span> (<span class="mi">0</span> = nattohz (m + S n)) <span class="k">in</span> f.
+  <span class="nb">assert</span> (g := nattohz_inj f); <span class="nb">clear</span> f. <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> g.
+  <span class="bp">exact</span> (negpaths0sx _ g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negpos'</span> : isweq (@pr1 _ hz_normal_form).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isweqpr1; <span class="nb">intro</span> i.
+  <span class="k">exists</span> (<span class="nv">hz_to_normal_form</span> <span class="nv">i</span>).
+  <span class="nb">generalize</span> (hz_to_normal_form i) <span class="k">as</span> s.
+  <span class="nb">intros</span> [[m p]|[m p]] [[n q]|[n q]].
+  { <span class="nb">apply</span> (maponpaths (@ii1 (∑ n, natnattohz n <span class="mi">0</span> = i)
+                            (∑ n, natnattohz <span class="mi">0</span> (S n) = i))).
+    <span class="nb">apply</span> (proofirrelevance _ (isinclnattohz i)). }
+  { <span class="nb">apply</span> fromempty. <span class="nb">assert</span> (r := p@!q); <span class="nb">clear</span> p q. <span class="nb">apply</span> (hzdichot r). }
+  { <span class="nb">apply</span> fromempty. <span class="nb">assert</span> (r := q@!p); <span class="nb">clear</span> p q. <span class="nb">apply</span> (hzdichot r). }
+  { <span class="nb">apply</span> (maponpaths (@ii2 (∑ n, natnattohz n <span class="mi">0</span> = i)
+                            (∑ n, natnattohz <span class="mi">0</span> (S n) = i))).
+    <span class="nb">assert</span> (p' := maponpaths hzsign p). <span class="nb">assert</span> (q' := maponpaths hzsign q).
+    <span class="nb">change</span> (- natnattohz O (S m)) <span class="k">with</span>  (nattohz (S m)) <span class="k">in</span> p'.
+    <span class="nb">change</span> (- natnattohz O (S n)) <span class="k">with</span>  (nattohz (S n)) <span class="k">in</span> q'.
+    <span class="nb">assert</span> (c := proofirrelevance _ (isinclnattohz (-i)) (S m,,p') (S n,,q')).
+    <span class="nb">assert</span> (d := maponpaths pr1 c); <span class="nb">simpl</span> <span class="k">in</span> d.
+    <span class="nb">assert</span> (e := invmaponpathsS _ _ d); <span class="nb">clear</span> d.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> setproperty.
+    - <span class="bp">exact</span> (!e). }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negpos_weq</span> := make_weq _ negpos' : weq (total2 hz_normal_form) ℤ.
+
+<span class="kn">Definition</span> <span class="nf">negpos</span> : weq (coprod nat nat) ℤ. <span class="c">(* ℤ = (-inf,-1) + (0,inf) *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (make_weq _ (isweq_iso _ _ _ _)).
+  { <span class="nb">intros</span> [n'|n].
+    { <span class="bp">exact</span> (natnattohz <span class="mi">0</span> (S n')). } { <span class="bp">exact</span> (natnattohz n <span class="mi">0</span>). } }
+  { <span class="nb">intro</span> i. <span class="nb">destruct</span> (hz_to_normal_form i) <span class="k">as</span> [[n p]|[m q]].
+    { <span class="bp">exact</span> (inr n). } { <span class="bp">exact</span> (inl m). } }
+  { <span class="nb">intros</span> [n'|n].
+    { <span class="nb">simpl</span>. <span class="nb">rewrite</span> natminuseqn. <span class="bp">reflexivity</span>. }
+    { <span class="nb">simpl</span>. <span class="nb">rewrite</span> hzabsvalnat. <span class="bp">reflexivity</span>. } }
+  { <span class="nb">simpl</span>. <span class="nb">intro</span> i.
+    <span class="nb">destruct</span> (hz_to_normal_form i) <span class="k">as</span> [[n p]|[m q]].
+    { <span class="bp">exact</span> p. } { <span class="bp">exact</span> q. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hzminusplus</span> (<span class="nv">x</span> <span class="nv">y</span>:hz) : -(x+y) = (-x) + (-y). <span class="c">(* move to hz.v *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (hzplusrcan _ _ (x+y)). <span class="nb">rewrite</span> hzlminus.
+  <span class="nb">rewrite</span> (hzpluscomm (-x)). <span class="nb">rewrite</span> (hzplusassoc (-y)).
+  <span class="nb">rewrite</span> &lt;- (hzplusassoc (-x)). <span class="nb">rewrite</span> hzlminus. <span class="nb">rewrite</span> hzplusl0.
+  <span class="nb">rewrite</span> hzlminus. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">loop_power</span> {<span class="nv">Y</span>} {<span class="nv">y</span>:Y} (<span class="nv">l</span>:y = y) (<span class="nv">n</span>:ℤ) : y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">assert</span> (m := loop_power_nat l (hzabsval n)).
+  <span class="nb">destruct</span> (hzlthorgeh n <span class="mi">0</span>%hz). { <span class="bp">exact</span> (!m). } { <span class="bp">exact</span> m. }
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/NumberSystems/Integers.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Export UniMath.MoreFoundations.NegativePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

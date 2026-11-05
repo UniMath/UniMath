@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BiadjunctionPreserveEquifiers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************</span>
+
+<span class="sd"> Preservation of equifiers by right biadjoints</span>
+
+<span class="sd"> ******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.FullEquivalences.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biadjunction.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Preservation.Preservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">BiadjunctionPreservation</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          {<span class="nv">L</span> : psfunctor B₁ B₂}
+          (<span class="nv">R</span> : left_biadj_data L).
+
+  <span class="kn">Section</span> <span class="nf">PreserveEquifiers</span>.
+    <span class="kn">Context</span> {<span class="nv">y₁</span> <span class="nv">y₂</span> : B₂}
+            {<span class="nv">f</span> <span class="nv">g</span> : y₁ --&gt; y₂}
+            {<span class="nv">α</span> <span class="nv">β</span> : f ==&gt; g}
+            {<span class="nv">e</span> : equifier_cone f g α β}
+            (<span class="nv">He</span> : has_equifier_ump e).
+
+    <span class="kn">Definition</span> <span class="nf">preserve_equifiers_R_path</span>
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">h</span> : L x --&gt; y₁)
+               (<span class="nv">p</span> : h ◃ α = h ◃ β)
+      : biadj_unit R x · # R h ◃ ## R α
+        =
+        biadj_unit R x · # R h ◃ ## R β.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, psfunctor_comp _ _ _ • ##R z)
+              p)
+        <span class="k">as</span> q.
+      <span class="nb">cbn</span> -[psfunctor_comp] <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !psfunctor_lwhisker <span class="k">in</span> q.
+      use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
+      <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      use (vcomp_rcancel (psfunctor_comp R h g)).
+      {
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      }
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers_nat_trans_cell</span>
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">h</span> : x --&gt; R e)
+      : biadj_unit R x · # R (# L h · biadj_counit R e · equifier_cone_pr1 e)
+        ==&gt;
+        h · # R (equifier_cone_pr1 e)
+      := (_ ◃ ((psfunctor_comp R _ _)^-<span class="mi">1</span>
+               • ((psfunctor_comp R _ _)^-<span class="mi">1</span> ▹ _)))
+         • lassociator _ _ _
+         • (lassociator _ _ _ ▹ _)
+         • (((psnaturality_of (biadj_unit R) h) ▹ _) ▹ _)
+         • rassociator _ _ _
+         • rassociator _ _ _
+         • (_ ◃ (lassociator _ _ _
+                 • ((linvunitor _
+                 • (_ ◃ (_ ◃ (linvunitor _ • (_ ◃ rinvunitor _))))
+                 • invertible_modcomponent_of (biadj_triangle_r R) e) ▹ _)
+                 • lunitor _)).
+
+    <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers_commute_data</span>
+               (<span class="nv">x</span> : B₁)
+      : nat_trans_data
+          (biadj_left_hom R x e
+           ∙ to_universal_equifier_cat e (L x)
+           ∙ full_sub_category_functor
+               (<span class="k">λ</span> (<span class="nv">h</span> : hom (L x) y₁),
+                make_hProp
+                  (h ◃ α = h ◃ β)
+                  (cellset_property _ _ _ _))
+               (<span class="k">λ</span> (<span class="nv">h</span> : hom x (R y₁)),
+                make_hProp
+                  (h ◃ ## R α = h ◃ ## R β)
+                  (cellset_property _ _ _ _))
+               (biadj_right_hom R x y₁)
+               preserve_equifiers_R_path)
+          (to_universal_equifier_cat (psfunctor_equifier_cone R e) x)
+      := <span class="k">λ</span> <span class="nv">h</span>, right_biadj_preserves_equifiers_nat_trans_cell h ,, tt.
+
+    <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers_commute_is_nat_trans</span>
+               (<span class="nv">x</span> : B₁)
+      : is_nat_trans
+          _ _
+          (right_biadj_preserves_equifiers_commute_data x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h₁ h₂ ζ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> right_biadj_preserves_equifiers_nat_trans_cell.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">assert</span> (## R ((## L ζ ▹ biadj_counit R e) ▹ equifier_cone_pr1 e)
+                  • (psfunctor_comp R _ _)^-<span class="mi">1</span>
+                  =
+                  (psfunctor_comp R _ _)^-<span class="mi">1</span>
+                  • (## R (## L ζ ▹ biadj_counit R e) ▹ # R (equifier_cone_pr1 e)))
+            <span class="k">as</span> H.
+          {
+            use vcomp_move_R_Mp ; [ is_iso | ].
+            <span class="nb">rewrite</span> !vassocl.
+            use vcomp_move_L_pM ; [ is_iso | ].
+            <span class="bp">exact</span> (psfunctor_rwhisker
+                     R
+                     (equifier_cone_pr1 e)
+                     (## L ζ ▹ biadj_counit R e)).
+          }
+          <span class="bp">exact</span> H.
+        }
+        <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">assert</span> (## R (## L ζ ▹ biadj_counit R e)
+                  • ( psfunctor_comp R _ _)^-<span class="mi">1</span>
+                  =
+                  (psfunctor_comp R _ _)^-<span class="mi">1</span>
+                  • (## R (## L ζ) ▹ # R (biadj_counit R e)))
+            <span class="k">as</span> H.
+          {
+            use vcomp_move_R_Mp ; [ is_iso | ].
+            <span class="nb">rewrite</span> !vassocl.
+            use vcomp_move_L_pM ; [ is_iso | ].
+            <span class="bp">exact</span> (psfunctor_rwhisker R (biadj_counit R e) (##L ζ)).
+          }
+          <span class="bp">exact</span> H.
+        }
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> rwhisker_lwhisker.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> rwhisker_lwhisker.
+        }
+        <span class="bp">exact</span> (!(rwhisker_vcomp _ _ _)).
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (rwhisker_vcomp _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (psnaturality_natural (biadj_unit R) _ _ _ _ ζ).
+          }
+          <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (!(rwhisker_vcomp _ _ _)).
+        }
+        <span class="bp">exact</span> (!(rwhisker_vcomp _ _ _)).
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> rwhisker_rwhisker_alt.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> rwhisker_rwhisker_alt.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_whisker.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_whisker.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_whisker.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> vcomp_whisker.
+      }
+      <span class="nb">refine</span> (vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> vcomp_whisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers_commute</span>
+               (<span class="nv">x</span> : B₁)
+      : biadj_left_hom R x e
+        ∙ to_universal_equifier_cat e (L x)
+        ∙ full_sub_category_functor
+            (<span class="k">λ</span> (<span class="nv">h</span> : hom (L x) y₁),
+             make_hProp
+               (h ◃ α = h ◃ β)
+               (cellset_property _ _ _ _))
+            (<span class="k">λ</span> (<span class="nv">h</span> : hom x (R y₁)),
+             make_hProp
+               (h ◃ ## R α = h ◃ ## R β)
+               (cellset_property _ _ _ _))
+            (biadj_right_hom R x y₁)
+            preserve_equifiers_R_path
+        ⟹
+        to_universal_equifier_cat (psfunctor_equifier_cone R e) x.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (right_biadj_preserves_equifiers_commute_data x).
+      - <span class="bp">exact</span> (right_biadj_preserves_equifiers_commute_is_nat_trans x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers_commute_is_nat_z_iso</span>
+               (<span class="nv">x</span> : B₁)
+      : is_nat_z_iso (right_biadj_preserves_equifiers_commute x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> h.
+      use is_iso_full_sub.
+      use is_inv2cell_to_is_z_iso.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> right_biadj_preserves_equifiers_nat_trans_cell.
+      is_iso.
+      - <span class="nb">apply</span> property_from_invertible_2cell.
+      - <span class="nb">apply</span> property_from_invertible_2cell.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">preserve_equifiers_L_path</span>
+               {<span class="nv">x</span> : B₁}
+               (<span class="nv">h</span> : x --&gt; R y₁)
+               (<span class="nv">p</span> : h ◃ ## R α = h ◃ ## R β)
+      : # L h · biadj_counit R y₁ ◃ α
+        =
+        # L h · biadj_counit R y₁ ◃ β.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, psfunctor_comp _ _ _ • ##L z • (psfunctor_comp _ _ _)^-<span class="mi">1</span>)
+              p)
+        <span class="k">as</span> q.
+      <span class="nb">cbn</span> -[psfunctor_comp] <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !psfunctor_lwhisker <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !vassocl <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !vcomp_rinv <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !id2_right <span class="k">in</span> q.
+      use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
+      <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker.
+      <span class="nb">apply</span> maponpaths_2.
+      use (vcomp_rcancel (_ ◃ psnaturality_of (biadj_counit R) g)).
+      {
+        is_iso.
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      }
+      <span class="nb">rewrite</span> !lwhisker_vcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (psnaturality_natural (biadj_counit R) _ _ _ _ α).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (psnaturality_natural (biadj_counit R) _ _ _ _ β).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">apply</span> maponpaths.
+      use (vcomp_rcancel (lassociator _ _ _)).
+      {
+        is_iso.
+      }
+      <span class="nb">rewrite</span> !rwhisker_lwhisker.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PreserveEquifiers</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_biadj_preserves_equifiers</span>
+             (<span class="nv">HB₁</span> : is_univalent_2_1 B₁)
+             (<span class="nv">HB₂</span> : is_univalent_2_1 B₂)
+    : preserves_equifiers R.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y₁ y₂ f g α β e He.
+    use universal_equifier_cone_has_ump.
+    <span class="nb">intro</span> x.
+    use nat_iso_adj_equivalence_of_cats.
+    - <span class="bp">exact</span> (biadj_left_hom R x e
+             ∙ to_universal_equifier_cat e (L x)
+             ∙ full_sub_category_functor
+                 (<span class="k">λ</span> (<span class="nv">h</span> : hom (L x) y₁),
+                  make_hProp
+                    (h ◃ α = h ◃ β)
+                    (cellset_property _ _ _ _))
+                 (<span class="k">λ</span> (<span class="nv">h</span> : hom x (R y₁)),
+                  make_hProp
+                    (h ◃ ## R α = h ◃ ## R β)
+                    (cellset_property _ _ _ _))
+                 (biadj_right_hom R x y₁)
+                 preserve_equifiers_R_path).
+    - <span class="bp">exact</span> (right_biadj_preserves_equifiers_commute x).
+    - <span class="bp">exact</span> (right_biadj_preserves_equifiers_commute_is_nat_z_iso x).
+    - use comp_adj_equivalence_of_cats.
+      + use comp_adj_equivalence_of_cats.
+        * <span class="bp">exact</span> (biadj_hom_equiv R x e).
+        * <span class="nb">apply</span> (make_is_universal_equifier_cone HB₂ _ He).
+      + use full_sub_category_adj_equivalence.
+        * <span class="bp">exact</span> (adj_equivalence_of_cats_inv (biadj_hom_equiv R x y₁)).
+        * <span class="bp">exact</span> preserve_equifiers_L_path.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BiadjunctionPreservation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Preservation/BiadjunctionPreserveEquifiers.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Preservation of equifiers by right biadjoints
+  &gt;
+  &gt;  ******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

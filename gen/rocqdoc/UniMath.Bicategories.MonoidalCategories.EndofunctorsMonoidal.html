@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+**********************************************************
+
+<div class="paragraph"> </div>
+
+Ralph Matthes
+
+<div class="paragraph"> </div>
+
+2019, change to <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a></span> as base notion in 2021
+
+<div class="paragraph"> </div>
+
+ **********************************************************
+
+<div class="paragraph"> </div>
+
+Contents :
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> build monoidal category for the endofunctors
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.html#"><span class="id" title="library">UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Endofunctors_as_monoidal_category" class="idref" href="#Endofunctors_as_monoidal_category"><span class="id" title="section">Endofunctors_as_monoidal_category</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Endofunctors_as_monoidal_category.C" class="idref" href="#Endofunctors_as_monoidal_category.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>).<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="monoidal_cat_of_endofunctors" class="idref" href="#monoidal_cat_of_endofunctors"><span class="id" title="definition">monoidal_cat_of_endofunctors</span></a>: <a class="idref" href="UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.html#monoidal_cat_from_bicat_and_ob"><span class="id" title="definition">monoidal_cat_from_bicat_and_ob</span></a>(<span class="id" title="var">C</span>:=<a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a>) <a class="idref" href="UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.html#Endofunctors_as_monoidal_category.C"><span class="id" title="variable">C</span></a>.<br/>
+</div>
+
+<div class="doc">
+we need this high-level view in order to be able to instantiate <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorsMonoidal.html#montrafotargetbicat_moncat"><span class="id" title="definition">montrafotargetbicat_moncat</span></a></span> in <span class="inlinecode"><span class="id" title="library">ActionBasedStrongFunctorsMonoidal</span></span> 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.EndofunctorsMonoidal.html#Endofunctors_as_monoidal_category"><span class="id" title="section">Endofunctors_as_monoidal_category</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

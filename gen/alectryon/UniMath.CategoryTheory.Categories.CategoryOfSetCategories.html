@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryOfSetCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The category of strict categories</span>
+
+<span class="sd"> Strict categories are the categories in which the type of objects forms a set. As such,</span>
+<span class="sd"> the type of functors between them is a set as well, and this allows us to construct a</span>
+<span class="sd"> category whose objects are strict categories and whose morphisms are functors. We also</span>
+<span class="sd"> show that this category is univalent.</span>
+
+<span class="sd"> For the proof of univalence, we reuse the result that identity of categories is equivalent</span>
+<span class="sd"> to isomorphisms of categories. The main work lies in showing that isomorpisms in the</span>
+<span class="sd"> category of strict categories are the same as isomorphisms of categories. This makes use</span>
+<span class="sd"> of some infrastructure regarding isomorphisms.</span>
+
+<span class="sd"> One technical detail that occurs in the proof of univalence, lies in the fact that we</span>
+<span class="sd"> define [path_setcategory_help_fun] and [path_setcategory_help_fun_alt] and that we show</span>
+<span class="sd"> they are equal in [path_setcategory_help_fun_eq]. The function [path_setcategory_help_fun]</span>
+<span class="sd"> is more useful computationally in [is_univalent_cat_of_setcategory], but</span>
+<span class="sd"> [path_setcategory_help_fun_alt] simplifies the construction of the equivalence in</span>
+<span class="sd"> [path_setcategory].</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The category of strict categories [cat_of_setcategory]</span>
+<span class="sd"> 2. Isomorphisms of strict categories</span>
+<span class="sd"> 3. The univalence of the category of strict categories [is_univalent_cat_of_setcategory]</span>
+<span class="sd"> 4. An isomorphism of strict categories gives an adjoint equivalence [z_iso_to_equivalence]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryEquality.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The category of strict categories *)</span>
+<span class="kn">Definition</span> <span class="nf">precat_ob_mor_of_setcategory</span>
+  : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  use make_precategory_ob_mor.
+  - <span class="bp">exact</span> setcategory.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span>, C₁ ⟶ C₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_data_of_setcategory</span>
+  : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> precat_ob_mor_of_setcategory.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, functor_identity _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span>, F ∙ G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_precategory_of_setcategory</span>
+  : is_precategory precat_data_of_setcategory.
+<span class="kn">Proof</span>.
+  use make_is_precategory_one_assoc.
+  - <span class="nb">intros</span> C₁ C₂ F.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_data_eq ; <span class="nb">cbn</span>.
+    + <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> C₁ C₂ F.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_data_eq ; <span class="nb">cbn</span>.
+    + <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> C₁ C₂ C₃ C₄ F G H.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_data_eq ; <span class="nb">cbn</span>.
+    + <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_of_setcategory</span>
+  : precategory.
+<span class="kn">Proof</span>.
+  use make_precategory.
+  - <span class="bp">exact</span> precat_data_of_setcategory.
+  - <span class="bp">exact</span> is_precategory_of_setcategory.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">has_homsets_cat_of_setcategory</span>
+  : has_homsets precat_of_setcategory.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂.
+  use functor_isaset.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> C₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_setcategory</span>
+  : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - <span class="bp">exact</span> precat_of_setcategory.
+  - <span class="bp">exact</span> has_homsets_cat_of_setcategory.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Isomorphisms of strict categories *)</span>
+<span class="kn">Section</span> <span class="nf">CatIsoWeqIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+          (<span class="nv">F</span> : C ⟶ D).
+
+  <span class="kn">Section</span> <span class="nf">ToIso</span>.
+    <span class="kn">Context</span> (<span class="nv">HF</span> : is_catiso F).
+
+    <span class="kn">Let</span> <span class="nf">F_iso</span> : catiso C D := F ,, HF.
+
+    <span class="kn">Definition</span> <span class="nf">is_cat_iso_to_is_z_isomorphism_inv_data</span>
+      : functor_data D C.
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (catiso_inv_ob F_iso).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, catiso_inv_mor F_iso f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_cat_iso_to_is_z_isomorphism_inv_laws</span>
+      : is_functor is_cat_iso_to_is_z_isomorphism_inv_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x ; <span class="nb">cbn</span> -[catiso_inv_mor].
+        use catiso_inv_mor_eq ; <span class="nb">cbn</span> -[catiso_inv_mor].
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (!(catiso_catiso_inv_ob F_iso x))).
+        }
+        <span class="nb">rewrite</span> pathsinv0l.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span> -[catiso_inv_mor].
+        use catiso_inv_mor_eq ; <span class="nb">cbn</span> -[catiso_inv_mor].
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !(catiso_catiso_inv_mor F_iso).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (!(catiso_catiso_inv_ob F_iso x))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (!(catiso_catiso_inv_ob F_iso y))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (!(catiso_catiso_inv_ob F_iso z))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cat_iso_to_is_z_isomorphism_inv</span>
+      : D ⟶ C.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> is_cat_iso_to_is_z_isomorphism_inv_data.
+      - <span class="bp">exact</span> is_cat_iso_to_is_z_isomorphism_inv_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_cat_iso_to_is_z_isomorphism_laws</span>
+      : @is_inverse_in_precat cat_of_setcategory
+           C D
+           F
+           is_cat_iso_to_is_z_isomorphism_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use functor_eq ; [ <span class="nb">apply</span> homset_property | ].
+        use functor_data_eq_alt.
+        + <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+          <span class="nb">apply</span> homotinvweqweq.
+        + <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> -[catiso_inv_mor].
+          <span class="nb">rewrite</span> (catiso_inv_mor_cat_iso F_iso).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (!(catiso_inv_ob_catiso F_iso y))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">apply</span> idpath.
+      - use functor_eq ; [ <span class="nb">apply</span> homset_property | ].
+        use functor_data_eq_alt.
+        + <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (homotweqinvweq (catiso_ob_weq F_iso) x).
+        + <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> -[catiso_inv_mor].
+          <span class="nb">rewrite</span> (catiso_catiso_inv_mor F_iso).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (!(catiso_catiso_inv_ob F_iso y))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_cat_iso_to_is_z_isomorphism</span>
+      : @is_z_isomorphism cat_of_setcategory C D F.
+    <span class="kn">Proof</span>.
+      use make_is_z_isomorphism.
+      - <span class="bp">exact</span> is_cat_iso_to_is_z_isomorphism_inv.
+      - <span class="bp">exact</span> is_cat_iso_to_is_z_isomorphism_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToIso</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromIso</span>.
+    <span class="kn">Context</span> (<span class="nv">HF</span> : @is_z_isomorphism cat_of_setcategory C D F).
+
+    <span class="kn">Let</span> <span class="nf">F_iso</span> : @z_iso cat_of_setcategory C D := F ,, HF.
+
+    <span class="kn">Let</span> <span class="nf">G</span> : D ⟶ C := inv_from_z_iso F_iso.
+
+    <span class="kn">Lemma</span> <span class="nf">is_z_isomorphism_to_is_cat_iso_eq_l</span>
+          (<span class="nv">x</span> : C)
+      : G(F x) = x.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (path_functor_ob (z_iso_inv_after_z_iso F_iso) x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_z_isomorphism_to_is_cat_iso_eq_r</span>
+          (<span class="nv">y</span> : D)
+      : F(G y) = y.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (path_functor_ob (z_iso_after_z_iso_inv F_iso) y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_z_isomorphism_to_is_cat_iso</span>
+      : is_catiso F.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> x y.
+        use isweq_iso.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>,
+                 idtoiso (!(is_z_isomorphism_to_is_cat_iso_eq_l _))
+                 · #G f
+                 · idtoiso (is_z_isomorphism_to_is_cat_iso_eq_l _)).
+        + <span class="nb">intro</span> f.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">unfold</span> is_z_isomorphism_to_is_cat_iso_eq_l.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (path_functor_mor (z_iso_inv_after_z_iso F_iso) f).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (!(pr1_idtoiso_concat
+                       (!(path_functor_ob (z_iso_inv_after_z_iso F_iso) x))
+                       (path_functor_ob (z_iso_inv_after_z_iso F_iso) x))).
+          }
+          <span class="nb">rewrite</span> pathsinv0l.
+          <span class="nb">apply</span> id_left.
+        + <span class="nb">intro</span> f.
+          <span class="nb">refine</span> (_ @ path_functor_mor_left (z_iso_after_z_iso_inv F_iso) f).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso F).
+          }
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso F).
+          }
+          use setcategory_eq_idtoiso_comp.
+      - use isweq_iso.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, G y).
+        + <span class="bp">exact</span> is_z_isomorphism_to_is_cat_iso_eq_l.
+        + <span class="bp">exact</span> is_z_isomorphism_to_is_cat_iso_eq_r.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">FromIso</span>.
+<span class="kn">End</span> <span class="nf">CatIsoWeqIso</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_catiso_weq_is_z_isomorphism</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+           (<span class="nv">F</span> : C ⟶ D)
+  : is_catiso F ≃ @is_z_isomorphism cat_of_setcategory C D F.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (is_cat_iso_to_is_z_isomorphism F).
+  - <span class="bp">exact</span> (is_z_isomorphism_to_is_cat_iso F).
+  - <span class="nb">apply</span> isaprop_is_catiso.
+  - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The univalence of the category of strict categories *)</span>
+<span class="kn">Definition</span> <span class="nf">path_setcategory_help_fun</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+           (<span class="nv">p</span> : C = D)
+  : category_from_setcategory C = category_from_setcategory D.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_setcategory_help_fun_alt</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+           (<span class="nv">p</span> : C = D)
+  : category_from_setcategory C = category_from_setcategory D.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (base_paths _ _ p).
+  - <span class="nb">apply</span> isaprop_has_homsets.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">path_setcategory_help_fun_eq</span>
+            {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+            (<span class="nv">p</span> : C = D)
+  : path_setcategory_help_fun p = path_setcategory_help_fun_alt p.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">refine</span> (_ @ total2_fiber_paths _).
+  <span class="nb">unfold</span> path_setcategory_help_fun_alt.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> isaprop_has_homsets.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_setcategory</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : setcategory)
+  : C = D
+    ≃
+    category_from_setcategory C = category_from_setcategory D.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> path_setcategory_help_fun.
+  - <span class="nb">intro</span> p.
+    use total2_paths_f.
+    + <span class="bp">exact</span> (base_paths _ _ p).
+    + <span class="nb">apply</span> isaprop_is_setcategory.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> p ;
+       <span class="nb">induction</span> p ;
+       <span class="nb">rewrite</span> path_setcategory_help_fun_eq ;
+       <span class="nb">unfold</span> path_setcategory_help_fun_alt ;
+       <span class="nb">rewrite</span> base_total2_paths ;
+       <span class="nb">refine</span> (_ @ total2_fiber_paths _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> isasetaprop ;
+       <span class="nb">apply</span> isaprop_is_setcategory).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> p ;
+       <span class="nb">induction</span> C <span class="k">as</span> [ C HC ] ;
+       <span class="nb">induction</span> D <span class="k">as</span> [ D HD ] ;
+       <span class="nb">rewrite</span> path_setcategory_help_fun_eq ;
+       <span class="nb">unfold</span> path_setcategory_help_fun_alt ;
+       <span class="nb">rewrite</span> base_total2_paths ;
+       <span class="nb">refine</span> (_ @ total2_fiber_paths _) ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> isasetaprop ;
+       <span class="nb">apply</span> isaprop_has_homsets).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_cat_of_setcategory</span>
+  : is_univalent cat_of_setcategory.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C D.
+  use weqhomot.
+  - <span class="bp">exact</span> (weqfibtototal _ _ is_catiso_weq_is_z_isomorphism
+           ∘ catiso_is_path_cat _ _
+           ∘ path_setcategory _ _)%weq.
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use z_iso_eq.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_functor.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_cat_of_setcategory</span>
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> cat_of_setcategory.
+  - <span class="bp">exact</span> is_univalent_cat_of_setcategory.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">IsoToEquivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : setcategory}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : z_iso (C := cat_of_setcategory) A B).
+
+  <span class="kn">Let</span> <span class="nf">F</span> : A ⟶ B
+    := z_iso_mor f.
+  <span class="kn">Let</span> <span class="nf">G</span> : B ⟶ A
+    := inv_from_z_iso f.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity A ⟹ F ∙ G
+    := z_iso_mor (idtoiso (C := [A, A]) (!z_iso_inv_after_z_iso f)).
+  <span class="kn">Let</span> <span class="nf">ϵ</span> : G ∙ F ⟹ functor_identity B
+    := z_iso_mor (idtoiso (C := [B, B]) (z_iso_after_z_iso_inv f)).
+
+  <span class="kn">Lemma</span> <span class="nf">FG_form_adjunction</span>
+    : Core.form_adjunction F G η ϵ.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> c.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, # F (z_iso_mor x) · _) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (!z_iso_inv_after_z_iso f) _) @ _).
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, z_iso_mor x · _) (maponpaths_idtoiso _ _ _ _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · z_iso_mor x) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (z_iso_after_z_iso_inv f) _) @ _).
+      <span class="nb">refine</span> (!maponpaths z_iso_mor (idtoiso_concat _ _ _ _ _ _) @ _).
+      <span class="nb">apply</span> setcategory_refl_idtoiso.
+    - <span class="nb">intro</span> c.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · #G (z_iso_mor x)) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (z_iso_after_z_iso_inv f) _) @ _).
+      <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · z_iso_mor x) (maponpaths_idtoiso _ _ _ _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, z_iso_mor x · _) (idtoiso_functorcat_compute_pointwise _ _ _ _ _ (!z_iso_inv_after_z_iso f) _) @ _).
+      <span class="nb">refine</span> (!maponpaths z_iso_mor (idtoiso_concat _ _ _ _ _ _) @ _).
+      <span class="nb">apply</span> setcategory_refl_idtoiso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">FG_forms_equivalence</span>
+    : forms_equivalence (F ,, G ,, η ,, ϵ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> (is_functor_z_iso_pointwise_if_z_iso _ _ _ _ _ _ (z_iso_is_z_isomorphism _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_to_equivalence</span>
+    : adj_equivalence_of_cats F
+    := make_adj_equivalence_of_cats _ _ _ _
+      FG_form_adjunction
+      FG_forms_equivalence.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_to_adj_equiv</span>
+    : adj_equiv A B
+    := _ ,, z_iso_to_equivalence.
+
+<span class="kn">End</span> <span class="nf">IsoToEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/CategoryOfSetCategories.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. An isomorphism of strict categories gives an adjoint equivalence [z_iso_to_equivalence]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

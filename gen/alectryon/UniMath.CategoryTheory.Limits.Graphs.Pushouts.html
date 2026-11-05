@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pushouts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Pushouts defined in terms of colimits *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of pushouts</span>
+<span class="sd">- Coincides with the direct definition</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of pushouts in terms of colimits *)</span>
+<span class="kn">Section</span> <span class="nf">def_po</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+  <span class="kn">Definition</span> <span class="nf">One</span> : three := ● <span class="mi">0</span>.
+  <span class="kn">Definition</span> <span class="nf">Two</span> : three := ● <span class="mi">1</span>.
+  <span class="kn">Definition</span> <span class="nf">Three</span> : three := ● <span class="mi">2</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pushout_graph</span> : graph.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">three</span>.
+    use three_rec.
+    - <span class="nb">apply</span> three_rec.
+      + <span class="nb">apply</span> empty.
+      + <span class="nb">apply</span> unit.
+      + <span class="nb">apply</span> unit.
+    - <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">_</span>, empty).
+    - <span class="nb">apply</span> three_rec.
+      + <span class="nb">apply</span> empty.
+      + <span class="nb">apply</span> empty.
+      + <span class="nb">apply</span> empty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pushout_diagram</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) :
+    diagram pushout_graph C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">three_rec</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>).
+    use three_rec_dep; <span class="nb">cbn</span>.
+    - use three_rec_dep; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> fromempty.
+      + <span class="nb">intros</span> _; <span class="bp">exact</span> f.
+      + <span class="nb">intros</span> _; <span class="bp">exact</span> g.
+    - <span class="nb">intros</span> x; <span class="nb">apply</span> fromempty.
+    - use three_rec_dep; <span class="nb">cbn</span>; <span class="nb">apply</span> fromempty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutCocone</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">d</span> : C)
+             (<span class="nv">f'</span> : C ⟦b, d⟧) (<span class="nv">g'</span> : C ⟦c, d⟧) (<span class="nv">H</span> : f · f' = g · g') :
+    cocone (pushout_diagram f g) d.
+  <span class="kn">Proof</span>.
+    use make_cocone.
+    - use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">apply</span> (f · f').
+    - use three_rec_dep; use three_rec_dep.
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="nb">intros</span> x; <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> x; <span class="nb">apply</span> (! H).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C ⟦a, c⟧)
+             (<span class="nv">i1</span> : C⟦b, d⟧) (<span class="nv">i2</span> : C⟦c, d⟧) (<span class="nv">H</span> : f · i1 = g · i2) : UU :=
+    isColimCocone (pushout_diagram f g) d (PushoutCocone f g d i1 i2 H).
+
+  <span class="kn">Definition</span> <span class="nf">make_isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C ⟦a, c⟧)
+             (<span class="nv">i1</span> : C⟦b, d⟧) (<span class="nv">i2</span> : C⟦c, d⟧) (<span class="nv">H</span> : f · i1 = g · i2) :
+    (∏ e (h : C ⟦b, e⟧) (k : C⟦c, e⟧)(Hk : f · h = g · k ),
+     iscontr (total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦d, e⟧ =&gt; dirprod (i1 · hk = h)(i2 · hk = k)))) →
+    isPushout f g i1 i2 H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H' x cx. <span class="nb">unfold</span> is_cocone_mor; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">set</span> (H1 := H' x (coconeIn cx Two) (coconeIn cx Three)).
+    use (<span class="k">let</span> <span class="nv">p</span> : f · coconeIn cx Two = g · coconeIn cx Three
+                       := _ <span class="k">in</span> _ ).
+    { <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (coconeInCommutes cx One Two tt)|].
+      <span class="nb">apply</span> pathsinv0, (coconeInCommutes cx One Three tt). }
+    <span class="nb">set</span> (H2 := H1 p).
+    use tpair.
+    + <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 H2)).
+      use three_rec_dep.
+      * <span class="kp">abstract</span> (use (pathscomp0 _ (coconeInCommutes cx One Two tt));
+        <span class="nb">change</span> (three_rec_dep _ _ _ _ _) <span class="k">with</span> (f · i1);
+        <span class="nb">change</span> (dmor _ _) <span class="k">with</span> f; <span class="nb">rewrite</span> &lt;- assoc;
+        <span class="nb">apply</span> cancel_precomposition, (pr1 (pr2 (pr1 H2)))).
+      * <span class="kp">abstract</span> ( <span class="nb">apply</span> (pr1 (pr2 (pr1 H2)))).
+      * <span class="kp">abstract</span> (<span class="bp">now</span> use (pathscomp0 _ (pr2 (pr2 (pr1 H2))))).
+    + <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+               [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C
+               | <span class="nb">destruct</span> t <span class="k">as</span> [t p0];
+                 <span class="nb">apply</span> path_to_ctr; <span class="nb">split</span>; [ <span class="nb">apply</span> (p0 Two) | <span class="nb">apply</span> (p0 Three) ]]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) : UU :=
+    ColimCocone (pushout_diagram f g).
+
+  <span class="kn">Definition</span> <span class="nf">make_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">d</span> : C)
+             (<span class="nv">i1</span> : C⟦b,d⟧) (<span class="nv">i2</span> : C ⟦c,d⟧) (<span class="nv">H</span> : f · i1 = g · i2)
+             (<span class="nv">ispo</span> : isPushout f g i1 i2 H) : Pushout f g.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">d</span>.
+      use PushoutCocone; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> ispo.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushouts</span> : UU := ∏ (a b c : C) (f : C⟦a, b⟧)(g : C⟦a, c⟧), Pushout f g.
+
+  <span class="kn">Definition</span> <span class="nf">hasPushouts</span> : UU := ∏ (a b c : C) (f : C⟦a, b⟧) (g : C⟦a, c⟧), ishinh (Pushout f g).
+
+  <span class="kn">Definition</span> <span class="nf">PushoutObject</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}:
+    Pushout f g -&gt; C := <span class="k">λ</span> <span class="nv">H</span>, colim H.
+  <span class="c">(* Coercion PushoutObject : Pushout &gt;-&gt; ob. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">PushoutIn1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g) :
+    C⟦b, colim Po⟧ := colimIn Po Two.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutIn2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g) :
+    C⟦c, colim Po⟧ := colimIn Po Three.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutSqrCommutes</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g) :
+    f · PushoutIn1 Po = g · PushoutIn2 Po.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (colimInCommutes Po One Two tt) |].
+    <span class="nb">apply</span> (!colimInCommutes Po One Three tt).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutArrow</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g) (<span class="nv">e</span> : C)
+             (<span class="nv">h</span> : C⟦b, e⟧) (<span class="nv">k</span> : C⟦c, e⟧) (<span class="nv">H</span> : f · h = g · k) : C⟦colim Po, e⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> use colimArrow; use PushoutCocone.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrow_PushoutIn1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}  (<span class="nv">Po</span> : Pushout f g)
+        (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦b , e⟧) (<span class="nv">k</span> : C⟦c, e⟧) (<span class="nv">H</span> : f · h = g · k) :
+    PushoutIn1 Po · PushoutArrow Po e h k H = h.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (colimArrowCommutes Po e _ Two).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrow_PushoutIn2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g)
+        (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦b, e⟧) (<span class="nv">k</span> : C⟦c, e⟧) (<span class="nv">H</span> : f · h = g · k) :
+    PushoutIn2 Po · PushoutArrow Po e h k H = k.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (colimArrowCommutes Po e _ Three).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrowUnique</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">Po</span> : Pushout f g) (<span class="nv">e</span> : C)
+        (<span class="nv">h</span> : C⟦b, e⟧) (<span class="nv">k</span> : C⟦c, e⟧) (<span class="nv">Hcomm</span> : f · h = g · k) (<span class="nv">w</span> : C⟦PushoutObject Po, e⟧)
+        (<span class="nv">H1</span> : PushoutIn1 Po · w = h) (<span class="nv">H2</span> : PushoutIn2 Po · w = k) :
+    w = PushoutArrow Po _ h k Hcomm.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> path_to_ctr.
+    use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">set</span> (X := colimInCommutes Po One Two tt).
+    use (pathscomp0 (! (maponpaths (<span class="k">λ</span> <span class="nv">h'</span> : _, h' · w) X))).
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">simpl</span>; <span class="nb">rewrite</span> &lt;- H1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isPushout_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">P</span> : Pushout f g) :
+    isPushout f g (PushoutIn1 P) (PushoutIn2 P) (PushoutSqrCommutes P).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isPushout.
+    <span class="nb">intros</span> e h k HK.
+    use tpair.
+    - use tpair.
+      + <span class="nb">apply</span> (PushoutArrow P _ h k HK).
+      + <span class="nb">split</span>.
+        * <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+        * <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+    - <span class="nb">intro</span> t.
+      <span class="nb">apply</span> subtypePath.
+      + <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C.
+      + <span class="nb">destruct</span> t <span class="k">as</span> [t p]. <span class="nb">simpl</span>.
+        use (PushoutArrowUnique _ _ P).
+        * <span class="nb">apply</span> e.
+        * <span class="nb">apply</span> (pr1 p).
+        * <span class="nb">apply</span> (pr2 p).
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Pushouts to Pushouts *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">identity_is_Pushout_input</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g) :
+    total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦colim Po, colim Po⟧ =&gt; dirprod (PushoutIn1 Po · hk = PushoutIn1 Po)
+                                                   (PushoutIn2 Po · hk = PushoutIn2 Po)).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> (colim Po)).
+    <span class="nb">apply</span> make_dirprod; <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* was PushoutArrowUnique *)</span>
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrowUnique'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">i1</span> : C⟦b, d⟧) (<span class="nv">i2</span> : C⟦c, d⟧)
+        (<span class="nv">H</span> : f · i1 = g · i2) (<span class="nv">P</span> : isPushout f g i1 i2 H) <span class="nv">e</span> (<span class="nv">h</span> : C⟦b, e⟧) (<span class="nv">k</span> : C⟦c, e⟧)
+        (<span class="nv">Hcomm</span> : f · h = g · k) (<span class="nv">w</span> : C⟦d, e⟧) (<span class="nv">H1</span> : i1 · w = h) (<span class="nv">H2</span> : i2 · w = k) :
+    w =  (pr1 (pr1 (P e (PushoutCocone f g _ h k Hcomm)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> path_to_ctr.
+    use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="nb">simpl</span>.
+    <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦three_rec a b c n, d⟧) _ _ _ _) <span class="k">with</span> (f · i1).
+    <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦three_rec a b c n, e⟧) _ _ _ _) <span class="k">with</span> (f · h).
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- assoc, H1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutEndo_is_identity</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧} (<span class="nv">Po</span> : Pushout f g)
+        (<span class="nv">k</span> : C⟦colim Po , colim Po⟧)
+        (<span class="nv">kH1</span> : PushoutIn1 Po · k = PushoutIn1 Po) (<span class="nv">kH2</span> : PushoutIn2 Po · k = PushoutIn2 Po) :
+    identity (colim Po) = k.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> colim_endo_is_identity.
+    use three_rec_dep; <span class="nb">cbn</span>.
+    - <span class="nb">unfold</span> colimIn.
+      <span class="nb">set</span> (T := (coconeInCommutes (colimCocone Po) One Three tt)).
+      use (pathscomp0 (! (maponpaths (<span class="k">λ</span> <span class="nv">h'</span> : _, h' · k) T))).
+      use (pathscomp0 _ (coconeInCommutes (colimCocone Po) One Three tt)).
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> kH2.
+    - <span class="nb">apply</span> kH1.
+    - <span class="nb">apply</span> kH2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}
+             (<span class="nv">Po</span> <span class="nv">Po'</span>: Pushout f g) : C⟦colim Po , colim Po'⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (PushoutArrow Po (colim Po') (PushoutIn1 _ ) (PushoutIn2 _)).
+    <span class="bp">exact</span> (PushoutSqrCommutes _ ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}
+        (<span class="nv">Po</span> <span class="nv">Po'</span>: Pushout f g) :
+    is_inverse_in_precat (from_Pushout_to_Pushout Po Po') (from_Pushout_to_Pushout Po' Po).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> PushoutEndo_is_identity;
+      <span class="nb">rewrite</span> assoc;
+      <span class="nb">unfold</span> from_Pushout_to_Pushout;
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> PushoutArrow_PushoutIn1;
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> PushoutArrow_PushoutIn2;
+      <span class="nb">auto</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isiso_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}
+        (<span class="nv">Po</span> <span class="nv">Po'</span>: Pushout f g) : is_iso (from_Pushout_to_Pushout Po Po').
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_qinv _ (from_Pushout_to_Pushout Po' Po)).
+    <span class="nb">apply</span> are_inverses_from_Pushout_to_Pushout.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦a, b⟧} {<span class="nv">g</span> : C⟦a, c⟧}
+             (<span class="nv">Po</span> <span class="nv">Po'</span>: Pushout f g) : iso (colim Po) (colim Po') :=
+    tpair _ _ (isiso_from_Pushout_to_Pushout Po Po').
+
+
+  <span class="sd">(** pushout lemma *)</span>
+
+  <span class="kn">Section</span> <span class="nf">pushout_lemma</span>.
+
+    <span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">x</span> : C.
+    <span class="kn">Variables</span> (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) (<span class="nv">h</span> : C⟦b, e⟧) (<span class="nv">k</span> : C⟦c, e⟧)
+              (<span class="nv">i</span> : C⟦b, d⟧) (<span class="nv">j</span> : C⟦e, x⟧) (<span class="nv">m</span> : C⟦d, x⟧).
+    <span class="kn">Hypothesis</span> <span class="nv">H1</span> : f · h = g · k.
+    <span class="kn">Hypothesis</span> <span class="nv">H2</span> : i · m = h · j.
+    <span class="kn">Hypothesis</span> <span class="nv">P1</span> : isPushout _ _ _ _ H1.
+    <span class="kn">Hypothesis</span> <span class="nv">P2</span> : isPushout _ _ _ _ H2.
+
+    <span class="kn">Lemma</span> <span class="nf">glueSquares</span> : f · i · m = g · k · j.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> H2.
+      <span class="nb">rewrite</span> &lt;- H1.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** TODO: isPushoutGluedSquare : isPushout (f · i) g m (k · j) glueSquares. *)</span>
+
+  <span class="kn">End</span> <span class="nf">pushout_lemma</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">inv_from_iso_iso_from_Pushout</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧)
+          (<span class="nv">Po</span> : Pushout f g) (<span class="nv">Po'</span> : Pushout f g):
+      inv_from_iso (iso_from_Pushout_to_Pushout Po Po') = from_Pushout_to_Pushout Po' Po.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> inv_iso_unique'.
+      <span class="nb">set</span> (T := are_inverses_from_Pushout_to_Pushout Po Po').
+      <span class="nb">apply</span> (pr1 T).
+    <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Connections to other colimits *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">Pushout_from_Colims</span> : Colims C -&gt; Pushouts.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H a b c f g; <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_po</span>.
+
+
+<span class="sd">(** * Definitions coincide</span>
+<span class="sd">  In this section we show that pushouts defined as special colimits coincide</span>
+<span class="sd">  with the direct definition. *)</span>
+<span class="kn">Section</span> <span class="nf">pushout_coincide</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+
+  <span class="sd">(** ** isPushout *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isPushout1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C ⟦a, c⟧)
+        (<span class="nv">i1</span> : C⟦b, d⟧) (<span class="nv">i2</span> : C⟦c, d⟧) (<span class="nv">H</span> : f · i1 = g · i2) :
+    Limits.Pushouts.isPushout f g i1 i2 H -&gt; isPushout C f g i1 i2 H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X R cc.
+    <span class="nb">set</span> (XR := Limits.Pushouts.make_Pushout f g d i1 i2 H X).
+    use unique_exists.
+    + use (Limits.Pushouts.PushoutArrow XR).
+      - <span class="bp">exact</span> (coconeIn cc Two).
+      - <span class="bp">exact</span> (coconeIn cc Three).
+      - use (pathscomp0 ((coconeInCommutes cc One Two tt))).
+        <span class="nb">apply</span> (!(coconeInCommutes cc One Three tt)).
+    + use three_rec_dep; <span class="nb">simpl</span>.
+      - <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦three_rec a b c n, d⟧) _ _ _ _) <span class="k">with</span> (f · i1).
+        <span class="nb">rewrite</span> &lt;- assoc, (Limits.Pushouts.PushoutArrow_PushoutIn1 XR).
+        <span class="nb">apply</span> (coconeInCommutes cc One Two tt).
+      - <span class="nb">apply</span> (Limits.Pushouts.PushoutArrow_PushoutIn1 XR).
+      - <span class="nb">apply</span> (Limits.Pushouts.PushoutArrow_PushoutIn2 XR).
+    + <span class="nb">intros</span> y; <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> t; <span class="nb">apply</span> C.
+    + <span class="nb">intros</span> y T.
+      use Limits.Pushouts.PushoutArrowUnique.
+      - <span class="nb">apply</span> (T Two).
+      - <span class="nb">apply</span> (T Three).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isPushout2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧)
+        (<span class="nv">i1</span> : C⟦b, d⟧) (<span class="nv">i2</span> : C⟦c, d⟧) (<span class="nv">H</span> : f · i1 = g · i2) :
+    Limits.Pushouts.isPushout f g i1 i2 H &lt;- isPushout C f g i1 i2 H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X R k h HH.
+    <span class="nb">set</span> (XR := make_Pushout C f g d i1 i2 H X).
+    use unique_exists.
+    + use (PushoutArrow C XR).
+      - <span class="bp">exact</span> k.
+      - <span class="bp">exact</span> h.
+      - <span class="bp">exact</span> HH.
+    + <span class="nb">split</span>.
+      - <span class="bp">exact</span> (PushoutArrow_PushoutIn1 C XR R k h HH).
+      - <span class="bp">exact</span> (PushoutArrow_PushoutIn2 C XR R k h HH).
+    + <span class="nb">intros</span> y; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C.
+    + <span class="nb">intros</span> y T.
+      use (PushoutArrowUnique C _ _ XR).
+      - <span class="bp">exact</span> R.
+      - <span class="bp">exact</span> (pr1 T).
+      - <span class="bp">exact</span> (pr2 T).
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Pushout *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Pushout1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) :
+    Limits.Pushouts.Pushout f g -&gt; Pushout C f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="bp">exact</span> (make_Pushout
+             C f g X
+             (Limits.Pushouts.PushoutIn1 X)
+             (Limits.Pushouts.PushoutIn2 X)
+             (Limits.Pushouts.PushoutSqrCommutes X)
+             (equiv_isPushout1 _ _ _ _ _ (Limits.Pushouts.isPushout_Pushout X))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Pushout2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧) :
+    Limits.Pushouts.Pushout f g &lt;- Pushout C f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="bp">exact</span> (Limits.Pushouts.make_Pushout
+             f g
+             (PushoutObject C X)
+             (PushoutIn1 C X)
+             (PushoutIn2 C X)
+             (PushoutSqrCommutes C X)
+             (equiv_isPushout2 _ _ _ _ _ (isPushout_Pushout C X))).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">pushout_coincide</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Pushouts.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Definition of pushouts
+  &gt; - Coincides with the direct definition
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1571 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceActegoriesAndActions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfActegories.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfActionsInBicat.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.WhiskeredMonoidalFromBicategory.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+#[local] <span class="kn">Opaque</span> bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
+
+
+<span class="kn">Section</span> <span class="nf">ActegoryToObject</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_data_to_object</span>
+             (<span class="nv">act</span> : actegory Mon_V C)
+    : fmonoidal_data
+        (monoidal_swapped Mon_V)
+        (monoidal_from_bicat_and_ob (C : bicat_of_cats))
+        (bifunctor_to_functorintoendofunctorcat act).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> v w.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">actegory_actorinvdata</span> <span class="nv">act</span> <span class="nv">w</span> <span class="nv">v</span> <span class="nv">c</span>).
+      <span class="kp">abstract</span> (<span class="nb">intros</span> v1 w1 f;
+      <span class="nb">apply</span> actorinv_nat_leftwhisker).
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">actegory_unitorinvdata</span> <span class="nv">act</span> <span class="nv">v</span>).
+      <span class="kp">abstract</span> (<span class="nb">intros</span> v w f;
+      <span class="bp">exact</span> (! actegory_unitorinvnat Mon_V act v w f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_laxlaws_to_object</span>
+             (<span class="nv">act</span> : actegory Mon_V C)
+    : fmonoidal_laxlaws (fmonoidal_data_to_object act).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> nat_trans_eq ; [<span class="nb">apply</span> homset_property | <span class="nb">intro</span> ; <span class="nb">cbn</span> ]).
+    - <span class="nb">apply</span> actorinv_nat_rightwhisker.
+    - <span class="nb">apply</span> actorinv_nat_leftrightwhisker.
+    - <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> pentagon_identity_actorinv.
+    - <span class="nb">rewrite</span> (! actegory_triangleidentity Mon_V act x x0).
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr2 (actegory_actorisolaw Mon_V act x (monoidal_unit Mon_V) x0)).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> (! bifunctor_leftcomp act _ _ _ _ _ _).
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> actegory_unitorisolaw.
+      }
+      <span class="nb">apply</span> (bifunctor_leftid act).
+    - <span class="nb">set</span> (tri := actegory_triangleidentity' Mon_V act x x0).
+      <span class="nb">rewrite</span> (! tri).
+      <span class="nb">rewrite</span> assoc.
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr2 (actegory_actorisolaw Mon_V act (monoidal_unit Mon_V) x x0)).
+      }
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> actegory_unitorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_lax_to_object</span>
+             (<span class="nv">act</span> : actegory Mon_V C)
+    : fmonoidal_lax
+        (monoidal_swapped Mon_V)
+        (monoidal_from_bicat_and_ob (C : bicat_of_cats))
+        (bifunctor_to_functorintoendofunctorcat act)
+    := fmonoidal_data_to_object act ,, fmonoidal_laxlaws_to_object act.
+
+  <span class="kn">Definition</span> <span class="nf">fmonoidal_stronglaws_to_object</span> (<span class="nv">Act</span> : actegory Mon_V C)
+    : fmonoidal_stronglaws
+        (pr1 (fmonoidal_data_to_object Act))
+        (pr2 (fmonoidal_data_to_object Act)).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">intros</span> v w.
+      use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">actegory_actordata</span> <span class="nv">Act</span> <span class="nv">w</span> <span class="nv">v</span> <span class="nv">c</span>).
+        <span class="kp">abstract</span> (<span class="nb">intros</span> c1 c2 f;
+        <span class="nb">cbn</span>;
+        <span class="nb">apply</span> (! actegory_actornatleft _ _ _ _ _ _ _ )).
+      + use tpair;
+        [ <span class="nb">apply</span> nat_trans_eq;
+          [ <span class="nb">apply</span> homset_property |
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> actegory_actorisolaw]
+        | <span class="nb">apply</span> nat_trans_eq;
+          [ <span class="nb">apply</span> homset_property |
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> (pr1 (actegory_actorisolaw Mon_V Act w v x))] ].
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span>, actegory_unitordata Act c).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> c1 c2 f;
+      <span class="nb">cbn</span>;
+      <span class="nb">apply</span> actegory_unitornat).
+    - <span class="kp">abstract</span> (use nat_trans_eq;
+      [ <span class="nb">apply</span> homset_property |
+      <span class="nb">intro</span>;
+      <span class="nb">cbn</span>;
+      <span class="nb">apply</span> actegory_unitorisolaw]).
+    - <span class="kp">abstract</span> (use nat_trans_eq;
+      [ <span class="nb">apply</span> homset_property |
+      <span class="nb">intro</span>;
+      <span class="nb">cbn</span>;
+      <span class="nb">apply</span> actegory_unitorisolaw]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">ax2</span> : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_to_object</span> (<span class="nv">Act</span> : actegory Mon_V C)
+    : bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats ax2.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">C</span>.
+    <span class="k">exists</span> (<span class="nv">bifunctor_to_functorintoendofunctorcat</span> <span class="nv">Act</span>).
+    <span class="k">exists</span> (<span class="nv">fmonoidal_lax_to_object</span> <span class="nv">Act</span>).
+    <span class="bp">exact</span> (fmonoidal_stronglaws_to_object Act).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ActegoryToObject</span>.
+
+<span class="kn">Section</span> <span class="nf">ActegoryFromObject</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category}.
+  <span class="kn">Context</span> (<span class="nv">Mon_V</span> : monoidal V).
+
+  <span class="kn">Context</span> (<span class="nv">ax2</span> : actionbicat_ax2 Mon_V bicat_of_cats).
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : bicatactionbicat Mon_V bicat_of_cats ax2).
+
+  <span class="kn">Local Definition</span> <span class="nf">action_C</span> := pr12 C.
+  <span class="kn">Local Definition</span> <span class="nf">action_fmon_lax</span> := pr122 C.
+  <span class="kn">Local Definition</span> <span class="nf">action_fmon_strong</span> := pr222 C.
+
+  <span class="kn">Definition</span> <span class="nf">unitor_from_object</span>
+    :  action_unitor_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">apply</span> (pr12 action_fmon_strong).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unitorinv_from_object</span>
+    : action_unitorinv_data Mon_V (bifunctor_from_functorintoendofunctorcat action_C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">apply</span> (fmonoidal_preservesunit action_fmon_lax).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actor_from_object</span>
+    : actor_data (monoidal_swapped Mon_V) (bifunctor_from_functorintoendofunctorcat action_C)
+    := <span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">c</span>, pr11 (pr1 action_fmon_strong w v) c.
+
+  <span class="kn">Definition</span> <span class="nf">actorinv_from_object</span>
+    : actorinv_data (monoidal_swapped Mon_V) (bifunctor_from_functorintoendofunctorcat action_C)
+    := <span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">c</span>, pr1 (fmonoidal_preservestensordata (pr122 C) w v) c.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_data_from_object</span>
+    : actegory_data (monoidal_swapped Mon_V) (pr1 C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">bifunctor_from_functorintoendofunctorcat</span> <span class="nv">action_C</span>).
+    <span class="k">exists</span> <span class="nv">unitor_from_object</span>.
+    <span class="k">exists</span> <span class="nv">unitorinv_from_object</span>.
+    <span class="k">exists</span> <span class="nv">actor_from_object</span>.
+    <span class="bp">exact</span> actorinv_from_object.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_laws_from_object</span>
+    : actegory_laws (monoidal_swapped Mon_V) actegory_data_from_object.
+  <span class="kn">Proof</span>.
+    split5.
+    - <span class="nb">apply</span> bifunctor_data_from_functorintoendofunctorcat_is_bifunctor.
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        <span class="c">(* That the monoidal unit is strongly preserved, means that we have</span>
+<span class="c">           a morphism in the category of endofunctors on C,</span>
+<span class="c">           i.e. a natural transformation, hence, we use this naturality *)</span>
+        <span class="nb">apply</span> (pr212 action_fmon_strong).
+      + <span class="c">(* Here we use that the unit is strongly preserved, that is,</span>
+<span class="c">           we use that the equation that expresses that the</span>
+<span class="c">           unit preserving morphism is invertible *)</span>
+        <span class="nb">apply</span> (eqtohomot (base_paths _ _ (pr222 action_fmon_strong))).
+      + <span class="c">(* Idem as previous bullet point *)</span>
+        <span class="nb">apply</span> (eqtohomot (base_paths _ _ (pr122 action_fmon_strong))).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        <span class="c">(* That the monoidal unit is strongly preserved, means that we have</span>
+<span class="c">           a morphism in the category of endofunctors on C,</span>
+<span class="c">           i.e. a natural transformation, hence, we use this naturality *)</span>
+        <span class="bp">exact</span> (! pr21 (pr1 action_fmon_strong w v) z z' h).
+      + <span class="nb">intros</span> v1 v2 w c f.
+        <span class="nb">set</span> (fmon_strong_preserves_tensor_inv := preservestensor_inv_is_nattrans
+              (pr12 action_fmon_lax)
+              (pr122 action_fmon_lax)
+              (pr1 action_fmon_strong)).
+        <span class="bp">exact</span> (! (eqtohomot (base_paths _ _ (pr12 fmon_strong_preserves_tensor_inv w _ _ f)) c)).
+      + <span class="nb">intros</span> w v1 v2 c f.
+        <span class="bp">exact</span> (eqtohomot (base_paths _ _ (preserves_tensorinv_nat_right (pr1 action_fmon_strong) (pr122 action_fmon_lax) v1 v2 w f)) c).
+      + <span class="nb">apply</span> (eqtohomot (base_paths _ _ (pr22 (pr1 action_fmon_strong w v)))).
+      + <span class="nb">apply</span> (eqtohomot (base_paths _ _ (pr12 (pr1 action_fmon_strong w v)))).
+    - <span class="nb">intros</span> v c.
+      <span class="nb">cbn</span>.
+      <span class="nb">assert</span> (plu := preserves_leftunitality'' (_,,pr222 C) v).
+      <span class="nb">assert</span> (pluc := eqtohomot (base_paths _ _ plu) c).
+      <span class="nb">refine</span> (_ @ pluc).
+      <span class="nb">clear</span> pluc ; <span class="nb">clear</span> plu.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> actor_from_object.
+      <span class="nb">assert</span> (t := ! eqtohomot (base_paths _ _ (preserves_associativity_of_inverse_preserves_tensor (pr1 (pr222 action_fmon_lax)) (pr1 action_fmon_strong) v' v w)) z).
+      <span class="nb">cbn</span> <span class="k">in</span> t.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> t.
+      <span class="nb">set</span> (αisov'vw := z_iso_inv (z_iso_from_associator_iso Mon_V v' v w)).
+      <span class="nb">rewrite</span> assoc' <span class="k">in</span> t.
+      <span class="nb">assert</span> (pf:  (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' (v ⊗_{ Mon_V} w))) z
+                      · pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v w)) (pr1 ((pr12 C) v') z))
+                   =  pr1 (# (pr12 C) (monoidal_associatorinvdata Mon_V v' v w)) z · (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong (v' ⊗_{ Mon_V} v) w)) z
+                                                                                        · # (pr1 ((pr12 C) w)) (pr1 (is_z_isomorphism_mor (pr1 action_fmon_strong v' v)) z))).
+      {
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> t.
+        }
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        <span class="mi">2</span>: {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">assert</span> (bla := eqtohomot (base_paths _ _ (maponpaths (# (pr12 C)) (pr2 (monoidal_associatorisolaw Mon_V v' v w)))) z).
+          <span class="nb">rewrite</span> functor_comp <span class="k">in</span> bla.
+          <span class="bp">exact</span> (! bla).
+        }
+        <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> (! id_left _).
+      }
+      <span class="nb">refine</span> (_ @ ! pf).
+      <span class="nb">apply</span> assoc'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_from_object</span>
+    : actegory (monoidal_swapped Mon_V) (pr1 C)
+    := actegory_data_from_object ,, actegory_laws_from_object.
+
+<span class="kn">End</span> <span class="nf">ActegoryFromObject</span>.
+
+<span class="kn">Section</span> <span class="nf">FixAMonCat</span>.
+<span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V).
+
+<span class="kn">Local Definition</span> <span class="nf">ACAT</span>
+  : bicat := actbicat Mon_V.
+
+<span class="kn">Context</span> (<span class="nv">ax2</span> : actionbicat_ax2 (monoidal_swapped Mon_V) bicat_of_cats).
+
+<span class="kn">Local Definition</span> <span class="nf">ACTI</span>
+  : bicat := bicatactionbicat (monoidal_swapped Mon_V) bicat_of_cats ax2.
+
+<span class="kn">Section</span> <span class="nf">EqualityLemmaHelpers</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_of_2cells_in_ACAT</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : ACAT} {<span class="nv">f</span> <span class="nv">g</span> : ACAT⟦a,b⟧} (<span class="nv">α</span> <span class="nv">β</span> : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -&gt; α = β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, p x).
+    }
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_of_2cells_in_ACTI</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : ACTI} {<span class="nv">f</span> <span class="nv">g</span> : ACTI⟦a,b⟧} (<span class="nv">α</span> <span class="nv">β</span> : prebicat_cells _ f g)
+    : (∏ x : (pr11 a),  pr11 α x = pr11 β x) -&gt; α = β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    {
+      use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (p x).
+    }
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equality_of_ACTI_endofunctors</span>
+        {<span class="nv">a</span> <span class="nv">b</span> : psfunctor_bicat ACTI ACTI}
+        {<span class="nv">f</span> <span class="nv">g</span> : (psfunctor_bicat ACTI ACTI)⟦a,b⟧}
+        (<span class="nv">α</span> <span class="nv">β</span> : prebicat_cells (psfunctor_bicat ACTI ACTI) f g)
+    : (∏ x : ACTI,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -&gt; α = β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> proofirrelevance ; <span class="nb">apply</span> isapropunit. }
+    use total2_paths_f.
+    <span class="mi">2</span>: { use total2_paths_f ;
+         (<span class="nb">apply</span> proofirrelevance ; <span class="kp">try</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> isapropunit). }
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> proofirrelevance ;
+          <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ;
+         <span class="nb">apply</span> cellset_property. }
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+    use equality_of_2cells_in_ACTI.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equality_of_ACAT_endofunctors</span>
+        {<span class="nv">a</span> <span class="nv">b</span> : psfunctor_bicat ACAT ACAT}
+        {<span class="nv">f</span> <span class="nv">g</span> : (psfunctor_bicat ACAT ACAT)⟦a,b⟧}
+        (<span class="nv">α</span> <span class="nv">β</span> : prebicat_cells (psfunctor_bicat ACAT ACAT) f g)
+    : (∏ x : ACAT,  ∏ x0 : pr11 ((pr111 a) x), (pr11 ((pr111 α) x)) x0 = (pr11 ((pr111 β) x)) x0) -&gt; α = β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> proofirrelevance ; <span class="nb">apply</span> isapropunit. }
+    use total2_paths_f.
+    <span class="mi">2</span>: { use total2_paths_f ;
+         (<span class="nb">apply</span> proofirrelevance ; <span class="kp">try</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> isapropunit). }
+    use total2_paths_f.
+    <span class="mi">2</span>: { <span class="nb">apply</span> proofirrelevance ;
+          <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ;
+         <span class="nb">apply</span> cellset_property. }
+    <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+    use equality_of_2cells_in_ACAT.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">EqualityLemmaHelpers</span>.
+
+
+<span class="kn">Section</span> <span class="nf">FromActegoriesToActionsInCat</span>.
+
+  <span class="kn">Import</span> MonoidalNotations.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_on_ob</span> : ob ACAT -&gt; ob ACTI
+    := <span class="k">λ</span> <span class="nv">act</span>, actegory_to_object Mon_V ax2 (pr2 act).
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_hom_preserves_unitor_inv</span>
+        {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT ⟦ a1, a2 ⟧)
+        (<span class="nv">c</span> : pr11 (actegory_to_object Mon_V ax2 (pr2 a1)))
+    : actegory_unitorinvdata (pr2 a2 : actegory _ _) (pr1 (pr1 f) c) · (pr12 f) I_{ Mon_V} c
+      = # (pr11 f) (actegory_unitorinvdata (pr2 a1 : actegory _ _) c).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (t := (pr222 (pr22 f)) c). <span class="c">(* preserves_unitor *)</span>
+    <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,_,,actegory_unitorisolaw Mon_V (pr2 a2) (pr1 (pr1 f) c))).
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2 ; <span class="nb">apply</span> t. }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> (pr1 (actegory_unitorisolaw Mon_V (pr2 a1) c)).
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_on_mor_data_data</span>
+    {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧) :
+    nat_trans_data (ActionBasedStrongFunctorsWhiskeredMonoidal.H(V:=V)(FA':=pr12(actegory_to_object Mon_V ax2 (pr2 a2))) (pr1 f))
+      (ActionBasedStrongFunctorsWhiskeredMonoidal.H'(FA:=pr12(actegory_to_object Mon_V ax2 (pr2 a1))) (pr1 f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> v.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">pr1</span> (pr2 f) v c).
+    <span class="kp">abstract</span> (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c1</span> <span class="nv">c2</span> <span class="nv">g</span>, pr1 (pr22 f) v c1 c2 g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_on_mor_data_data_is_nat_trans</span>
+    {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧) :
+    is_nat_trans _ _ (acat_to_acti_on_mor_data_data f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v w g.
+    use nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (pr12 (pr22 f) v w c g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_on_mor_data</span>
+    {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧) :
+    ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat(V:=V)
+      (FA:=pr12(actegory_to_object Mon_V ax2 (pr2 a1)))(FA':=pr12(actegory_to_object Mon_V ax2 (pr2 a2))) (pr1 f)
+    := _,,acat_to_acti_on_mor_data_data_is_nat_trans f.
+
+  <span class="kn">Lemma</span> <span class="nf">acat_to_acti_on_mor_laws</span>
+    {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧) :
+    ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_triangle_eq (monoidal_swapped Mon_V)
+      (pr22 (actegory_to_object Mon_V ax2 (pr2 a1))) (pr22 (actegory_to_object Mon_V ax2 (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f)
+      × ActionBasedStrongFunctorsWhiskeredMonoidal.param_distr_bicat_pentagon_eq (monoidal_swapped Mon_V)
+      (pr22 (actegory_to_object Mon_V ax2 (pr2 a1))) (pr22 (actegory_to_object Mon_V ax2 (pr2 a2))) (pr1 f) (acat_to_acti_on_mor_data f).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span> c ;
+        <span class="nb">cbn</span> ;
+        <span class="nb">rewrite</span> ! id_left ;
+        <span class="nb">apply</span> actegory_hom_preserves_unitor_inv.
+    - <span class="nb">intros</span> v w.
+      use nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span> c ;
+        <span class="nb">cbn</span> ;
+        <span class="nb">rewrite</span> ! id_left ;
+        <span class="nb">assert</span> (t := pr122 (pr22 f) w v c) ;
+        <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (_,,_,,actegory_actorisolaw Mon_V (pr2 a2) _ _ _)) ;
+        <span class="nb">rewrite</span> assoc ;
+        <span class="nb">set</span> (i := (_,,_,,actegory_actorisolaw Mon_V (pr2 a1) w v c) : z_iso _ _) ;
+        <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (functor_on_z_iso (pr1 f) i)) ;
+        <span class="nb">cbn</span> ;
+        <span class="nb">rewrite</span> assoc ;
+        <span class="nb">rewrite</span> t ;
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_on_mor</span>
+             {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧)
+    : ACTI⟦actegory_to_object Mon_V ax2 (pr2 a1), actegory_to_object Mon_V ax2 (pr2 a2)⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span>).
+    <span class="k">exists</span> (<span class="nv">acat_to_acti_on_mor_data</span> <span class="nv">f</span>).
+    <span class="nb">apply</span> acat_to_acti_on_mor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_data</span>
+    : psfunctor_data ACAT ACTI.
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> acat_to_acti_on_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">f</span>, acat_to_acti_on_mor f).
+    - <span class="nb">intros</span> a1 a2 f g α.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">α</span>).
+      <span class="kp">abstract</span> (<span class="nb">intro</span> v; use nat_trans_eq;
+      [<span class="nb">apply</span> homset_property |
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span>, pr2 α v c)]).
+    - <span class="nb">intro</span> a.
+      use tpair.
+      + <span class="nb">apply</span> nat_trans_id.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> v;
+           use nat_trans_eq;
+           [<span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> c;
+           <span class="nb">cbn</span> ;
+           <span class="nb">unfold</span> identity_lineator_data ;
+           <span class="nb">rewrite</span> ! id_left ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">apply</span> (! bifunctor_leftid (_ ,, pr122 a) _ _)).
+    - <span class="nb">intros</span> a1 a2 a3 f g.
+      use tpair.
+      {  <span class="nb">simpl</span>. <span class="nb">apply</span> nat_trans_id. }
+      <span class="kp">abstract</span> (<span class="nb">intro</span> v;
+                use nat_trans_eq;
+                [<span class="nb">apply</span> homset_property |
+                  <span class="nb">intro</span> c;
+                  <span class="nb">cbn</span>;
+                  <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a3));
+                  <span class="nb">rewrite</span> ! id_left;
+                  <span class="nb">rewrite</span> ! id_right;
+                  <span class="nb">apply</span> idpath]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_laws</span>
+    : psfunctor_laws acat_to_acti_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ;
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACTI ; <span class="nb">intro</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="nb">cbn</span>).
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> (! functor_id _ _).
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">rewrite</span> (! functor_id _ _) ; <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_right _).
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti_invertible_cells</span>
+    : invertible_cells acat_to_acti_data.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span>.
+      use tpair.
+      + use tpair.
+        * <span class="nb">apply</span> nat_trans_id.
+        * <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span>.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> ! id_right.
+          <span class="nb">apply</span> (! bifunctor_leftid (_ ,, pr122 a) _ _).
+      + use tpair ; use equality_of_2cells_in_ACTI ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use tpair.
+      + use tpair.
+        * <span class="nb">apply</span> nat_trans_id.
+        * <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span>.
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> ! id_right.
+          <span class="nb">rewrite</span> ! id_left.
+          <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 c)).
+          <span class="nb">apply</span> (! id_left _).
+      + use tpair ; use equality_of_2cells_in_ACTI ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acat_to_acti</span>
+    : psfunctor ACAT ACTI.
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> acat_to_acti_data.
+    - <span class="bp">exact</span> acat_to_acti_laws.
+    - <span class="bp">exact</span> acat_to_acti_invertible_cells.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FromActegoriesToActionsInCat</span>.
+
+<span class="kn">Section</span> <span class="nf">FromActionInCatToActegories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_on_ob</span> : (ob ACTI) -&gt; (ob ACAT)
+    := <span class="k">λ</span> <span class="nv">act</span>, _ ,, actegory_from_object _ ax2 act.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_on_mor_lineator_data</span>
+             {<span class="nv">a1</span> <span class="nv">a2</span> : ACTI} (<span class="nv">f</span> : ACTI⟦a1,a2⟧)
+    :  lineator_data Mon_V (actegory_from_object (monoidal_swapped Mon_V) ax2 a1)
+                     (actegory_from_object (monoidal_swapped Mon_V) ax2 a2) (pr1 f)
+    := <span class="k">λ</span> <span class="nv">v</span> <span class="nv">c</span>, pr1 (pr112 f v) c.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_on_mor_lineator_lax_laws</span>
+             {<span class="nv">a1</span> <span class="nv">a2</span> : ACTI} (<span class="nv">f</span> : ACTI⟦a1,a2⟧)
+    :  lineator_laxlaws
+         Mon_V
+         (actegory_from_object (monoidal_swapped Mon_V) ax2 a1)
+         (actegory_from_object (monoidal_swapped Mon_V) ax2 a2)
+         (pr1 f)
+         (acti_to_acat_on_mor_lineator_data f).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> v c1 c2 g.
+      <span class="bp">exact</span> (pr2 (pr112 f v) c1 c2 g).
+    - <span class="nb">intros</span> v w c g.
+      <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr212 f v w g)) c).
+    - <span class="nb">intros</span> v w c.
+      <span class="nb">induction</span> f <span class="k">as</span> [f [δ [tri pent]]].
+      <span class="nb">assert</span> (tt := eqtohomot (base_paths _ _ (pent w v)) c).
+      <span class="nb">cbn</span> <span class="k">in</span> tt.
+      <span class="nb">rewrite</span> ! id_left <span class="k">in</span> tt.
+      transparent <span class="nb">assert</span> (z_iso_ptwvFc
+               : (is_z_isomorphism ( pr1 (fmonoidal_preservestensordata (pr22 a2) w v) (pr1 f c)))
+             ).
+      { <span class="k">exists</span> (<span class="nv">pr11</span> (fmonoidal_preservestensorstrongly (pr22 a2) w v) (pr1 f c)).
+        <span class="k">exists</span> (<span class="nv">eqtohomot</span> (base_paths _ _ (pr12 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+        <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr22 (fmonoidal_preservestensorstrongly (pr22 a2) w v))) (pr1 f c)).
+      }
+      <span class="nb">assert</span> (tt' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_ptwvFc) _ _ (! tt)).
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> tt'.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">clear</span> tt'.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> assoc. }
+      etrans. { <span class="nb">apply</span> assoc'. }
+      <span class="nb">apply</span> maponpaths.
+      etrans. { <span class="nb">apply</span> assoc'. }
+      etrans. { <span class="nb">apply</span> assoc'. }
+      <span class="nb">apply</span> maponpaths.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> (! functor_comp f _ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr12 (pr1 (pr222 a1) w v))) c).
+      }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> id_right.
+    - <span class="c">(* preserves_unitor *)</span>
+      <span class="nb">intro</span> c.
+      <span class="nb">induction</span> f <span class="k">as</span> [F [δ [tri pent]]].
+      <span class="nb">assert</span> (tric := eqtohomot (base_paths _ _ tri) c).
+      <span class="nb">cbn</span> <span class="k">in</span> tric.
+      <span class="nb">rewrite</span> ! id_left <span class="k">in</span> tric.
+      transparent <span class="nb">assert</span> (z_iso_puFc
+                           : (is_z_isomorphism ( pr1 (fmonoidal_preservesunit (pr22 a2)) (pr1 F c)))).
+      {
+        <span class="k">exists</span> (<span class="nv">pr11</span> (fmonoidal_preservesunitstrongly (pr22 a2))(pr1 F c)).
+        <span class="k">exists</span> (<span class="nv">eqtohomot</span> (base_paths _ _ (pr122 (pr222 a2))) (pr1 F c)).
+        <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr222 (pr222 a2))) (pr1 F c)).
+      }
+      <span class="nb">assert</span> (tric' := ! z_iso_inv_on_right _ _ _ (_,,z_iso_puFc) _ _ (! tric)).
+      etrans. { <span class="nb">apply</span> maponpaths_2 ; <span class="bp">exact</span> tric'. }
+      <span class="nb">clear</span> tric'.
+      <span class="nb">clear</span> tric.
+      <span class="nb">rewrite</span> assoc'.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (! functor_comp F  (pr1 (fmonoidal_preservesunit (pr22 a1)) c) _).
+      }
+      etrans. {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr122 (pr222 a1))) c).
+      }
+      <span class="nb">rewrite</span> (functor_id F _).
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_on_mor_lineator_lax</span>
+             {<span class="nv">a1</span> <span class="nv">a2</span> : ACTI} (<span class="nv">f</span> : ACTI⟦a1,a2⟧)
+    : lineator_lax Mon_V (actegory_from_object (monoidal_swapped Mon_V) ax2 a1)
+                   (actegory_from_object (monoidal_swapped Mon_V) ax2 a2) (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">acti_to_acat_on_mor_lineator_data</span> <span class="nv">f</span>).
+    <span class="bp">exact</span> (acti_to_acat_on_mor_lineator_lax_laws f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_on_mor</span>
+             {<span class="nv">a1</span> <span class="nv">a2</span> : ACTI} (<span class="nv">f</span> : ACTI⟦a1,a2⟧)
+    : ACAT ⟦ acti_to_acat_on_ob a1, acti_to_acat_on_ob a2⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span>).
+    <span class="bp">exact</span> (acti_to_acat_on_mor_lineator_lax f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_data</span>
+    : psfunctor_data ACTI ACAT.
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> acti_to_acat_on_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">f</span>, acti_to_acat_on_mor f).
+    - <span class="nb">intros</span> a1 a2 f g α.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">α</span>).
+      <span class="nb">intros</span> v a.
+      <span class="bp">exact</span> (eqtohomot (base_paths _ _ (pr2 α v)) a).
+    - <span class="nb">intro</span> a.
+      use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">c</span>).
+        <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _).
+      + <span class="nb">intros</span> v c.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> ! id_right.
+        <span class="nb">unfold</span> identity_lineator_data.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (! functor_id _ _).
+    - <span class="nb">intros</span> a1 a2 a3 f g.
+      use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="bp">exact</span> (id_right _ @ ! id_left _).
+      + <span class="nb">intros</span> v c.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> comp_lineator_data.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> ! id_right.
+        <span class="nb">rewrite</span> ! id_left.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> (functor_id ((pr12 a3) v)).
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_laws</span>
+    : psfunctor_laws acti_to_acat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ;
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACAT ; <span class="nb">intro</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="nb">cbn</span>).
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> (! functor_id _ _).
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> ! id_right ; <span class="nb">rewrite</span> (! functor_id _ _) ; <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_right _).
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_invertible_cells</span>
+    : invertible_cells acti_to_acat_data.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span>.
+      use tpair.
+      + use tpair.
+        * <span class="nb">apply</span> nat_trans_id.
+        * <span class="nb">intro</span> ; <span class="nb">intro</span>.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> ! id_right.
+          <span class="nb">apply</span> (! functor_id _ _).
+      + use tpair ; use equality_of_2cells_in_ACAT ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use tpair.
+      + use tpair.
+        * <span class="nb">apply</span> nat_trans_id.
+        * <span class="nb">intro</span> ; <span class="nb">intro</span>.
+          <span class="nb">rewrite</span> ! id_right.
+          etrans.
+          <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">cbn</span>.
+               <span class="nb">apply</span> pathsinv0, functor_id. }
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat_funclass.
+          <span class="nb">unfold</span> comp_lineator_data.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> ! id_right.
+          <span class="nb">rewrite</span> ! id_left.
+          <span class="nb">apply</span> idpath.
+      + use tpair ; use equality_of_2cells_in_ACAT ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat</span>
+    : psfunctor ACTI ACAT.
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> acti_to_acat_data.
+    - <span class="bp">exact</span> acti_to_acat_laws.
+    - <span class="bp">exact</span> acti_to_acat_invertible_cells.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FromActionInCatToActegories</span>.
+
+<span class="kn">Section</span> <span class="nf">ActionInCatEquivActegories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_unit_data_on_ob</span> (<span class="nv">a</span> : ACTI)
+    : ACTI ⟦Composition.comp_psfunctor acat_to_acti acti_to_acat a, Identity.id_psfunctor ACTI a⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    use tpair.
+      + use make_nat_trans.
+        * <span class="nb">intro</span> v.
+          <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+          <span class="nb">intros</span> c1 c2 f.
+          <span class="kp">abstract</span> (
+              <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> id_left ;
+              <span class="nb">apply</span> id_right).
+        * <span class="nb">intros</span> v w f.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="kp">abstract</span> ( <span class="nb">intro</span> c; <span class="nb">cbn</span>;
+          <span class="nb">rewrite</span> id_left;
+          <span class="nb">apply</span> id_right ).
+      + use tpair.
+        * use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span> c.
+          <span class="kp">abstract</span> (
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> id_right ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">apply</span> idpath).
+        * <span class="nb">intro</span> ; <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span> c.
+          <span class="kp">abstract</span> (
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">rewrite</span> (functor_id ((pr12 a) w)) ;
+              <span class="nb">apply</span> (! id_left _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_unit_data</span>
+    :  pstrans_data (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, acti_to_acat_unit_data_on_ob a).
+    - <span class="nb">intros</span> a1 a2 f.
+      use tpair.
+      + use tpair.
+        * <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+          <span class="nb">intros</span> c1 c2 g.
+          <span class="kp">abstract</span> (
+              <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> id_left ;
+              <span class="nb">apply</span> id_right
+            ).
+        * <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span>.
+          <span class="kp">abstract</span> (
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">unfold</span> ActionBasedStrongFunctorsWhiskeredMonoidal.parameterized_distributivity_bicat_nat_funclass ;
+              <span class="nb">rewrite</span> (functor_id (pr1 f)) ;
+              <span class="nb">rewrite</span> (functor_id ((pr12 a2) v)) ;
+              <span class="nb">rewrite</span> id_left ;
+              <span class="nb">apply</span> id_right
+            ).
+      +  use tpair.
+         * use tpair.
+           -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+              <span class="nb">intros</span> c1 c2 g.
+              <span class="nb">simpl</span>.
+              <span class="nb">rewrite</span> id_left.
+              <span class="nb">apply</span> id_right.
+           -- <span class="nb">intro</span>.
+              use nat_trans_eq.
+              { <span class="nb">apply</span> homset_property. }
+              <span class="nb">intro</span>.
+              <span class="kp">abstract</span> (
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">rewrite</span> ! id_left ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">rewrite</span> (functor_id  ((pr12 a2) v)) ;
+                  <span class="nb">rewrite</span> (functor_id (pr1 f)) ;
+                  <span class="nb">rewrite</span> id_left ;
+                  <span class="nb">apply</span> (! id_right _)
+                ).
+         * use tpair ; use equality_of_2cells_in_ACTI ;
+             <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">acti_to_acat_unit_is_pstrans</span>
+    : is_pstrans acti_to_acat_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACTI ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_left _).
+    - <span class="nb">rewrite</span> ! id_left ; <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> (! functor_id _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_unit</span>
+    :  pstrans (Composition.comp_psfunctor acat_to_acti acti_to_acat) (Identity.id_psfunctor ACTI).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> acti_to_acat_unit_data.
+    - <span class="bp">exact</span> acti_to_acat_unit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_counit_data_on_ob</span> (<span class="nv">a</span> : ACAT)
+    : ACAT ⟦Composition.comp_psfunctor acti_to_acat acat_to_acti a, Identity.id_psfunctor ACAT a⟧.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+    <span class="kp">abstract</span> (
+        <span class="nb">simpl</span> ;
+        <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">rewrite</span> id_right ; <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> idpath)) ;
+        [
+          <span class="nb">rewrite</span> id_left ;
+          <span class="nb">rewrite</span> id_right ;
+          <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a)) ;
+          <span class="nb">apply</span> (! id_right _)
+        |
+          <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> idpath ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_counit_data</span>
+    :  pstrans_data (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, acti_to_acat_counit_data_on_ob a).
+    - <span class="nb">intros</span> a1 a2 f.
+      use tpair.
+      + use tpair.
+        * <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+          <span class="nb">intros</span> c1 c2 g.
+          <span class="kp">abstract</span> (
+              <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> id_left ;
+              <span class="nb">apply</span> id_right
+            ).
+        * <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+              <span class="nb">simpl</span> ;
+              <span class="nb">unfold</span> comp_lineator_data ;
+              <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> functor_id ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a2));
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">apply</span> idpath
+            ).
+      + use tpair.
+        * use tpair.
+           -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+              <span class="kp">abstract</span> (
+                  <span class="nb">intros</span> c1 c2 g ;
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">rewrite</span> id_left ;
+                  <span class="nb">apply</span> id_right
+                ).
+           -- <span class="kp">abstract</span> (
+                  <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">unfold</span> comp_lineator_data ;
+                  <span class="nb">simpl</span> ;
+                  <span class="nb">rewrite</span> functor_id ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a2)) ;
+                  <span class="nb">rewrite</span> ! id_left ;
+                  <span class="nb">apply</span> idpath
+                ).
+        * use tpair ; use equality_of_2cells_in_ACAT ;
+             <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">acti_to_acat_counit_is_pstrans</span>
+    : is_pstrans acti_to_acat_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACAT ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">simpl</span>.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> (! id_left _).
+    - <span class="nb">rewrite</span> ! id_left ; <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> (! functor_id _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_to_acat_counit</span>
+    :  pstrans (Composition.comp_psfunctor acti_to_acat acat_to_acti) (Identity.id_psfunctor ACAT).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> acti_to_acat_counit_data.
+    - <span class="bp">exact</span> acti_to_acat_counit_is_pstrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_biequiv_unit_counit_acat</span>
+    : is_biequivalence_unit_counit acti_to_acat acat_to_acti.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">acti_to_acat_unit</span>.
+    <span class="bp">exact</span> acti_to_acat_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_ACTI</span>
+    :  Base.ps_base ACTI ACTI ⟦ pr111 (Identity.id_psfunctor ACTI),
+  pr111 (Composition.comp_psfunctor acat_to_acti acti_to_acat) ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="k">exists</span> (<span class="nv">functor_identity</span> <span class="nv">_</span>).
+    use tpair.
+    + use make_nat_trans.
+      * <span class="nb">intro</span>.
+        <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      * <span class="nb">intro</span> ; <span class="nb">intros</span> ; use nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="nb">intro</span> ; <span class="nb">cbn</span>; <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+      + use tpair.
+        * use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ;
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">apply</span> id_right
+            ).
+        * <span class="nb">intro</span> ; <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ;
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">rewrite</span> (functor_id ((pr12 x) w)) ;
+              <span class="nb">apply</span> (! id_left _)
+            ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_base_ACAT</span>
+    :  Base.ps_base ACAT ACAT ⟦ pr111 (Identity.id_psfunctor ACAT),
+                                pr111 (Composition.comp_psfunctor acti_to_acat acat_to_acti) ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="k">exists</span> (<span class="nv">functor_identity</span> <span class="nv">_</span>).
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, identity _).
+    - <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          <span class="nb">cbn</span> ;
+          <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 x)) ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> ! id_right ;
+          <span class="nb">apply</span> idpath
+        ).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ACAT_invertible_2cell</span> {<span class="nv">a1</span> <span class="nv">a2</span> : ACAT} (<span class="nv">f</span> : ACAT⟦a1,a2⟧)
+    : invertible_2cell (ps_base_ACAT a1 · acti_to_acat_on_mor (acat_to_acti_on_mor f)) (f · ps_base_ACAT a2).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    - <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">cbn</span> ;
+          <span class="nb">unfold</span> comp_lineator_data ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a2)) ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> functor_id ;
+          <span class="nb">rewrite</span> id_right ;
+          <span class="nb">apply</span> id_right
+        ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    - <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">cbn</span> ;
+          <span class="nb">unfold</span> comp_lineator_data ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a2)) ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> functor_id ;
+          <span class="nb">apply</span> idpath
+        ).
+    - <span class="kp">abstract</span> (use equality_of_2cells_in_ACAT; <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="nb">apply</span> id_right).
+    - <span class="kp">abstract</span> (use equality_of_2cells_in_ACAT; <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ACTI_invertible_2cell</span> {<span class="nv">a1</span> <span class="nv">a2</span> : ACTI} (<span class="nv">f</span> : ACTI⟦a1,a2⟧)
+    :   invertible_2cell (ps_base_ACTI a1 · acat_to_acti_on_mor (acti_to_acat_on_mor f)) (f · ps_base_ACTI a2).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      + <span class="nb">intro</span>.
+        use nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ;
+            <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> (functor_id (pr1 f)) ;
+            <span class="nb">rewrite</span> ! id_left ;
+            <span class="nb">rewrite</span> ! id_right ;
+            <span class="nb">rewrite</span> (functor_id ((pr12 a2) v)) ;
+            <span class="nb">apply</span> (! id_left _)
+          ).
+    - use tpair.
+      + use tpair.
+        * <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+          <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+              <span class="nb">rewrite</span> id_left ;
+              <span class="nb">apply</span> id_right
+            ).
+        * <span class="nb">intro</span>.
+          use nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ;
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> (functor_id (pr1 f)) ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">rewrite</span> (functor_id ((pr12 a2) v)) ;
+              <span class="nb">apply</span> (! id_left _)
+            ).
+      + <span class="kp">abstract</span> (
+            use tpair ; use equality_of_2cells_in_ACTI ;
+             <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_functor_ACTI</span>
+    : psfunctor_bicat ACTI ACTI ⟦ Identity.id_psfunctor ACTI,
+                                  Composition.comp_psfunctor acat_to_acti acti_to_acat ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, tt).
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">ps_base_ACTI</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">f</span>, ACTI_invertible_2cell f).
+    - <span class="kp">repeat</span> (use tpair) ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACTI ;
+             <span class="nb">intro</span> ; <span class="nb">simpl</span>).
+      + <span class="kp">abstract</span> (<span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span> (<span class="nb">rewrite</span> ! id_left ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">apply</span> (! functor_id (pr1 g) _)
+                 ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ps_functor_ACAT</span>
+    :  psfunctor_bicat ACAT ACAT ⟦ Identity.id_psfunctor ACAT,
+  Composition.comp_psfunctor acti_to_acat acat_to_acti ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, tt).
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">ps_base_ACAT</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">f</span>, ACAT_invertible_2cell f).
+    - <span class="kp">repeat</span> (use tpair) ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use equality_of_2cells_in_ACAT ;
+             <span class="nb">intro</span> ; <span class="nb">simpl</span>).
+      + <span class="kp">abstract</span> (<span class="nb">rewrite</span> id_left ; <span class="nb">apply</span> id_right).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span> (<span class="nb">rewrite</span> ! id_left ;
+                  <span class="nb">rewrite</span> ! id_right ;
+                  <span class="nb">apply</span> (! functor_id (pr1 g) _)
+                 ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_left_adjoint_data</span>
+    :  Adjunctions.left_adjoint_data acti_to_acat_unit.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ps_functor_ACTI</span>.
+    use tpair ; <span class="nb">refine</span> (_ ,, tt).
+
+    - use tpair.
+      + use tpair.
+        * <span class="nb">intro</span>. use tpair.
+          -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">simpl</span> ;
+                 <span class="nb">rewrite</span> id_left ;
+                 <span class="nb">rewrite</span> id_right ;
+                 <span class="nb">apply</span> idpath
+               ).
+          -- <span class="nb">intro</span> ; <span class="nb">intros</span>.
+             use nat_trans_eq.
+             { <span class="nb">apply</span> homset_property. }
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ;
+                 <span class="nb">cbn</span> ;
+                 <span class="nb">rewrite</span> ! id_left ;
+                 <span class="nb">rewrite</span> id_right ;
+                 <span class="nb">apply</span> (! functor_id _ _)
+               ).
+        * <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+              use equality_of_2cells_in_ACTI ;
+              <span class="nb">intro</span> ; <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">apply</span> (! functor_id (pr1 f) _)
+            ).
+      + <span class="bp">exact</span> (tt,,(tt,,tt)).
+    - use tpair.
+      + use tpair.
+        * <span class="nb">intro</span>.
+          use tpair.
+          -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">rewrite</span> id_left ;
+                 <span class="nb">apply</span> id_right
+               ).
+          -- <span class="nb">intro</span> ; <span class="nb">intros</span>.
+             use nat_trans_eq.
+             { <span class="nb">apply</span> homset_property. }
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">simpl</span> ;
+                 <span class="nb">rewrite</span> ! id_left ;
+                 <span class="nb">rewrite</span> id_right ;
+                 <span class="nb">apply</span> (! functor_id _ _)
+               ).
+        * <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+              use equality_of_2cells_in_ACTI ;
+              <span class="nb">intro</span> ; <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> (functor_id (pr1 f) _) ;
+              <span class="nb">rewrite</span> ! id_right ;
+              <span class="nb">apply</span> idpath
+            ).
+      + <span class="bp">exact</span> (tt,, (tt,,tt)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_left_adjoint_data</span>
+    :  Adjunctions.left_adjoint_data acti_to_acat_counit.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ps_functor_ACAT</span>.
+    use tpair ; <span class="nb">refine</span> (_ ,, tt).
+
+    - use tpair.
+      + use tpair.
+        * <span class="nb">intro</span>.
+          use tpair.
+          -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">simpl</span> ;
+                 <span class="nb">rewrite</span> id_left ;
+                 <span class="nb">rewrite</span> id_right ;
+                 <span class="nb">apply</span> idpath
+               ).
+          -- <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">cbn</span> ;
+                 <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 x)) ;
+                 <span class="nb">rewrite</span> ! id_left ;
+                 <span class="nb">apply</span> (! id_right _)
+               ).
+        * <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+              use equality_of_2cells_in_ACAT ;
+              <span class="nb">intro</span> ;
+              <span class="nb">cbn</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> id_right ;
+              <span class="nb">apply</span> (! functor_id _ _)
+            ).
+      + <span class="bp">exact</span> (tt,,(tt,,tt)).
+    - use tpair.
+      + use tpair.
+        * <span class="nb">intro</span>.
+          use tpair.
+          -- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+             <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">rewrite</span> id_left ;
+                 <span class="nb">apply</span> id_right
+               ).
+          -- <span class="kp">abstract</span> (
+                 <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+                 <span class="nb">simpl</span> ;
+                 <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 x)) ;
+                 <span class="nb">apply</span> id_right
+               ).
+        * <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+              use equality_of_2cells_in_ACAT ;
+              <span class="nb">intro</span> ;
+                 <span class="nb">cbn</span> ;
+                 <span class="nb">rewrite</span> ! id_left ;
+                 <span class="nb">rewrite</span> id_right ;
+                 <span class="nb">apply</span> (! functor_id _ _)).
+      + <span class="bp">exact</span> (tt,,(tt,,tt)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unit_left_adjoints_axioms</span>
+    :  Adjunctions.left_adjoint_axioms unit_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    use tpair ; <span class="nb">apply</span> equality_of_ACTI_endofunctors ; <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invertible_2cell_unit_data</span> (<span class="nv">a</span> : ACTI)
+    :  prebicat_cells ACTI
+    ((pr111 (acti_to_acat_unit · Adjunctions.left_adjoint_right_adjoint unit_left_adjoint_data)) a)
+    ((pr111 (identity (Composition.comp_psfunctor acat_to_acti acti_to_acat))) a).
+  <span class="kn">Proof</span>.
+    use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> ! id_left ;
+            <span class="nb">rewrite</span> id_right ;
+            <span class="nb">apply</span> (! functor_id _ _)
+          ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_unit</span>
+    : is_invertible_2cell (Adjunctions.left_adjoint_unit unit_left_adjoint_data).
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - use tpair.
+      + use tpair.
+        * <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">a</span>, <span class="nv">invertible_2cell_unit_data</span> <span class="nv">a</span>).
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span> ; use equality_of_2cells_in_ACTI.
+          <span class="kp">abstract</span> (
+              <span class="nb">intro</span> ;
+              <span class="nb">simpl</span> ;
+              <span class="nb">rewrite</span> ! id_left ;
+              <span class="nb">rewrite</span> id_right ;
+              <span class="nb">apply</span> (! functor_id _ _)
+            ).
+        * <span class="kp">repeat</span> (use tpair) ; <span class="kp">try</span> (<span class="bp">exact</span> tt).
+      + <span class="bp">exact</span> tt.
+    - <span class="kp">abstract</span> (
+          use equality_of_ACTI_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (use equality_of_ACTI_endofunctors ;
+      <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_counit</span>
+    : is_invertible_2cell (Adjunctions.left_adjoint_counit unit_left_adjoint_data).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair) ; <span class="kp">try</span> (<span class="bp">exact</span> tt).
+    - <span class="nb">intro</span>.
+      use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        use nat_trans_eq.
+        { <span class="nb">apply</span> homset_property. }
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> ! id_left ;
+            <span class="nb">rewrite</span> id_right ;
+            <span class="nb">apply</span> (! functor_id _ _)
+          ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          use equality_of_2cells_in_ACTI ;
+          <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> id_right ;
+          <span class="nb">apply</span> (! functor_id _ _)
+        ).
+    - <span class="kp">abstract</span> (
+          use equality_of_ACTI_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+          use equality_of_ACTI_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">apply</span> id_right
+        ).
+   <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prebicat_cells_ACAT</span> (<span class="nv">a</span> : ACAT)
+    :  prebicat_cells ACAT ((pr111 (identity (Identity.id_psfunctor ACAT))) a)
+                      ((pr111 (Adjunctions.left_adjoint_right_adjoint counit_left_adjoint_data · acti_to_acat_counit)) a).
+  <span class="kn">Proof</span>.
+    use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      + <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 a)) ;
+            <span class="nb">apply</span> (! id_left _)
+          ).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_counit'</span>
+    : is_invertible_2cell (Adjunctions.left_adjoint_counit counit_left_adjoint_data).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair) ; <span class="kp">try</span> (<span class="bp">exact</span> tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, prebicat_cells_ACAT _).
+
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          use equality_of_2cells_in_ACAT ;
+          <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> id_right ;
+          <span class="nb">apply</span> (! functor_id _ _)
+        ).
+
+    - <span class="kp">abstract</span> (
+          use equality_of_ACAT_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (
+          use equality_of_ACAT_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">apply</span> id_right
+        ).
+   <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">counit_left_adjoints_axioms</span>
+    :  Adjunctions.left_adjoint_axioms counit_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    use tpair ; <span class="nb">apply</span> equality_of_ACAT_endofunctors ; <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">rewrite</span> ! id_right ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_unit'</span>
+    :  is_invertible_2cell (Adjunctions.left_adjoint_unit counit_left_adjoint_data).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair) ; <span class="kp">try</span> (<span class="bp">exact</span> tt).
+    - <span class="nb">intro</span>.
+      use tpair.
+      + <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">identity</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">rewrite</span> id_left ;
+            <span class="nb">apply</span> id_right
+          ).
+      + <span class="kp">abstract</span> (
+            <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+            <span class="nb">simpl</span> ;
+            <span class="nb">unfold</span> comp_lineator_data ;
+            <span class="nb">unfold</span> identity_lineator_data ;
+            <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> (bifunctor_leftid (_ ,, pr122 x)) ;
+            <span class="nb">apply</span> id_right
+          ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+          use equality_of_2cells_in_ACAT ;
+          <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ;
+          <span class="nb">rewrite</span> ! id_left ;
+          <span class="nb">rewrite</span> id_right ;
+          <span class="nb">apply</span> (! functor_id _ _)
+        ).
+    - <span class="kp">abstract</span> (
+          use equality_of_ACAT_endofunctors ;
+          <span class="nb">intro</span> ; <span class="nb">intro</span> ;
+          <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right
+        ).
+    - <span class="kp">abstract</span> (use equality_of_ACAT_endofunctors ;
+      <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">simpl</span> ; <span class="nb">apply</span> id_right).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unit_left_adjoint_equiv_axiom</span>
+    :  Adjunctions.left_equivalence_axioms unit_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">is_invertible_2cell_unit</span>.
+    <span class="bp">exact</span> is_invertible_2cell_counit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">counit_left_adjoint_equiv_axiom</span>
+    :  Adjunctions.left_equivalence_axioms counit_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">is_invertible_2cell_unit'</span>.
+    <span class="bp">exact</span> is_invertible_2cell_counit'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unit_left_adjoint_equivalence</span>
+    :  Adjunctions.left_adjoint_equivalence (unit_of_is_biequivalence acti_biequiv_unit_counit_acat).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">unit_left_adjoint_data</span>.
+    <span class="k">exists</span> <span class="nv">unit_left_adjoints_axioms</span>.
+    <span class="bp">exact</span> unit_left_adjoint_equiv_axiom.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">counit_left_adjoint_equivalence</span>
+    :  Adjunctions.left_adjoint_equivalence (counit_of_is_biequivalence acti_biequiv_unit_counit_acat).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">counit_left_adjoint_data</span>.
+    <span class="k">exists</span> <span class="nv">counit_left_adjoints_axioms</span>.
+    <span class="bp">exact</span> counit_left_adjoint_equiv_axiom.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_biequiv_adj_acat</span>
+    : is_biequivalence_adjoints acti_biequiv_unit_counit_acat.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">unit_left_adjoint_equivalence</span>.
+    <span class="bp">exact</span> counit_left_adjoint_equivalence.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_is_biequiv_acat</span>
+    : is_biequivalence acti_to_acat.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">acat_to_acti</span>.
+    <span class="k">exists</span> <span class="nv">acti_biequiv_unit_counit_acat</span>.
+    <span class="bp">exact</span> acti_biequiv_adj_acat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">acti_biequiv_acat</span>
+    : biequivalence ACTI ACAT.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">acti_to_acat</span>).
+    <span class="bp">exact</span> acti_is_biequiv_acat.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ActionInCatEquivActegories</span>.
+<span class="kn">End</span> <span class="nf">FixAMonCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/EquivalenceActegoriesAndActions.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

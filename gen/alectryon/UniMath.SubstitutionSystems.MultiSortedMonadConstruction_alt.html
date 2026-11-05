@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MultiSortedMonadConstruction_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">This file contains the final steps of the formalization of multisorted binding signatures:</span>
+
+<span class="sd">- Construction of a monad on C^sort from a multisorted signature</span>
+<span class="sd">  ([MultiSortedSigToMonad])</span>
+<span class="sd">- Instantiation of MultiSortedSigToMonad for C = Set</span>
+<span class="sd">  ([MultiSortedSigToMonadSet])</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2021. The formalization is an adaptation of</span>
+<span class="sd">Multisorted.v</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.LiftingInitial_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SignatureExamples.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BindingSigToMonad.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MBindingSig</span>.
+
+<span class="c">(* Interestingly we only need that [sort] is a 1-type *)</span>
+<span class="kn">Context</span> (<span class="nv">sort</span> : UU) (<span class="nv">Hsort</span> : isofhlevel <span class="mi">3</span> sort) (<span class="nv">C</span> : category).
+
+<span class="c">(* Assumptions on [C] used to construct the functor *)</span>
+<span class="c">(* Note that there is some redundancy in the assumptions *)</span>
+<span class="kn">Context</span> (<span class="nv">TC</span> : Terminal C) (<span class="nv">IC</span> : Initial C)
+        (<span class="nv">BP</span> : BinProducts C) (<span class="nv">BC</span> : BinCoproducts C)
+        (* (PC : <span class="k">forall</span> (<span class="nv">I</span> : UU), Products I C) *) (<span class="nv">eqsetPC</span> : <span class="k">forall</span> (<span class="nv">s</span> <span class="nv">s'</span> : sort), Products (s=s') C)
+        (<span class="nv">CC</span> : <span class="k">forall</span> (<span class="nv">I</span> : UU), isaset I → Coproducts I C).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'1'"</span> := (TerminalObject TC).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⊕ b"</span> := (BinCoproductObject (BC a b)).
+
+<span class="sd">(** This represents "sort → C" *)</span>
+<span class="kn">Let</span> <span class="nf">sortToC</span> : category := SortIndexing.sortToC sort Hsort C.
+
+<span class="kn">Let</span> <span class="nf">BCsortToC</span> : BinCoproducts sortToC := SortIndexing.BCsortToC sort Hsort _ BC.
+
+<span class="kn">Let</span> <span class="nf">BPsortToCC</span> : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
+
+<span class="c">(* Assumptions needed to prove ω-cocontinuity of the functor *)</span>
+<span class="kn">Context</span> (<span class="nv">EsortToCC</span> : Exponentials BPsortToCC)
+        (<span class="nv">HC</span> : Colims_of_shape nat_graph C).
+<span class="c">(* The EsortToCC assumption says that [sortToC,C] has exponentials. It</span>
+<span class="c">   could be reduced to exponentials in C, but we only have the case</span>
+<span class="c">   for C = Set formalized in</span>
+
+<span class="c">     CategoryTheory.Categories.HSET.Structures.Exponentials_functor_HSET</span>
+
+<span class="c"> *)</span>
+
+<span class="sd">(** * Construction of a monad from a multisorted signature *)</span>
+<span class="kn">Section</span> <span class="nf">monad</span>.
+
+<span class="kn">Let</span> <span class="nf">Id_H</span> := Id_H sortToC BCsortToC.
+
+<span class="c">(* ** Construction of initial algebra for a signature with strength on C^sort *)</span>
+<span class="kn">Definition</span> <span class="nf">SignatureInitialAlgebra</span>
+  (<span class="nv">H</span> : Signature sortToC sortToC sortToC) (<span class="nv">Hs</span> : is_omega_cocont H) :
+  Initial (FunctorAlg (Id_H H)).
+<span class="kn">Proof</span>.
+use colimAlgInitial.
+- <span class="nb">apply</span> Initial_functor_precat, Initial_functor_precat, IC.
+- <span class="nb">apply</span> (is_omega_cocont_Id_H), Hs.
+- <span class="nb">apply</span> ColimsFunctorCategory_of_shape, ColimsFunctorCategory_of_shape, HC.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">HSS</span> := @hss_category _ BCsortToC.
+
+<span class="c">(* ** Multisorted signature to a HSS *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToHSS</span> (<span class="nv">sig</span> : MultiSortedSig sort) :
+  HSS (MultiSortedSigToSignature sort Hsort C TC BP BC CC sig).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> SignatureToHSS.
++ <span class="nb">apply</span> Initial_functor_precat, IC.
++ <span class="nb">apply</span> ColimsFunctorCategory_of_shape, HC.
++ <span class="nb">apply</span> is_omega_cocont_MultiSortedSigToSignature.
+  - <span class="bp">exact</span> eqsetPC.
+  - <span class="bp">exact</span> EsortToCC.
+  - <span class="bp">exact</span> HC.
+<span class="kn">Defined</span>.
+
+<span class="c">(* The above HSS is initial *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToHSSisInitial</span> (<span class="nv">sig</span> : MultiSortedSig sort) :
+  isInitial _ (MultiSortedSigToHSS sig).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">unfold</span> MultiSortedSigToHSS, SignatureToHSS; <span class="nb">destruct</span> InitialHSS.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Function from multisorted binding signatures to monads *)</span>
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToMonad</span> (<span class="nv">sig</span> : MultiSortedSig sort) : Monad sortToC.
+<span class="kn">Proof</span>.
+use Monad_from_hss.
+- <span class="nb">apply</span> BCsortToC.
+- <span class="nb">apply</span> (MultiSortedSigToSignature sort Hsort C TC BP BC CC sig).
+- <span class="nb">apply</span> MultiSortedSigToHSS.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">monad</span>.
+
+<span class="kn">End</span> <span class="nf">MBindingSig</span>.
+
+<span class="kn">Section</span> <span class="nf">MBindingSigMonadHSET</span>.
+
+<span class="kn">Context</span> (<span class="nv">sort</span> : UU) (<span class="nv">Hsort</span> : isofhlevel <span class="mi">3</span> sort).
+
+<span class="kn">Let</span> <span class="nf">sortToSet</span> : category := SortIndexing.sortToSet sort Hsort.
+
+<span class="kn">Definition</span> <span class="nf">projSortToSet</span> : sort → functor sortToSet HSET :=
+  projSortToC sort Hsort HSET.
+
+<span class="kn">Definition</span> <span class="nf">hat_functorSet</span> : sort → HSET ⟶ sortToSet :=
+  hat_functor sort Hsort HSET CoproductsHSET.
+
+<span class="kn">Definition</span> <span class="nf">sorted_option_functorSet</span> : sort → sortToSet ⟶ sortToSet :=
+  sorted_option_functor _ Hsort HSET
+                        TerminalHSET BinCoproductsHSET CoproductsHSET.
+
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToSignatureSet</span> : MultiSortedSig sort → Signature sortToSet sortToSet sortToSet.
+<span class="kn">Proof</span>.
+use MultiSortedSigToSignature.
+- <span class="nb">apply</span> TerminalHSET.
+- <span class="nb">apply</span> BinProductsHSET.
+- <span class="nb">apply</span> BinCoproductsHSET.
+- <span class="nb">apply</span> CoproductsHSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">MultiSortedSigToMonadSet</span> (<span class="nv">ms</span> : MultiSortedSig sort) :
+  Monad sortToSet.
+<span class="kn">Proof</span>.
+use MultiSortedSigToMonad.
+- <span class="nb">apply</span> TerminalHSET.
+- <span class="nb">apply</span> InitialHSET.
+- <span class="nb">apply</span> BinProductsHSET.
+- <span class="nb">apply</span> BinCoproductsHSET.
+- <span class="nb">intros</span>. <span class="nb">apply</span> ProductsHSET.
+- <span class="nb">apply</span> CoproductsHSET.
+- <span class="nb">apply</span> Exponentials_functor_HSET.
+- <span class="nb">apply</span> ColimsHSET_of_shape.
+- <span class="nb">apply</span> ms.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MBindingSigMonadHSET</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MultiSortedMonadConstruction_alt.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Multisorted.v
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PiTypesStable.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Stability of ∏-types for presheaves</span>
+
+<span class="sd"> We show that ∏-types in the presheaf model are preserved by substitution. To do</span>
+<span class="sd"> so, we show the usual Beck-Chevalley condition for right adjoints. To prove the</span>
+<span class="sd"> Beck-Chevalley condition, we define an inverse for the canonical morphism and we</span>
+<span class="sd"> prove that it is indeed an inverse. For that purpose, we give concrete condition</span>
+<span class="sd"> of the Beck-Chevalley morphism for which we prove various calculational lemmas.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Calculational lemmas</span>
+<span class="sd"> 2. The inverse of the Beck-Chevalley morphism</span>
+<span class="sd"> 3. Calculation of the Beck-Chevalley morphism</span>
+<span class="sd"> 4. Stability under substitution</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SigmaTypes.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiTypes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PiTypesStable</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** * 1. Calculational lemmas *)</span>
+  <span class="kn">Proposition</span> <span class="nf">dep_prod_psh_right_adj_mor</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              {<span class="nv">A</span> : dep_psh Γ}
+              {<span class="nv">B₁</span> <span class="nv">B₂</span> : dep_psh (total_psh A)}
+              (<span class="nv">θ</span> : dep_psh_nat_trans B₁ B₂ (nat_trans_id _))
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : (Γ x : hSet)}
+              (<span class="nv">φ</span> : dep_pi_psh_function A B₁ x xx)
+              {<span class="nv">f</span> : y --&gt; x}
+              (<span class="nv">a</span> : A y (# Γ f xx))
+    : ((#(right_adjoint (dependent_product_dep_psh A)) θ : dep_psh_nat_trans _ _ _)
+         x xx φ : dep_pi_psh_function _ _ _ _) y f a
+      =
+      θ _ _ (φ _ _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[fiber_category].
+    <span class="nb">rewrite</span> dep_psh_fiber_comp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> dep_psh_mor_comp'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ _ _ _ _).
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> dep_psh_mor_comp'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> (dep_psh_mor_id' A).
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> dep_psh_mor_comp'.
+    use dep_psh_mor_id'.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dep_prod_psh_counit_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              {<span class="nv">A</span> : dep_psh Γ}
+              {<span class="nv">B</span> : dep_psh (total_psh A)}
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> : dep_psh_total_space A x)
+              (<span class="nv">φ</span> : dep_pi_psh_function A B x (pr1 xx))
+    : (counit_from_left_adjoint
+         (dependent_product_dep_psh A) B : dep_psh_nat_trans _ _ _)
+        x xx φ
+      =
+      #d B (identity _)
+           (pi_dep_psh_eval_eq _ xx)
+           (φ x (identity _) (#d A (identity _) (idpath _) (pr2 xx))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comm_nat_z_iso_inv_dep_psh_eq_path</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> <span class="nv">Γ₄</span> : C^op ⟶ HSET}
+              {<span class="nv">τ₁</span> : Γ₃ ⟹ Γ₄}
+              {<span class="nv">τ₂</span> : Γ₂ ⟹ Γ₄}
+              {<span class="nv">τ₃</span> : Γ₁ ⟹ Γ₂}
+              {<span class="nv">τ₄</span> : Γ₁ ⟹ Γ₃}
+              (<span class="nv">p</span> : nat_trans_comp _ _ _ τ₄ τ₁ = nat_trans_comp _ _ _ τ₃ τ₂)
+              (<span class="nv">A</span> : dep_psh Γ₄)
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> : (Γ₁ x : hSet))
+    : #Γ₄ (identity x) (τ₂ x (τ₃ x xx)) = τ₁ x (τ₄ x xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (eqtohomot (functor_id Γ₄ _) _  @ _).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (!(eqtohomot (nat_trans_eq_pointwise p x) xx)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">comm_nat_z_iso_inv_dep_psh_eq</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> <span class="nv">Γ₄</span> : C^op ⟶ HSET}
+              {<span class="nv">τ₁</span> : Γ₃ ⟹ Γ₄}
+              {<span class="nv">τ₂</span> : Γ₂ ⟹ Γ₄}
+              {<span class="nv">τ₃</span> : Γ₁ ⟹ Γ₂}
+              {<span class="nv">τ₄</span> : Γ₁ ⟹ Γ₃}
+              (<span class="nv">p</span> : nat_trans_comp _ _ _ τ₄ τ₁ = nat_trans_comp _ _ _ τ₃ τ₂)
+              (<span class="nv">A</span> : dep_psh Γ₄)
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> : (Γ₁ x : hSet))
+              (<span class="nv">a</span> : A x (τ₂ x (τ₃ x xx)))
+    : (comm_nat_z_iso_inv (cleaving_disp_cat_dep_psh C) _ _ _ _ p A : dep_psh_nat_trans _ _ _)
+        x xx a
+      =
+      #d A (identity _) (comm_nat_z_iso_inv_dep_psh_eq_path p A xx) a.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (comm_nat_z_iso_inv_ob (cleaving_disp_cat_dep_psh C) _ _ _ _ p A).
+    <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dep_psh_fiber_comp.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> dep_psh_fiber_functor_from_cleaving_comp_inv_eq.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dep_psh_fiber_functor_from_cleaving_comp_eq.
+    }
+    etrans.
+    {
+      <span class="bp">exact</span> (dep_psh_fiber_functor_on_eq_eq (!p) A a).
+    }
+    <span class="nb">apply</span> (dep_psh_mor_path_eq A).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The inverse of the Beck-Chevalley morphism *)</span>
+  <span class="kn">Section</span> <span class="nf">Stability</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C^op ⟶ HSET}
+            (<span class="nv">s</span> : Γ₁ ⟹ Γ₂)
+            (<span class="nv">A</span> : dep_psh Γ₂)
+            (<span class="nv">B</span> : dep_psh (total_psh A)).
+
+    <span class="kn">Let</span> <span class="nf">sA</span> : dep_psh Γ₁ := dep_psh_subst s A.
+    <span class="kn">Let</span> <span class="nf">sB</span> : dep_psh (total_psh sA)
+      := dep_psh_subst (total_psh_nat_trans s (dep_psh_subst_nat_trans s A)) B.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_subst_fun_eq1</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+      : # Γ₂ (identity y) (# Γ₂ f (s x xx)) = s y (# Γ₁ f xx).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _).
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax s _ _ f) xx)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_subst_fun_eq2</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+                (<span class="nv">a</span> : A y (# Γ₂ f (s x xx)))
+      : # (total_psh A)
+          (identity _)
+          (total_psh_nat_trans
+             s
+             (dep_psh_subst_nat_trans s A)
+             y
+             (#Γ₁ f xx,, #d A (identity y) (dep_psh_pi_subst_fun_eq1 f xx) a))
+        =
+        # Γ₂ f (s x xx),, a.
+    <span class="kn">Proof</span>.
+      use dep_psh_total_space_path.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _).
+        <span class="bp">exact</span> (eqtohomot (nat_trans_ax s _ _ f) xx).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        use dep_psh_mor_id'.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_pi_subst_fun_mor</span>
+               (<span class="nv">x</span> : C)
+               (<span class="nv">xx</span> : (Γ₁ x : hSet))
+               (<span class="nv">φ</span> : dep_pi_psh_function sA sB x xx)
+               (<span class="nv">y</span> : C)
+               (<span class="nv">f</span> : y --&gt; x)
+               (<span class="nv">a</span> : A y (#Γ₂ f (s x xx)))
+      : B y (#Γ₂ f (s x xx) ,, a)
+      := #d B (identity _)
+              (dep_psh_pi_subst_fun_eq2 f xx a)
+              (φ y f (#d A (identity _) (dep_psh_pi_subst_fun_eq1 f xx) a)).
+
+    <span class="kn">Arguments</span> dep_psh_pi_subst_fun_mor /.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_subst_fun_natural</span>
+                (<span class="nv">x</span> : C)
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+                (<span class="nv">φ</span> : dep_pi_psh_function sA sB x xx)
+      : is_natural_dep_pi_psh_function A B (dep_psh_pi_subst_fun_mor x xx φ).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y₁ y₂ f₁ f₂ a.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      <span class="nb">pose</span> (dep_pi_psh_function_natural' _ _ φ f₁ f₂)
+        <span class="k">as</span> p.
+      <span class="nb">simple refine</span> (_ @ maponpaths (#d B (identity _) _) (p _ _) @ _).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        use dep_psh_mor_path_eq.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="kp">abstract</span>
+          (use dep_psh_total_space_path ;
+          [ <span class="nb">cbn</span> ;
+            <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _) ;
+            <span class="bp">exact</span> (eqtohomot (nat_trans_ax s _ _ (f₁ · f₂)) xx)
+          | <span class="nb">cbn</span> ;
+            <span class="nb">rewrite</span> !dep_psh_mor_comp' ;
+            use dep_psh_mor_path_eq ;
+            <span class="nb">rewrite</span> !id_left, id_right ;
+            <span class="nb">apply</span> idpath ]).
+      - <span class="kp">abstract</span>
+          (use dep_psh_total_space_path ;
+           [ <span class="nb">cbn</span> ;
+             <span class="bp">exact</span> (eqtohomot (!(functor_comp Γ₁ _ _)) xx)
+           | <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !dep_psh_mor_comp' ;
+             use dep_psh_mor_path_eq ;
+             <span class="nb">rewrite</span> id_left, !id_right ;
+             <span class="nb">apply</span> idpath ]).
+      - <span class="nb">cbn</span>.
+        <span class="nb">assert</span> (#Γ₂ f₁ (#Γ₂ f₂ (s x xx))
+                =
+                s y₂ (#Γ₁ (f₁ · f₂) xx))
+          <span class="k">as</span> mid.
+        {
+          <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ₂ _ _)) _ @ _).
+          <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax s _ _ (f₁ · f₂)) xx)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ φ _ _ _).
+          <span class="nb">refine</span> (dep_psh_mor_comp' A (identity _) f₁ _ _ _ @ _).
+          <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ _ (id_right _) _).
+          <span class="bp">exact</span> mid.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ φ _ _ _).
+          <span class="nb">refine</span> (dep_psh_mor_comp' A f₁ (identity _) _ _ _ @ _).
+          <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ _ (id_left _) _).
+          <span class="bp">exact</span> mid.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _ @ !(dep_psh_mor_comp' _ _ _ _ _ _)).
+        use dep_psh_mor_path_eq.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_pi_subst_fun</span>
+               (<span class="nv">x</span> : C)
+               (<span class="nv">xx</span> : (Γ₁ x : hSet))
+               (<span class="nv">φ</span> : dep_pi_psh_function sA sB x xx)
+      : dep_pi_psh_function A B x (s x xx).
+    <span class="kn">Proof</span>.
+      use make_dep_pi_psh_function.
+      - <span class="bp">exact</span> (dep_psh_pi_subst_fun_mor x xx φ).
+      - <span class="bp">exact</span> (dep_psh_pi_subst_fun_natural x xx φ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_subst_laws</span>
+      : dep_psh_nat_trans_naturality
+          (A := pi_dep_psh
+                  (dep_psh_subst s A)
+                  (dep_psh_subst (total_psh_nat_trans s (dep_psh_subst_nat_trans s A)) B))
+          (B := dep_psh_subst s (pi_dep_psh A B))
+          (s := nat_trans_id _)
+          dep_psh_pi_subst_fun.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x₁ x₂ xx₁ xx₂ f p q φ.
+      use dep_pi_psh_function_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">intros</span> y g a.
+      <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+      <span class="nb">assert</span> (#Γ₂ (identity y) (#Γ₂ g (s x₂ xx₂))
+              =
+              s y (#Γ₁ (g · f) xx₁))
+        <span class="k">as</span> mid.
+      {
+        <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _).
+        <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax s _ _ g) _) @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="bp">exact</span> (!(eqtohomot (functor_comp Γ₁ _ _) _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ φ _ _ _).
+        <span class="nb">refine</span> (dep_psh_mor_comp' A (identity _) (identity _) _ _ _ @ _).
+        <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ _ (id_right _) _).
+        <span class="bp">exact</span> mid.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ φ _ _ _).
+        <span class="nb">refine</span> (dep_psh_mor_comp' A (identity _) (identity _) _ _ _ @ _).
+        <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ _ (id_right _) _).
+        <span class="bp">exact</span> mid.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _ @ !(dep_psh_mor_comp' _ _ _ _ _ _)).
+      use dep_psh_mor_path_eq.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">dep_psh_pi_subst</span>
+      : dep_psh_nat_trans
+          (pi_dep_psh
+             (dep_psh_subst s A)
+             (dep_psh_subst
+                (total_psh_nat_trans s (dep_psh_subst_nat_trans s A))
+                B))
+          (dep_psh_subst
+             s
+             (pi_dep_psh A B))
+          (nat_trans_id _).
+    <span class="kn">Proof</span>.
+      use make_dep_psh_nat_trans.
+      - <span class="bp">exact</span> dep_psh_pi_subst_fun.
+      - <span class="bp">exact</span> dep_psh_pi_subst_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 3. Calculation of the Beck-Chevalley morphism *)</span>
+    <span class="kn">Context</span> (<span class="nv">p</span> : nat_trans_comp
+                   _ _ _
+                   (total_psh_nat_trans s (dep_psh_subst_nat_trans s A))
+                   (total_psh_pr A)
+                 =
+                 nat_trans_comp
+                   _ _ _
+                   (total_psh_pr (dep_psh_subst s A))
+                   s).
+
+    <span class="kn">Let</span> <span class="nf">τ</span> : dep_psh_nat_trans
+              (dep_psh_subst s (pi_dep_psh A B))
+              (pi_dep_psh
+                 sA
+                 (dep_psh_subst (total_psh_nat_trans s (dep_psh_subst_nat_trans s A)) B))
+              (nat_trans_id _)
+      := right_beck_chevalley_nat_trans
+           (dependent_product_dep_psh A)
+           (dependent_product_dep_psh sA)
+           (comm_nat_z_iso_inv
+              (cleaving_disp_cat_dep_psh C)
+              (total_psh_pr A)
+              s
+              (total_psh_pr (dep_psh_subst s A))
+              (total_psh_nat_trans s (dep_psh_subst_nat_trans s A))
+              p)
+           B.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_right_beck_chevalley_nat_trans_eq1</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+                (<span class="nv">f</span> : y --&gt; x)
+      : #Γ₂ (identity y) (s y (#Γ₁ f xx)) = #Γ₂ f (s x xx).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _).
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (eqtohomot (nat_trans_ax s _ _ f) _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">e₁</span> := @dep_psh_pi_right_beck_chevalley_nat_trans_eq1.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_right_beck_chevalley_nat_trans_eq2</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">a</span> : A y (s y (#Γ₁ f xx)))
+      : # (total_psh A)
+          (identity y)
+          (#Γ₂ f (s x xx) ,, #d A (identity y) (e₁ x y xx f) a)
+        =
+        total_psh_nat_trans
+          s
+          (dep_psh_subst_nat_trans s A)
+          y
+          (#Γ₁ f xx ,, a).
+    <span class="kn">Proof</span>.
+      use dep_psh_total_space_path.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (eqtohomot (functor_id Γ₂ _) _ @ _).
+        <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax s _ _ f) xx)).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        use dep_psh_mor_id'.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">e₂</span> := @dep_psh_pi_right_beck_chevalley_nat_trans_eq2.
+
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_right_beck_chevalley_nat_trans</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">xx</span> : (Γ₁ x : hSet))
+                (<span class="nv">φ</span> : dep_pi_psh_function A B x (s x xx))
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">a</span> : A y (s y (#Γ₁ f xx)))
+      : (τ x xx φ : dep_pi_psh_function _ _ _ _) y f a
+        =
+        #d B (identity _) (e₂ x y xx f a) (φ y f (#d A (identity _) (e₁ x y xx f) a)).
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span> -[τ].
+      <span class="nb">unfold</span> τ.
+      <span class="nb">rewrite</span> right_beck_chevalley_nat_trans_ob.
+      etrans.
+      {
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z y f a) _).
+        <span class="nb">rewrite</span> !dep_psh_fiber_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="bp">exact</span> (dep_prod_psh_right_adj_mor
+                 (#(fiber_functor_from_cleaving
+                      (disp_cat_dep_psh C)
+                      (cleaving_disp_cat_dep_psh C)
+                      (total_psh_nat_trans s (dep_psh_subst_nat_trans s A)))
+                    (counit_from_left_adjoint (dependent_product_dep_psh A) B)) _ _).
+      }
+      <span class="nb">rewrite</span> (dep_psh_fiber_functor_from_cleaving
+                 _
+                 (total_psh_nat_trans s (dep_psh_subst_nat_trans s A))
+                 (counit_from_left_adjoint (dependent_product_dep_psh A) B)).
+      etrans.
+      {
+        <span class="nb">apply</span> dep_prod_psh_counit_eq.
+      }
+      <span class="nb">rewrite</span> (dep_prod_psh_right_adj_mor
+                 (comm_nat_z_iso_inv
+                    (cleaving_disp_cat_dep_psh C)
+                    (total_psh_pr A)
+                    s
+                    (total_psh_pr (dep_psh_subst s A))
+                    (total_psh_nat_trans s (dep_psh_subst_nat_trans s A)) p
+                    (right_adjoint (dependent_product_dep_psh A) B))
+                 ((unit_from_left_adjoint
+                     (dependent_product_dep_psh sA)
+                     (fiber_functor_from_cleaving
+                        (disp_cat_dep_psh C)
+                        (cleaving_disp_cat_dep_psh C) s
+                        (right_adjoint (dependent_product_dep_psh A) B))
+                    : dep_psh_nat_trans _ _ _) x xx φ)).
+      <span class="nb">rewrite</span> (comm_nat_z_iso_inv_dep_psh_eq p).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ _ _ _ _).
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        <span class="nb">refine</span> (id_left _ @ _).
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        use dep_psh_mor_path_eq.
+        - <span class="nb">apply</span> identity.
+        - <span class="nb">apply</span> e₁.
+        - <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      use dep_psh_mor_path_eq.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 4. Stability under substitution *)</span>
+    <span class="kn">Proposition</span> <span class="nf">dep_psh_pi_subst_inv_laws</span>
+      : is_inverse_in_precat
+          (C := fiber_category (disp_cat_dep_psh C) Γ₁)
+          τ
+          dep_psh_pi_subst.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use dep_psh_nat_trans_eq.
+        <span class="nb">intros</span> x xx φ.
+        <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+        use dep_pi_psh_function_eq.
+        <span class="nb">intros</span> y f a.
+        <span class="nb">cbn</span> -[τ].
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> dep_psh_pi_right_beck_chevalley_nat_trans.
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+          <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+          <span class="nb">apply</span> (dep_psh_mor_id' A).
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        <span class="nb">apply</span> (dep_psh_mor_id' B).
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+      - use dep_psh_nat_trans_eq.
+        <span class="nb">intros</span> x xx φ.
+        <span class="nb">refine</span> (dep_psh_fiber_comp _ _ _ _ @ _).
+        use dep_pi_psh_function_eq.
+        <span class="nb">intros</span> y f a.
+        etrans.
+        {
+          <span class="nb">apply</span> dep_psh_pi_right_beck_chevalley_nat_trans.
+        }
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ φ _ _ _).
+          <span class="nb">refine</span> (dep_psh_mor_comp' A _ _ _ _ _ @ _).
+          <span class="nb">apply</span> (dep_psh_mor_id' A).
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        <span class="nb">apply</span> (dep_psh_mor_id' B).
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Stability</span>.
+<span class="kn">End</span> <span class="nf">PiTypesStable</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/PiTypesStable.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Stability under substitution
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

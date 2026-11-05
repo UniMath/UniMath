@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ObliqueMor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Oblique Morphisms in an Adjunction</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January–October 2026</span>
+
+<span class="sd"> Given an adjunction [θ : L ⊣ R] between [L : P ⟶ N] and [R : N ⟶ P], the</span>
+<span class="sd"> oblique morphisms [f : oblique_mor θ (p : P) (n : N)] are pairs of morphisms</span>
+<span class="sd"> [f♭ : N⟦L p, n⟧] and [f♯ : P⟦p, R n⟧] such that [f♯] is the transpose of [f♭]</span>
+<span class="sd"> (via [φ_adj θ]).</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition and proofs of oblique morphisms</span>
+<span class="sd"> 1.1. Definition of oblique morphisms</span>
+<span class="sd"> 1.2. Constructors and compositions</span>
+<span class="sd"> 1.3. Linearity and thunkability of oblique morphisms</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> oblique_mor.
+<span class="kn">Delimit Scope</span> oblique_mor <span class="k">with</span> oblique_mor.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> oblique_mor.
+
+<span class="sd">(** ** Definition and proofs of oblique morphisms *)</span>
+
+<span class="kn">Section</span> <span class="nf">oblique_mor_defs</span>.
+  <span class="kn">Context</span> {<span class="nv">N</span> <span class="nv">P</span> : category} (<span class="nv">θ</span> : adjunction P N).
+  <span class="kn">Let</span> <span class="nf">L</span> : P ⟶ N := left_functor θ.
+  <span class="kn">Let</span> <span class="nf">R</span> : N ⟶ P := right_functor θ.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity P ⟹ L ∙ R := adjunit θ.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ L ⟹ functor_identity N := adjcounit θ.
+
+  <span class="sd">(** *** Definition of oblique morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_mor</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N) : UU
+    := ∑ (f : N⟦L p, n⟧) (g : P⟦p, R n⟧), φ_adj θ f = g.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_negative</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N} (<span class="nv">f</span> : oblique_mor p n)
+    : N⟦L p, n⟧ := pr1 f.
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_positive</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N} (<span class="nv">f</span> : oblique_mor p n)
+    : P⟦p, R n⟧ := pr12 f.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '♭'"</span> := (oblique_mor_negative f) (<span class="kn">at level</span> <span class="mi">4</span>, <span class="kn">format</span> <span class="s2">"f ♭"</span>) : oblique_mor.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '♯'"</span> := (oblique_mor_positive f) (<span class="kn">at level</span> <span class="mi">4</span>, <span class="kn">format</span> <span class="s2">"f ♯"</span>) : oblique_mor.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_negative_transpose</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N} (<span class="nv">f</span> : oblique_mor p n)
+    : φ_adj θ f♭ = f♯ := pr22 f.
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_positive_transpose</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N} (<span class="nv">f</span> : oblique_mor p n)
+    : φ_adj_inv θ f♯ = f♭.
+  <span class="kn">Proof</span>.
+    intermediate_path (φ_adj_inv θ (φ_adj θ f♭)).
+    - <span class="nb">apply</span> maponpaths, pathsinv0, oblique_mor_negative_transpose.
+    - <span class="nb">apply</span> φ_adj_inv_after_φ_adj.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Construct an oblique morphism from a proof either with [φ_adj] or [φ_adj_inv]. *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_oblique_mor_forward</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : N⟦L p, n⟧) (<span class="nv">g</span> : P⟦p, R n⟧) (<span class="nv">H</span> : φ_adj θ f = g)
+    : oblique_mor p n := f,,g,,H.
+  <span class="kn">Definition</span> <span class="nf">make_oblique_mor_backward</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : N⟦L p, n⟧) (<span class="nv">g</span> : P⟦p, R n⟧) (<span class="nv">H</span> : φ_adj_inv θ g = f)
+    : oblique_mor p n.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_oblique_mor_forward f g).
+    <span class="kp">abstract</span> (<span class="nb">apply</span> (maponpaths (φ_adj θ)) <span class="k">in</span> H;
+              <span class="nb">refine</span> (!H @ _);
+              <span class="nb">apply</span> φ_adj_after_φ_adj_inv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_from_negative</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : N⟦L p, n⟧) : oblique_mor p n
+    := make_oblique_mor_forward f _ (idpath _).
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_from_positive</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">g</span> : P⟦p, R n⟧) : oblique_mor p n
+    := make_oblique_mor_backward _ g (idpath _).
+
+  <span class="sd">(** Negative injectivity/equivalence. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">weq_oblique_mor_negative</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : oblique_mor p n ≃ N⟦L p, n⟧.
+  <span class="kn">Proof</span>.
+    use remakeweqboth.
+    - <span class="nb">apply</span> weqpr1; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> iscontr_paths_from.
+    - <span class="nb">apply</span> oblique_mor_negative.
+    - <span class="nb">apply</span> oblique_mor_from_negative.
+    - <span class="bp">easy</span>.
+    - <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isweq_oblique_mor_negative</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : isweq (@oblique_mor_negative p n)
+    := weqproperty (weq_oblique_mor_negative p n).
+  <span class="kn">Definition</span> <span class="nf">weq_oblique_mor_from_negative</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : N⟦L p, n⟧ ≃ oblique_mor p n
+    := invweq (weq_oblique_mor_negative p n).
+  <span class="kn">Definition</span> <span class="nf">isweq_oblique_mor_from_negative</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : isweq (@oblique_mor_from_negative p n)
+    := weqproperty (weq_oblique_mor_from_negative p n).
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_oblique_mor</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N) : isaset (oblique_mor p n).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhlevelweqb <span class="mi">2</span> (weq_oblique_mor_negative p n)).
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_negative_path_weq</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> <span class="nv">g</span> : oblique_mor p n) : f = g ≃ f♭ = g♭.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqonpathsincl, isinclweq, isweq_oblique_mor_negative.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_negative_path</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> <span class="nv">g</span> : oblique_mor p n) (<span class="nv">H</span> : f♭ = g♭) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> (invmap (oblique_mor_negative_path_weq f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Positive injectivity/equivalence. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">weq_oblique_mor_positive</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : oblique_mor p n ≃ P⟦p, R n⟧.
+  <span class="kn">Proof</span>.
+    use remakeweqboth.
+    - intermediate_weq (∑ (g : P⟦p, R n⟧) (f : N⟦L p, n⟧), φ_adj θ f = g).
+      { use weq_iso.
+        - <span class="nb">intros</span> [f [g H]]; <span class="bp">exact</span> (g,, f,, H).
+        - <span class="nb">intros</span> [f [g H]]; <span class="bp">exact</span> (g,, f,, H).
+        - <span class="bp">easy</span>.
+        - <span class="bp">easy</span>. }
+      <span class="nb">apply</span> weqpr1; <span class="nb">intro</span> f.
+      <span class="nb">apply</span> isweq_φ_adj.
+    - <span class="nb">apply</span> oblique_mor_positive.
+    - <span class="nb">apply</span> oblique_mor_from_positive.
+    - <span class="bp">easy</span>.
+    - <span class="nb">intros</span> f.
+      <span class="bp">now</span> <span class="nb">apply</span> oblique_mor_negative_path.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isweq_oblique_mor_positive</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : isweq (@oblique_mor_positive p n)
+    := weqproperty (weq_oblique_mor_positive p n).
+  <span class="kn">Definition</span> <span class="nf">weq_oblique_mor_from_positive</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : P⟦p, R n⟧ ≃ oblique_mor p n
+    := invweq (weq_oblique_mor_positive p n).
+  <span class="kn">Definition</span> <span class="nf">isweq_oblique_mor_from_positive</span> (<span class="nv">p</span> : P) (<span class="nv">n</span> : N)
+    : isweq (@oblique_mor_from_positive p n)
+    := weqproperty (weq_oblique_mor_from_positive p n).
+
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_positive_path_weq</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> <span class="nv">g</span> : oblique_mor p n) : f = g ≃ f♯ = g♯.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqonpathsincl, isinclweq, isweq_oblique_mor_positive.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">oblique_mor_positive_path</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> <span class="nv">g</span> : oblique_mor p n) (<span class="nv">H</span> : f♯ = g♯) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> (invmap (oblique_mor_positive_path_weq f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Constructors and compositions *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_positive_identity</span> (<span class="nv">p</span> : P) : oblique_mor p (L p).
+  <span class="kn">Proof</span>.
+    use make_oblique_mor_forward.
+    - <span class="bp">exact</span> (identity (L p)).
+    - <span class="bp">exact</span> (η p).
+    - <span class="nb">apply</span> φ_adj_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_negative_identity</span> (<span class="nv">n</span> : N) : oblique_mor (R n) n.
+  <span class="kn">Proof</span>.
+    use make_oblique_mor_backward.
+    - <span class="bp">exact</span> (ε n).
+    - <span class="bp">exact</span> (identity (R n)).
+    - <span class="nb">apply</span> φ_adj_inv_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Compose a negative morphism on the right *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_negative</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> <span class="nv">m</span> : N}
+    (<span class="nv">f</span> : oblique_mor p n) (<span class="nv">g</span> : N⟦n, m⟧) : oblique_mor p m.
+  <span class="kn">Proof</span>.
+    use make_oblique_mor_forward.
+    - <span class="bp">exact</span> (f♭ · g).
+    - <span class="bp">exact</span> (f♯ · #R g).
+    - etrans; [<span class="nb">apply</span> φ_adj_natural_postcomp|].
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> oblique_mor_negative_transpose.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_negative_identity</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : oblique_mor p n)
+    : oblique_compose_negative f (identity n) = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> oblique_mor_negative_path, id_right. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_negative_compose</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> <span class="nv">m</span> <span class="nv">r</span> : N}
+    (<span class="nv">f</span> : oblique_mor p n) (<span class="nv">g</span> : n --&gt; m) (<span class="nv">h</span> : m --&gt; r)
+    : oblique_compose_negative f (g · h)
+      = oblique_compose_negative (oblique_compose_negative f g) h.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> oblique_mor_negative_path, assoc. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Compose a positive morphism on the left *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_positive</span> {<span class="nv">p</span> <span class="nv">q</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : P⟦p, q⟧) (<span class="nv">g</span> : oblique_mor q n) : oblique_mor p n.
+  <span class="kn">Proof</span>.
+    use make_oblique_mor_backward.
+    - <span class="bp">exact</span> (#L f · g♭).
+    - <span class="bp">exact</span> (f · g♯).
+    - etrans; [<span class="nb">apply</span> φ_adj_inv_natural_precomp|].
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> oblique_mor_positive_transpose.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_positive_identity</span> {<span class="nv">p</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : oblique_mor p n)
+    : oblique_compose_positive (identity p) f = f.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> oblique_mor_positive_path, id_left. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_positive_compose</span> {<span class="nv">p</span> <span class="nv">q</span> <span class="nv">r</span> : P} {<span class="nv">n</span> : N}
+    (<span class="nv">f</span> : p --&gt; q) (<span class="nv">g</span> : q --&gt; r) (<span class="nv">h</span> : oblique_mor r n)
+    : oblique_compose_positive (f · g) h
+      = oblique_compose_positive f (oblique_compose_positive g h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> oblique_mor_positive_path, assoc'. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Combination *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_compose_negative_positive_comm</span> {<span class="nv">p</span> <span class="nv">q</span> : P} {<span class="nv">n</span> <span class="nv">m</span> : N}
+    (<span class="nv">f</span> : p --&gt; q) (<span class="nv">g</span> : oblique_mor q n) (<span class="nv">h</span> : n --&gt; m)
+    : oblique_compose_negative (oblique_compose_positive f g) h
+      = oblique_compose_positive f (oblique_compose_negative g h).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> oblique_mor_negative_path, assoc'. <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Linearity and thunkability of oblique morphisms *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_oblique_mor_linear</span>
+    {<span class="nv">n</span> <span class="nv">m</span> : N} (<span class="nv">f</span> : oblique_mor (R n) m) : UU
+    := #(R ∙ L) (ε n) · f♭ = ε ((R ∙ L) n) · f♭.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_oblique_mor_linear</span>
+    {<span class="nv">n</span> <span class="nv">m</span> : N} (<span class="nv">f</span> : oblique_mor (R n) m)
+    : isaprop (is_oblique_mor_linear f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> homset_property. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_oblique_mor_linear</span> (<span class="nv">n</span> <span class="nv">m</span> : N)
+    : hsubtype (oblique_mor (R n) m)
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp
+              (is_oblique_mor_linear f)
+              (isaprop_is_oblique_mor_linear f).
+  <span class="kn">Definition</span> <span class="nf">oblique_linear_mor</span> (<span class="nv">n</span> <span class="nv">m</span> : N) := carrier (ish_oblique_mor_linear n m).
+  <span class="kn">Coercion</span> <span class="nf">oblique_linear_mor_mor</span> {n m : N} (f : oblique_linear_mor n m)
+    : oblique_mor (R n) m := pr1carrier _ f.
+  <span class="kn">Coercion</span> <span class="nf">oblique_linear_mor_property</span> {n m : N} (f : oblique_linear_mor n m)
+    : is_oblique_mor_linear f := pr2 f.
+
+  <span class="kn">Definition</span> <span class="nf">is_oblique_mor_thunkable</span>
+    {<span class="nv">p</span> <span class="nv">q</span> : P} (<span class="nv">f</span> : oblique_mor p (L q)) : UU
+    := f♯ · #(L ∙ R) (η q) = f♯ · η ((L ∙ R) q).
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_oblique_mor_thunkable</span>
+    {<span class="nv">p</span> <span class="nv">q</span> : P} (<span class="nv">f</span> : oblique_mor p (L q))
+    : isaprop (is_oblique_mor_thunkable f).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> homset_property. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ish_oblique_mor_thunkable</span> (<span class="nv">p</span> <span class="nv">q</span> : P)
+    : hsubtype (oblique_mor p (L q))
+    := <span class="k">λ</span> <span class="nv">f</span>, make_hProp
+              (is_oblique_mor_thunkable f)
+              (isaprop_is_oblique_mor_thunkable f).
+  <span class="kn">Definition</span> <span class="nf">oblique_thunkable_mor</span> (<span class="nv">p</span> <span class="nv">q</span> : P) := carrier (ish_oblique_mor_thunkable p q).
+  <span class="kn">Coercion</span> <span class="nf">oblique_thunkable_mor_mor</span> {p q : P} (f : oblique_thunkable_mor p q)
+    : oblique_mor p (L q) := pr1carrier _ f.
+  <span class="kn">Coercion</span> <span class="nf">oblique_thunkable_mor_property</span> {p q : P} (f : oblique_thunkable_mor p q)
+    : is_oblique_mor_thunkable f := pr2 f.
+
+  <span class="sd">(** Embed a negative morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_lift_negative</span> {<span class="nv">n</span> <span class="nv">m</span> : N}
+    (<span class="nv">f</span> : n --&gt; m) : oblique_linear_mor n m.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_oblique_mor_backward.
+      + <span class="bp">exact</span> (ε n · f).
+      + <span class="bp">exact</span> (#R f).
+      + etrans; [<span class="nb">apply</span> maponpaths, pathsinv0, id_left|].
+        etrans; [<span class="nb">apply</span> φ_adj_inv_natural_postcomp|].
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> φ_adj_inv_identity.
+    - <span class="nb">cbn</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> cancel_postcomposition, (nat_trans_ax ε).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Embed a positive morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">oblique_lift_positive</span> {<span class="nv">p</span> <span class="nv">q</span> : P}
+    (<span class="nv">f</span> : p --&gt; q) : oblique_thunkable_mor p q.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use make_oblique_mor_forward.
+      + <span class="bp">exact</span> (#L f).
+      + <span class="bp">exact</span> (f · η q).
+      + etrans; [<span class="nb">apply</span> maponpaths, pathsinv0, id_right|].
+        etrans; [<span class="nb">apply</span> φ_adj_natural_precomp|].
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> φ_adj_identity.
+    - <span class="nb">cbn</span>; <span class="nb">red</span>; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> cancel_precomposition, pathsinv0, (nat_trans_ax η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_negative_pre_fixed_point</span> (<span class="nv">n</span> : N) : UU
+    := #(R ∙ L) (ε n) = ε ((R ∙ L) n).
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_negative_pre_fixed_point</span> (<span class="nv">n</span> : N)
+    : isaprop (is_negative_pre_fixed_point n).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> homset_property. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_negative_fixed_point</span> (<span class="nv">n</span> : N) : UU
+    := is_z_isomorphism (ε n).
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_is_negative_fixed_point</span> : is_negative_fixed_point &gt;-&gt; is_z_isomorphism.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_negative_fixed_point</span> (<span class="nv">n</span> : N)
+    : isaprop (is_negative_fixed_point n).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_z_isomorphism. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_positive_pre_fixed_point</span> (<span class="nv">p</span> : P) : UU
+    := #(L ∙ R) (η p) = η ((L ∙ R) p).
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_positive_pre_fixed_point</span> (<span class="nv">p</span> : P)
+    : isaprop (is_positive_pre_fixed_point p).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> homset_property. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_positive_fixed_point</span> (<span class="nv">p</span> : P) : UU
+    := is_z_isomorphism (η p).
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_is_positive_fixed_point</span> : is_positive_fixed_point &gt;-&gt; is_z_isomorphism.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_positive_fixed_point</span> (<span class="nv">p</span> : P)
+    : isaprop (is_positive_fixed_point p).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_z_isomorphism. <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">oblique_mor_defs</span>.
+<span class="kn">Arguments</span> is_oblique_mor_linear / _.
+<span class="kn">Arguments</span> is_oblique_mor_thunkable / _.
+
+<span class="kn">Notation</span> <span class="s2">"f '♭'"</span> := (oblique_mor_negative _ f) (<span class="kn">at level</span> <span class="mi">4</span>, <span class="kn">format</span> <span class="s2">"f ♭"</span>) : oblique_mor.
+<span class="kn">Notation</span> <span class="s2">"f '♯'"</span> := (oblique_mor_positive _ f) (<span class="kn">at level</span> <span class="mi">4</span>, <span class="kn">format</span> <span class="s2">"f ♯"</span>) : oblique_mor.
+<span class="kn">Notation</span> <span class="s2">"f '◅·' g"</span> := (oblique_compose_positive _ f g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : oblique_mor.
+<span class="kn">Notation</span> <span class="s2">"f '·▻' g"</span> := (oblique_compose_negative _ f g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : oblique_mor.
+<span class="kn">Notation</span> <span class="s2">"g '▻∘' f"</span> := (f ·▻ g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>, <span class="kn">only parsing</span>) : oblique_mor.
+<span class="kn">Notation</span> <span class="s2">"g '∘◅' f"</span> := (f ◅· g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>, <span class="kn">only parsing</span>) : oblique_mor.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/FromAdjunction/ObliqueMor.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

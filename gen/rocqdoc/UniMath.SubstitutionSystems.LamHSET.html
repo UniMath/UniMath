@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.LamHSET</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.LamHSET</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+Instantiate the hypotheses of InitialHSS with Lam for HSET.
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg, 2016
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PointedFunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.PointedFunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecategoryBinProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecategoryBinProduct</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Signatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BinSumOfSignatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BinSumOfSignatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LamSignature</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LiftingInitial_alt</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Notation</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">subsys</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Limits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Structures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="LamHSET" class="idref" href="#LamHSET"><span class="id" title="section">LamHSET</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="LamHSET.Lam_S" class="idref" href="#LamHSET.Lam_S"><span class="id" title="variable">Lam_S</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#Lam_Sig"><span class="id" title="definition">Lam_Sig</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#TerminalHSET"><span class="id" title="lemma">TerminalHSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="LamHSET.:::'EndHSET'" class="idref" href="#LamHSET.:::'EndHSET'"><span class="id" title="notation">&quot;</span></a>'EndHSET'":= (<a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>) .<br/>
+
+<br/>
+<span class="id" title="keyword">Local Lemma</span> <a id="is_omega_cocont_Lam_S" class="idref" href="#is_omega_cocont_Lam_S"><span class="id" title="lemma">is_omega_cocont_Lam_S</span></a> : <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#is_omega_cocont"><span class="id" title="definition">is_omega_cocont</span></a> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSET.Lam_S"><span class="id" title="variable">Lam_S</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LamSignature.html#is_omega_cocont_Lam"><span class="id" title="lemma">is_omega_cocont_Lam</span></a>.<br/>
+* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Chains.OmegaCocontFunctors.html#is_omega_cocont_constprod_functor1"><span class="id" title="lemma">is_omega_cocont_constprod_functor1</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Structures.html#Exponentials_functor_HSET"><span class="id" title="lemma">Exponentials_functor_HSET</span></a>.<br/>
+* <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="Lam_Initial_HSET" class="idref" href="#Lam_Initial_HSET"><span class="id" title="lemma">Lam_Initial_HSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#category_FunctorAlg"><span class="id" title="definition">category_FunctorAlg</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSET.Lam_S"><span class="id" title="variable">Lam_S</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Adamek.html#colimAlgInitial"><span class="id" title="definition">colimAlgInitial</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial_functor_precat"><span class="id" title="definition">Initial_functor_precat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>).<br/>
+- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">Id_H</span></a>, <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Const_plus_H"><span class="id" title="definition">Const_plus_H</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Chains.OmegaCocontFunctors.html#is_omega_cocont_BinCoproduct_of_functors"><span class="id" title="lemma">is_omega_cocont_BinCoproduct_of_functors</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Chains.OmegaCocontFunctors.html#is_omega_cocont_constant_functor"><span class="id" title="lemma">is_omega_cocont_constant_functor</span></a>.<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#is_omega_cocont_Lam_S"><span class="id" title="lemma">is_omega_cocont_Lam_S</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#ColimsFunctorCategory_of_shape"><span class="id" title="lemma">ColimsFunctorCategory_of_shape</span></a>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="LamHSS_Initial_HSET" class="idref" href="#LamHSS_Initial_HSET"><span class="id" title="definition">LamHSS_Initial_HSET</span></a> : <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#hss_category"><span class="id" title="definition">hss_category</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSET.Lam_S"><span class="id" title="variable">Lam_S</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#InitialHSS"><span class="id" title="lemma">InitialHSS</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#InitialHSET"><span class="id" title="lemma">InitialHSET</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#ColimsHSET_of_shape"><span class="id" title="lemma">ColimsHSET_of_shape</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#is_omega_cocont_Lam_S"><span class="id" title="lemma">is_omega_cocont_Lam_S</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="LamMonad" class="idref" href="#LamMonad"><span class="id" title="definition">LamMonad</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.html#Monad_from_hss"><span class="id" title="definition">Monad_from_hss</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSET.Lam_S"><span class="id" title="variable">Lam_S</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSS_Initial_HSET"><span class="id" title="definition">LamHSS_Initial_HSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.LamHSET.html#LamHSET"><span class="id" title="section">LamHSET</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

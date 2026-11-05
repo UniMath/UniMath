@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnitorsAndAssociatorsForEndofunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Ralph Matthes</span>
+
+<span class="sd">2015</span>
+
+<span class="sd">Modified by: Anders Mörtberg, 2016</span>
+<span class="sd">             Ralph Matthes, 2017</span>
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Definition of the (weak) monoidal structure on endofunctors</span>
+<span class="sd">  (however, the definitions are not confined to endofunctors)</span>
+
+<span class="sd">  Here, we only give the unitors and associators and do not</span>
+<span class="sd">  build a monoidal category (anyway, this is not possible</span>
+<span class="sd">  since we are not considering only endofunctors).</span>
+
+
+<span class="sd">************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** There is a monoidal structure on endofunctors, given by composition. While</span>
+<span class="sd">    this is considered to be strict in set-theoretic category theory, it ain't</span>
+<span class="sd">    strict in type theory with respect to convertibility. So we consider it to</span>
+<span class="sd">    be a weak monoidal structure instead. However, pointwise, it suffices to</span>
+<span class="sd">    take the identity for all those natural transformations (the identity is</span>
+<span class="sd">    also behind the definition of nat_trans_functor_assoc).</span>
+
+<span class="sd">    To understand the need for this structure even better, notice that the</span>
+<span class="sd">    proofs of functor axioms for one composition in the unitality and</span>
+<span class="sd">    associativity properties are slightly different from the proofs for the other</span>
+<span class="sd">    and because of it the composition of functors is not strictly unital or</span>
+<span class="sd">    associative. However, these proofs are not used in the definition of natural</span>
+<span class="sd">    transformations, to be precise only functor_data is used, and the</span>
+<span class="sd">    composition of functor_data is strictly unital and associative.</span>
+
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">Monoidal_Structure_on_Endofunctors</span>.
+
+<span class="sd">(** while this is normally used for endofunctors, it can be done more generally,</span>
+<span class="sd">    but already for endofunctors, this is crucial for the development of substitution systems *)</span>
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory}.
+
+<span class="kn">Goal</span> ∏ X Y : C ⟶ D, functor_composite X (functor_identity D) ⟹ Y = (X ⟹ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** this also holds in the target but is not needed here *)</span>
+<span class="kn">Goal</span> ∏ X Y : C ⟶ D, Y ⟹ functor_composite X (functor_identity D) = (Y ⟹ X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ X : C ⟶ D, functor_composite (functor_identity C) X = X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** trivially, this observed convertibility implies the following three convertibilities *)</span>
+<span class="kn">Goal</span> ∏ X Y : C ⟶ D, functor_composite (functor_identity C) X ⟹ Y = (X ⟹ Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** again, this also holds in the target but is not needed here *)</span>
+<span class="kn">Goal</span> ∏ X Y : C ⟶ D, Y ⟹ functor_composite (functor_identity C) X = (Y ⟹ X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ (E: precategory)(hs: has_homsets D)(H: functor [C,D,hs] E) (X: C ⟶ D),
+         H(functor_composite (functor_identity C) X) = H X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+<span class="sd">(** end of implied convertibilities *)</span>
+
+<span class="sd">(** the last convertibility fails for the composition with the identity as second argument *)</span>
+<span class="kn">Goal</span> ∏ (E: precategory)(hs: has_homsets D)(H: functor [C,D,hs] E) (X: C ⟶ D),
+         H(functor_composite X (functor_identity D)) = H X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="kn">Fail</span> (<span class="nb">apply</span> idpath).
+<span class="kn">Abort</span>.
+<span class="sd">(** in particular, there is no convertibility between the arguments to [H] *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">ρ_functors</span> (<span class="nv">X</span> : functor C D) :
+  nat_trans (functor_composite X (functor_identity D)) X := nat_trans_id X.
+
+<span class="kn">Definition</span> <span class="nf">ρ_functors_inv</span> (<span class="nv">X</span> : functor C D) :
+  nat_trans X (functor_composite X (functor_identity D)) := nat_trans_id X.
+
+<span class="kn">Definition</span> <span class="nf">λ_functors</span> (<span class="nv">X</span> : functor C D) :
+  nat_trans (functor_composite (functor_identity C) X) X := nat_trans_id X.
+
+<span class="kn">Definition</span> <span class="nf">λ_functors_inv</span> (<span class="nv">X</span> : functor C D) :
+  nat_trans X (functor_composite (functor_identity C) X) := nat_trans_id X.
+
+
+<span class="kn">Context</span> {<span class="nv">E</span> <span class="nv">F</span>: precategory}.
+
+<span class="kn">Goal</span> ∏ (X : functor C D)(Y : functor D E)(Z : functor E F) (U: functor C F),
+  (functor_composite (functor_composite X Y) Z) ⟹ U =
+  (functor_composite X (functor_composite Y Z)) ⟹ U.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Goal</span> ∏ (X : functor C D)(Y : functor D E)(Z : functor E F) (U: functor C F),
+  U ⟹ (functor_composite (functor_composite X Y) Z) =
+  U ⟹ (functor_composite X (functor_composite Y Z)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">α_functors</span> (<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  nat_trans (functor_composite (functor_composite X Y) Z)
+            (functor_composite X (functor_composite Y Z)) := nat_trans_id ((X ∙ Y) ∙ Z).
+
+<span class="kn">Definition</span> <span class="nf">α_functors_inv</span> (<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  nat_trans (functor_composite X (functor_composite Y Z))
+            (functor_composite (functor_composite X Y) Z) := nat_trans_id ((X ∙ Y) ∙ Z).
+
+<span class="kn">Lemma</span> <span class="nf">α_functors_pointwise_is_z_iso</span> (<span class="nv">hsF</span>: has_homsets F)(<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  is_z_isomorphism(C:= functor_precategory C F hsF) (α_functors X Y Z).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">α_functors_inv</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>).
+  <span class="nb">split</span>; <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="nb">intro</span> c; <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** as a motivation, we show here that, propositionally, the functors in source and target of these</span>
+<span class="sd">    are equal, for each of the three pairs of functors; the extra assumption on having homsets is only used in order</span>
+<span class="sd">    to have simple proofs, it is not necessary, as shown below *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">motivation_ρ_functors</span> (<span class="nv">hsD</span> : has_homsets D)(<span class="nv">X</span> : functor C D) : functor_composite X (functor_identity D) = X.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ hsD); <span class="nb">induction</span> X <span class="k">as</span> [data laws]; <span class="nb">induction</span> data <span class="k">as</span> [onobs onmorphs].
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">motivation_λ_functors</span> (<span class="nv">hsD</span> : has_homsets D)(<span class="nv">X</span> : functor C D) : functor_composite (functor_identity C) X = X.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ hsD); <span class="nb">induction</span> X <span class="k">as</span> [data laws]; <span class="nb">induction</span> data <span class="k">as</span> [onobs onmorphs].
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">motivation_α_functors</span> (<span class="nv">hsF</span> : has_homsets F)(<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  functor_composite (functor_composite X Y) Z = functor_composite X (functor_composite Y Z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> (functor_eq _ _ hsF); <span class="nb">induction</span> X <span class="k">as</span> [data laws]; <span class="nb">induction</span> data <span class="k">as</span> [onobs onmorphs].
+<span class="kn">Qed</span>.
+
+<span class="sd">(** these laws do not help in type-checking definitions which is why the transformations further above are needed *)</span>
+
+
+<span class="sd">(** now we get rid of the homset assumptions by using results of Section "functor_equalities" in</span>
+<span class="sd">    UniMath.CategoryTheory.Core.Functors.v *)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">motivation_ρ_functors_stronger</span> (<span class="nv">X</span> : functor C D) : functor_composite X (functor_identity D) = X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_identity_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">motivation_λ_functors_stronger</span> (<span class="nv">X</span> : functor C D) : functor_composite (functor_identity C) X = X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_identity_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">motivation_α_functors_stronger</span> (<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  functor_composite (functor_composite X Y) Z = functor_composite X (functor_composite Y Z).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_assoc.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">Monoidal_Structure_on_Endofunctors</span>.
+
+<span class="c">(*</span>
+<span class="c">Section InFunctorCategories.</span>
+
+<span class="c">  Context {C D E F : category}.</span>
+
+<span class="c">  Definition α_functors_funcat (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :</span>
+<span class="c">    [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧</span>
+<span class="c">    := nat_trans_id ((X ∙ Y) ∙ Z).</span>
+
+<span class="c">  Definition α_functors_funcat_inv (X : [C, D]) (Y : [D, E]) (Z : [E, F]) :</span>
+<span class="c">    [C, F] ⟦functor_compose X (functor_compose Y Z), functor_compose (functor_compose X Y) Z⟧</span>
+<span class="c">    := nat_trans_id ((X ∙ Y) ∙ Z).</span>
+
+<span class="c">End InFunctorCategories.</span>
+<span class="c">*)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/UnitorsAndAssociatorsForEndofunctors.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BinaryBooleanMTrees.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Example of construction of M Types using ComputationalMWithSets</span>
+
+<span class="sd">    Author : Antoine Fisse (@AextraT), 2025</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.M.Core.
+<span class="kn">Require Import</span> UniMath.Induction.M.ComputationalM.
+<span class="kn">Require Import</span> UniMath.Induction.M.ComputationalMWithSets.
+<span class="kn">Require Import</span> UniMath.Induction.M.MWithSets.
+<span class="kn">Require Import</span> UniMath.Induction.M.FinalCoalgebraHSET.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaContPolynomialFunctors.
+<span class="kn">Require</span> UniMath.CategoryTheory.FunctorCoalgebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local Definition</span> <span class="nf">A</span> := setcoprod unitset boolset.
+<span class="kn">Local Definition</span> <span class="nf">B</span> : pr1hSet A -&gt; SET :=
+  <span class="k">λ</span> <span class="nv">a</span>, <span class="k">match</span> a <span class="k">with</span>
+       | ii1 _ =&gt; emptyset
+       | ii2 _ =&gt; setcoprod unitset unitset
+       <span class="k">end</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">F</span> := MWithSets.F B.
+<span class="kn">Local Definition</span> <span class="nf">F'</span> := MWithSets.F' B.
+
+<span class="c">(* The final coalgebra obtained corresponds to the type of possibly infinite binary trees labeled with booleans. *)</span>
+<span class="kn">Local Definition</span> <span class="nf">C'</span> : FunctorCoalgebras.CoAlg_category F'
+  := pr1 (GetMType_HSET B).
+<span class="kn">Local Definition</span> <span class="nf">C'_isfinal</span> : isTerminal (FunctorCoalgebras.CoAlg_category F') C'
+  := pr2 (GetMType_HSET B).
+
+<span class="kn">Local Definition</span> <span class="nf">C'1</span> : FunctorCoalgebras.CoAlg_category F'
+  := ComputationalMWithSets.C' B C' C'_isfinal.
+<span class="kn">Local Definition</span> <span class="nf">C'1_isfinal</span> : isTerminal (CoAlg_category F') C'1
+  := ComputationalMWithSets.finalC' B C' C'_isfinal.
+<span class="kn">Local Definition</span> <span class="nf">corec_C1</span> := ComputationalMWithSets.corecC B C' C'_isfinal.
+<span class="kn">Local Definition</span> <span class="nf">c1</span> : UU := pr11 C'1.
+<span class="kn">Local Definition</span> <span class="nf">destr_c1</span> : c1 -&gt; F c1 := pr2 C'1.
+
+<span class="kn">Definition</span> <span class="nf">get_subtrees_list_rec_step</span> (<span class="nv">t0</span> : c1) (<span class="nv">acc</span> : list c1) : list c1
+  := <span class="k">match</span> destr_c1 t0 <span class="k">with</span>
+     | (ii1 _,, _) =&gt; acc
+     | (ii2 _,, f) =&gt; cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
+     <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_subtrees_list_at_depth</span> (<span class="nv">t</span> : c1) (<span class="nv">depth</span> : nat) : list c1.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> depth.
+  - <span class="bp">exact</span> (cons t nil).
+  - <span class="bp">exact</span> (list_ind
+             (<span class="k">λ</span> <span class="nv">_</span>, list c1)
+             nil
+             (<span class="k">λ</span> <span class="nv">t0</span> <span class="nv">_</span> <span class="nv">acc</span>, get_subtrees_list_rec_step t0 acc)
+             IHdepth).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_labels_list_rec_step</span> (<span class="nv">t0</span> : c1) (<span class="nv">acc</span> : list bool) : list bool
+  := <span class="k">match</span> destr_c1 t0 <span class="k">with</span>
+     | (ii1 _,, _) =&gt; acc
+     | (ii2 b,, _) =&gt; cons b acc
+     <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_labels_list_at_depth</span> (<span class="nv">t</span> : c1) (<span class="nv">depth</span> : nat) : list bool.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (l := get_subtrees_list_at_depth t depth).
+  <span class="bp">exact</span> (list_ind
+           (<span class="k">λ</span> <span class="nv">_</span>, list bool)
+           nil
+           (<span class="k">λ</span> <span class="nv">t0</span> <span class="nv">_</span> <span class="nv">acc</span>, get_labels_list_rec_step t0 acc)
+           l).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Full tree only labeled true *)</span>
+<span class="kn">Definition</span> <span class="nf">t_full_true</span> : c1.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (c := unit).
+  <span class="nb">set</span> (s_c := <span class="k">λ</span> <span class="nv">_</span> : c, (ii2 true,, <span class="k">λ</span> <span class="nv">_</span>, tt) : F c).
+  <span class="bp">exact</span> (corec_C1 (c,, s_c) tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">only_true</span> : get_labels_list_at_depth t_full_true <span class="mi">4</span> = functionToList <span class="mi">16</span> (<span class="k">λ</span> <span class="nv">_</span>, true).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(*       true</span>
+<span class="c">        /    \</span>
+<span class="c">     false   true</span>
+<span class="c">    /       /    \</span>
+<span class="c">  true   true   false</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">t_ex_finite</span> : c1.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (c := nat).
+  <span class="nb">set</span> (a0 := ii2 true : A).
+  <span class="nb">set</span> (a1 := ii2 false : A).
+  <span class="nb">set</span> (a2 := ii2 true : A).
+  <span class="nb">set</span> (s_c := <span class="k">λ</span> <span class="nv">x</span> : c, <span class="k">match</span> x <span class="k">with</span>
+                       | <span class="mi">0</span> =&gt; (a0,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a0), <span class="k">match</span> y <span class="k">with</span>
+                                                         | ii1 _ =&gt; <span class="mi">1</span>
+                                                         | ii2 _ =&gt; <span class="mi">2</span>
+                                                         <span class="k">end</span> : c)
+                       | <span class="mi">1</span> =&gt; (a1,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a1), <span class="k">match</span> y <span class="k">with</span>
+                                                         | ii1 _ =&gt; <span class="mi">3</span>
+                                                         | ii2 _ =&gt; <span class="mi">5</span>
+                                                         <span class="k">end</span> : c)
+                       | <span class="mi">2</span> =&gt; (a2,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a2), <span class="k">match</span> y <span class="k">with</span>
+                                                        | ii1 _ =&gt; <span class="mi">3</span>
+                                                        | ii2 _ =&gt; <span class="mi">4</span>
+                                                        <span class="k">end</span> : c)
+                       | <span class="mi">3</span> =&gt; (ii2 true,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       | <span class="mi">4</span> =&gt; (ii2 false,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       | _ =&gt; (ii1 tt,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       <span class="k">end</span> : F c).
+  <span class="bp">exact</span> (corec_C1 (c,, s_c) <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">row2</span> : get_labels_list_at_depth t_ex_finite <span class="mi">2</span> = cons true (cons true (cons false nil)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Note though that the refinement of ComputationalM is needed to have</span>
+<span class="c">   proofs by idpath. *)</span>
+<span class="kn">Local Definition</span> <span class="nf">C</span> : coalgebra F := MWithSets.C0 B C'.
+<span class="kn">Local Definition</span> <span class="nf">C_isfinal</span> : is_final C := MWithSets.C0_is_final B C' C'_isfinal.
+<span class="kn">Local Definition</span> <span class="nf">corec_C</span> := ComputationalM.corecM0 _ _ C C_isfinal.
+<span class="kn">Local Definition</span> <span class="nf">c</span> : UU := pr1 C.
+<span class="kn">Local Definition</span> <span class="nf">destr_c</span> : c -&gt; F c := pr2 C.
+
+<span class="kn">Definition</span> <span class="nf">get_subtrees_list_rec_step_no_refinement</span> (<span class="nv">t0</span> : c) (<span class="nv">acc</span> : list c) : list c
+  := <span class="k">match</span> destr_c t0 <span class="k">with</span>
+     | (ii1 _,, _) =&gt; acc
+     | (ii2 _,, f) =&gt; cons (f (ii1 tt)) (cons (f (ii2 tt)) acc)
+     <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_subtrees_list_at_depth_no_refinement</span> (<span class="nv">t</span> : c) (<span class="nv">depth</span> : nat) : list c.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> depth.
+  - <span class="bp">exact</span> (cons t nil).
+  - <span class="bp">exact</span> (list_ind
+             (<span class="k">λ</span> <span class="nv">_</span>, list c)
+             nil
+             (<span class="k">λ</span> <span class="nv">t0</span> <span class="nv">_</span> <span class="nv">acc</span>, get_subtrees_list_rec_step_no_refinement t0 acc)
+             IHdepth).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_labels_list_rec_step_no_refinement</span> (<span class="nv">t0</span> : c) (<span class="nv">acc</span> : list bool) : list bool
+  := <span class="k">match</span> destr_c t0 <span class="k">with</span>
+     | (ii1 _,, _) =&gt; acc
+     | (ii2 b,, _) =&gt; cons b acc
+     <span class="k">end</span>.
+
+<span class="kn">Definition</span> <span class="nf">get_labels_list_at_depth_no_refinement</span> (<span class="nv">t</span> : c) (<span class="nv">depth</span> : nat) : list bool.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (l := get_subtrees_list_at_depth_no_refinement t depth).
+  <span class="bp">exact</span> (list_ind
+           (<span class="k">λ</span> <span class="nv">_</span>, list bool)
+           nil
+           (<span class="k">λ</span> <span class="nv">t0</span> <span class="nv">_</span> <span class="nv">acc</span>, get_labels_list_rec_step_no_refinement t0 acc)
+           l).
+<span class="kn">Defined</span>.
+
+<span class="c">(* In some simple cases we do have a proof by idpath *)</span>
+<span class="kn">Definition</span> <span class="nf">t_full_true_no_refinement</span> : c.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (c := unit).
+  <span class="nb">set</span> (s_c := <span class="k">λ</span> <span class="nv">_</span> : c, (ii2 true,, <span class="k">λ</span> <span class="nv">_</span>, tt) : F c).
+  <span class="bp">exact</span> (corec_C (c,, s_c) tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">only_true_no_refinement</span> : get_labels_list_at_depth_no_refinement t_full_true_no_refinement <span class="mi">4</span> = functionToList <span class="mi">16</span> (<span class="k">λ</span> <span class="nv">_</span>, true).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="c">(* In more complex cases a more complex proof is needed *)</span>
+<span class="kn">Definition</span> <span class="nf">coalg_t_ex_finite_no_refinement</span> : coalgebra F.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (c := nat).
+  <span class="nb">set</span> (a0 := ii2 true : A).
+  <span class="nb">set</span> (a1 := ii2 false : A).
+  <span class="nb">set</span> (a2 := ii2 true : A).
+  <span class="nb">set</span> (s_c := <span class="k">λ</span> <span class="nv">x</span> : c, <span class="k">match</span> x <span class="k">with</span>
+                       | <span class="mi">0</span> =&gt; (a0,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a0), <span class="k">match</span> y <span class="k">with</span>
+                                                         | ii1 _ =&gt; <span class="mi">1</span>
+                                                         | ii2 _ =&gt; <span class="mi">2</span>
+                                                         <span class="k">end</span> : c)
+                       | <span class="mi">1</span> =&gt; (a1,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a1), <span class="k">match</span> y <span class="k">with</span>
+                                                         | ii1 _ =&gt; <span class="mi">3</span>
+                                                         | ii2 _ =&gt; <span class="mi">5</span>
+                                                         <span class="k">end</span> : c)
+                       | <span class="mi">2</span> =&gt; (a2,, <span class="k">λ</span> <span class="nv">y</span> : pr1hSet (B a2), <span class="k">match</span> y <span class="k">with</span>
+                                                        | ii1 _ =&gt; <span class="mi">3</span>
+                                                        | ii2 _ =&gt; <span class="mi">4</span>
+                                                        <span class="k">end</span> : c)
+                       | <span class="mi">3</span> =&gt; (ii2 true,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       | <span class="mi">4</span> =&gt; (ii2 false,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       | _ =&gt; (ii1 tt,, <span class="k">λ</span> <span class="nv">_</span>, <span class="mi">5</span>)
+                       <span class="k">end</span> : F c).
+  <span class="bp">exact</span> (c,, s_c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">t_ex_finite_no_refinement</span> : c.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (corec_C coalg_t_ex_finite_no_refinement <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">row2_no_refinement</span> : get_labels_list_at_depth_no_refinement t_ex_finite_no_refinement <span class="mi">2</span> = cons true (cons true (cons false nil)).
+<span class="kn">Proof</span>.
+  <span class="kn">Fail</span> <span class="nb">apply</span> idpath.
+<span class="kn">Abort</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/M/BinaryBooleanMTrees.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     Author : Antoine Fisse (&#64;AextraT), 2025
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.MoreFoundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

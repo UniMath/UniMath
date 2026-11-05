@@ -1,0 +1,1531 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Coalgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************************</span>
+
+<span class="sd"> The double category of coalgebras for a lax double functor</span>
+
+<span class="sd"> Let `F` be a lax double endofunctor on a double category `C`. We define the double category of</span>
+<span class="sd"> coalgebras as follows:</span>
+<span class="sd"> - Objects: objects `x` in `C` together with a vertical morphism `x --&gt;v F x`</span>
+<span class="sd"> - Vertical morphisms from `fx : x --&gt;v F x` to `fy : y --&gt;v F y`: vertical morphisms</span>
+<span class="sd">   `v : x --&gt;v y` making the usual diagram commute (`fx · #v F v = v · fy`)</span>
+<span class="sd"> - Horizontal morphisms from `fx : x --&gt;v F x` to `fy : y --&gt;v F y`: horizontal morphisms</span>
+<span class="sd">   `h : x --&gt;h y` together with a square with horizontal sides `h` and `#h F h` and vertical</span>
+<span class="sd">   sides `fx` and `fy`.</span>
+<span class="sd"> Squares are defined to be squares in `C` satisfying an additional commutativity requirement.</span>
+<span class="sd"> We define this double category in this file, and we prove that it is univalent.</span>
+
+<span class="sd"> Note that this construction does not necessarily work for oplax double functors. For oplax</span>
+<span class="sd"> double functors however, one can define the double category of algebras. This is similar to</span>
+<span class="sd"> the situation for monoidal categories.</span>
+
+<span class="sd"> This construction is based on the talk "On the double category of coalgebras" by Hofmann.</span>
+<span class="sd"> The difference is that in that talk, it is assumed that squares in `C` are unique, which we</span>
+<span class="sd"> do not assume in this file. In addition, different conventions on what are the horizontal</span>
+<span class="sd"> and the vertical morphisms.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "On the double category of coalgebras", Dirk Hofmann</span>
+<span class="sd">   https://www.mat.uc.pt/~tacl2022/slides/slidesDHofmann.pdf</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Basic definitions</span>
+<span class="sd"> 2. The 2-sided displayed category</span>
+<span class="sd"> 3. Builders and accessors for horizontal morphisms</span>
+<span class="sd"> 4. Builders and accessors for squares</span>
+<span class="sd"> 5. Horizontal identities</span>
+<span class="sd"> 6. Horizontal composition</span>
+<span class="sd"> 7. Globular isomorphism squares</span>
+<span class="sd"> 8. The left unitor</span>
+<span class="sd"> 9. The right unitor</span>
+<span class="sd"> 10. The associator</span>
+<span class="sd"> 11. The coherences</span>
+<span class="sd"> 12. The double category of coalgebras of a lax double functor</span>
+<span class="sd"> 13. The univalence of the double category of coalgebra</span>
+<span class="sd"> 14. The univalent double category of coalgebras of a lax double functor</span>
+<span class="sd"> 15. Flatness of the double category of coalgebras</span>
+
+<span class="sd"> *********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCoalgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.TwoSidedDispCatOnDispCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Basic definitions *)</span>
+<span class="kn">Definition</span> <span class="nf">double_coalg</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C C)
+  : UU
+  := coalgebra_ob F.
+
+<span class="kn">Coercion</span> <span class="nf">double_coalg_carrier</span>
+         {C : univalent_double_cat}
+         {F : lax_double_functor C C}
+         (X : double_coalg F)
+  : C.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (coalg_carrier F X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_coalg_map</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C C}
+           (<span class="nv">X</span> : double_coalg F)
+  : X --&gt;v F X
+  := coalg_map F X.
+
+<span class="kn">Definition</span> <span class="nf">double_coalg_ver</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C C}
+           (<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F)
+  : UU
+  := X --&gt; Y.
+
+<span class="kn">Coercion</span> <span class="nf">double_coalg_ver_to_mor</span>
+         {C : univalent_double_cat}
+         {F : lax_double_functor C C}
+         {X Y : double_coalg F}
+         (v : double_coalg_ver X Y)
+  : X --&gt;v Y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 v).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_coalg_ver_comm</span>
+            {<span class="nv">C</span> : univalent_double_cat}
+            {<span class="nv">F</span> : lax_double_functor C C}
+            {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+            (<span class="nv">v</span> : double_coalg_ver X Y)
+  : double_coalg_map X ·v #v F v
+    =
+    v ·v double_coalg_map Y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 v).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_coalg_hor_struct</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C C}
+           (<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F)
+           (<span class="nv">f</span> : X --&gt;h Y)
+  : UU
+  := square (double_coalg_map X) (double_coalg_map Y) f (#h F f).
+
+<span class="kn">Definition</span> <span class="nf">is_double_coalg_sqr</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C C}
+           {<span class="nv">X₁</span> : double_coalg F}
+           {<span class="nv">Y₁</span> : double_coalg F}
+           {<span class="nv">f₁</span> : X₁ --&gt;h Y₁}
+           (<span class="nv">s₁</span> : square
+                   (double_coalg_map X₁)
+                   (double_coalg_map Y₁)
+                   f₁ (#h F f₁))
+           {<span class="nv">X₂</span> : double_coalg F}
+           {<span class="nv">Y₂</span> : double_coalg F}
+           {<span class="nv">f₂</span> : X₂ --&gt;h Y₂}
+           (<span class="nv">s₂</span> : square
+                   (double_coalg_map X₂)
+                   (double_coalg_map Y₂)
+                   f₂ (#h F f₂))
+           (<span class="nv">v</span> : double_coalg_ver X₁ X₂)
+           (<span class="nv">w</span> : double_coalg_ver Y₁ Y₂)
+           (<span class="nv">r</span> : square v w f₁ f₂)
+  : UU
+  := transportf_square
+       (double_coalg_ver_comm v)
+       (double_coalg_ver_comm w)
+       (s₁ ⋆v #s F r)
+     =
+     r ⋆v s₂.
+
+<span class="kn">Arguments</span> double_coalg_hor_struct {C F} X Y f /.
+<span class="kn">Arguments</span> is_double_coalg_sqr {C F X₁ Y₁ f₁} s₁ {X₂ Y₂ f₂} s₂ v w r /.
+
+<span class="kn">Section</span> <span class="nf">CoalegbraDoubleCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univalent_double_cat}
+          (<span class="nv">F</span> : lax_double_functor C C).
+
+  <span class="kn">Let</span> <span class="nf">E</span> : category := total_twosided_disp_category
+                        (twosided_disp_cat_on_disp_cat
+                           (coalgebra_disp_cat F)
+                           (coalgebra_disp_cat F)
+                           (hor_mor C)).
+
+  <span class="sd">(** * 2. The 2-sided displayed category *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_coalg_disp_cat_ob_mor_on_twosided_disp_cat</span>
+    : disp_cat_ob_mor E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">XYf</span>,
+             double_coalg_hor_struct (pr1 XYf) (pr12 XYf) (pr22 XYf)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">XYf₁</span> <span class="nv">XYf₂</span> <span class="nv">s₁</span> <span class="nv">s₂</span> <span class="nv">vwr</span>,
+             is_double_coalg_sqr s₁ s₂ _ _ (pr22 vwr)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_disp_cat_id_comp_on_twosided_disp_cat</span>
+    : disp_cat_id_comp E double_coalg_disp_cat_ob_mor_on_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> X s.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lax_double_functor_id_square.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> square_id_right_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">refine</span> (_ @ !(square_id_left_v s)).
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">apply</span> transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y Z f g h₁ h₂ h₃ s₁ s₂.
+      <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂ ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ square_assoc_v' _ _ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!s₂).
+      }
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (square_assoc_v (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!s₁).
+      }
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(square_assoc_v' _ _ _)).
+      }
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lax_double_functor_comp_v_square.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_disp_cat_data_on_twosided_disp_cat</span>
+    : disp_cat_data E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_coalg_disp_cat_ob_mor_on_twosided_disp_cat.
+    - <span class="bp">exact</span> double_coalg_disp_cat_id_comp_on_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_disp_cat_axioms_on_twosided_disp_cat</span>
+    : disp_cat_axioms E double_coalg_disp_cat_data_on_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> isaset_square.
+    - <span class="nb">apply</span> isaset_square.
+    - <span class="nb">apply</span> isaset_square.
+    - <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaset_square.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_disp_cat_on_twosided_disp_cat</span>
+    : disp_cat E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_coalg_disp_cat_data_on_twosided_disp_cat.
+    - <span class="bp">exact</span> double_coalg_disp_cat_axioms_on_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_twosided_disp_cat</span>
+    : twosided_disp_cat (CoAlg_category F) (CoAlg_category F)
+    := sigma_twosided_disp_cat _ double_coalg_disp_cat_on_twosided_disp_cat.
+
+  <span class="sd">(** * 3. Builders and accessors for horizontal morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_coalg_hor</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F)
+    : UU
+    := double_coalg_twosided_disp_cat X Y.
+
+  <span class="kn">Definition</span> <span class="nf">make_double_coalg_hor</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">h</span> : X --&gt;h Y)
+             (<span class="nv">s</span> : double_coalg_hor_struct X Y h)
+    : double_coalg_hor X Y
+    := h ,, s.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_double_coalg_hor</span>
+           {X Y : double_coalg F}
+           (h : double_coalg_hor X Y)
+    : X --&gt;h Y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 h).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Builders and accessors for squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">sqr_of_double_coalg_hor</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">h</span> : double_coalg_hor X Y)
+    : square (double_coalg_map X) (double_coalg_map Y) h (#h F h)
+    := pr2 h.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_sqr</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+             (<span class="nv">v</span> : double_coalg_ver X₁ X₂)
+             (<span class="nv">w</span> : double_coalg_ver Y₁ Y₂)
+             (<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁)
+             (<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂)
+    : UU
+    := h₁ --&gt;[ v ][ w ] h₂.
+
+  <span class="kn">Coercion</span> <span class="nf">sqr_of_double_coalg_sqr</span>
+           {X₁ X₂ Y₁ Y₂ : double_coalg F}
+           {v : double_coalg_ver X₁ X₂}
+           {w : double_coalg_ver Y₁ Y₂}
+           {h₁ : double_coalg_hor X₁ Y₁}
+           {h₂ : double_coalg_hor X₂ Y₂}
+           (s : double_coalg_sqr v w h₁ h₂)
+    : square v w h₁ h₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_of_double_coalg_sqr</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+              {<span class="nv">v</span> : double_coalg_ver X₁ X₂}
+              {<span class="nv">w</span> : double_coalg_ver Y₁ Y₂}
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+              (<span class="nv">s</span> : double_coalg_sqr v w h₁ h₂)
+    : transportf_square
+       (double_coalg_ver_comm v)
+       (double_coalg_ver_comm w)
+       (sqr_of_double_coalg_hor h₁ ⋆v #s F s)
+     =
+     s ⋆v sqr_of_double_coalg_hor h₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_of_double_coalg_sqr'</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+              {<span class="nv">v</span> : double_coalg_ver X₁ X₂}
+              {<span class="nv">w</span> : double_coalg_ver Y₁ Y₂}
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+              (<span class="nv">s</span> : double_coalg_sqr v w h₁ h₂)
+    : sqr_of_double_coalg_hor h₁ ⋆v #s F s
+      =
+      transportb_square
+        (double_coalg_ver_comm v)
+        (double_coalg_ver_comm w)
+        (s ⋆v sqr_of_double_coalg_hor h₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- eq_of_double_coalg_sqr.
+    <span class="nb">rewrite</span> transportbf_square.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_double_coalg_sqr</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+             {<span class="nv">v</span> : double_coalg_ver X₁ X₂}
+             {<span class="nv">w</span> : double_coalg_ver Y₁ Y₂}
+             {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+             {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+             (<span class="nv">s</span> : square v w h₁ h₂)
+             (<span class="nv">p</span> : is_double_coalg_sqr (pr2 h₁) (pr2 h₂) _ _ s)
+    : double_coalg_sqr v w h₁ h₂
+    := s ,, p.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_double_coalg_sqr</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+              {<span class="nv">v</span> : double_coalg_ver X₁ X₂}
+              {<span class="nv">w</span> : double_coalg_ver Y₁ Y₂}
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+              {<span class="nv">s₁</span> <span class="nv">s₂</span> : double_coalg_sqr v w h₁ h₂}
+              (<span class="nv">p</span> : sqr_of_double_coalg_sqr s₁
+                   =
+                   sqr_of_double_coalg_sqr s₂)
+    : s₁ = s₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaset_square.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_double_coalg_sqr</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+              {<span class="nv">v</span> <span class="nv">v'</span> : double_coalg_ver X₁ X₂}
+              (<span class="nv">p</span> : v = v')
+              {<span class="nv">w</span> <span class="nv">w'</span> : double_coalg_ver Y₁ Y₂}
+              (<span class="nv">q</span> : w = w')
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+              (<span class="nv">s</span> : double_coalg_sqr v w h₁ h₂)
+    : pr1 (transportf_disp_mor2 p q s)
+      =
+      transportf_square
+        (maponpaths double_coalg_ver_to_mor p)
+        (maponpaths double_coalg_ver_to_mor q)
+        s.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_double_coalg_sqr</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : double_coalg F}
+              {<span class="nv">v</span> <span class="nv">v'</span> : double_coalg_ver X₁ X₂}
+              (<span class="nv">p</span> : v' = v)
+              {<span class="nv">w</span> <span class="nv">w'</span> : double_coalg_ver Y₁ Y₂}
+              (<span class="nv">q</span> : w' = w)
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor X₂ Y₂}
+              (<span class="nv">s</span> : double_coalg_sqr v w h₁ h₂)
+    : pr1 (transportb_disp_mor2 p q s)
+      =
+      transportb_square
+        (maponpaths double_coalg_ver_to_mor p)
+        (maponpaths double_coalg_ver_to_mor q)
+        s.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Horizontal identities *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_coalg_id_hor_struct</span>
+             (<span class="nv">X</span> : double_coalg F)
+    : double_coalg_hor_struct X X (identity_h (coalg_carrier F X))
+    := transportf_square
+         (id_right _) (id_right _)
+         (id_h_square _ ⋆v lax_double_functor_id_h F (pr1 X)).
+
+  <span class="kn">Arguments</span> double_coalg_id_hor_struct X /.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_id_hor</span>
+             (<span class="nv">X</span> : double_coalg F)
+    : double_coalg_hor X X.
+  <span class="kn">Proof</span>.
+    use make_double_coalg_hor.
+    - <span class="bp">exact</span> (identity_h _).
+    - <span class="bp">exact</span> (double_coalg_id_hor_struct X).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_id_is_sqr</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+              (<span class="nv">v</span> : double_coalg_ver X Y)
+    : is_double_coalg_sqr
+        (double_coalg_id_hor_struct X)
+        (double_coalg_id_hor_struct Y)
+        _ _
+        (id_h_square v).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (square_assoc_v' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (lax_double_functor_id_h_mor' F).
+    }
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_assoc_v (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (id_h_square_eq (coalgebra_mor_commutes F v)).
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_assoc_v (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- id_h_square_comp.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_id_sqr</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">v</span> : double_coalg_ver X Y)
+    : double_coalg_sqr v v (double_coalg_id_hor X) (double_coalg_id_hor Y).
+  <span class="kn">Proof</span>.
+    use make_double_coalg_sqr.
+    - <span class="bp">exact</span> (id_h_square _).
+    - <span class="bp">exact</span> (double_coalg_id_is_sqr v).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_hor_id_data</span>
+    : hor_id_data double_coalg_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> double_coalg_id_hor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">v</span>, double_coalg_id_sqr v).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_hor_id_laws</span>
+    : hor_id_laws double_coalg_hor_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span>.
+      use eq_double_coalg_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (id_h_square_id (C := C)).
+    - <span class="nb">intros</span>.
+      use eq_double_coalg_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (id_h_square_comp (C := C)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_hor_id</span>
+    : hor_id double_coalg_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> double_coalg_hor_id_data.
+    - <span class="bp">exact</span> double_coalg_hor_id_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 6. Horizontal composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_coalg_comp_hor_struct</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : double_coalg F}
+             (<span class="nv">h</span> : double_coalg_hor X Y)
+             (<span class="nv">k</span> : double_coalg_hor Y Z)
+    : double_coalg_hor_struct X Z (h ·h k)
+    := transportf_square
+         (id_right _)
+         (id_right _)
+         (sqr_of_double_coalg_hor h ⋆h sqr_of_double_coalg_hor k
+          ⋆v lax_double_functor_comp_h F _ _).
+
+  <span class="kn">Arguments</span> double_coalg_comp_hor_struct {X Y Z} h k /.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_comp_hor</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : double_coalg F}
+             (<span class="nv">h</span> : double_coalg_hor X Y)
+             (<span class="nv">k</span> : double_coalg_hor Y Z)
+    : double_coalg_hor X Z.
+  <span class="kn">Proof</span>.
+    use make_double_coalg_hor.
+    - <span class="bp">exact</span> (h ·h k).
+    - <span class="bp">exact</span> (double_coalg_comp_hor_struct h k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_comp_hor_is_sqr</span>
+              {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Z₁</span> <span class="nv">Z₂</span> : double_coalg F}
+              {<span class="nv">v₁</span> : double_coalg_ver X₁ X₂}
+              {<span class="nv">v₂</span> : double_coalg_ver Y₁ Y₂}
+              {<span class="nv">v₃</span> : double_coalg_ver Z₁ Z₂}
+              {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+              {<span class="nv">h₂</span> : double_coalg_hor Y₁ Z₁}
+              {<span class="nv">k₁</span> : double_coalg_hor X₂ Y₂}
+              {<span class="nv">k₂</span> : double_coalg_hor Y₂ Z₂}
+              (<span class="nv">s₁</span> : double_coalg_sqr v₁ v₂ h₁ k₁)
+              (<span class="nv">s₂</span> : double_coalg_sqr v₂ v₃ h₂ k₂)
+    : is_double_coalg_sqr
+        (double_coalg_comp_hor_struct h₁ h₂)
+        (double_coalg_comp_hor_struct k₁ k₂)
+        _ _
+        (s₁ ⋆h s₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (square_assoc_v' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (lax_double_functor_comp_h_mor' F s₁ s₂).
+    }
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- comp_h_square_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> eq_of_double_coalg_sqr'.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> eq_of_double_coalg_sqr'.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> pathsinv0r.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (square_assoc_v (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- comp_h_square_comp.
+    <span class="nb">apply</span> transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_comp_hor_sqr</span>
+             {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Z₁</span> <span class="nv">Z₂</span> : double_coalg F}
+             {<span class="nv">v₁</span> : double_coalg_ver X₁ X₂}
+             {<span class="nv">v₂</span> : double_coalg_ver Y₁ Y₂}
+             {<span class="nv">v₃</span> : double_coalg_ver Z₁ Z₂}
+             {<span class="nv">h₁</span> : double_coalg_hor X₁ Y₁}
+             {<span class="nv">h₂</span> : double_coalg_hor Y₁ Z₁}
+             {<span class="nv">k₁</span> : double_coalg_hor X₂ Y₂}
+             {<span class="nv">k₂</span> : double_coalg_hor Y₂ Z₂}
+             (<span class="nv">s₁</span> : double_coalg_sqr v₁ v₂ h₁ k₁)
+             (<span class="nv">s₂</span> : double_coalg_sqr v₂ v₃ h₂ k₂)
+    : double_coalg_sqr
+        v₁ v₃
+        (double_coalg_comp_hor h₁ h₂)
+        (double_coalg_comp_hor k₁ k₂).
+  <span class="kn">Proof</span>.
+    use make_double_coalg_sqr.
+    - <span class="bp">exact</span> (s₁ ⋆h s₂).
+    - <span class="nb">apply</span> double_coalg_comp_hor_is_sqr.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_hor_comp_data</span>
+    : hor_comp_data double_coalg_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">h</span> <span class="nv">k</span>, double_coalg_comp_hor h k).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>,
+             double_coalg_comp_hor_sqr s₁ s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_hor_comp_laws</span>
+    : hor_comp_laws double_coalg_hor_comp_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span>.
+      use eq_double_coalg_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (comp_h_square_id (C := C)).
+    - <span class="nb">intros</span>.
+      use eq_double_coalg_sqr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (comp_h_square_comp (C := C)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_hor_comp</span>
+    : hor_comp double_coalg_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> double_coalg_hor_comp_data.
+    - <span class="bp">exact</span> double_coalg_hor_comp_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. Globular isomorphism squares *)</span>
+  <span class="kn">Section</span> <span class="nf">IsoSquare</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+            {<span class="nv">h₁</span> : double_coalg_hor X Y}
+            {<span class="nv">h₂</span> : double_coalg_hor X Y}
+            (<span class="nv">s</span> : double_coalg_sqr (identity _) (identity _) h₁ h₂)
+            (<span class="nv">s'</span> : square (identity _) (identity _) h₂ h₁)
+            (<span class="nv">p</span> : s ⋆v s'
+                 =
+                 transportb_square (id_left _) (id_left _) (id_v_square _))
+            (<span class="nv">q</span> : s' ⋆v s
+                 =
+                 transportb_square (id_left _) (id_left _) (id_v_square _)).
+
+    <span class="kn">Proposition</span> <span class="nf">is_double_coalg_sqr_inv_sqr</span>
+      : is_double_coalg_sqr
+          (sqr_of_double_coalg_hor h₂)
+          (sqr_of_double_coalg_hor h₁)
+          (identity _) (identity _)
+          s'.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_id_left_v'.
+      }
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ !(maponpaths (transportf_square (id_left _) (id_left _)) q)).
+        <span class="nb">rewrite</span> transportfb_square.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (square_assoc_v' (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (square_assoc_v (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(eq_of_double_coalg_sqr s)).
+      }
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_assoc_v'.
+      }
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lax_double_functor_comp_v_square'.
+      }
+      <span class="nb">rewrite</span> !transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">rewrite</span> lax_double_functor_transportb_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> lax_double_functor_id_square.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> !transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> square_id_right_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">double_coalg_inv_sqr</span>
+      : double_coalg_sqr (identity _) (identity _) h₂ h₁.
+    <span class="kn">Proof</span>.
+      use make_double_coalg_sqr.
+      - <span class="bp">exact</span> s'.
+      - <span class="bp">exact</span> is_double_coalg_sqr_inv_sqr.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">double_coalg_inv_sqr_left</span>
+      : s ;;<span class="mi">2</span> double_coalg_inv_sqr
+        =
+        transportb_disp_mor2 (id_left _) (id_left _) (id_two_disp _).
+    <span class="kn">Proof</span>.
+      use eq_double_coalg_sqr.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="bp">exact</span> (transportf_double_coalg_sqr (!id_left _) (!id_left _) (id_two_disp _)).
+      }
+      <span class="nb">refine</span> (_ @ !p).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">double_coalg_inv_sqr_right</span>
+      : double_coalg_inv_sqr ;;<span class="mi">2</span> s
+        =
+        transportb_disp_mor2 (id_left _) (id_left _) (id_two_disp _).
+    <span class="kn">Proof</span>.
+      use eq_double_coalg_sqr.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="bp">exact</span> (transportf_double_coalg_sqr (!id_left _) (!id_left _) (id_two_disp _)).
+      }
+      <span class="nb">refine</span> (_ @ !q).
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_iso_twosided_double_coalg_sqr</span>
+      : is_iso_twosided_disp (identity_is_z_iso _) (identity_is_z_iso _) s.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> double_coalg_inv_sqr.
+      - <span class="bp">exact</span> double_coalg_inv_sqr_left.
+      - <span class="bp">exact</span> double_coalg_inv_sqr_right.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsoSquare</span>.
+
+  <span class="kn">Import</span> TransportSquare.
+
+  <span class="sd">(** * 8. The left unitor *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_double_coalg_sqr_lunitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+              (<span class="nv">h</span> : double_coalg_hor X Y)
+    : is_double_coalg_sqr
+        (double_coalg_comp_hor_struct (double_coalg_id_hor X) h)
+        (sqr_of_double_coalg_hor h)
+        (identity X)
+        (identity Y)
+        (lunitor_h h).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (_ @ lunitor_square' _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (lax_double_functor_lunitor_h F h).
+    }
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comp_h_square_comp.
+    }
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> transportf_square_id.
+    <span class="nb">apply</span> maponpaths_2.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_lunitor_sqr</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">h</span> : double_coalg_hor X Y)
+    : double_coalg_sqr
+        (identity X)
+        (identity Y)
+        (double_coalg_comp_hor (double_coalg_id_hor X) h)
+        h.
+  <span class="kn">Proof</span>.
+    use make_double_coalg_sqr.
+    - <span class="bp">exact</span> (lunitor_h h).
+    - <span class="bp">exact</span> (is_double_coalg_sqr_lunitor h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_lunitor_data</span>
+    : double_lunitor_data
+        double_coalg_hor_id
+        double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y h.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (double_coalg_lunitor_sqr h).
+    - use is_iso_twosided_double_coalg_sqr.
+      + <span class="bp">exact</span> (linvunitor_h _).
+      + <span class="bp">exact</span> (lunitor_linvunitor_h _).
+      + <span class="bp">exact</span> (linvunitor_lunitor_h _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_lunitor_laws</span>
+    : double_lunitor_laws double_coalg_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use eq_double_coalg_sqr.
+    <span class="nb">refine</span> (_ @ !(lunitor_square _)).
+    etrans.
+    {
+      <span class="bp">exact</span> (transportb_double_coalg_sqr
+               (id_right _ @ !(id_left _))
+               (id_right _ @ !(id_left _))
+               (double_coalg_lunitor_sqr _ ;;<span class="mi">2</span> _)).
+    }
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_lunitor</span>
+    : double_cat_lunitor
+        double_coalg_hor_id
+        double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> double_coalg_lunitor_data.
+    - <span class="bp">exact</span> double_coalg_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 9. The right unitor *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_double_coalg_sqr_runitor</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+              (<span class="nv">h</span> : double_coalg_hor X Y)
+    : is_double_coalg_sqr
+        (double_coalg_comp_hor_struct h (double_coalg_id_hor Y))
+        (sqr_of_double_coalg_hor h)
+        (identity X)
+        (identity Y)
+        (runitor_h h).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (_ @ runitor_square' _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (lax_double_functor_runitor_h F h).
+    }
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> comp_h_square_comp.
+    }
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> transportf_square_id.
+    <span class="nb">apply</span> maponpaths_2.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_runitor_sqr</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">h</span> : double_coalg_hor X Y)
+    : double_coalg_sqr
+        (identity X)
+        (identity Y)
+        (double_coalg_comp_hor h (double_coalg_id_hor Y))
+        h.
+  <span class="kn">Proof</span>.
+    use make_double_coalg_sqr.
+    - <span class="bp">exact</span> (runitor_h h).
+    - <span class="bp">exact</span> (is_double_coalg_sqr_runitor h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_runitor_data</span>
+    : double_runitor_data
+        double_coalg_hor_id
+        double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y h.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (double_coalg_runitor_sqr h).
+    - use is_iso_twosided_double_coalg_sqr.
+      + <span class="bp">exact</span> (rinvunitor_h _).
+      + <span class="bp">exact</span> (runitor_rinvunitor_h _).
+      + <span class="bp">exact</span> (rinvunitor_runitor_h _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_runitor_laws</span>
+    : double_runitor_laws double_coalg_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use eq_double_coalg_sqr.
+    <span class="nb">refine</span> (_ @ !(runitor_square _)).
+    etrans.
+    {
+      <span class="bp">exact</span> (transportb_double_coalg_sqr
+               (id_right _ @ !(id_left _))
+               (id_right _ @ !(id_left _))
+               (double_coalg_runitor_sqr _ ;;<span class="mi">2</span> _)).
+    }
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_runitor</span>
+    : double_cat_runitor
+        double_coalg_hor_id
+        double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> double_coalg_runitor_data.
+    - <span class="bp">exact</span> double_coalg_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 10. The associator *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_double_coalg_sqr_lassociator</span>
+              {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : double_coalg F}
+              (<span class="nv">h₁</span> : double_coalg_hor W X)
+              (<span class="nv">h₂</span> : double_coalg_hor X Y)
+              (<span class="nv">h₃</span> : double_coalg_hor Y Z)
+    : is_double_coalg_sqr
+        (double_coalg_comp_hor_struct h₁ (double_coalg_comp_hor h₂ h₃))
+        (double_coalg_comp_hor_struct (double_coalg_comp_hor h₁ h₂) h₃)
+        (identity _)
+        (identity _)
+        (lassociator_h h₁ h₂ h₃).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> transportf_hcomp_r.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      use hcomp_vcomp_r_id_r.
+    }
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> transportf_hcomp_l.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> !transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> square_assoc_v'.
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (lax_double_functor_lassociator_h' F).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lassociator_square.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      use hcomp_vcomp_l_id_r.
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_lassociator_sqr</span>
+             {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : double_coalg F}
+             (<span class="nv">h₁</span> : double_coalg_hor W X)
+             (<span class="nv">h₂</span> : double_coalg_hor X Y)
+             (<span class="nv">h₃</span> : double_coalg_hor Y Z)
+    : double_coalg_sqr
+        (identity _)
+        (identity _)
+        (double_coalg_comp_hor h₁ (double_coalg_comp_hor h₂ h₃))
+        (double_coalg_comp_hor (double_coalg_comp_hor h₁ h₂) h₃).
+  <span class="kn">Proof</span>.
+    use make_double_coalg_sqr.
+    - <span class="bp">exact</span> (lassociator_h h₁ h₂ h₃).
+    - <span class="nb">apply</span> is_double_coalg_sqr_lassociator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_associator_data</span>
+    : double_associator_data double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> W X Y Z h₁ h₂ h₃.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (double_coalg_lassociator_sqr h₁ h₂ h₃).
+    - use is_iso_twosided_double_coalg_sqr.
+      + <span class="bp">exact</span> (rassociator_h _ _ _).
+      + <span class="bp">exact</span> (lassociator_rassociator_h _ _ _).
+      + <span class="bp">exact</span> (rassociator_lassociator_h _ _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_associator_laws</span>
+    : double_associator_laws double_coalg_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use eq_double_coalg_sqr.
+    <span class="nb">refine</span> (_ @ !(lassociator_square _ _ _)).
+    etrans.
+    {
+      <span class="bp">exact</span> (transportb_double_coalg_sqr
+               (id_right _ @ !(id_left _))
+               (id_right _ @ !(id_left _))
+               (double_coalg_lassociator_sqr _ _ _
+                ;;<span class="mi">2</span>
+                double_coalg_comp_hor_sqr (double_coalg_comp_hor_sqr _ _) _)).
+    }
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_associator</span>
+    : double_cat_associator double_coalg_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> double_coalg_associator_data.
+    - <span class="bp">exact</span> double_coalg_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 11. The coherences *)</span>
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_triangle_law</span>
+    : triangle_law
+        double_coalg_lunitor
+        double_coalg_runitor
+        double_coalg_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y Z h k.
+    use eq_double_coalg_sqr.
+    <span class="nb">refine</span> (double_triangle _ _ @ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="bp">exact</span> (transportb_double_coalg_sqr
+               (id_left _) (id_left _)
+               (double_coalg_comp_hor_sqr
+                  (id_two_disp h)
+                  (double_lunitor double_coalg_lunitor k))).
+    }
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_pentagon_law</span>
+    : pentagon_law double_coalg_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> V W X Y Z h₁ h₂ h₃ h₄.
+    use eq_double_coalg_sqr.
+    <span class="nb">refine</span> (_ @ double_pentagon _ _ _ _).
+    etrans.
+    {
+      <span class="bp">exact</span> (transportb_double_coalg_sqr
+               (id_right _) (id_right _)
+               (double_coalg_lassociator_sqr _ _ _
+                ;;<span class="mi">2</span>
+                double_coalg_lassociator_sqr _ _ _)).
+    }
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 12. The double category of coalgebras of a lax double functor *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_cat_of_double_coalg</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> (CoAlg_category F).
+    - <span class="bp">exact</span> double_coalg_twosided_disp_cat.
+    - <span class="bp">exact</span> double_coalg_hor_id.
+    - <span class="bp">exact</span> double_coalg_hor_comp.
+    - <span class="bp">exact</span> double_coalg_lunitor.
+    - <span class="bp">exact</span> double_coalg_runitor.
+    - <span class="bp">exact</span> double_coalg_associator.
+    - <span class="bp">exact</span> double_coalg_triangle_law.
+    - <span class="bp">exact</span> double_coalg_pentagon_law.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 13. The univalence of the double category of coalgebra *)</span>
+  <span class="kn">Proposition</span> <span class="nf">double_coalg_hor_eq</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+              (<span class="nv">h</span> <span class="nv">k</span> : double_coalg_hor X Y)
+    : h = k
+      ≃
+      ∑ (s : globular_iso_square h k),
+      is_double_coalg_sqr
+        (sqr_of_double_coalg_hor h) (sqr_of_double_coalg_hor k)
+        (identity _) (identity _)
+        s.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (weqtotal2 _ _ ∘ total2_paths_equiv _ _ _)%weq.
+    - <span class="bp">exact</span> (make_weq
+               _
+               (is_univalent_twosided_disp_cat_hor_mor
+                  C
+                  _ _ _ _
+                  (idpath _) (idpath _)
+                  h k)).
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> h <span class="k">as</span> [ h Hh ].
+      <span class="nb">induction</span> k <span class="k">as</span> [ k Hk ].
+      <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      use weqimplimpl.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> lax_double_functor_id_square
+           | ] ;
+           <span class="nb">unfold</span> transportb_square ;
+           <span class="nb">rewrite</span> transportf_square_postwhisker ;
+           <span class="nb">rewrite</span> transportf_f_square ;
+           <span class="nb">rewrite</span> square_id_right_v ;
+           <span class="nb">refine</span> (_ @ !(square_id_left_v _)) ;
+           <span class="nb">unfold</span> transportb_square ;
+           <span class="nb">rewrite</span> transportf_f_square ;
+           use transportf_square_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">pose proof</span> (p @ square_id_left_v _) <span class="k">as</span> p' ;
+           <span class="nb">clear</span> p ;
+           <span class="nb">pose proof</span> (maponpaths
+                         (<span class="k">λ</span> <span class="nv">z</span>, transportf_square _ _ (_ ⋆v z))
+                         (!(lax_double_functor_id_square _ _))
+                       @ p')
+             <span class="k">as</span> p'' ;
+           <span class="nb">clear</span> p' ;
+           <span class="nb">unfold</span> transportb_square <span class="k">in</span> p'' ;
+           <span class="nb">rewrite</span> transportf_square_postwhisker <span class="k">in</span> p'' ;
+           <span class="nb">rewrite</span> transportf_f_square <span class="k">in</span> p'' ;
+           <span class="nb">rewrite</span> square_id_right_v <span class="k">in</span> p'' ;
+           <span class="nb">unfold</span> transportb_square <span class="k">in</span> p'' ;
+           <span class="nb">rewrite</span> transportf_f_square <span class="k">in</span> p'' ;
+           <span class="nb">refine</span> (!_ @ maponpaths (transportf_square (id_left _) (id_left _)) p'' @ _) ;
+           <span class="nb">unfold</span> transportb_square ;
+           <span class="nb">rewrite</span> transportf_f_square ;
+           <span class="nb">apply</span> transportf_square_id).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaset_square).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> isaset_square).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_double_coalg_twosided_iso</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             {<span class="nv">h</span> <span class="nv">k</span> : double_coalg_hor X Y}
+             (<span class="nv">s</span> : globular_iso_square h k)
+             (<span class="nv">H</span> : is_double_coalg_sqr
+                    (sqr_of_double_coalg_hor h)
+                    (sqr_of_double_coalg_hor k)
+                    (identity X) (identity Y)
+                    s)
+    : iso_twosided_disp (identity_z_iso X) (identity_z_iso Y) h k.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((pr1 s ,, H) ,, _).
+    use is_iso_twosided_double_coalg_sqr.
+    - <span class="bp">exact</span> (pr12 s).
+    - <span class="bp">exact</span> (pr122 s).
+    - <span class="bp">exact</span> (pr222 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_double_coalg_twosided_iso</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             {<span class="nv">h</span> <span class="nv">k</span> : double_coalg_hor X Y}
+             (<span class="nv">s</span> : iso_twosided_disp (identity_z_iso X) (identity_z_iso Y) h k)
+    : ∑ (s : globular_iso_square h k),
+      is_double_coalg_sqr
+        (sqr_of_double_coalg_hor h) (sqr_of_double_coalg_hor k)
+        (identity _) (identity _)
+        s.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _ ,, _ ,, _) ,, _).
+    - <span class="bp">exact</span> (pr11 s).
+    - <span class="bp">exact</span> (pr1 (pr12 s)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths pr1 (pr122 s) @ _) ;
+         <span class="nb">refine</span> (transportb_double_coalg_sqr (id_left _) (id_left _) _ @ _) ;
+         use transportf_square_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths pr1 (pr222 s) @ _) ;
+         <span class="nb">refine</span> (transportb_double_coalg_sqr (id_left _) (id_left _) _ @ _) ;
+         use transportf_square_eq ;
+         <span class="nb">apply</span> idpath).
+    - <span class="bp">exact</span> (pr21 s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_coalg_twosided_iso_weq</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> : double_coalg F}
+             (<span class="nv">h</span> <span class="nv">k</span> : double_coalg_hor X Y)
+    : (∑ (s : globular_iso_square h k),
+       is_double_coalg_sqr
+         (sqr_of_double_coalg_hor h)
+         (sqr_of_double_coalg_hor k)
+         (identity X) (identity Y)
+         s)
+      ≃
+      iso_twosided_disp (identity_z_iso X) (identity_z_iso Y) h k.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">s</span>, to_double_coalg_twosided_iso (pr1 s) (pr2 s)).
+    - <span class="bp">exact</span> from_double_coalg_twosided_iso.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> s ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaset_square | ] ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> s ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         use eq_double_coalg_sqr ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_double_coalg_twosided_disp_cat</span>
+    : is_univalent_twosided_disp_cat
+        double_coalg_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X' Y Y' p q h k.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    use weqhomot.
+    - <span class="bp">exact</span> (double_coalg_twosided_iso_weq h k ∘ double_coalg_hor_eq h k)%weq.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      }
+      use eq_double_coalg_sqr.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 14. The univalent double category of coalgebras of a lax double functor *)</span>
+  <span class="kn">Definition</span> <span class="nf">univalent_double_cat_of_double_coalg</span>
+    : univalent_double_cat.
+  <span class="kn">Proof</span>.
+    use make_univalent_double_cat.
+    - <span class="bp">exact</span> double_cat_of_double_coalg.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> is_univalent_coalg_category.
+      + <span class="bp">exact</span> is_univalent_double_coalg_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 15. Flatness of the double category of coalgebras *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_flat_double_cat_of_double_coalg</span>
+              (<span class="nv">H</span> : is_flat_double_cat C)
+    : is_flat_double_cat
+        double_cat_of_double_coalg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use eq_double_coalg_sqr.
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CoalegbraDoubleCat</span>.
+
+<span class="kn">Arguments</span> double_coalg_id_hor_struct {C F} X /.
+<span class="kn">Arguments</span> double_coalg_comp_hor_struct {C F X Y Z} h k /.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/Coalgebras.v</tt>, line 47)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  15. Flatness of the double category of coalgebras
+  &gt;
+  &gt;  *********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

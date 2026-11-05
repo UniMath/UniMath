@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TransportLaws.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Some laws on transporting along families of 2-cells.</span>
+
+<span class="sd">Authors: Dan Frumin, Niels van der Weide</span>
+
+<span class="sd">Ported from: https://github.com/nmvdw/groupoids</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="sd">(**</span>
+<span class="sd"> laws for idtoiso_2_0</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">transport_one_cell_FlFr</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">A</span> : <span class="kt">Type</span>}
+           (<span class="nv">f</span> <span class="nv">g</span> : A -&gt; C)
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : A}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">h</span> : C⟦f a₁,g a₁⟧)
+  : (transportf (<span class="k">λ</span> (<span class="nv">z</span> : A), C⟦f z,g z⟧) p h)
+      ==&gt;
+      (idtoiso_2_0 _ _ (maponpaths g p))
+      ∘ h
+      ∘ (idtoiso_2_0 _ _ (maponpaths f (!p))).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (linvunitor _ o rinvunitor _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_one_cell_FlFr_inv</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">A</span> : <span class="kt">Type</span>}
+           (<span class="nv">f</span> <span class="nv">g</span> : A -&gt; C)
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : A}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">h</span> : C⟦f a₁,g a₁⟧)
+  : ((idtoiso_2_0 _ _ (maponpaths g p)))
+      ∘ h
+      ∘ (idtoiso_2_0 _ _ (maponpaths f (!p)))
+      ==&gt;
+      (transportf (<span class="k">λ</span> (<span class="nv">z</span> : A), C⟦f z,g z⟧) p h).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (runitor _ o lunitor _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_one_cell_FlFr_iso</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">A</span> : <span class="kt">Type</span>}
+           (<span class="nv">f</span> <span class="nv">g</span> : A -&gt; C)
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : A}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">h</span> : C⟦f a₁,g a₁⟧)
+  : is_invertible_2cell (transport_one_cell_FlFr f g p h).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (transport_one_cell_FlFr_inv f g p h ,, _).
+  <span class="nb">split</span> ; <span class="nb">cbn</span>.
+  - <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+    <span class="nb">rewrite</span> linvunitor_lunitor, id2_left.
+    <span class="nb">apply</span> rinvunitor_runitor.
+  - <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)).
+    <span class="nb">rewrite</span> runitor_rinvunitor, id2_left.
+    <span class="nb">apply</span> lunitor_linvunitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">idtoiso_2_0_inv</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">p</span> : b₁ = b₂)
+  : pr1 (idtoiso_2_0 _ _ (!p))
+    =
+    left_adjoint_right_adjoint (idtoiso_2_0 _ _ p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> laws for idtoiso_2_1</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">idtoiso_2_1_inv</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">p</span> : f = g)
+  : idtoiso_2_1 _ _ (!p)
+    =
+    inv_of_invertible_2cell (idtoiso_2_1 _ _ p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_2_1_concat</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₃</span> : a --&gt; b}
+           (<span class="nv">p</span> : f₁ = f₂) (<span class="nv">q</span> : f₂ = f₃)
+  : idtoiso_2_1 _ _ (p @ q)
+    =
+    comp_of_invertible_2cell
+      (idtoiso_2_1 _ _ p)
+      (idtoiso_2_1 _ _ q).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">induction</span> q ; <span class="nb">cbn</span>.
+  use subtypePath.
+  { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+  <span class="bp">exact</span> (!(id2_left _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_2_1_rwhisker</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">g</span> : C⟦Y,Z⟧)
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : C⟦X,Y⟧}
+           (<span class="nv">q</span> : f₁ = f₂)
+  : g ◅ (idtoiso_2_1 _ _ q) = idtoiso_2_1 _ _ (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · g) q).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> id2_rwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_2_1_lwhisker</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           (<span class="nv">g</span> : C⟦X,Y⟧)
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : C⟦Y,Z⟧}
+           (<span class="nv">q</span> : f₁ = f₂)
+  : (idtoiso_2_1 _ _ q) ▻ g = idtoiso_2_1 _ _ (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, g · z) q).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> q ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> lwhisker_id2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_two_cell_FlFr</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">A</span> : <span class="kt">Type</span>}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           (<span class="nv">F</span> <span class="nv">G</span> : A -&gt; C⟦X,Y⟧)
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : A}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">α</span> : F a₁ ==&gt; G a₁)
+  : transportf (<span class="k">λ</span> <span class="nv">z</span>, F z ==&gt; G z) p α
+    =
+    idtoiso_2_1 _ _ (maponpaths G p) o α o (idtoiso_2_1 _ _ (maponpaths F p))^-<span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id2_right, id2_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_2_1_id</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+  : idpath f = isotoid_2_1 HB (id2_invertible_2cell f).
+<span class="kn">Proof</span>.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - <span class="nb">apply</span> isinclweq.
+    <span class="bp">exact</span> (HB _ _ _ _).
+  - <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_2_1_lwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : B}
+           (<span class="nv">f</span> : a --&gt; b)
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : b --&gt; c}
+           (<span class="nv">α</span> : invertible_2cell g₁ g₂)
+  : maponpaths
+      (<span class="k">λ</span> <span class="nv">z</span> : b --&gt; c, f · z)
+      (isotoid_2_1 HB α)
+    =
+    isotoid_2_1 HB (f ◃ α ,, is_invertible_2cell_lwhisker _ (pr2 α)).
+<span class="kn">Proof</span>.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - <span class="nb">apply</span> isinclweq.
+    <span class="bp">exact</span> (HB _ _ _ _).
+  - use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_2_1_lwhisker.
+    }
+    <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_2_1_rwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : a --&gt; b}
+           (<span class="nv">α</span> : invertible_2cell f₁ f₂)
+           (<span class="nv">g</span> : b --&gt; c)
+  : maponpaths
+      (<span class="k">λ</span> <span class="nv">z</span> : a --&gt; b, z · g)
+      (isotoid_2_1 HB α)
+    =
+    isotoid_2_1 HB (α ▹ g ,, is_invertible_2cell_rwhisker _ (pr2 α)).
+<span class="kn">Proof</span>.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - <span class="nb">apply</span> isinclweq.
+    <span class="bp">exact</span> (HB _ _ _ _).
+  - use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_2_1_rwhisker.
+    }
+    <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_2_1_vcomp</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">a</span> <span class="nv">b</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₃</span> : a --&gt; b}
+           (<span class="nv">α</span> : invertible_2cell f₁ f₂)
+           (<span class="nv">β</span> : invertible_2cell f₂ f₃)
+  : isotoid_2_1 HB α @ isotoid_2_1 HB β
+    =
+    isotoid_2_1 HB (α • β ,, is_invertible_2cell_vcomp (pr2 α) (pr2 β)).
+<span class="kn">Proof</span>.
+  use (invmaponpathsincl (idtoiso_2_1 _ _)).
+  - <span class="nb">apply</span> isinclweq.
+    <span class="bp">exact</span> (HB _ _ _ _).
+  - etrans.
+    {
+      <span class="nb">apply</span> idtoiso_2_1_concat.
+    }
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+    <span class="nb">rewrite</span> !idtoiso_2_1_isotoid_2_1.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/TransportLaws.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ported from: https://github.com/nmvdw/groupoids
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

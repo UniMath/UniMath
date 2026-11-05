@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NNO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">- Definition natural number objects (NNO's) [NNO];</span>
+<span class="sd">- A proof that the existence of an NNO is independent of the choice of terminal object [NNO_transport_along_terminal];</span>
+<span class="sd">- A proof that NNO's are unique up to isomorphism [iso_between_NNO];</span>
+<span class="sd">- Definitions of functors preserving NNO's [preserves_NNO, preserves_chosen_NNO];</span>
+<span class="sd">- Proofs that the identity preserve NNO's, and that the composition of NNO preserving functors is NNO preserving.</span>
+
+<span class="sd">This is related to the initial algebra definition in FunctorAlgebras.v</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2018</span>
+<span class="sd">Extended by: Kobe Wullaert, 2025</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">nno</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">TC</span> : Terminal C).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"1"</span> := TC.
+
+<span class="kn">Definition</span> <span class="nf">isNNO</span> (<span class="nv">n</span> : C) (<span class="nv">z</span> : C ⟦ <span class="mi">1</span>, n ⟧) (<span class="nv">s</span> : C ⟦ n, n ⟧) : hProp.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="bp">exact</span> (∏ (a : C) (q : C ⟦ <span class="mi">1</span>, a ⟧) (f : C ⟦ a, a ⟧),
+         <span class="k">∃</span>! u : C ⟦ n, a ⟧, (z · u = q) × (s · u = u · f)).
+- <span class="kp">abstract</span> (<span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>); <span class="nb">apply</span> isapropiscontr).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">NNO</span> : UU :=
+  ∑ (n : C) (z : C ⟦ <span class="mi">1</span>, n ⟧) (s : C ⟦ n, n ⟧), isNNO n z s.
+
+<span class="kn">Definition</span> <span class="nf">NNObject</span> (<span class="nv">n</span> : NNO) : C := pr1 n.
+<span class="kn">Coercion</span> <span class="nf">NNObject</span> : NNO &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">zeroNNO</span> (<span class="nv">n</span> : NNO) : C ⟦<span class="mi">1</span>,n⟧ := pr1 (pr2 n).
+<span class="kn">Definition</span> <span class="nf">sucNNO</span> (<span class="nv">n</span> : NNO) : C ⟦n,n⟧ := pr1 (pr2 (pr2 n)).
+
+<span class="kn">Lemma</span> <span class="nf">isNNO_NNO</span> (<span class="nv">n</span> : NNO) : isNNO n (zeroNNO n) (sucNNO n).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (pr2 (pr2 (pr2 n))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">UniversalMappingProperty</span>.
+  <span class="kn">Context</span> (<span class="nv">N</span> : NNO)
+          {<span class="nv">x</span> : C}
+          (<span class="nv">z</span> : <span class="mi">1</span> --&gt; x)
+          (<span class="nv">s</span> : x --&gt; x).
+
+  <span class="kn">Definition</span> <span class="nf">NNO_mor</span>
+    : N --&gt; x
+    := pr11 (isNNO_NNO N x z s).
+
+  <span class="kn">Proposition</span> <span class="nf">NNO_mor_Z</span>
+    : zeroNNO N · NNO_mor = z.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr121 (isNNO_NNO N x z s)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">NNO_mor_S</span>
+    : sucNNO N · NNO_mor = NNO_mor · s.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr221 (isNNO_NNO N x z s)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">NNO_mor_unique</span>
+              {<span class="nv">f</span> <span class="nv">g</span> : N --&gt; x}
+              (<span class="nv">fz</span> : zeroNNO N · f = z)
+              (<span class="nv">gz</span> : zeroNNO N · g = z)
+              (<span class="nv">fs</span> : sucNNO N · f = f · s)
+              (<span class="nv">gs</span> : sucNNO N · g = g · s)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (base_paths
+             _ _
+             (proofirrelevance
+                _
+                (isapropifcontr (isNNO_NNO N x z s))
+                (f ,, fz ,, fs)
+                (g ,, gz ,, gs))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">NNO_mor_unique'</span>
+              {<span class="nv">f</span> : N --&gt; x}
+              (<span class="nv">fz</span> : zeroNNO N · f = z)
+              (<span class="nv">fs</span> : sucNNO N · f = f · s)
+    : f = NNO_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> NNO_mor_unique.
+    - <span class="bp">exact</span> fz.
+    - <span class="nb">apply</span> NNO_mor_Z.
+    - <span class="bp">exact</span> fs.
+    - <span class="bp">exact</span> NNO_mor_S.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UniversalMappingProperty</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_NNO</span> (<span class="nv">n</span> : C) (<span class="nv">z</span> : C ⟦ <span class="mi">1</span>, n ⟧) (<span class="nv">s</span> : C ⟦ n, n ⟧)
+ (<span class="nv">h</span> : isNNO n z s) : NNO := (n,,z,,s,,h).
+
+<span class="kn">Definition</span> <span class="nf">hasNNO</span> : hProp := ∥ NNO ∥.
+
+<span class="kn">End</span> <span class="nf">nno</span>.
+
+<span class="kn">Section</span> <span class="nf">IndependenceOfTerminal</span>.
+  <span class="c">(* A change of base *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">T₀</span> <span class="nv">T₁</span> : Terminal C).
+
+  <span class="kn">Section</span> <span class="nf">TransportNNO_along_terminal_UVP</span>.
+
+    <span class="kn">Context</span> (<span class="nv">N</span> : NNO T₀)
+      {<span class="nv">a</span> : C} (<span class="nv">q</span> : C⟦T₁, a⟧) (<span class="nv">f</span> : C⟦a, a⟧).
+
+    <span class="kn">Let</span> <span class="nf">u</span> := NNO_mor _ N (TerminalArrow T₁ _ · q) f.
+
+    <span class="kn">Lemma</span> <span class="nf">NNO_mor_Z_after_terminal_change</span>
+      : TerminalArrow T₀ T₁ · zeroNNO T₀ N · NNO_mor T₀ N (TerminalArrow T₁ T₀ · q) f = q.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans. { <span class="nb">apply</span> maponpaths, NNO_mor_Z. }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> proofirrelevance, isapropifcontr, T₁.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">uvp</span> : UU
+        := ∑ u : C ⟦ N, a ⟧, TerminalArrow T₀ T₁ · zeroNNO T₀ N · u = q × sucNNO T₀ N · u = u · f.
+
+    <span class="kn">Definition</span> <span class="nf">NNO_mor_after_terminal_change</span>
+      : uvp.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> (NNO_mor _ N (TerminalArrow T₁ _ · q) f).
+      - <span class="nb">apply</span> NNO_mor_Z_after_terminal_change.
+      - <span class="nb">apply</span> NNO_mor_S.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">NNO_mor_after_terminal_change_uniqueness</span> (<span class="nv">ϕ</span> : uvp)
+      : ϕ = NNO_mor_after_terminal_change.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property. }
+      use (NNO_mor_unique' _ N).
+      - etrans.
+        <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, (pr12 ϕ). }
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (! id_left _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> proofirrelevance, isapropifcontr, T₀.
+      - <span class="bp">exact</span> (pr22 ϕ).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">TransportNNO_along_terminal_UVP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">NNO_transport_along_terminal</span>
+    : NNO T₀ → NNO T₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> N.
+    <span class="nb">apply</span> (make_NNO _ N (TerminalArrow T₀ _ · zeroNNO _ N) (sucNNO _ N)).
+    <span class="nb">intros</span> a q f.
+    use make_iscontr.
+    - <span class="nb">apply</span> NNO_mor_after_terminal_change.
+    - <span class="nb">apply</span> NNO_mor_after_terminal_change_uniqueness.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">IndependenceOfTerminal</span>.
+
+<span class="kn">Section</span> <span class="nf">UniqueUpToIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">TC</span> : Terminal C}.
+
+  <span class="kn">Definition</span> <span class="nf">mor_between_NNO</span>
+             (<span class="nv">N₁</span> <span class="nv">N₂</span> : NNO TC)
+    : N₁ --&gt; N₂.
+  <span class="kn">Proof</span>.
+    use NNO_mor.
+    - <span class="bp">exact</span> (zeroNNO TC N₂).
+    - <span class="bp">exact</span> (sucNNO TC N₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mor_between_NNO_inv</span>
+              (<span class="nv">N₁</span> <span class="nv">N₂</span> : NNO TC)
+    : mor_between_NNO N₁ N₂ · mor_between_NNO N₂ N₁
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> mor_between_NNO.
+    use NNO_mor_unique.
+    - <span class="bp">exact</span> (zeroNNO TC N₁).
+    - <span class="bp">exact</span> (sucNNO TC N₁).
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !NNO_mor_Z.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> NNO_mor_S.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> NNO_mor_S.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_NNO</span>
+             (<span class="nv">N₁</span> <span class="nv">N₂</span> : NNO TC)
+    : z_iso N₁ N₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="nb">apply</span> mor_between_NNO.
+    - <span class="nb">apply</span> mor_between_NNO.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">apply</span> mor_between_NNO_inv).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">UniqueUpToIso</span>.
+
+<span class="kn">Section</span> <span class="nf">HomomorphismNNO</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁}
+    (<span class="nv">F_pT</span> : preserves_terminal F) : UU
+    := ∏ (T₀ : Terminal C₀) (N₀ : NNO T₀),
+      isNNO
+        (preserves_terminal_to_terminal _ F_pT T₀)
+        (F N₀)
+        (#F (zeroNNO _ N₀))
+        (#F (sucNNO _ N₀)).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_preserves_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁}
+    (<span class="nv">F_pT</span> : preserves_terminal F)
+    : isaprop (preserves_NNO F_pT).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isNNO.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_preserves_NNO</span>
+    (<span class="nv">C</span> : category)
+    : preserves_NNO (identity_preserves_terminal C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">apply</span> isNNO_NNO.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">composition_preserves_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁} {<span class="nv">G</span> : functor C₁ C₂}
+    {<span class="nv">F_pT</span> : preserves_terminal F}
+    {<span class="nv">G_pT</span> : preserves_terminal G}
+    (<span class="nv">F_pN</span> : preserves_NNO F_pT)
+    (<span class="nv">G_pN</span> : preserves_NNO G_pT)
+    : preserves_NNO (composition_preserves_terminal F_pT G_pT).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> T₀ N₀.
+    <span class="nb">set</span> (N₁ := make_NNO _ _ _ _ (F_pN _ N₀)).
+    <span class="nb">set</span> (N₂ := make_NNO _ _ _ _ (G_pN _ N₁)).
+    <span class="bp">exact</span> (isNNO_NNO _ N₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_chosen_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁}
+    {<span class="nv">T₀</span> : Terminal C₀}
+    {<span class="nv">T₁</span> : Terminal C₁}
+    (<span class="nv">F_pT</span> : preserves_chosen_terminal T₀ F)
+    (<span class="nv">N₀</span> : NNO T₀)
+    (<span class="nv">N₁</span> : NNO T₁)
+    : UU
+    := is_z_isomorphism
+         (NNO_mor _ N₁
+            (preserves_chosen_terminal_to_z_iso F_pT T₁ · #F (zeroNNO _ N₀))
+            (#F (sucNNO _ N₀))
+         ).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_preserves_chosen_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁}
+    {<span class="nv">T₀</span> : Terminal C₀}
+    {<span class="nv">T₁</span> : Terminal C₁}
+    (<span class="nv">F_pT</span> : preserves_chosen_terminal T₀ F)
+    (<span class="nv">N₀</span> : NNO T₀)
+    (<span class="nv">N₁</span> : NNO T₁)
+    : isaprop (preserves_chosen_NNO F_pT N₀ N₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_preserves_chosen_NNO</span>
+    {<span class="nv">C</span> : category} {<span class="nv">T</span> : Terminal C} (<span class="nv">N</span> : NNO T)
+    : preserves_chosen_NNO (identity_preserves_chosen_terminal T) N N.
+  <span class="kn">Proof</span>.
+    use (transportf _ _ (pr2 (iso_between_NNO N N))).
+    <span class="nb">simpl</span> ; <span class="nb">unfold</span> mor_between_NNO.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (! id_left _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    use proofirrelevance.
+    use isapropifcontr.
+    <span class="nb">apply</span> T.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">composition_preserves_chosen_NNO</span>
+    {<span class="nv">C₀</span> <span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+    {<span class="nv">F</span> : functor C₀ C₁} {<span class="nv">G</span> : functor C₁ C₂}
+    {<span class="nv">T₀</span> : Terminal C₀} {<span class="nv">T₁</span> : Terminal C₁} {<span class="nv">T₂</span> : Terminal C₂}
+    {<span class="nv">F_pT</span> : preserves_chosen_terminal T₀ F}
+    {<span class="nv">G_pT</span> : preserves_chosen_terminal T₁ G}
+    {<span class="nv">N₀</span> : NNO T₀} {<span class="nv">N₁</span> : NNO T₁} {<span class="nv">N₂</span> : NNO T₂}
+    (<span class="nv">F_pN</span> : preserves_chosen_NNO F_pT N₀ N₁)
+    (<span class="nv">G_pN</span> : preserves_chosen_NNO G_pT N₁ N₂)
+    : preserves_chosen_NNO (composition_preserves_chosen_terminal F_pT G_pT) N₀ N₂.
+  <span class="kn">Proof</span>.
+    use is_z_isomorphism_path.
+    - <span class="nb">refine</span> (NNO_mor _ N₂ _ _ · #G (NNO_mor _ N₁ _ _)).
+      + <span class="bp">exact</span> (preserves_chosen_terminal_to_z_iso G_pT T₂ · #G (zeroNNO T₁ N₁)).
+      + <span class="bp">exact</span> (#G (sucNNO T₁ N₁)).
+      + <span class="bp">exact</span> (preserves_chosen_terminal_to_z_iso F_pT T₁ · # F (zeroNNO T₀ N₀)).
+      + <span class="bp">exact</span> (# F (sucNNO T₀ N₀)).
+    - use NNO_mor_unique'.
+      + <span class="nb">refine</span> (assoc _ _ _ @ _).
+        etrans. {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> NNO_mor_Z.
+        }
+        <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0.
+          <span class="nb">apply</span> (functor_comp G).
+        }
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_1.
+          <span class="nb">apply</span> NNO_mor_Z.
+        }
+        etrans. {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (functor_comp G).
+        }
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        use proofirrelevance.
+        <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> (composition_preserves_chosen_terminal F_pT G_pT _).
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> NNO_mor_S.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_comp G).
+        <span class="nb">rewrite</span> NNO_mor_S.
+        <span class="nb">rewrite</span> ! assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp.
+    - use is_z_isomorphism_comp.
+      + <span class="bp">exact</span> G_pN.
+      + <span class="nb">apply</span> (functor_on_is_z_isomorphism G).
+        <span class="bp">exact</span> F_pN.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">HomomorphismNNO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Arithmetic/NNO.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Extended by: Kobe Wullaert, 2025
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

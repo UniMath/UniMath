@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnitForUniv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Categories with universes versus comprehension categories with universes: the unit</span>
+
+<span class="sd"> Our goal is to establish a biequivalence between the bicategories of univalent categories</span>
+<span class="sd"> with finite limits and a universe type and the bicategory of univalent full DFL comprehension</span>
+<span class="sd"> categories that have a universe. In this file, we construct the unit of this biadjunction.</span>
+
+<span class="sd"> The mathematical development in this file is not the most exciting on the planet. Most of</span>
+<span class="sd"> the calculations are rather straightforward. However, the lack of interesting aspects in</span>
+<span class="sd"> the mathematical development is compensated: there are various points where trickery</span>
+<span class="sd"> (basically dark magic) is necessary to guaranteed that the file compiles in an acceptable</span>
+<span class="sd"> amount of time. These points are detailed in the file.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Action on objects</span>
+<span class="sd"> 1.1. Preservation of the object</span>
+<span class="sd"> 1.2. Preservation of the associated type</span>
+<span class="sd"> 1.3. The coherences</span>
+<span class="sd"> 2. Action on 1-cells</span>
+<span class="sd"> 2.1. Coherence for the object</span>
+<span class="sd"> 2.2. Coherence for the associated type</span>
+<span class="sd"> 3. The displayed pseudotransformation</span>
+
+<span class="sd">                                                                                            *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBuilders.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatWithUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.FinLimToCompCatLemmas.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivActions.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivCell.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUnivIdent.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.Biequiv.ToCatFinLimUniv.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Action on objects *)</span>
+<span class="kn">Section</span> <span class="nf">UnitMor</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_ob}
+          (<span class="nv">el</span> : cat_stable_el_map_coherent C).
+
+  <span class="kn">Let</span> <span class="nf">u</span> : C := univ_cat_universe C.
+  <span class="kn">Let</span> <span class="nf">CC</span> : dfl_full_comp_cat := finlim_to_dfl_comp_cat_psfunctor (pr1 C).
+
+  <span class="kn">Let</span> <span class="nf">ηC</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim CC
+       ,,
+       dfl_full_comp_cat_to_finlim_ob (C := CC) (finlim_to_comp_cat_universe_ob C).
+
+  <span class="kn">Let</span> <span class="nf">η_el</span> : cat_stable_el_map ηC
+    := dfl_full_comp_cat_to_finlim_stable_el_map
+         (C := CC)
+         (finlim_to_comp_cat_universe_ob C)
+         (finlim_to_comp_cat_univ_type el).
+
+  <span class="sd">(** * 1.1. Preservation of the object *)</span>
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_ob</span>
+    : functor_finlim_ob ηC C.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (finlim_dfl_comp_cat_unit_mor C ,, _).
+    <span class="nb">apply</span> identity_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Arguments</span> finlim_dfl_comp_cat_unit_ob /.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_dfl_comp_cat_unit_ob_on_mor</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : #finlim_dfl_comp_cat_unit_ob f = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 1.2. Preservation of the associated type *)</span>
+  <span class="kn">Proposition</span> <span class="nf">finlim_dfl_comp_cat_unit_el_map_ob_eq</span>
+              {<span class="nv">Γ</span> : C}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C)
+    : finlim_univ_tm_to_mor
+        (dfl_full_comp_cat_mor_to_tm_univ (C := CC) (finlim_to_comp_cat_universe_ob C) t)
+      =
+      t · identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> finlim_univ_tm_to_mor, dfl_full_comp_cat_mor_to_tm_univ.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ !(id_right _)).
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+             (comp_cat_pullback (finlim_to_comp_cat_universe_ob C) _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_el_map_ob</span>
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C)
+    : z_iso
+        (cat_el_map_el
+           el
+           (finlim_univ_tm_to_mor
+              (dfl_full_comp_cat_mor_to_tm_univ
+                 (C := CC)
+                 (finlim_to_comp_cat_universe_ob C)
+                 t)))
+        (cat_el_map_el el (t · id₁ _))
+    := cat_el_map_el_eq el (finlim_dfl_comp_cat_unit_el_map_ob_eq t).
+
+  <span class="kn">Arguments</span> finlim_dfl_comp_cat_unit_el_map_ob {Γ} t /.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_el_map</span>
+    : functor_el_map η_el el finlim_dfl_comp_cat_unit_ob.
+  <span class="kn">Proof</span>.
+    use make_functor_el_map.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">t</span>, finlim_dfl_comp_cat_unit_el_map_ob t).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> Γ t ;
+         <span class="nb">unfold</span> finlim_dfl_comp_cat_unit_el_map_ob ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (cat_el_map_mor_eq el)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 1.3. The coherences *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">     The following lemma is factored out from [finlim_dfl_comp_cat_unit_stable_el_map].</span>
+<span class="sd">     The type of the goal is written down explicitly, which enables a nice usage of</span>
+<span class="sd">     tactics. If `cbn` is used in [finlim_dfl_comp_cat_unit_stable_el_map], then the</span>
+<span class="sd">     type checking time of the final `Qed` takes too much time.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">finlim_dfl_comp_cat_unit_stable_el_map_lem</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : ηC}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : Δ --&gt; univ_cat_universe ηC)
+              <span class="nv">p</span>
+              <span class="nv">q</span>
+    : dfl_full_comp_cat_to_finlim_el_map_stable_mor
+        (C := CC)
+        (finlim_to_comp_cat_universe_ob C)
+        (finlim_to_comp_cat_univ_type el)
+        s t
+      · cat_el_map_el_eq el p
+      =
+      cat_el_map_el_eq el q
+      · cat_el_map_pb_mor el s (t · identity _).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">unfold</span> dfl_full_comp_cat_to_finlim_el_map_stable_mor.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (comprehension_functor_mor_transportf
+               (comp_cat_comprehension (finlim_to_dfl_comp_cat (pr1 C)))).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (univ_cat_with_finlim_comprehension_functor _).
+    }
+    <span class="nb">simpl</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> finlim_comp_cat_el_map_on_eq.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      use cat_el_map_pb_mor_eq.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1
+               (comp_cat_pullback (finlim_to_comp_cat_universe_ob C) _)).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_el_eq_inv.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp el).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp el).
+    }
+    <span class="nb">apply</span> (cat_el_map_el_eq_eq el).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_dfl_comp_cat_unit_stable_el_map</span>
+    : functor_stable_el_map finlim_dfl_comp_cat_unit_el_map.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ Δ s t.
+    <span class="nb">refine</span> (finlim_dfl_comp_cat_unit_stable_el_map_lem s t _ _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> cat_el_map_el_eq_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_unit_preserves_el</span>
+    : functor_preserves_el
+        η_el
+        el
+        finlim_dfl_comp_cat_unit_ob.
+  <span class="kn">Proof</span>.
+    use make_functor_preserves_el.
+    - <span class="bp">exact</span> finlim_dfl_comp_cat_unit_el_map.
+    - <span class="bp">exact</span> finlim_dfl_comp_cat_unit_stable_el_map.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_el_map_iso_for_unit</span>
+              {<span class="nv">Γ</span> : ηC}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe ηC)
+    : pr1 (functor_el_map_iso
+             finlim_dfl_comp_cat_unit_preserves_el
+             t)
+      =
+      cat_el_map_el_eq el (finlim_dfl_comp_cat_unit_el_map_ob_eq t).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">UnitMor</span>.
+
+<span class="sd">(** * 2. Action on 1-cells *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">   In this part, more trickery is needed to guarantee acceptable compilation times.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">UnitNat</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_ob}
+          {<span class="nv">F</span> : functor_finlim_ob C₁ C₂}
+          {<span class="nv">el₁</span> : cat_stable_el_map_coherent C₁}
+          {<span class="nv">el₂</span> : cat_stable_el_map_coherent C₂}
+          (<span class="nv">Fu</span> : functor_preserves_el el₁ el₂ F).
+
+  <span class="kn">Let</span> <span class="nf">CC₁</span> : dfl_full_comp_cat := finlim_to_dfl_comp_cat_psfunctor (pr1 C₁).
+  <span class="kn">Let</span> <span class="nf">CC₂</span> : dfl_full_comp_cat := finlim_to_dfl_comp_cat_psfunctor (pr1 C₂).
+
+  <span class="kn">Let</span> <span class="nf">FC₁</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim (finlim_to_dfl_comp_cat_psfunctor (pr1 C₁))
+       ,,
+       dfl_full_comp_cat_to_finlim_ob (C := CC₁) (finlim_to_comp_cat_universe_ob C₁).
+  <span class="kn">Let</span> <span class="nf">FC₂</span> : univ_cat_with_finlim_ob
+    := dfl_full_comp_cat_to_finlim (finlim_to_dfl_comp_cat_psfunctor (pr1 C₂))
+       ,,
+       dfl_full_comp_cat_to_finlim_ob (C := CC₂) (finlim_to_comp_cat_universe_ob C₂).
+
+  <span class="kn">Let</span> <span class="nf">FF</span> : functor_finlim_ob FC₁ FC₂
+    := dfl_functor_comp_cat_to_finlim_functor (finlim_to_dfl_comp_cat_functor F)
+       ,,
+       dfl_full_comp_cat_functor_preserves_ob
+         (finlim_to_dfl_comp_cat_functor F)
+         (finlim_to_comp_cat_functor_ob_mor F).
+
+  <span class="sd">(** 2.1. Coherence for the object *)</span>
+  <span class="kn">Proposition</span> <span class="nf">finlim_dfl_comp_cat_unit_natural_ob</span>
+    : nat_trans_finlim_ob
+        (finlim_dfl_comp_cat_unit_ob · F)
+        (FF · finlim_dfl_comp_cat_unit_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (finlim_dfl_comp_cat_unit_natural F ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (id_left _ @ _) ;
+       <span class="nb">refine</span> (id_right _ @ _) ;
+       <span class="nb">refine</span> (id_left _ @ _) ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (functor_id _ _) @ _) ;
+       <span class="nb">refine</span> (id_left _ @ _) ;
+       <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** 2.2. Coherence for the associated type *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">     We add notation for [GG₁] and [GG₂] to have control over their types. This</span>
+<span class="sd">     helps controlling the unifier and to reduce compilation times. For instance,</span>
+<span class="sd">     if the type of [GG₁] is removed, then reading the statement of the lemma</span>
+<span class="sd">     [finlim_dfl_comp_cat_unit_natural_el_lem_iso_GG] would take 8 seconds rather</span>
+<span class="sd">     than 0.034 seconds. The reason why this helps, is because the extra type</span>
+<span class="sd">     information means that the unifier has to compute less (and it is these</span>
+<span class="sd">     computations that delay compilation time).</span>
+<span class="sd">   *)</span>
+  <span class="kn">Let</span> <span class="nf">GG₁</span>
+    : functor_preserves_el
+        (dfl_full_comp_cat_to_finlim_stable_el_map
+           (C := CC₁)
+           (finlim_to_comp_cat_universe_ob C₁)
+           (finlim_to_comp_cat_univ_type el₁))
+        (dfl_full_comp_cat_to_finlim_stable_el_map
+           (C := CC₂)
+           (finlim_to_comp_cat_universe_ob C₂)
+           (finlim_to_comp_cat_univ_type el₂))
+        FF
+    := dfl_full_comp_cat_functor_preserves_el
+         (finlim_to_dfl_comp_cat_functor F)
+         (finlim_to_comp_cat_functor_ob_mor F)
+         (finlim_to_comp_cat_functor_preserves_univ_type Fu).
+
+  <span class="kn">Local Lemma</span> <span class="nf">comp_GG₁</span>
+              {<span class="nv">Γ</span> : FC₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe FC₁)
+    : pr1 (functor_el_map_iso GG₁ t)
+      =
+      pr1 (dfl_full_comp_cat_functor_preserves_el_map_iso
+             (finlim_to_dfl_comp_cat_functor F)
+             (finlim_to_comp_cat_functor_ob_mor F)
+             (finlim_to_comp_cat_functor_preserves_univ_type Fu)
+             t).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Opaque</span> GG₁.
+
+  <span class="kn">Let</span> <span class="nf">GG₂</span>
+    : functor_preserves_el
+        (dfl_full_comp_cat_to_finlim_stable_el_map
+           (C := CC₂)
+           (finlim_to_comp_cat_universe_ob C₂)
+           (finlim_to_comp_cat_univ_type el₂))
+        el₂
+        finlim_dfl_comp_cat_unit_ob
+    := finlim_dfl_comp_cat_unit_preserves_el el₂.
+
+  <span class="kn">Opaque</span> GG₂.
+
+  <span class="sd">(**</span>
+<span class="sd">     In the following lemma, we construct the inhabitant of a ∑-type, which might seem</span>
+<span class="sd">     surprising at first. The reason for using this ∑-type is as follows. We do not want</span>
+<span class="sd">     to write down an explicit expression for `p` in the type, because that would make</span>
+<span class="sd">     the type more unreadable and convoluted. Instead we want to just prove the equality</span>
+<span class="sd">     and not care about `p`, because in the end of the prove, this `p` is uniquely</span>
+<span class="sd">     determined. To do this, we say that there is some `p` that satisfies this requirement,</span>
+<span class="sd">     we start the proof with `eexists`, so that this `p` is represented by a metavariable.</span>
+<span class="sd">     In the final step of the proof, the metavariable is instantiated. At this point, two</span>
+<span class="sd">     terms must be equal, and `p` is a subterm of one of them.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">finlim_dfl_comp_cat_unit_natural_el_lem_iso_GG</span>
+              {<span class="nv">Γ</span> : FC₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe FC₁)
+    : ∑ p,
+      pr1 (functor_el_map_iso GG₁ t)
+      =
+      functor_el_map_iso
+        Fu
+        (finlim_univ_tm_to_mor
+           (dfl_full_comp_cat_mor_to_tm_univ
+              (C := CC₁)
+              (finlim_to_comp_cat_universe_ob C₁)
+              t))
+      · cat_el_map_el_eq el₂ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">eexists</span>.
+    <span class="nb">simpl</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (comp_GG₁ t).
+    }
+    <span class="nb">simpl</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (finlim_to_comprehension_nat_trans_mor
+               F
+               (comp_cat_univ_el
+                  (finlim_to_comp_cat_univ_type el₁)
+                  (dfl_full_comp_cat_mor_to_tm_univ
+                     (C := CC₁)
+                     (finlim_to_comp_cat_universe_ob C₁)
+                     t))).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (comp_in_cod_fib
+               (finlim_to_comp_cat_functor_preserves_el_mor
+                  Fu
+                  (dfl_full_comp_cat_mor_to_tm_univ
+                     (C := CC₁)
+                     (finlim_to_comp_cat_universe_ob C₁)
+                     t))).
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (finlim_comp_cat_el_map_on_eq
+               el₂
+               (dfl_full_comp_cat_functor_preserves_el_map_eq
+                  (finlim_to_dfl_comp_cat_functor F)
+                  (finlim_to_comp_cat_functor_ob_mor F)
+                  t)).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_el_eq_comp.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">     We use the same trick with the ∑-type, because it is useful for this lemma as well.</span>
+<span class="sd">     Also for the following lemmas.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">finlim_dfl_comp_cat_unit_natural_el_lem</span>
+              {<span class="nv">Γ</span> : FC₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe FC₁)
+    : ∑ p,
+      identity _
+      · functor_el_map_iso
+          (comp_functor_preserves_el GG₁ GG₂)
+          t
+      =
+      functor_el_map_iso Fu
+        (finlim_univ_tm_to_mor
+           (dfl_full_comp_cat_mor_to_tm_univ
+              (C := CC₁)
+              (finlim_to_comp_cat_universe_ob C₁)
+              t))
+      · cat_el_map_el_eq el₂ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">eexists</span>.
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">refine</span> (comp_functor_el_map_on_tm GG₁ GG₂ t @ _).
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> finlim_dfl_comp_cat_unit_ob_on_mor.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (pr2 (finlim_dfl_comp_cat_unit_natural_el_lem_iso_GG t)).
+    }
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp el₂).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp el₂).
+    }
+    <span class="sd">(**</span>
+<span class="sd">       We need to do `simpl` to make `apply idpath` run in acceptable time.</span>
+<span class="sd">     *)</span>
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el</span>
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C₁)
+    : ∑ p,
+      pr1 (functor_el_map_iso
+             (comp_functor_preserves_el
+                (finlim_dfl_comp_cat_unit_preserves_el el₁)
+                Fu)
+             t)
+      =
+      functor_el_map_iso Fu
+        (finlim_univ_tm_to_mor
+           (dfl_full_comp_cat_mor_to_tm_univ
+              (C := CC₁)
+              (finlim_to_comp_cat_universe_ob C₁)
+              t))
+      · cat_el_map_el_eq el₂ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">eexists</span>.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (functor_on_cat_el_map_el_eq Fu).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">apply</span> (cat_el_map_el_eq_comp el₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el_comp</span>
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C₁)
+    : ∑ p,
+      functor_el_map_iso
+        (comp_functor_preserves_el (finlim_dfl_comp_cat_unit_preserves_el el₁) Fu)
+        t
+      · cat_el_map_el_eq el₂ (nat_trans_preserves_el_path _ _)
+      · cat_el_map_pb_mor
+          el₂
+          (finlim_dfl_comp_cat_unit_natural_ob Γ)
+          _
+      =
+      functor_el_map_iso
+        (comp_functor_preserves_el
+           (finlim_dfl_comp_cat_unit_preserves_el el₁)
+           Fu)
+        t
+      · cat_el_map_el_eq el₂ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">eexists</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (cat_el_map_pb_mor_id el₂).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cat_el_map_el_eq_comp.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">finlim_dfl_comp_cat_unit_natural_el_lem_2</span>
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C₁)
+              <span class="nv">p</span>
+    : functor_el_map_iso
+        (comp_functor_preserves_el
+           (finlim_dfl_comp_cat_unit_preserves_el el₁)
+           Fu)
+        t
+      · cat_el_map_el_eq
+          el₂
+          (pr1 (functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el_comp t))
+      =
+      functor_el_map_iso Fu
+        (finlim_univ_tm_to_mor
+           (dfl_full_comp_cat_mor_to_tm_univ
+              (C := CC₁)
+              (finlim_to_comp_cat_universe_ob C₁)
+              t))
+      · cat_el_map_el_eq el₂ p.
+  <span class="kn">Proof</span>.
+    <span class="sd">(**</span>
+<span class="sd">       Neither [functor_el_map_iso] nor [comp_functor_preserves_el] should be unfolded,</span>
+<span class="sd">       because that would make the goal a little ugly and it would make the compilation</span>
+<span class="sd">       time of the proof too much. The slowest line is the line where the lemma</span>
+<span class="sd">       [functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el] is used. Currently, it</span>
+<span class="sd">       runs in 27 seconds, but if `cbn` were used instead, then the running time of that</span>
+<span class="sd">       line would be 43 seconds.</span>
+<span class="sd">     *)</span>
+    <span class="nb">cbn</span> -[functor_el_map_iso comp_functor_preserves_el].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (pr2 (functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el t) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp el₂).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (cat_el_map_el_eq_eq el₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_dfl_comp_cat_unit_natural_el</span>
+    : nat_trans_preserves_el
+        finlim_dfl_comp_cat_unit_natural_ob
+        (comp_functor_preserves_el
+           (finlim_dfl_comp_cat_unit_preserves_el el₁)
+           Fu)
+        (comp_functor_preserves_el
+           (dfl_full_comp_cat_functor_preserves_el
+              (finlim_to_dfl_comp_cat_functor F)
+              _
+              (finlim_to_comp_cat_functor_preserves_univ_type Fu))
+           (finlim_dfl_comp_cat_unit_preserves_el el₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Γ t.
+    <span class="nb">refine</span> (pr2 (finlim_dfl_comp_cat_unit_natural_el_lem t) @ _).
+    <span class="nb">refine</span> (_ @ !(pr2 (functor_el_map_iso_finlim_dfl_comp_cat_unit_preserves_el_comp t))).
+    <span class="bp">exact</span> (!(finlim_dfl_comp_cat_unit_natural_el_lem_2 t _)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">UnitNat</span>.
+
+<span class="sd">(** * 3. The displayed pseudotransformation *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_comp_cat_to_finlim_disp_psfunctor_unit</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         finlim_to_dfl_comp_cat_disp_psfunctor_universe
+         dfl_comp_cat_to_finlim_disp_psfunctor_universe)
+      (disp_pseudo_id disp_bicat_finlim_universe)
+      finlim_dfl_comp_cat_unit.
+<span class="kn">Proof</span>.
+  use make_disp_pstrans.
+  - <span class="bp">exact</span> disp_2cells_isaprop_disp_bicat_finlim_universe.
+  - <span class="bp">exact</span> disp_locally_groupoid_disp_bicat_finlim_universe.
+  - <span class="nb">intros</span> C u.
+    <span class="nb">refine</span> (_ ,, _).
+    <span class="bp">exact</span> (finlim_dfl_comp_cat_unit_preserves_el (pr2 u)).
+  - <span class="nb">intros</span> C₁ C₂ F u₁ u₂ Fu.
+    <span class="nb">refine</span> (_ ,, _).
+    <span class="bp">exact</span> (finlim_dfl_comp_cat_unit_natural_el (pr2 Fu)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/Biequiv/UnitForUniv.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The displayed pseudotransformation
+  &gt;
+  &gt;                                                                                             *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

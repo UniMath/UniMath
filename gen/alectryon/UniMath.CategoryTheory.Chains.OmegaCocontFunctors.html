@@ -1,0 +1,1534 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OmegaCocontFunctors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * ω-cocontinuous functors</span>
+
+<span class="sd">This file contains theory about (omega-) cocontinuous functors, i.e. functors</span>
+<span class="sd">which preserve (sequential-) colimits ([is_omega_cocont] and [is_cocont]).</span>
+
+<span class="sd">This file contains proofs that the following functors are (omega-)cocontinuous:</span>
+
+<span class="sd">- Identity functor</span>
+<span class="sd">  [is_cocont_functor_identity] [is_omega_cocont_functor_identity]</span>
+<span class="sd">- Constant functor: F_x : C -&gt; D, c |-&gt; x</span>
+<span class="sd">  [is_omega_cocont_constant_functor]</span>
+<span class="sd">- Composition of omega-cocontinuous functors</span>
+<span class="sd">  [is_cocont_functor_composite] [is_omega_cocont_functor_composite]</span>
+<span class="sd">- Iteration of omega-cocontinuous functors: F^n : C -&gt; C</span>
+<span class="sd">  [is_cocont_iter_functor] [is_omega_cocont_iter_functor]</span>
+<span class="sd">- Pairing of (omega-)cocont functors (F,G) : A * B -&gt; C * D, (x,y) |-&gt; (F x,G y)</span>
+<span class="sd">  [is_cocont_pair_functor] [is_omega_cocont_pair_functor]</span>
+<span class="sd">- Indexed families of (omega-)cocont functors F^I : A^I -&gt; B^I</span>
+<span class="sd">  [is_cocont_family_functor] [is_omega_cocont_family_functor]</span>
+<span class="sd">- Binary delta functor: C -&gt; C^2, x |-&gt; (x,x)</span>
+<span class="sd">  [is_cocont_bindelta_functor] [is_omega_cocont_bindelta_functor]</span>
+<span class="sd">- General delta functor: C -&gt; C^I</span>
+<span class="sd">  [is_cocont_delta_functor] [is_omega_cocont_delta_functor]</span>
+<span class="sd">- Binary coproduct functor: C^2 -&gt; C, (x,y) |-&gt; x + y</span>
+<span class="sd">  [is_cocont_bincoproduct_functor] [is_omega_cocont_bincoproduct_functor]</span>
+<span class="sd">- General coproduct functor: C^I -&gt; C</span>
+<span class="sd">  [is_cocont_coproduct_functor] [is_omega_cocont_coproduct_functor]</span>
+<span class="sd">- Binary coproduct of functors: F + G : C -&gt; D, x |-&gt; F x + G x</span>
+<span class="sd">  [is_cocont_BinCoproduct_of_functors_alt] [is_omega_cocont_BinCoproduct_of_functors_alt]</span>
+<span class="sd">  [is_cocont_BinCoproduct_of_functors_alt2] [is_omega_cocont_BinCoproduct_of_functors_alt2]</span>
+<span class="sd">  [is_cocont_BinCoproduct_of_functors] [is_omega_cocont_BinCoproduct_of_functors]</span>
+<span class="sd">- Coproduct of families of functors: + F_i : C -&gt; D  (generalization of coproduct of functors)</span>
+<span class="sd">  [is_cocont_coproduct_of_functors_alt] [is_cocont_coproduct_of_functors]</span>
+<span class="sd">  [is_omega_cocont_coproduct_of_functors_alt] [is_omega_cocont_coproduct_of_functors]</span>
+<span class="sd">- Constant product functors: C -&gt; C, x |-&gt; a * x  and  x |-&gt; x * a</span>
+<span class="sd">  [is_cocont_constprod_functor1] [is_cocont_constprod_functor2]</span>
+<span class="sd">  [is_omega_cocont_constprod_functor1] [is_omega_cocont_constprod_functor2]</span>
+<span class="sd">- Binary product functor: C^2 -&gt; C, (x,y) |-&gt; x * y</span>
+<span class="sd">  [is_omega_cocont_binproduct_functor]</span>
+<span class="sd">- Product of functors: F * G : C -&gt; D, x |-&gt; (x,x) |-&gt; (F x,G x) |-&gt; F x * G x</span>
+<span class="sd">  [is_omega_cocont_BinProduct_of_functors_alt] [is_omega_cocont_BinProduct_of_functors]</span>
+<span class="sd">- Precomposition functor: _ o K : ⟦C,A⟧ -&gt; ⟦M,A⟧ for K : M -&gt; C</span>
+<span class="sd">  [preserves_colimit_pre_composition_functor] [is_omega_cocont_pre_composition_functor]</span>
+<span class="sd">- Postcomposition with a left adjoint:</span>
+<span class="sd">  [is_cocont_post_composition_functor] [is_omega_cocont_post_composition_functor]</span>
+<span class="sd">- Swapping of functor category arguments:</span>
+<span class="sd">  [is_cocont_functor_cat_swap] [is_omega_cocont_functor_cat_swap]</span>
+<span class="sd">- The forgetful functor from Set/X to Set preserves colimits</span>
+<span class="sd">  ([preserves_colimit_slicecat_to_cat_HSET])</span>
+
+<span class="sd">Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Slice.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Examples.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RightKanExtension.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Examples of (omega) cocontinuous functors *)</span>
+<span class="kn">Section</span> <span class="nf">cocont_functors</span>.
+
+<span class="sd">(** ** Left adjoints preserve colimits *)</span>
+<span class="kn">Lemma</span> <span class="nf">left_adjoint_cocont</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">F</span> : functor C D)
+  (<span class="nv">H</span> : is_left_adjoint F) : is_cocont F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g d L ccL.
+  <span class="nb">apply</span> left_adjoint_preserves_colimit.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Print Assumptions left_adjoint_cocont. *)</span>
+
+<span class="sd">(** Cocontinuity is preserved by isomorphic functors *)</span>
+<span class="kn">Section</span> <span class="nf">cocont_iso</span>.
+
+<span class="c">(* As this section is proving a proposition, the hypothesis can be weakened from a specified iso to</span>
+<span class="c">F and G being isomorphic. *)</span>
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+        (<span class="nv">αiso</span> : @z_iso [C, D] F G).
+
+<span class="kn">Section</span> <span class="nf">preserves_colimit_iso</span>.
+
+<span class="kn">Context</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C) (<span class="nv">cc</span> : cocone d L) (<span class="nv">HF</span> : preserves_colimit F d L cc).
+
+<span class="kn">Let</span> <span class="nf">αinv</span> := inv_from_z_iso αiso.
+<span class="kn">Let</span> <span class="nf">α</span> := pr1 αiso.
+<span class="kn">Let</span> <span class="nf">Hα</span> : is_z_isomorphism α := pr2 αiso.
+
+<span class="kn">Local Definition</span> <span class="nf">ccFy</span> <span class="nv">y</span> (<span class="nv">ccGy</span> : cocone (mapdiagram G d) y) : cocone (mapdiagram F d) y.
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">intro</span> v; <span class="nb">apply</span> (pr1 α (dob d v) · coconeIn ccGy v).
+- <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intros</span> u v e; <span class="nb">rewrite</span> &lt;- (coconeInCommutes ccGy u v e), !assoc;
+            <span class="nb">apply</span> cancel_postcomposition, nat_trans_ax).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">αinv_f_commutes</span> <span class="nv">y</span> (<span class="nv">ccGy</span> : cocone (mapdiagram G d) y) (<span class="nv">f</span> : D⟦F L,y⟧)
+      (<span class="nv">Hf</span> : is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) f) :
+       ∏ v, # G (coconeIn cc v) · (pr1 αinv L · f) = coconeIn ccGy v.
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> v; <span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> cancel_postcomposition, nat_trans_ax|].
+<span class="nb">rewrite</span> &lt;- assoc; <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> maponpaths, (Hf v)|]; <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> (nat_trans_eq_pointwise (@z_iso_after_z_iso_inv [C, D] _ _ (make_z_iso' _ Hα))).
+<span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">αinv_f_unique</span> <span class="nv">y</span> (<span class="nv">ccGy</span> : cocone (mapdiagram G d) y) (<span class="nv">f</span> : D⟦F L,y⟧)
+     (<span class="nv">Hf</span> : is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) f)
+     (<span class="nv">HHf</span> : ∏ t : ∑ x, is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) x, t = f,, Hf)
+      <span class="nv">f'</span> (<span class="nv">Hf'</span> : ∏ v, # G (coconeIn cc v) · f' = coconeIn ccGy v) :
+      f' = pr1 αinv L · f.
+<span class="kn">Proof</span>.
+transparent <span class="nb">assert</span> (HH : (∑ x : D ⟦ F L, y ⟧, is_cocone_mor (mapcocone F d cc) (ccFy y ccGy) x)).
+{ use tpair.
+  - <span class="nb">apply</span> (pr1 α L · f').
+  - <span class="nb">unfold</span> is_cocone_mor; <span class="nb">cbn</span>. <span class="kp">abstract</span> (<span class="nb">intro</span> v; <span class="nb">rewrite</span> &lt;- Hf', !assoc; <span class="nb">apply</span> cancel_postcomposition, nat_trans_ax).
+}
+<span class="nb">apply</span> pathsinv0.
+<span class="nb">generalize</span> (maponpaths pr1 (HHf HH)); <span class="nb">intro</span> Htemp; <span class="nb">simpl</span> <span class="k">in</span> *.
+<span class="nb">rewrite</span> &lt;- Htemp; <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+<span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> (nat_trans_eq_pointwise (@z_iso_after_z_iso_inv [C, D] _ _ (make_z_iso' _ Hα))).
+<span class="bp">now</span> <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_z_iso</span>  : preserves_colimit G d L cc.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> HccL y ccGy.
+<span class="nb">set</span> (H := HF HccL y (ccFy y ccGy)).
+<span class="nb">set</span> (f := pr1 (pr1 H)); <span class="nb">set</span> (Hf := pr2 (pr1 H)); <span class="nb">set</span> (HHf := pr2 H).
+use unique_exists.
+- <span class="nb">apply</span> (pr1 αinv L · f).
+- <span class="nb">unfold</span> is_cocone_mor; <span class="nb">simpl</span>; <span class="nb">apply</span> (αinv_f_commutes y ccGy f Hf).
+- <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property).
+- <span class="kp">abstract</span> (<span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">intros</span> f' Hf'; <span class="nb">apply</span> (αinv_f_unique y ccGy f Hf); <span class="nb">trivial</span>;
+            <span class="nb">intro</span> t; <span class="nb">rewrite</span> (HHf t); <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">preserves_colimit_iso</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_z_iso</span> : is_cocont F -&gt; is_cocont G.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> H g d c cc; <span class="nb">apply</span> (preserves_colimit_z_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_z_iso</span> : is_omega_cocont F -&gt; is_omega_cocont G.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> H g d c cc; <span class="nb">apply</span> (preserves_colimit_z_iso).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cocont_iso</span>.
+
+<span class="sd">(** ** The identity functor is (omega) cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">functor_identity</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_identity</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C)
+  (<span class="nv">cc</span> : cocone d L) : preserves_colimit (functor_identity C) d L cc.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> HcL y ccy; <span class="nb">simpl</span>.
+<span class="nb">set</span> (CC := make_ColimCocone _ _ _ HcL).
+use tpair.
+- use tpair.
+  + <span class="nb">apply</span> (colimArrow CC), ccy.
+  + <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intro</span> n; <span class="nb">apply</span> (colimArrowCommutes CC)).
+- <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+    [ <span class="nb">simpl</span>; <span class="nb">intro</span> v; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+    | <span class="nb">apply</span> (colimArrowUnique CC); <span class="nb">intro</span> n; <span class="nb">apply</span> (pr2 t)]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_functor_identity</span> : is_cocont (functor_identity C).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> g; <span class="nb">apply</span> preserves_colimit_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_functor_identity</span> : is_omega_cocont (functor_identity C).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> c; <span class="nb">apply</span> is_cocont_functor_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_functor_identity</span> : omega_cocont_functor C C :=
+  tpair _ _ is_omega_cocont_functor_identity.
+
+<span class="kn">End</span> <span class="nf">functor_identity</span>.
+
+<span class="sd">(** ** The constant functor is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">constant_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">x</span> : D).
+
+<span class="c">(* Without the conn argument this is is too weak as diagrams are not necessarily categories *)</span>
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_constant_functor</span> {<span class="nv">g</span> : graph} (<span class="nv">v</span> : vertex g)
+  (<span class="nv">conn</span> : ∏ (u : vertex g), edge v u)
+  (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C) (<span class="nv">cc</span> : cocone d L) :
+  preserves_colimit (constant_functor C D x) d L cc.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> HcL y ccy; <span class="nb">simpl</span>.
+use tpair.
+- <span class="nb">apply</span> (tpair _ (coconeIn ccy v)).
+  <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">generalize</span> (coconeInCommutes ccy _ _ (conn u));
+            <span class="nb">rewrite</span> !id_left; <span class="nb">intro</span> H; <span class="nb">rewrite</span> H).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> p; <span class="nb">apply</span> subtypePath;
+              [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+              | <span class="bp">now</span> <span class="nb">destruct</span> p <span class="k">as</span> [p H]; <span class="nb">rewrite</span> &lt;- (H v), id_left ]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The constant functor is omega cocontinuous *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_constant_functor</span> : is_omega_cocont (constant_functor C D x).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> c L ccL HccL y ccy.
+use tpair.
+- <span class="nb">apply</span> (tpair _ (coconeIn ccy <span class="mi">0</span>)).
+  <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">rewrite</span> id_left; <span class="nb">destruct</span> ccy <span class="k">as</span> [f Hf]; <span class="nb">simpl</span>;
+            <span class="bp">now</span> <span class="nb">induction</span> n <span class="k">as</span> [|n IHn]; [<span class="nb">apply</span> idpath|]; <span class="nb">rewrite</span> IHn, &lt;- (Hf n (S n) (idpath _)), id_left).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> p; <span class="nb">apply</span> subtypePath;
+              [ <span class="nb">intros</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+              | <span class="bp">now</span> <span class="nb">simpl</span>; <span class="nb">destruct</span> p <span class="k">as</span> [p H]; <span class="nb">rewrite</span> &lt;- (H <span class="mi">0</span>), id_left]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_constant_functor</span> : omega_cocont_functor C D :=
+  tpair _ _ is_omega_cocont_constant_functor.
+
+<span class="kn">End</span> <span class="nf">constant_functor</span>.
+
+<span class="sd">(** ** Functor composition preserves omega cocontinuity *)</span>
+<span class="kn">Section</span> <span class="nf">functor_composite</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}.
+
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_functor_composite</span> (<span class="nv">F</span> : functor C D) (<span class="nv">G</span> : functor D E)
+  {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C) (<span class="nv">cc</span> : cocone d L)
+  (<span class="nv">H1</span> : preserves_colimit F d L cc)
+  (<span class="nv">H2</span> : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F _ cc)) :
+  preserves_colimit (functor_composite F G) d L cc.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> hyp; <span class="bp">exact</span> (H2 (H1 hyp)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_functor_composite</span> (<span class="nv">F</span> : functor C D) (<span class="nv">G</span> : functor D E)
+  (<span class="nv">HF</span> : is_cocont F) (<span class="nv">HG</span> : is_cocont G) : is_cocont (functor_composite F G).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> g d L cc.
+<span class="nb">apply</span> preserves_colimit_functor_composite; [ <span class="nb">apply</span> HF | <span class="nb">apply</span> HG ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_functor_composite</span> (<span class="nv">F</span> : functor C D) (<span class="nv">G</span> : functor D E) :
+  is_omega_cocont F -&gt; is_omega_cocont G -&gt; is_omega_cocont (functor_composite F G).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> hF hG c L cc.
+<span class="nb">apply</span> preserves_colimit_functor_composite; [ <span class="nb">apply</span> hF | <span class="nb">apply</span> hG ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_functor_composite</span>
+  (<span class="nv">F</span> : omega_cocont_functor C D) (<span class="nv">G</span> : omega_cocont_functor D E) :
+  omega_cocont_functor C E := tpair _ _ (is_omega_cocont_functor_composite _ _ (pr2 F) (pr2 G)).
+
+<span class="kn">End</span> <span class="nf">functor_composite</span>.
+
+<span class="sd">(** ** Functor iteration preserves (omega)-cocontinuity *)</span>
+<span class="kn">Section</span> <span class="nf">iter_functor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_iter_functor</span> {<span class="nv">C</span> : category}
+  (<span class="nv">F</span> : functor C C) (<span class="nv">hF</span> : is_cocont F) <span class="nv">n</span> : is_cocont (iter_functor F n).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IH]; <span class="nb">simpl</span>.
+- <span class="nb">apply</span> (is_cocont_functor_identity _).
+- <span class="nb">apply</span> (is_cocont_functor_composite _ _ IH hF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_iter_functor</span> {<span class="nv">C</span> : category}
+  (<span class="nv">F</span> : functor C C) (<span class="nv">hF</span> : is_omega_cocont F) <span class="nv">n</span> : is_omega_cocont (iter_functor F n).
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IH]; <span class="nb">simpl</span>.
+- <span class="nb">apply</span> (is_omega_cocont_functor_identity _).
+- <span class="nb">apply</span> (is_omega_cocont_functor_composite _ _ IH hF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_iter_functor</span> {<span class="nv">C</span> : category}
+  (<span class="nv">F</span> : omega_cocont_functor C C) <span class="nv">n</span> : omega_cocont_functor C C :=
+  tpair _ _ (is_omega_cocont_iter_functor _ (pr2 F) n).
+
+<span class="kn">End</span> <span class="nf">iter_functor</span>.
+
+<span class="sd">(** ** A pair of functors (F,G) : A * B -&gt; C * D is omega cocontinuous if F and G are *)</span>
+<span class="kn">Section</span> <span class="nf">pair_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor A C) (<span class="nv">G</span> : functor B D).
+
+
+<span class="kn">Local Definition</span> <span class="nf">cocone_pr1_functor</span> {<span class="nv">g</span> : graph} (<span class="nv">cAB</span> : diagram g (category_binproduct A B))
+  (<span class="nv">ab</span> : A × B) (<span class="nv">ccab</span> : cocone cAB ab) :
+  cocone (mapdiagram (pr1_functor A B) cAB) (ob1 ab).
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">simpl</span>; <span class="nb">intro</span> n; <span class="nb">apply</span> (mor1 (coconeIn ccab n)).
+- <span class="nb">simpl</span>; <span class="nb">intros</span> m n e.
+  <span class="nb">set</span> (X:= coconeInCommutes ccab m n e).
+  etrans. <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> X. }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isColimCocone_pr1_functor</span> {<span class="nv">g</span> : graph} (<span class="nv">cAB</span> : diagram g (category_binproduct A B))
+  (<span class="nv">ab</span> : A × B) (<span class="nv">ccab</span> : cocone cAB ab) (<span class="nv">Hccab</span> : isColimCocone cAB ab ccab) :
+   isColimCocone (mapdiagram (pr1_functor A B) cAB) (ob1 ab)
+     (mapcocone (pr1_functor A B) cAB ccab).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x ccx.
+transparent <span class="nb">assert</span> (HHH : (cocone cAB (x,, ob2 ab))).
+{ use make_cocone.
+  - <span class="nb">simpl</span>; <span class="nb">intro</span> n; <span class="nb">split</span>;
+      [ <span class="nb">apply</span> (pr1 ccx n) | <span class="nb">apply</span> (# (pr2_functor A B) (pr1 ccab n)) ].
+  - <span class="kp">abstract</span>(<span class="nb">simpl</span>; <span class="nb">intros</span> m n e; <span class="nb">apply</span> pathsdirprod;
+               [ <span class="nb">apply</span> (pr2 ccx m n e) | <span class="nb">apply</span> (maponpaths dirprod_pr2 ((pr2 ccab) m n e)) ]).
+}
+<span class="nb">destruct</span> (Hccab _ HHH) <span class="k">as</span> [[[x1 x2] p1] p2].
+use tpair.
+- <span class="nb">apply</span> (tpair _ x1).
+  <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> (maponpaths pr1 (p1 n))).
+- <span class="nb">intro</span> t.
+  transparent <span class="nb">assert</span> (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
+                                 catbinprodmor (pr1 ccx v) (pr2 (pr1 ccab v)))).
+  { use tpair.
+    - <span class="nb">split</span>; [ <span class="nb">apply</span> (pr1 t) | <span class="nb">apply</span> (identity _) ].
+    - <span class="nb">cbn</span>. <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> pathsdirprod;
+                 [ <span class="nb">apply</span> (pr2 t) | <span class="nb">apply</span> idpath ]).
+  }
+  <span class="kp">abstract</span> (<span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+            [ <span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+            | <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 (pr1 x)) (p2 X))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_pr1_functor</span> : is_cocont (pr1_functor A B).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> c L ccL M H; <span class="nb">apply</span> isColimCocone_pr1_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">cocone_pr2_functor</span> {<span class="nv">g</span> : graph} (<span class="nv">cAB</span> : diagram g (category_binproduct A B))
+  (<span class="nv">ab</span> : A × B) (<span class="nv">ccab</span> : cocone cAB ab) :
+  cocone (mapdiagram (pr2_functor A B) cAB) (pr2 ab).
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">simpl</span>; <span class="nb">intro</span> n; <span class="nb">apply</span> (pr2 (coconeIn ccab n)).
+- <span class="nb">simpl</span>; <span class="nb">intros</span> m n e.
+  etrans. <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (coconeInCommutes ccab m n e). }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isColimCocone_pr2_functor</span> {<span class="nv">g</span> : graph} (<span class="nv">cAB</span> : diagram g (category_binproduct A B))
+  (<span class="nv">ab</span> : A × B) (<span class="nv">ccab</span> : cocone cAB ab) (<span class="nv">Hccab</span> : isColimCocone cAB ab ccab) :
+   isColimCocone (mapdiagram (pr2_functor A B) cAB) (pr2 ab)
+     (mapcocone (pr2_functor A B) cAB ccab).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x ccx.
+transparent <span class="nb">assert</span> (HHH : (cocone cAB (pr1 ab,, x))).
+{ use make_cocone.
+  - <span class="nb">simpl</span>; <span class="nb">intro</span> n; <span class="nb">split</span>;
+      [ <span class="nb">apply</span> (# (pr1_functor A B) (pr1 ccab n)) | <span class="nb">apply</span> (pr1 ccx n) ].
+  - <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intros</span> m n e; <span class="nb">apply</span> pathsdirprod;
+                [ <span class="nb">apply</span> (maponpaths pr1 (pr2 ccab m n e)) | <span class="nb">apply</span> (pr2 ccx m n e) ]).
+ }
+<span class="nb">destruct</span> (Hccab _ HHH) <span class="k">as</span> [[[x1 x2] p1] p2].
+use tpair.
+- <span class="nb">apply</span> (tpair _ x2).
+  <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> (maponpaths dirprod_pr2 (p1 n))).
+- <span class="nb">intro</span> t.
+  transparent <span class="nb">assert</span> (X : (∑ x0, ∏ v, coconeIn ccab v · x0 =
+                                 catbinprodmor (pr1 (pr1 ccab v)) (pr1 ccx v))).
+  { use tpair.
+    - <span class="nb">split</span>; [ <span class="nb">apply</span> (identity _) | <span class="nb">apply</span> (pr1 t) ].
+    - <span class="nb">cbn</span>. <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> pathsdirprod;
+                 [ <span class="nb">apply</span> idpath | <span class="nb">apply</span> (pr2 t) ]).
+  }
+  <span class="kp">abstract</span> (<span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+              [ <span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+              | <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, dirprod_pr2 (pr1 x)) (p2 X)) ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_pr2_functor</span> : is_cocont (pr2_functor A B).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> c L ccL M H; <span class="nb">apply</span> isColimCocone_pr2_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColimCocone_pair_functor</span> {<span class="nv">gr</span> : graph}
+  (<span class="nv">HF</span> : ∏ (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
+        isColimCocone _ _ (mapcocone F d cc))
+  (<span class="nv">HG</span> : ∏ (d : diagram gr B) (c : B) (cc : cocone d c) (h : isColimCocone d c cc),
+        isColimCocone _ _ (mapcocone G d cc)) :
+  ∏ (d : diagram gr (category_binproduct A B)) (cd : A × B) (cc : cocone d cd),
+  isColimCocone _ _ cc -&gt;
+  isColimCocone _ _ (mapcocone (pair_functor F G) d cc).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> cAB ml ccml Hccml xy ccxy.
+transparent <span class="nb">assert</span> (cFAX : (cocone (mapdiagram F (mapdiagram (pr1_functor A B) cAB)) (pr1 xy))).
+{ use make_cocone.
+  - <span class="nb">intro</span> n; <span class="nb">apply</span> (pr1 (pr1 ccxy n)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">apply</span> (maponpaths dirprod_pr1 (pr2 ccxy m n e))).
+}
+transparent <span class="nb">assert</span> (cGBY : (cocone (mapdiagram G (mapdiagram (pr2_functor A B) cAB)) (pr2 xy))).
+{ use make_cocone.
+  - <span class="nb">intro</span> n; <span class="nb">apply</span> (pr2 (pr1 ccxy n)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">apply</span> (maponpaths dirprod_pr2 (pr2 ccxy m n e))).
+}
+<span class="nb">destruct</span> (HF _ _ _ (isColimCocone_pr1_functor cAB ml ccml Hccml) _ cFAX) <span class="k">as</span> [[f hf1] hf2].
+<span class="nb">destruct</span> (HG _ _ _ (isColimCocone_pr2_functor cAB ml ccml Hccml) _ cGBY) <span class="k">as</span> [[g hg1] hg2].
+<span class="nb">unfold</span> is_cocone_mor <span class="k">in</span> *. <span class="nb">simpl</span> <span class="k">in</span> *.
+use tpair.
+- <span class="nb">apply</span> (tpair _ (f,,g)).
+  <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">unfold</span> catbinprodmor, compose; <span class="nb">simpl</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> hf1, hg1).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+             [ <span class="nb">intro</span> x; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isaset_dirprod; <span class="nb">apply</span> homset_property
+             | <span class="nb">induction</span> t <span class="k">as</span> [[f1 f2] p]; <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> pathsdirprod;
+               [ <span class="nb">apply</span> (maponpaths pr1 (hf2 (f1,, (<span class="k">λ</span> <span class="nv">n</span>, maponpaths pr1 (p n)))))
+               | <span class="nb">apply</span> (maponpaths pr1 (hg2 (f2,, (<span class="k">λ</span> <span class="nv">n</span>, maponpaths dirprod_pr2 (p n)))))]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_pair_functor</span> (<span class="nv">HF</span> : is_cocont F) (<span class="nv">HG</span> : is_cocont G) :
+  is_cocont (pair_functor F G).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> gr cAB ml ccml Hccml.
+<span class="bp">now</span> <span class="nb">apply</span> isColimCocone_pair_functor; [<span class="nb">apply</span> HF|<span class="nb">apply</span> HG|].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_pair_functor</span> (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (pair_functor F G).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> cAB ml ccml Hccml; <span class="nb">apply</span> isColimCocone_pair_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">pair_functor</span>.
+
+<span class="sd">(** ** A functor F : A -&gt; product_category I B is (omega-)cocontinuous if each F_i : A -&gt; B_i is *)</span>
+<span class="kn">Section</span> <span class="nf">functor_into_product_category</span>.
+<span class="c">(* NOTE: section below on [power_category] may be easily(?) generalised to [product_category]. *)</span>
+<span class="c">(* NOTE: binary analogue for this section. *)</span>
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I -&gt; category}.
+
+<span class="c">(* A cocone in the [product_category] is a colimit cocone if each of its components is.</span>
+
+<span class="c">Cf. the converse [isColimCocone_functor_into_power] below (currently only for special case of power,</span>
+<span class="c">not product), which seems to require some additional assumption (e.g. decidable equality on [I];</span>
+<span class="c">perhaps other conditions might also suffice. *)</span>
+<span class="c">(* NOTE: other lemmas in below on cocones in [power_category] may be able to be simplified using this. *)</span>
+<span class="kn">Lemma</span> <span class="nf">isColimCocone_in_product_category</span>
+  {<span class="nv">g</span> : graph} (<span class="nv">c</span> : diagram g (product_category B))
+  (<span class="nv">b</span> : product_precategory B) (<span class="nv">cc</span> : cocone c b)
+  (<span class="nv">M</span> : ∏ i, isColimCocone _ _ (mapcocone (pr_functor I B i) _ cc))
+  : isColimCocone c b cc.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> b' cc'.
+  <span class="nb">apply</span> iscontraprop1.
+  - <span class="kp">abstract</span> (
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> f1 f2;
+    <span class="nb">apply</span> subtypePath;
+    [ <span class="nb">intros</span> f; <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> v;
+      <span class="nb">apply</span> has_homsets_product_precategory | ];
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> i;
+    <span class="nb">assert</span> (MM := M i _ (mapcocone (pr_functor I B i) _ cc'));
+    <span class="nb">assert</span> (H := proofirrelevancecontr MM);
+    use (maponpaths pr1 (H (pr1 f1 i,,_) (pr1 f2 i,,_)));
+      <span class="nb">clear</span> MM H; <span class="nb">intros</span> v ;
+      [ <span class="bp">exact</span> (toforallpaths _ _ _ (pr2 f1 v) i) |
+        <span class="bp">exact</span> (toforallpaths _ _ _ (pr2 f2 v) i) ]
+      ) .
+  - use tpair.
+    + <span class="nb">intros</span> i.
+      use (pr1 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc')))).
+    + <span class="kp">abstract</span> (
+          <span class="nb">intros</span> v; <span class="nb">apply</span> funextsec; <span class="nb">intros</span> i;
+          use (pr2 (pr1 (M i _ (mapcocone (pr_functor I B i) _ cc'))) v)
+        ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_functor_into_product_category</span>
+  {<span class="nv">F</span> : functor A (product_category B)}
+  (<span class="nv">HF</span> : ∏ (i : I), is_cocont (functor_composite F (pr_functor I B i))) :
+  is_cocont F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> gr cA a cc Hcc.
+  <span class="nb">apply</span> isColimCocone_in_product_category.
+  <span class="nb">intros</span> i.
+  <span class="nb">rewrite</span> &lt;- mapcocone_functor_composite.
+  <span class="bp">now</span> <span class="nb">apply</span> HF, Hcc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_functor_into_product_category</span>
+  {<span class="nv">F</span> : functor A (product_category B)}
+  (<span class="nv">HF</span> : ∏ (i : I), is_omega_cocont (functor_composite F (pr_functor I B i))) :
+  is_omega_cocont F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> cA a cc Hcc.
+  <span class="nb">apply</span> isColimCocone_in_product_category.
+  <span class="nb">intros</span> i.
+  <span class="nb">rewrite</span> &lt;- mapcocone_functor_composite.
+  <span class="bp">now</span> <span class="nb">apply</span> HF, Hcc.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functor_into_product_category</span>.
+
+<span class="kn">Section</span> <span class="nf">tuple_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> : category} {<span class="nv">B</span> : I -&gt; category}.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_tuple_functor</span> {<span class="nv">F</span> : ∏ i, functor A (B i)}
+  (<span class="nv">HF</span> : ∏ i, is_cocont (F i)) : is_cocont (tuple_functor F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_cocont_functor_into_product_category.
+  <span class="nb">intro</span> i; <span class="nb">rewrite</span> pr_tuple_functor; <span class="nb">apply</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_tuple_functor</span> {<span class="nv">F</span> : ∏ i, functor A (B i)}
+  (<span class="nv">HF</span> : ∏ i, is_omega_cocont (F i)) : is_omega_cocont (tuple_functor F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_omega_cocont_functor_into_product_category.
+  <span class="nb">intro</span> i; <span class="nb">rewrite</span> pr_tuple_functor; <span class="nb">apply</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">tuple_functor</span>.
+
+<span class="sd">(** ** A family of functor F^I : A^I -&gt; B^I is omega cocontinuous if each F_i is *)</span>
+<span class="sd">(** TODO: split out section [pr_functor], and then factor results on [family_functor] using that</span>
+<span class="sd">together with [tuple_functor] (maybe after redefining [family_functor] using [tuple_functor]. *)</span>
+<span class="kn">Section</span> <span class="nf">family_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">A</span> <span class="nv">B</span> : category}.
+
+<span class="c">(* The index set I needs decidable equality for pr_functor to be cocont *)</span>
+<span class="kn">Hypothesis</span> (<span class="nv">HI</span> : isdeceq I).
+
+<span class="kn">Local Definition</span> <span class="nf">ifI</span> (<span class="nv">i</span> <span class="nv">j</span> : I) (<span class="nv">a</span> <span class="nv">b</span> : A) : A :=
+  coprod_rect (<span class="k">λ</span> <span class="nv">_</span>, A) (<span class="k">λ</span> <span class="nv">_</span>,a) (<span class="k">λ</span> <span class="nv">_</span>,b) (HI i j).
+
+<span class="kn">Local Lemma</span> <span class="nf">ifI_eq</span> <span class="nv">i</span> <span class="nv">x</span> <span class="nv">y</span> : ifI i i x y = x.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">unfold</span> ifI; <span class="nb">destruct</span> (HI i i) <span class="k">as</span> [p|p]; [|<span class="nb">destruct</span> (p (idpath _))].
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">isColimCocone_pr_functor</span>
+  {<span class="nv">g</span> : graph} (<span class="nv">c</span> : diagram g (power_category I A))
+  (<span class="nv">L</span> : power_category I A) (<span class="nv">ccL</span> : cocone c L)
+  (<span class="nv">M</span> : isColimCocone c L ccL) : ∏ i,
+  isColimCocone _ _ (mapcocone (pr_functor I (<span class="k">λ</span> <span class="nv">_</span>, A) i) c ccL).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> i x ccx; <span class="nb">simpl</span> <span class="k">in</span> *.
+transparent <span class="nb">assert</span> (HHH : (cocone c (<span class="k">λ</span> <span class="nv">j</span>, ifI i j x (L j)))).
+{ <span class="nb">unfold</span> ifI.
+  use make_cocone.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span> n j.
+    <span class="nb">destruct</span> (HI i j) <span class="k">as</span> [p|p].
+    + <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">i</span>, A ⟦ dob c n i, x ⟧) p (coconeIn ccx n)).
+    + <span class="nb">apply</span> (# (pr_functor I (<span class="k">λ</span> <span class="nv">_</span>, A) j) (coconeIn ccL n)).
+  - <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intros</span> m n e;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> j; <span class="nb">unfold</span> compose; <span class="nb">simpl</span>;
+      <span class="nb">destruct</span> (HI i j);
+        [ <span class="nb">destruct</span> p; <span class="nb">apply</span> (pr2 ccx m n e)
+        | <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 ccL m n e) j)]).
+}
+<span class="nb">destruct</span> (M _ HHH) <span class="k">as</span> [[x1 p1] p2].
+use tpair.
+- <span class="nb">apply</span> (tpair _ (transportf _ (ifI_eq _ _ _) (x1 i))).
+  <span class="kp">abstract</span> (<span class="nb">intro</span> n;
+    <span class="nb">rewrite</span> &lt;- idtoiso_postcompose, assoc;
+    <span class="nb">eapply</span> pathscomp0;
+      [<span class="nb">eapply</span> cancel_postcomposition, (toforallpaths _ _ _ (p1 n) i)|];
+    <span class="nb">unfold</span> ifI, ifI_eq; <span class="nb">simpl</span>;
+    <span class="nb">destruct</span> (HI i i); [|<span class="nb">destruct</span> (n0 (idpath _))];
+    <span class="nb">rewrite</span> idtoiso_postcompose, idpath_transportf;
+    <span class="nb">assert</span> (hp : p = idpath i); [<span class="nb">apply</span> (isasetifdeceq _ HI)|];
+    <span class="bp">now</span> <span class="nb">rewrite</span> hp, idpath_transportf).
+- <span class="nb">intro</span> t.
+  transparent <span class="nb">assert</span> (X : (∑ x0, ∏ n, coconeIn ccL n · x0 = coconeIn HHH n)).
+  { use tpair.
+    - <span class="nb">simpl</span>; <span class="nb">intro</span> j; <span class="nb">unfold</span> ifI.
+      <span class="nb">destruct</span> (HI i j).
+      + <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">i</span>, A ⟦ L i, x ⟧) p (pr1 t)).
+      + <span class="nb">apply</span> identity.
+    - <span class="nb">cbn</span>. <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> j; <span class="nb">unfold</span> ifI; <span class="nb">destruct</span> (HI i j);
+          [ <span class="bp">now</span> <span class="nb">destruct</span> p; <span class="nb">rewrite</span> &lt;- (pr2 t), !idpath_transportf
+          | <span class="nb">apply</span> id_right ]).
+  }
+  <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>; [<span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+  <span class="nb">set</span> (H := toforallpaths _ _ _ (maponpaths pr1 (p2 X)) i); <span class="nb">simpl</span> <span class="k">in</span> H.
+  <span class="nb">rewrite</span> &lt;- H; <span class="nb">clear</span> H; <span class="nb">unfold</span> ifI_eq, ifI.
+  <span class="nb">destruct</span> (HI i i) <span class="k">as</span> [p|p]; [|<span class="nb">destruct</span> (p (idpath _))].
+  <span class="nb">assert</span> (hp : p = idpath i); [<span class="nb">apply</span> (isasetifdeceq _ HI)|].
+  <span class="bp">now</span> <span class="nb">rewrite</span> hp, idpath_transportf.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_pr_functor</span> (<span class="nv">i</span> : I) : is_cocont (pr_functor I (<span class="k">λ</span> <span class="nv">_</span>, A) i).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> c L ccL M H; <span class="nb">apply</span> isColimCocone_pr_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColimCocone_family_functor</span> {<span class="nv">gr</span> : graph} (<span class="nv">F</span> : ∏ (i : I), functor A B)
+  (<span class="nv">HF</span> : ∏ i (d : diagram gr A) (c : A) (cc : cocone d c) (h : isColimCocone d c cc),
+        isColimCocone _ _ (mapcocone (F i) d cc)) :
+  ∏ (d : diagram gr (product_category (<span class="k">λ</span> <span class="nv">_</span>, A))) (cd : I -&gt; A) (cc : cocone d cd),
+  isColimCocone _ _ cc -&gt;
+  isColimCocone _ _ (mapcocone (family_functor I F) d cc).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> cAB ml ccml Hccml xy ccxy; <span class="nb">simpl</span> <span class="k">in</span> *.
+transparent <span class="nb">assert</span> (cc : (∏ i, cocone (mapdiagram (F i) (mapdiagram (pr_functor I (<span class="k">λ</span> <span class="nv">_</span> : I, A) i) cAB)) (xy i))).
+{ <span class="nb">intro</span> i; use make_cocone.
+  - <span class="nb">intro</span> n; use (pr1 ccxy n).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 ccxy m n e) i)).
+}
+<span class="nb">set</span> (X i := HF i _ _ _ (isColimCocone_pr_functor _ _ _ Hccml i) (xy i) (cc i)).
+use tpair.
+- use tpair.
+  + <span class="nb">intro</span> i; <span class="nb">apply</span> (pr1 (pr1 (X i))).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> j; <span class="nb">apply</span> (pr2 (pr1 (X j)) n)).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+             [ <span class="nb">intro</span> x; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> impred_isaset; <span class="nb">intro</span> i; <span class="nb">apply</span> homset_property
+             | <span class="nb">destruct</span> t <span class="k">as</span> [f1 f2]; <span class="nb">simpl</span> <span class="k">in</span> *;  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i;
+               transparent <span class="nb">assert</span> (H : (∑ x : B ⟦ (F i) (ml i), xy i ⟧,
+                                       ∏ n, # (F i) (coconeIn ccml n i) · x =
+                                       coconeIn ccxy n i));
+                [<span class="nb">apply</span> (tpair _ (f1 i)); <span class="nb">intro</span> n; <span class="nb">apply</span> (toforallpaths _ _ _ (f2 n) i)|];
+               <span class="nb">apply</span> (maponpaths pr1 (pr2 (X i) H))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_family_functor</span>
+  {<span class="nv">F</span> : ∏ (i : I), functor A B} (<span class="nv">HF</span> : ∏ (i : I), is_cocont (F i)) :
+  is_cocont (family_functor I F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> gr cAB ml ccml Hccml.
+  <span class="nb">apply</span> isColimCocone_family_functor; <span class="nb">trivial</span>; <span class="nb">intro</span> i; <span class="nb">apply</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_family_functor</span>
+  {<span class="nv">F</span> : ∏ (i : I), functor A B} (<span class="nv">HF</span> : ∏ (i : I), is_omega_cocont (F i)) :
+  is_omega_cocont (family_functor I F).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> cAB ml ccml Hccml; <span class="nb">apply</span> isColimCocone_family_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">family_functor</span>.
+
+
+<span class="sd">(** ** The bindelta functor C -&gt; C^2 mapping x to (x,x) is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">bindelta_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_bindelta_functor</span> : is_cocont (bindelta_functor C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (left_adjoint_cocont _ _ _ (is_left_adjoint_bindelta_functor PC)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_bindelta_functor</span> : is_omega_cocont (bindelta_functor C).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_bindelta_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">bindelta_functor</span>.
+
+<span class="sd">(** ** The generalized delta functor C -&gt; C^I is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">delta_functor</span>.
+<span class="c">(* TODO: factor this using [tuple_functor] results above, after redefining [delta_functor] in terms of [tuple_functor]. *)</span>
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> : category} (<span class="nv">PC</span> : Products I C).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_delta_functor</span> : is_cocont (delta_functor I C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (left_adjoint_cocont _ _ _ (is_left_adjoint_delta_functor _ PC)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_delta_functor</span> :
+  is_omega_cocont (delta_functor I C).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_delta_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">delta_functor</span>.
+
+<span class="sd">(** ** The functor "+ : C^2 -&gt; C" is cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">bincoprod_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinCoproducts C).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_bincoproduct_functor</span> : is_cocont (bincoproduct_functor PC).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (left_adjoint_cocont _ _ _ (is_left_adjoint_bincoproduct_functor PC)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_bincoproduct_functor</span> :
+  is_omega_cocont (bincoproduct_functor PC).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_bincoproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">bincoprod_functor</span>.
+
+<span class="sd">(** ** The functor "+ : C^I -&gt; C" is cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">coprod_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> : category} (<span class="nv">PC</span> : Coproducts I C).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_coproduct_functor</span> :
+  is_cocont (coproduct_functor _ PC).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (left_adjoint_cocont _ _ _ (is_left_adjoint_coproduct_functor _ PC)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_coproduct_functor</span> :
+  is_omega_cocont (coproduct_functor _ PC).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_coproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">coprod_functor</span>.
+
+<span class="sd">(** ** Binary coproduct of functors: F + G : C -&gt; D is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">BinCoproduct_of_functors</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">HD</span> : BinCoproducts D).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_BinCoproduct_of_functors_alt</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+  (<span class="nv">HF</span> : is_cocont F) (<span class="nv">HG</span> : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors_alt HD F G).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_cocont_functor_composite.
+- <span class="nb">apply</span> is_cocont_tuple_functor.
+  <span class="nb">induction</span> i; <span class="bp">assumption</span>.
+- <span class="nb">apply</span> is_cocont_coproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_BinCoproduct_of_functors_alt</span> {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+  (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (BinCoproduct_of_functors_alt HD F G).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_functor_composite.
+- <span class="nb">apply</span> is_omega_cocont_tuple_functor.
+  <span class="nb">induction</span> i; <span class="bp">assumption</span>.
+- <span class="nb">apply</span> is_omega_cocont_coproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_BinCoproduct_of_functors_alt</span> (<span class="nv">F</span> <span class="nv">G</span> : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt (pr2 F) (pr2 G)).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_BinCoproduct_of_functors</span> (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_cocont F) (<span class="nv">HG</span> : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors _ _ HD F G).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (transportf _
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors _ _ _ F G)
+         (is_cocont_BinCoproduct_of_functors_alt HF HG)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_BinCoproduct_of_functors</span> (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (BinCoproduct_of_functors _ _ HD F G).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (transportf _
+         (BinCoproduct_of_functors_alt_eq_BinCoproduct_of_functors _ _ _ F G)
+         (is_omega_cocont_BinCoproduct_of_functors_alt HF HG)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_BinCoproduct_of_functors</span>
+ (<span class="nv">F</span> <span class="nv">G</span> : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors _ _ (pr2 F) (pr2 G)).
+
+<span class="c">(* Keep these as they have better computational behavior than the one for _alt above *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_cocont_BinCoproduct_of_functors_alt2</span>
+  (<span class="nv">PC</span> : BinProducts C) (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_cocont F) (<span class="nv">HG</span> : is_cocont G) :
+  is_cocont (BinCoproduct_of_functors_alt2 HD F G).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_cocont_functor_composite.
+  <span class="nb">apply</span> (is_cocont_bindelta_functor PC).
+<span class="nb">apply</span> is_cocont_functor_composite.
+  <span class="nb">apply</span> (is_cocont_pair_functor _ _ HF HG).
+<span class="nb">apply</span> is_cocont_bincoproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_BinCoproduct_of_functors_alt2</span>
+  (<span class="nv">PC</span> : BinProducts C) (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (BinCoproduct_of_functors_alt2 HD F G).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_functor_composite.
+  <span class="nb">apply</span> (is_omega_cocont_bindelta_functor PC).
+<span class="nb">apply</span> is_omega_cocont_functor_composite.
+  <span class="nb">apply</span> (is_omega_cocont_pair_functor _ _ HF HG).
+<span class="nb">apply</span> is_omega_cocont_bincoproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_BinCoproduct_of_functors_alt2</span>
+  (<span class="nv">PC</span> : BinProducts C) (<span class="nv">F</span> <span class="nv">G</span> : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinCoproduct_of_functors_alt2 PC _ _ (pr2 F) (pr2 G)).
+
+<span class="kn">End</span> <span class="nf">BinCoproduct_of_functors</span>.
+
+<span class="sd">(** ** Coproduct of families of functors: + F_i : C -&gt; D is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">coproduct_of_functors</span>.
+
+<span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">HD</span> : Coproducts I D).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_coproduct_of_functors</span>
+  {<span class="nv">F</span> : ∏ (i : I), functor C D} (<span class="nv">HF</span> : ∏ i, is_cocont (F i)) :
+  is_cocont (coproduct_of_functors I _ _ HD F).
+<span class="kn">Proof</span>.
+  use (transportf _
+        (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ F)
+        _).
+  <span class="nb">apply</span> is_cocont_functor_composite.
+  - <span class="nb">apply</span> is_cocont_tuple_functor.
+    <span class="nb">apply</span> HF.
+  - <span class="nb">apply</span> is_cocont_coproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_coproduct_of_functors</span>
+  {<span class="nv">F</span> : ∏ (i : I), functor C D} (<span class="nv">HF</span> : ∏ i, is_omega_cocont (F i)) :
+  is_omega_cocont (coproduct_of_functors I _ _ HD F).
+<span class="kn">Proof</span>.
+  use (transportf _
+        (coproduct_of_functors_alt_eq_coproduct_of_functors _ _ _ _ F)
+        _).
+  <span class="nb">apply</span> is_omega_cocont_functor_composite.
+  - <span class="nb">apply</span> is_omega_cocont_tuple_functor.
+    <span class="nb">apply</span> HF.
+  - <span class="nb">apply</span> is_omega_cocont_coproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_coproduct_of_functors</span>
+  (<span class="nv">F</span> : ∏ i, omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_coproduct_of_functors (<span class="k">λ</span> <span class="nv">i</span>, pr2 (F i))).
+
+<span class="kn">End</span> <span class="nf">coproduct_of_functors</span>.
+
+<span class="sd">(** ** Constant product functors: C -&gt; C, x |-&gt; a * x  and  x |-&gt; x * a are cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">constprod_functors</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C) (<span class="nv">hE</span> : Exponentials PC).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_constprod_functor1</span> (<span class="nv">x</span> : C) : is_cocont (constprod_functor1 PC x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (left_adjoint_cocont _ _ _ (hE _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_constprod_functor1</span> (<span class="nv">x</span> : C) : is_omega_cocont (constprod_functor1 PC x).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_constprod_functor1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_constprod_functor1</span> (<span class="nv">x</span> : C) :
+  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_constprod_functor1 x).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_constprod_functor2</span> (<span class="nv">x</span> : C) : is_cocont (constprod_functor2 PC x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> left_adjoint_cocont.
+  <span class="nb">apply</span> (is_exponentiable_to_is_exponentiable' PC), hE.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_constprod_functor2</span> (<span class="nv">x</span> : C) : is_omega_cocont (constprod_functor2 PC x).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_constprod_functor2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_constprod_functor2</span> (<span class="nv">x</span> : C) :
+  omega_cocont_functor C C := tpair _ _ (is_omega_cocont_constprod_functor2 x).
+
+<span class="kn">End</span> <span class="nf">constprod_functors</span>.
+
+<span class="sd">(** ** The functor "* : C^2 -&gt; C" is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">binprod_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">PC</span> : BinProducts C).
+
+<span class="c">(* This hypothesis follow directly if C has exponentials *)</span>
+<span class="kn">Variable</span> <span class="nv">omega_cocont_constprod_functor1</span> :
+  ∏ x : C, is_omega_cocont (constprod_functor1 PC x).
+
+<span class="kn">Let</span> <span class="nf">omega_cocont_constprod_functor2</span> :
+  ∏ x : C, is_omega_cocont (constprod_functor2 PC x).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intro</span> x; <span class="nb">apply</span> (is_omega_cocont_z_iso (flip_z_iso PC x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">fun_lt</span> (<span class="nv">cAB</span> : chain (category_binproduct C C)) :
+  ∏ i j, i &lt; j -&gt;
+              C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  BinProductObject C (PC (ob1 (dob cAB j)) (ob2 (dob cAB j))) ⟧.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> i j hij.
+<span class="nb">apply</span> (BinProductOfArrows _ _ _ (mor1 (chain_mor cAB hij)) (identity _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">fun_gt</span> (<span class="nv">cAB</span> : chain (category_binproduct C C)) :
+  ∏ i j, i &gt; j -&gt;
+              C ⟦ BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))),
+                  BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB i))) ⟧.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> i j hij.
+<span class="nb">apply</span> (BinProductOfArrows _ _ _ (identity _) (mor2 (chain_mor cAB hij))).
+<span class="kn">Defined</span>.
+
+<span class="c">(* The map to K from the "grid" *)</span>
+<span class="kn">Local Definition</span> <span class="nf">map_to_K</span> (<span class="nv">cAB</span> : chain (category_binproduct C C)) (<span class="nv">K</span> : C)
+  (<span class="nv">ccK</span> : cocone (mapchain (binproduct_functor PC) cAB) K) <span class="nv">i</span> <span class="nv">j</span> :
+  C⟦BinProductObject C (PC (ob1 (dob cAB i)) (ob2 (dob cAB j))), K⟧.
+<span class="kn">Proof</span>.
+<span class="nb">destruct</span> (natlthorgeh i j).
+- <span class="nb">apply</span> (fun_lt cAB _ _ h · coconeIn ccK j).
+- <span class="nb">destruct</span> (natgehchoice _ _ h) <span class="k">as</span> [H|H].
+  * <span class="nb">apply</span> (fun_gt cAB _ _ H · coconeIn ccK i).
+  * <span class="nb">destruct</span> H; <span class="nb">apply</span> (coconeIn ccK i).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">map_to_K_commutes</span> (<span class="nv">cAB</span> : chain (category_binproduct C C)) (<span class="nv">K</span> : C)
+  (<span class="nv">ccK</span> : cocone (mapchain (binproduct_functor PC) cAB) K)
+  <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span> (<span class="nv">e</span> : edge j k) :
+   BinProduct_of_functors_mor C C PC (constant_functor C C (pr1 (pr1 cAB i)))
+     (functor_identity C) (pr2 (dob cAB j)) (pr2 (dob cAB k))
+     (mor2 (dmor cAB e)) · map_to_K cAB K ccK i k =
+   map_to_K cAB K ccK i j.
+<span class="kn">Proof</span>.
+<span class="nb">destruct</span> e; <span class="nb">simpl</span>.
+<span class="nb">unfold</span> BinProduct_of_functors_mor, map_to_K.
+<span class="nb">destruct</span> (natlthorgeh i j) <span class="k">as</span> [h|h].
+- <span class="nb">destruct</span> (natlthorgeh i (S j)) <span class="k">as</span> [h0|h0].
+  * <span class="nb">rewrite</span> assoc, &lt;- (coconeInCommutes ccK j (S j) (idpath _)), assoc; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> cancel_postcomposition; <span class="nb">unfold</span> fun_lt.
+    <span class="nb">rewrite</span> BinProductOfArrows_comp, id_left.
+    <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths_12; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">rewrite</span> id_left; <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> (natlehchoice4 i j h0) <span class="k">as</span> [h1|h1].
+    + <span class="nb">apply</span> cancel_postcomposition, maponpaths, maponpaths, isasetbool.
+    + <span class="nb">destruct</span> h1; <span class="nb">destruct</span> (isirreflnatlth _ h).
+  * <span class="nb">destruct</span> (isirreflnatlth _ (natlthlehtrans _ _ _ (natlthtolths _ _ h) h0)).
+- <span class="nb">destruct</span> (natlthorgeh i (S j)) <span class="k">as</span> [h0|h0].
+  * <span class="nb">destruct</span> (natgehchoice i j h) <span class="k">as</span> [h1|h1].
+    + <span class="nb">destruct</span> (natlthchoice2 _ _ h1) <span class="k">as</span> [h2|h2].
+      { <span class="nb">destruct</span> (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)). }
+      { <span class="nb">destruct</span> h2; <span class="nb">destruct</span> (isirreflnatlth _ h0). }
+    + <span class="nb">destruct</span> h1; <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- (coconeInCommutes ccK i (S i) (idpath _)), assoc.
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> cancel_postcomposition, BinProductOfArrows_comp|].
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> cancel_postcomposition,
+        (maponpaths_12 (BinProductOfArrows _ _ _)); <span class="kp">try</span> <span class="nb">apply</span> idpath.
+      <span class="nb">simpl</span>; <span class="nb">destruct</span> (natlehchoice4 i i h0) <span class="k">as</span> [h1|h1]; [<span class="nb">destruct</span> (isirreflnatlth _ h1)|].
+      <span class="nb">apply</span> maponpaths, maponpaths, isasetnat.
+  * <span class="nb">destruct</span> (natgehchoice i j h) <span class="k">as</span> [h1|h1].
+    + <span class="nb">destruct</span> (natgehchoice i (S j) h0) <span class="k">as</span> [h2|h2].
+      { <span class="nb">unfold</span> fun_gt; <span class="nb">rewrite</span> assoc.
+        <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> cancel_postcomposition, BinProductOfArrows_comp|].
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> cancel_postcomposition, maponpaths_12; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+        <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (chain_mor_right h1 h2). }
+      { <span class="nb">destruct</span> h; <span class="nb">unfold</span> fun_gt; <span class="nb">simpl</span>.
+        <span class="nb">destruct</span> (!h2).
+        <span class="nb">assert</span> (eq: h2 = (idpath _)). { <span class="nb">apply</span> isasetnat. }
+        <span class="nb">rewrite</span> eq.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> maponpaths_12; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">simpl</span>.
+        <span class="nb">destruct</span> (natlehchoice4 j j h1); [<span class="nb">destruct</span> (isirreflnatlth _ h)|].
+        <span class="nb">apply</span> maponpaths, maponpaths, isasetnat. }
+    + <span class="nb">destruct</span> h1; <span class="nb">destruct</span> (negnatgehnsn _ h0).
+<span class="kn">Qed</span>.
+
+<span class="c">(* The cocone over K from the A_i * B chain *)</span>
+<span class="kn">Local Definition</span> <span class="nf">ccAiB_K</span> (<span class="nv">cAB</span> : chain (category_binproduct C C)) (<span class="nv">K</span> : C)
+  (<span class="nv">ccK</span> : cocone (mapchain (binproduct_functor PC) cAB) K) <span class="nv">i</span> :
+  cocone (mapchain (constprod_functor1 PC (pr1 (pr1 cAB i)))
+         (mapchain (pr2_functor C C) cAB)) K.
+<span class="kn">Proof</span>.
+use make_cocone.
++ <span class="nb">intro</span> j; <span class="nb">apply</span> (map_to_K cAB K ccK i j).
++ <span class="nb">simpl</span>; <span class="nb">intros</span> j k e; <span class="nb">apply</span> map_to_K_commutes.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">omega_cocont_binproduct</span>.
+
+<span class="kn">Context</span> {<span class="nv">cAB</span> : chain (category_binproduct C C)} {<span class="nv">LM</span> : C × C}
+        {<span class="nv">ccLM</span> : cocone cAB LM} (<span class="nv">HccLM</span> : isColimCocone cAB LM ccLM)
+        {<span class="nv">K</span> : C} (<span class="nv">ccK</span> : cocone (mapchain (binproduct_functor PC) cAB) K).
+
+<span class="kn">Let</span> <span class="nf">L</span> := pr1 LM : C.
+<span class="kn">Let</span> <span class="nf">M</span> := pr2 LM : (<span class="k">λ</span> <span class="nv">_</span> : C, C) (pr1 LM).
+<span class="kn">Let</span> <span class="nf">cA</span> := mapchain (pr1_functor C C) cAB : chain C.
+<span class="kn">Let</span> <span class="nf">cB</span> := mapchain (pr2_functor C C) cAB : chain C.
+<span class="kn">Let</span> <span class="nf">HA</span> := isColimCocone_pr1_functor _ _ _ HccLM
+  : isColimCocone cA L (cocone_pr1_functor cAB LM ccLM).
+<span class="kn">Let</span> <span class="nf">HB</span> := isColimCocone_pr2_functor _ _ _ HccLM
+  : isColimCocone cB M (cocone_pr2_functor cAB LM ccLM).
+
+<span class="c">(* Form the colimiting cocones of "A_i * B_0 -&gt; A_i * B_1 -&gt; ..." *)</span>
+<span class="kn">Let</span> <span class="nf">HAiB</span> := <span class="k">λ</span> <span class="nv">i</span>, omega_cocont_constprod_functor1 (pr1 (pr1 cAB i)) _ _ _ HB.
+
+<span class="c">(* Turn HAiB into a ColimCocone: *)</span>
+<span class="kn">Let</span> <span class="nf">CCAiB</span> := <span class="k">λ</span> <span class="nv">i</span>, make_ColimCocone _ _ _ (HAiB i).
+
+<span class="c">(* Define the HAiM ColimCocone: *)</span>
+<span class="kn">Let</span> <span class="nf">HAiM</span> := make_ColimCocone _ _ _ (omega_cocont_constprod_functor2 M _ _ _ HA).
+
+<span class="kn">Let</span> <span class="nf">ccAiB_K</span> := <span class="k">λ</span> <span class="nv">i</span>, ccAiB_K _ _ ccK i.
+
+<span class="c">(* The f which is used in colimOfArrows *)</span>
+<span class="kn">Local Definition</span> <span class="nf">f</span> <span class="nv">i</span> <span class="nv">j</span> : C
+   ⟦ BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB i)))
+       (functor_identity C) (pr2 (dob cAB j)),
+     BinProduct_of_functors_ob C C PC (constant_functor C C (pr1 (dob cAB (S i))))
+       (functor_identity C) (pr2 (dob cAB j)) ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> BinProductOfArrows; [<span class="nb">apply</span> (dmor cAB (idpath _)) | <span class="nb">apply</span> identity ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">fNat</span> : ∏ i u v (e : edge u v),
+   dmor (mapchain (constprod_functor1 PC _) cB) e · f i v =
+   f i u · dmor (mapchain (constprod_functor1 PC _) cB) e.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j k e; <span class="nb">destruct</span> e; <span class="nb">simpl</span>.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+  <span class="nb">eapply</span> pathscomp0; [|<span class="nb">eapply</span> pathsinv0; <span class="nb">apply</span> BinProductOfArrows_comp].
+  <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Define the chain A_i * M *)</span>
+<span class="kn">Local Definition</span> <span class="nf">AiM_chain</span> : chain C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> i; <span class="nb">apply</span> (colim (CCAiB i)).
+  - <span class="nb">intros</span> i j e; <span class="nb">destruct</span> e.
+    <span class="nb">apply</span> (colimOfArrows (CCAiB i) (CCAiB (S i)) (f i) (fNat i)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">AiM_chain_eq</span> : ∏ i, dmor AiM_chain (idpath (S i)) =
+                       dmor (mapchain (constprod_functor2 PC M) cA) (idpath _).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> i; <span class="nb">simpl</span>; <span class="nb">unfold</span> colimOfArrows, BinProduct_of_functors_mor; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0, colimArrowUnique.
+  <span class="nb">simpl</span>; <span class="nb">intro</span> j.
+  <span class="nb">unfold</span> colimIn; <span class="nb">simpl</span>; <span class="nb">unfold</span> BinProduct_of_functors_mor, f; <span class="nb">simpl</span>.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+  <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Define a cocone over K from the A_i * M chain *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">ccAiM_K_subproof</span> : forms_cocone (mapdiagram (constprod_functor2 PC M) cA)
+                                            (<span class="k">fun</span> <span class="nv">u</span> =&gt; colimArrow (CCAiB u) K (ccAiB_K u)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i j e; <span class="nb">destruct</span> e; <span class="nb">simpl</span>.
+  <span class="nb">generalize</span> (AiM_chain_eq i); <span class="nb">simpl</span>; <span class="nb">intro</span> H; <span class="nb">rewrite</span> &lt;- H; <span class="nb">clear</span> H; <span class="nb">simpl</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> (precompWithColimOfArrows _ _ (CCAiB i) (CCAiB (S i)) _ _ K (ccAiB_K (S i))).
+  <span class="nb">apply</span> (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
+  <span class="nb">simpl</span>; <span class="nb">intros</span> j.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (colimArrowCommutes (CCAiB i) K)|]; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> map_to_K.
+  <span class="nb">destruct</span> (natlthorgeh (S i) j).
+  + <span class="nb">destruct</span> (natlthorgeh i j).
+    * <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">unfold</span> f, fun_lt; <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right, &lt;- (chain_mor_right h0 h).
+    * <span class="nb">destruct</span> (isasymmnatgth _ _ h h0).
+  + <span class="nb">destruct</span> (natgehchoice (S i) j h).
+    * <span class="nb">destruct</span> h.
+      { <span class="nb">destruct</span> (natlthorgeh i j).
+        - <span class="nb">destruct</span> (natlthchoice2 _ _ h) <span class="k">as</span> [h2|h2].
+          + <span class="nb">destruct</span> (isirreflnatlth _ (istransnatlth _ _ _ h0 h2)).
+          + <span class="nb">destruct</span> h2; <span class="nb">destruct</span> (isirreflnatlth _ h0).
+        - <span class="nb">destruct</span> (natgehchoice i j h).
+          + <span class="nb">destruct</span> h.
+            <span class="nb">rewrite</span> &lt;- (coconeInCommutes ccK i _ (idpath _)); <span class="nb">simpl</span>.
+            <span class="nb">rewrite</span> !assoc; <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">unfold</span> f, fun_gt.
+            <span class="nb">rewrite</span> BinProductOfArrows_comp.
+            <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+            <span class="bp">now</span> <span class="nb">rewrite</span> !id_left, !id_right, &lt;- (chain_mor_left h1 h0).
+          + <span class="nb">destruct</span> p.
+            <span class="nb">rewrite</span> &lt;- (coconeInCommutes ccK i _ (idpath _)), assoc.
+            <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">unfold</span> f, fun_gt.
+            <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+            <span class="nb">rewrite</span> id_left, id_right.
+            <span class="nb">apply</span> (maponpaths_12 (BinProductOfArrows _ _ _)); <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">simpl</span>.
+            <span class="nb">destruct</span> (natlehchoice4 i i h0); [<span class="nb">destruct</span> (isirreflnatlth _ h1)|].
+            <span class="nb">apply</span> maponpaths, maponpaths, isasetnat.
+       }
+    * <span class="nb">destruct</span> p, h.
+      <span class="nb">destruct</span> (natlthorgeh i (S i)); [|<span class="nb">destruct</span> (negnatgehnsn _ h)].
+      <span class="nb">apply</span> cancel_postcomposition; <span class="nb">unfold</span> f, fun_lt.
+      <span class="nb">apply</span> maponpaths_12; <span class="kp">try</span> <span class="nb">apply</span> idpath; <span class="nb">simpl</span>.
+      <span class="nb">destruct</span> (natlehchoice4 i i h); [<span class="nb">destruct</span> (isirreflnatlth _ h0)|].
+      <span class="nb">assert</span> (H : idpath (S i) = maponpaths S p). <span class="nb">apply</span> isasetnat.
+      <span class="bp">now</span> <span class="nb">rewrite</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">ccAiM_K</span> := make_cocone _ ccAiM_K_subproof.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_cocone_morphism</span> :
+ ∏ v : nat,
+   BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) ·
+   colimArrow HAiM K ccAiM_K = coconeIn ccK v.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> i.
+  <span class="nb">generalize</span> (colimArrowCommutes HAiM K ccAiM_K i).
+  <span class="nb">assert</span> (H : coconeIn ccAiM_K i = colimArrow (CCAiB i) K (ccAiB_K i)).
+  { <span class="nb">apply</span> idpath. }
+  <span class="nb">rewrite</span> H; <span class="nb">intros</span> HH.
+  <span class="nb">generalize</span> (colimArrowCommutes (CCAiB i) K (ccAiB_K i) i).
+  <span class="nb">rewrite</span> &lt;- HH; <span class="nb">simpl</span>; <span class="nb">unfold</span> map_to_K.
+  <span class="nb">destruct</span> (natlthorgeh i i); [<span class="nb">destruct</span> (isirreflnatlth _ h)|].
+  <span class="nb">destruct</span> (natgehchoice i i h); [<span class="nb">destruct</span> (isirreflnatgth _ h0)|].
+  <span class="nb">simpl</span>; <span class="nb">destruct</span> h, p.
+  <span class="nb">intros</span> HHH.
+  <span class="nb">rewrite</span> &lt;- HHH, assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">unfold</span> colimIn; <span class="nb">simpl</span>; <span class="nb">unfold</span> BinProduct_of_functors_mor; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">is_unique_cocone_morphism</span> :
+ ∏ t : ∑ x : C ⟦ BinProductObject C (PC L M), K ⟧,
+       ∏ v : nat,
+       BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+         (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) · x =
+       coconeIn ccK v, t = colimArrow HAiM K ccAiM_K,, is_cocone_morphism.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>.
+  + <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intros</span>; <span class="nb">apply</span> homset_property.
+  + <span class="nb">apply</span> (colimArrowUnique HAiM K ccAiM_K).
+    <span class="nb">induction</span> t <span class="k">as</span> [t p]; <span class="nb">simpl</span>; <span class="nb">intro</span> i.
+    <span class="nb">apply</span> (colimArrowUnique (CCAiB i) K (ccAiB_K i)).
+    <span class="nb">simpl</span>; <span class="nb">intros</span> j; <span class="nb">unfold</span> map_to_K.
+    <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [h|h].
+    * <span class="nb">rewrite</span> &lt;- (p j); <span class="nb">unfold</span> fun_lt.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">unfold</span> colimIn; <span class="nb">simpl</span>; <span class="nb">unfold</span> BinProduct_of_functors_mor; <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+      <span class="nb">rewrite</span> !id_left, id_right.
+      <span class="nb">apply</span> maponpaths_12; <span class="kp">try</span> <span class="nb">apply</span> idpath.
+      <span class="nb">apply</span> (maponpaths pr1 (chain_mor_coconeIn cAB LM ccLM i j h)).
+    * <span class="nb">destruct</span> (natgehchoice i j h).
+      { <span class="nb">unfold</span> fun_gt; <span class="nb">rewrite</span> &lt;- (p i), !assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">unfold</span> colimIn; <span class="nb">simpl</span>; <span class="nb">unfold</span> BinProduct_of_functors_mor; <span class="nb">simpl</span>.
+        <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+        <span class="nb">rewrite</span> !id_left, id_right.
+        <span class="nb">set</span> (X := (chain_mor_coconeIn cAB LM ccLM _ _ h0)).
+        <span class="nb">apply</span> maponpaths.
+        etrans. <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> X. }
+              <span class="nb">apply</span> idpath.
+      }
+      { <span class="nb">destruct</span> p0.
+        <span class="nb">rewrite</span> &lt;- (p i), assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">unfold</span> colimIn; <span class="nb">simpl</span>; <span class="nb">unfold</span> BinProduct_of_functors_mor; <span class="nb">simpl</span>.
+        <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> BinProductOfArrows_comp|].
+        <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">isColimProductOfColims</span> :  <span class="k">∃</span>! x : C ⟦ BinProductObject C (PC L M), K ⟧,
+   ∏ v : nat,
+   BinProductOfArrows C (PC L M) (PC (pr1 (dob cAB v)) (pr2 (dob cAB v)))
+     (pr1 (coconeIn ccLM v)) (pr2 (coconeIn ccLM v)) · x =
+   coconeIn ccK v.
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + <span class="nb">apply</span> (colimArrow HAiM K ccAiM_K).
+  + <span class="nb">cbn</span>. <span class="nb">apply</span> is_cocone_morphism.
+- <span class="nb">cbn</span>. <span class="nb">apply</span> is_unique_cocone_morphism.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">omega_cocont_binproduct</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_binproduct_functor</span> : is_omega_cocont (binproduct_functor PC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> cAB LM ccLM HccLM K ccK; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">cbn</span>.
+<span class="nb">apply</span> isColimProductOfColims, HccLM.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">binprod_functor</span>.
+
+<span class="sd">(** ** Binary product of functors: F * G : C -&gt; D is omega cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">BinProduct_of_functors</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">PC</span> : BinProducts C) (<span class="nv">PD</span> : BinProducts D).
+
+<span class="kn">Variable</span> <span class="nv">omega_cocont_constprod_functor1</span> :
+  ∏ x : D, is_omega_cocont (constprod_functor1 PD x).
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_BinProduct_of_functors_alt</span> (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (BinProduct_of_functors_alt PD F G).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> is_omega_cocont_functor_composite.
+- <span class="nb">apply</span> (is_omega_cocont_bindelta_functor PC).
+- <span class="nb">apply</span> is_omega_cocont_functor_composite.
+  + <span class="nb">apply</span> (is_omega_cocont_pair_functor _ _ HF HG).
+  + <span class="bp">now</span> <span class="nb">apply</span> is_omega_cocont_binproduct_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_BinProduct_of_functors_alt</span> (<span class="nv">F</span> <span class="nv">G</span> : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors_alt _ _ (pr2 F) (pr2 G)).
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_BinProduct_of_functors</span> (<span class="nv">F</span> <span class="nv">G</span> : functor C D)
+  (<span class="nv">HF</span> : is_omega_cocont F) (<span class="nv">HG</span> : is_omega_cocont G) :
+  is_omega_cocont (BinProduct_of_functors _ _ PD F G).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (transportf _
+        (BinProduct_of_functors_alt_eq_BinProduct_of_functors C D PD F G)
+        (is_omega_cocont_BinProduct_of_functors_alt _ _ HF HG)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_BinProduct_of_functors</span> (<span class="nv">F</span> <span class="nv">G</span> : omega_cocont_functor C D) :
+  omega_cocont_functor C D :=
+    tpair _ _ (is_omega_cocont_BinProduct_of_functors _ _ (pr2 F) (pr2 G)).
+
+<span class="kn">End</span> <span class="nf">BinProduct_of_functors</span>.
+
+<span class="sd">(** ** Direct proof that the precomposition functor is cocontinuous *)</span>
+<span class="kn">Section</span> <span class="nf">pre_composition_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : functor A B).
+<span class="c">(* Context (CC : Colims C). *)</span> <span class="c">(* This is too strong *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_pre_composition_functor</span> {<span class="nv">g</span> : graph}
+  (<span class="nv">d</span> : diagram g [B, C]) (<span class="nv">G</span> : [B, C])
+  (<span class="nv">ccG</span> : cocone d G) (<span class="nv">H</span> : ∏ b, ColimCocone (diagram_pointwise d b)) :
+  preserves_colimit (pre_composition_functor A B C F) d G ccG.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> HccG.
+<span class="nb">apply</span> pointwise_Colim_is_isColimFunctor; <span class="nb">intro</span> a.
+<span class="bp">now</span> <span class="nb">apply</span> (isColimFunctor_is_pointwise_Colim _ H _ _ HccG).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Lemma is_cocont_pre_composition_functor *)</span>
+<span class="c">(*   (H : ∏ (g : graph) (d : diagram g [B,C,hsC]) (b : B), *)</span>
+<span class="c">(*        ColimCocone (diagram_pointwise hsC d b)) : *)</span>
+<span class="c">(*   is_cocont (pre_composition_functor _ _ _ hsB hsC F). *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* now intros g d G ccG; apply preserves_colimit_pre_composition_functor. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_pre_composition_functor</span>
+  (<span class="nv">H</span> : Colims_of_shape nat_graph C) :
+  is_omega_cocont (pre_composition_functor _ _ C F).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> preserves_colimit_pre_composition_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_pre_composition_functor</span>
+  (<span class="nv">H</span> : Colims_of_shape nat_graph C) :
+  omega_cocont_functor [B, C] [A, C] :=
+  tpair _ _ (is_omega_cocont_pre_composition_functor H).
+
+<span class="kn">End</span> <span class="nf">pre_composition_functor</span>.
+
+<span class="sd">(** ** Precomposition functor is cocontinuous using construction of right Kan extensions *)</span>
+<span class="kn">Section</span> <span class="nf">pre_composition_functor_kan</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : functor A B).
+<span class="kn">Context</span> (<span class="nv">LC</span> : Lims C).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_pre_composition_functor_kan</span> :
+  is_cocont (pre_composition_functor _ _ C F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> left_adjoint_cocont; <span class="kp">try</span> <span class="nb">apply</span> functor_category_has_homsets.
+  <span class="nb">apply</span> (RightKanExtension_from_limits _ _ _ _ LC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_pre_composition_functor_kan</span> :
+  is_omega_cocont (pre_composition_functor _ _ C F).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_pre_composition_functor_kan.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">omega_cocont_pre_composition_functor_kan</span> :
+  omega_cocont_functor [B, C] [A, C] :=
+  tpair _ _ is_omega_cocont_pre_composition_functor_kan.
+
+<span class="kn">End</span> <span class="nf">pre_composition_functor_kan</span>.
+
+<span class="kn">Section</span> <span class="nf">post_composition_functor</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}.
+<span class="kn">Context</span> (<span class="nv">F</span> : functor D E) (<span class="nv">HF</span> : is_left_adjoint F).
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_post_composition_functor</span> :
+  is_cocont (post_composition_functor C D E F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> left_adjoint_cocont; <span class="kp">try</span> <span class="nb">apply</span> functor_category_has_homsets.
+  <span class="nb">apply</span> (is_left_adjoint_post_composition_functor _ HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_post_composition_functor</span> :
+  is_omega_cocont (post_composition_functor C D E F).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">intros</span> c L ccL; <span class="nb">apply</span> is_cocont_post_composition_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">post_composition_functor</span>.
+
+<span class="sd">(** * Swapping of functor category arguments *)</span>
+<span class="kn">Section</span> <span class="nf">functor_swap</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_functor_cat_swap</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category) :
+  is_cocont (functor_cat_swap C D E).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> left_adjoint_cocont.
+  <span class="nb">apply</span> is_left_adjoint_functor_cat_swap.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_functor_cat_swap</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category) :
+  is_omega_cocont (functor_cat_swap C D E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d L ccL HccL.
+  <span class="nb">apply</span> (is_cocont_functor_cat_swap _ _ _ _ d L ccL HccL).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">functor_swap</span>.
+
+<span class="sd">(** * The forgetful functor from Set/X to Set preserves colimits *)</span>
+<span class="kn">Section</span> <span class="nf">cocont_slicecat_to_cat_HSET</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"HSET / X"</span> := (slice_cat HSET X) (<span class="kn">only parsing</span>).
+
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_slicecat_to_cat_HSET</span> (<span class="nv">X</span> : HSET)
+  (<span class="nv">g</span> : graph) (<span class="nv">d</span> : diagram g (HSET / X)) (<span class="nv">L</span> : HSET / X) (<span class="nv">ccL</span> : cocone d L) :
+  preserves_colimit (slicecat_to_cat HSET X) d L ccL.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> left_adjoint_preserves_colimit.
+  - <span class="nb">apply</span> is_left_adjoint_slicecat_to_cat_HSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_cocont_slicecat_to_cat_HSET</span> (<span class="nv">X</span> : HSET) :
+  is_cocont (slicecat_to_cat HSET X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> g d L cc.
+  <span class="bp">now</span> <span class="nb">apply</span> preserves_colimit_slicecat_to_cat_HSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_slicecat_to_cat</span> (<span class="nv">X</span> : HSET) :
+  is_omega_cocont (slicecat_to_cat HSET X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d L cc.
+  <span class="bp">now</span> <span class="nb">apply</span> preserves_colimit_slicecat_to_cat_HSET.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Direct proof that the forgetful functor Set/X to Set preserves colimits *)</span>
+<span class="kn">Lemma</span> <span class="nf">preserves_colimit_slicecat_to_cat_HSET_direct</span> (<span class="nv">X</span> : HSET)
+  (<span class="nv">g</span> : graph) (<span class="nv">d</span> : diagram g (HSET / X)) (<span class="nv">L</span> : HSET / X) (<span class="nv">ccL</span> : cocone d L) :
+  preserves_colimit (slicecat_to_cat HSET X) d L ccL.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HccL y ccy.
+  <span class="nb">set</span> (CC := make_ColimCocone _ _ _ HccL).
+  transparent <span class="nb">assert</span> (c : (HSET / X)).
+  { use tpair.
+    - <span class="k">exists</span> (∑ (x : pr1 X), pr1 y).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> isaset_total2; <span class="nb">intros</span>; <span class="nb">apply</span> setproperty).
+    - <span class="nb">cbn</span>. <span class="nb">apply</span> pr1.
+  }
+  transparent <span class="nb">assert</span> (cc : (cocone d c)).
+  { use make_cocone.
+    - <span class="nb">intros</span> n.
+      use tpair; <span class="nb">simpl</span>.
+      + <span class="nb">intros</span> z.
+        use tpair.
+        * <span class="bp">exact</span> (pr2 L (pr1 (coconeIn ccL n) z)).
+        * <span class="nb">apply</span> (coconeIn ccy n z).
+      + <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">apply</span> funextsec; <span class="nb">intro</span> z;
+                  <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 (coconeIn ccL n)) z)).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">apply</span> eq_mor_slicecat, funextsec; <span class="nb">intro</span> z;
+                use total2_paths_f;
+                [ <span class="nb">apply</span> (maponpaths _ (toforallpaths _ _ _
+                                                     (maponpaths pr1 (coconeInCommutes ccL m n e)) z))|];
+                <span class="nb">cbn</span> <span class="k">in</span> *; <span class="nb">induction</span> (maponpaths pr1 _);
+                <span class="nb">simpl</span>;
+                <span class="bp">now</span> <span class="nb">rewrite</span> idpath_transportf, &lt;- (coconeInCommutes ccy m n e)).
+  }
+  use unique_exists.
+  - <span class="nb">intros</span> l; <span class="nb">apply</span> (pr2 (pr1 (colimArrow CC c cc) l)).
+  - <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x; <span class="nb">cbn</span>.
+    <span class="bp">now</span> etrans; [<span class="nb">apply</span> maponpaths,
+        (toforallpaths _ _ _ (maponpaths pr1 (colimArrowCommutes CC c cc n)) x)|].
+  - <span class="nb">intro</span> ; <span class="nb">apply</span> impred_isaprop.
+    <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+  - <span class="nb">simpl</span>; <span class="nb">intros</span> f Hf.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> l.
+    transparent <span class="nb">assert</span> (k : (HSET/X⟦colim CC,c⟧)).
+    { use tpair.
+      - <span class="nb">intros</span> l'.
+        <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">L</span> <span class="nv">l'</span>).
+        <span class="nb">apply</span> (f l').
+      - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">apply</span> funextsec).
+    }
+    <span class="nb">assert</span> (Hk : (∏ n, colimIn CC n · k = coconeIn cc n)).
+    { <span class="nb">intros</span> n.
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> x; <span class="nb">apply</span> homset_property|].
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> z.
+      use total2_paths_f; [<span class="nb">apply</span> idpath|].
+      <span class="bp">now</span> <span class="nb">rewrite</span> idpath_transportf; <span class="nb">cbn</span>; <span class="nb">rewrite</span> &lt;- (toforallpaths _ _ _ (Hf n) z).
+    }
+    <span class="nb">apply</span> (maponpaths dirprod_pr2
+                      (toforallpaths _ _ _ (maponpaths pr1 (colimArrowUnique CC c cc k Hk)) l)).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cocont_slicecat_to_cat_HSET</span>.
+<span class="kn">End</span> <span class="nf">cocont_functors</span>.
+
+<span class="sd">(** Specialized notations for HSET *)</span>
+<span class="kn">Declare Scope</span> cocont_functor_hset_scope.
+<span class="kn">Delimit Scope</span> cocont_functor_hset_scope <span class="k">with</span> CS.
+
+<span class="kn">Notation</span> <span class="s2">"' x"</span> := (omega_cocont_constant_functor x)
+                    (<span class="kn">at level</span> <span class="mi">10</span>) : cocont_functor_hset_scope.
+
+<span class="kn">Notation</span> <span class="s2">"'Id'"</span> := (omega_cocont_functor_identity _) :
+                     cocont_functor_hset_scope.
+
+<span class="kn">Notation</span> <span class="s2">"F * G"</span> :=
+  (omega_cocont_BinProduct_of_functors_alt BinProductsHSET _
+     (is_omega_cocont_constprod_functor1 _ Exponentials_HSET)
+     F G) : cocont_functor_hset_scope.
+
+<span class="kn">Notation</span> <span class="s2">"F + G"</span> :=
+  (omega_cocont_BinCoproduct_of_functors_alt2
+     BinCoproductsHSET BinProductsHSET F G) : cocont_functor_hset_scope.
+
+<span class="kn">Notation</span> <span class="s2">"1"</span> := (unitHSET) : cocont_functor_hset_scope.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := (emptyHSET) : cocont_functor_hset_scope.
+
+
+<span class="kn">Section</span> <span class="nf">NotationTest</span>.
+<span class="kn">Variable</span> <span class="nv">A</span> : HSET.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cocont_functor_hset_scope.
+
+<span class="sd">(** F(X) = 1 + (A * X) *)</span>
+<span class="kn">Definition</span> <span class="nf">L_A</span> : omega_cocont_functor HSET HSET := '<span class="mi">1</span> + 'A * Id.
+
+<span class="kn">End</span> <span class="nf">NotationTest</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Chains/OmegaCocontFunctors.v</tt>, line 55)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

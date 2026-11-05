@@ -1,0 +1,976 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BinaryProducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Binary products of DCPOs</span>
+
+<span class="sd"> The product of two DCPOs is again a DCPO, and this satisfies the</span>
+<span class="sd"> usual universal property. In addition, we construct a basis for</span>
+<span class="sd"> the product DCPO.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Upperbounds in the product</span>
+<span class="sd"> 2. The DCPO</span>
+<span class="sd"> 3. The first projection</span>
+<span class="sd"> 4. The second projection</span>
+<span class="sd"> 5. Pairing and products of functions</span>
+<span class="sd"> 6. Swap &amp; associativity functions</span>
+<span class="sd"> 7. Lemmas on upperbounds in the product</span>
+<span class="sd"> 8. A basis for the product</span>
+<span class="sd"> 9. Products of Scott opens sets</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Basis.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Elements.Maximal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(** * 1. Upperbounds in the product *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_least_upperbound_pair</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">DX</span> : dcpo_struct X)
+            (<span class="nv">DY</span> : dcpo_struct Y)
+            (<span class="nv">I</span> : UU)
+            (<span class="nv">D</span> : I → (X × Y)%<span class="nb">set</span>)
+            (<span class="nv">x</span> : X)
+            (<span class="nv">y</span> : Y)
+            (<span class="nv">Hx</span> : is_least_upperbound DX (<span class="k">λ</span> <span class="nv">i</span>, pr1 (D i)) x)
+            (<span class="nv">Hy</span> : is_least_upperbound DY (<span class="k">λ</span> <span class="nv">i</span>, pr2 (D i)) y)
+  : is_least_upperbound (prod_PartialOrder DX DY) D (x ,, y).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (x' := (x ,, Hx) : lub DX _).
+  <span class="nb">pose</span> (y' := (y ,, Hy) : lub DY _).
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> i.
+    <span class="bp">exact</span> (lub_is_upperbound x' i ,, lub_is_upperbound y' i).
+  - <span class="nb">intros</span> z Hz.
+    <span class="bp">exact</span> (lub_is_least x' _ (<span class="k">λ</span> <span class="nv">i</span>, pr1 (Hz i))
+           ,,
+           lub_is_least y' _ (<span class="k">λ</span> <span class="nv">i</span>, pr2 (Hz i))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_lub</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">DX</span> : dcpo_struct X)
+           (<span class="nv">DY</span> : dcpo_struct Y)
+           (<span class="nv">I</span> : UU)
+           (<span class="nv">D</span> : I → (X × Y)%<span class="nb">set</span>)
+           (<span class="nv">x</span> : lub DX (<span class="k">λ</span> <span class="nv">i</span>, pr1 (D i)))
+           (<span class="nv">y</span> : lub DY (<span class="k">λ</span> <span class="nv">i</span>, pr2 (D i)))
+  : lub (prod_PartialOrder DX DY) D.
+<span class="kn">Proof</span>.
+  use make_lub.
+  - <span class="bp">exact</span> (pr1 x ,, pr1 y).
+  - use is_least_upperbound_pair.
+    + <span class="bp">exact</span> (pr2 x).
+    + <span class="bp">exact</span> (pr2 y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The DCPO *)</span>
+<span class="kn">Definition</span> <span class="nf">prod_dcpo_struct</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">DX</span> : dcpo_struct X)
+           (<span class="nv">DY</span> : dcpo_struct Y)
+  : dcpo_struct (X × Y)%<span class="nb">set</span>.
+<span class="kn">Proof</span>.
+  use make_dcpo_struct.
+  - <span class="bp">exact</span> (prod_PartialOrder DX DY).
+  - <span class="nb">intros</span> I D HD.
+    use prod_lub.
+    + use (dcpo_struct_lub DX (<span class="k">λ</span> <span class="nv">i</span>, pr1 (D i))).
+      <span class="kp">abstract</span>
+        (use (is_directed_comp _ _ HD) ;
+         <span class="nb">apply</span> dirprod_pr1_is_monotone).
+    + use (dcpo_struct_lub DY (<span class="k">λ</span> <span class="nv">i</span>, pr2 (D i))).
+      <span class="kp">abstract</span>
+        (use (is_directed_comp _ _ HD) ;
+         <span class="nb">apply</span> dirprod_pr2_is_monotone).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_dcppo_struct</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">DX</span> : dcppo_struct X)
+           (<span class="nv">DY</span> : dcppo_struct Y)
+  : dcppo_struct (X × Y)%<span class="nb">set</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (prod_dcpo_struct DX DY ,, _).
+  <span class="bp">exact</span> (pr2 (prod_pointed_PartialOrder DX DY)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_dcpo</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : dcpo)
+  : dcpo
+  := _ ,, prod_dcpo_struct X Y.
+
+<span class="kn">Definition</span> <span class="nf">prod_dcppo</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : dcppo)
+  : dcppo
+  := _ ,, prod_dcppo_struct X Y.
+
+<span class="kn">Notation</span> <span class="s2">"X × Y"</span> := (prod_dcpo X Y) : dcpo.
+
+<span class="kn">Proposition</span> <span class="nf">prod_dcpo_le</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : (X × Y)%dcpo)
+            (<span class="nv">p</span> : pr1 xy₁ ⊑ pr1 xy₂)
+            (<span class="nv">q</span> : pr2 xy₁ ⊑ pr2 xy₂)
+  : xy₁ ⊑ xy₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (p ,, q).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The first projection *)</span>
+<span class="kn">Proposition</span> <span class="nf">pr1_is_least_upperbound</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">DX</span> : dcpo_struct X}
+            {<span class="nv">DY</span> : dcpo_struct Y}
+            {<span class="nv">I</span> : UU}
+            {<span class="nv">D</span> : I → X × Y}
+            (<span class="nv">xy</span> : X × Y)
+            (<span class="nv">Hxy</span> : is_least_upperbound (prod_dcpo_struct DX DY) D xy)
+  : is_least_upperbound DX (<span class="k">λ</span> <span class="nv">i</span>, pr1 (D i)) (pr1 xy).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> i.
+    <span class="bp">exact</span> (pr1 (is_least_upperbound_is_upperbound Hxy i)).
+  - <span class="nb">intros</span> x Hx.
+    <span class="nb">refine</span> (pr1 (is_least_upperbound_is_least Hxy (x ,, pr2 xy) _)).
+    <span class="nb">intros</span> i.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (Hx i).
+    + <span class="bp">exact</span> (pr2 (is_least_upperbound_is_upperbound Hxy i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_scott_continuous_dirprod_pr1</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">DX</span> : dcpo_struct X)
+            (<span class="nv">DY</span> : dcpo_struct Y)
+  : is_scott_continuous
+      (prod_dcpo_struct DX DY)
+      DX
+      dirprod_pr1.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> dirprod_pr1_is_monotone.
+  - <span class="nb">intros</span> I DI HD x Hx.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> i.
+      <span class="bp">exact</span> (pr1 (is_least_upperbound_is_upperbound Hx i)).
+    + <span class="nb">intros</span> x' Hx'.
+      <span class="nb">refine</span> (pr1 (is_least_upperbound_is_least Hx (x' ,, pr2 x) _)).
+      <span class="nb">intro</span> i.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (Hx' i).
+      * <span class="bp">exact</span> (pr2 (is_least_upperbound_is_upperbound Hx i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_scott_continuous_dirprod_pr1</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">DX</span> : dcppo_struct X)
+            (<span class="nv">DY</span> : dcppo_struct Y)
+  : is_strict_scott_continuous
+      (prod_dcppo_struct DX DY)
+      DX
+      dirprod_pr1.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> is_scott_continuous_dirprod_pr1.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_pr1_scott_continuous_map</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : dcpo)
+  : scott_continuous_map (X × Y) X
+  := _ ,, is_scott_continuous_dirprod_pr1 X Y.
+
+<span class="kn">Notation</span> <span class="s2">"'π₁'"</span> := (dirprod_pr1_scott_continuous_map _ _) : dcpo.
+
+<span class="sd">(** * 4. The second projection *)</span>
+<span class="kn">Proposition</span> <span class="nf">pr2_is_least_upperbound</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">DX</span> : dcpo_struct X}
+            {<span class="nv">DY</span> : dcpo_struct Y}
+            {<span class="nv">I</span> : UU}
+            {<span class="nv">D</span> : I → X × Y}
+            (<span class="nv">xy</span> : X × Y)
+            (<span class="nv">Hxy</span> : is_least_upperbound (prod_dcpo_struct DX DY) D xy)
+  : is_least_upperbound DY (<span class="k">λ</span> <span class="nv">i</span>, pr2 (D i)) (pr2 xy).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> i.
+    <span class="bp">exact</span> (pr2 (is_least_upperbound_is_upperbound Hxy i)).
+  - <span class="nb">intros</span> y Hy.
+    <span class="nb">refine</span> (pr2 (is_least_upperbound_is_least Hxy (pr1 xy ,, y) _)).
+    <span class="nb">intros</span> i.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (pr1 (is_least_upperbound_is_upperbound Hxy i)).
+    + <span class="bp">exact</span> (Hy i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_scott_continuous_dirprod_pr2</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">DX</span> : dcpo_struct X)
+            (<span class="nv">DY</span> : dcpo_struct Y)
+  : is_scott_continuous
+      (prod_dcpo_struct DX DY)
+      DY
+      dirprod_pr2.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> dirprod_pr2_is_monotone.
+  - <span class="nb">intros</span> I DI HD x Hx.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> i.
+      <span class="bp">exact</span> (pr2 (is_least_upperbound_is_upperbound Hx i)).
+    + <span class="nb">intros</span> y' Hy'.
+      <span class="nb">refine</span> (pr2 (is_least_upperbound_is_least Hx (pr1 x ,, y') _)).
+      <span class="nb">intro</span> i.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (pr1 (is_least_upperbound_is_upperbound Hx i)).
+      * <span class="bp">exact</span> (Hy' i).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_scott_continuous_dirprod_pr2</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">DX</span> : dcppo_struct X)
+            (<span class="nv">DY</span> : dcppo_struct Y)
+  : is_strict_scott_continuous
+      (prod_dcppo_struct DX DY)
+      DY
+      dirprod_pr2.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> is_scott_continuous_dirprod_pr2.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dirprod_pr2_scott_continuous_map</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : dcpo)
+  : scott_continuous_map (X × Y) Y
+  := _ ,, is_scott_continuous_dirprod_pr2 X Y.
+
+<span class="kn">Notation</span> <span class="s2">"'π₂'"</span> := (dirprod_pr2_scott_continuous_map _ _) : dcpo.
+
+<span class="sd">(** * 5. Pairing and (tensor) products of functions *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_scott_continuous_prodtofun</span>
+            {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">DW</span> : dcpo_struct W}
+            {<span class="nv">DX</span> : dcpo_struct X}
+            {<span class="nv">DY</span> : dcpo_struct Y}
+            {<span class="nv">f</span> : W → X}
+            (<span class="nv">Hf</span> : is_scott_continuous DW DX f)
+            {<span class="nv">g</span> : W → Y}
+            (<span class="nv">Hg</span> : is_scott_continuous DW DY g)
+  : is_scott_continuous
+      DW
+      (prod_dcpo_struct DX DY)
+      (prodtofuntoprod (f ,, g)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> prodtofun_is_monotone.
+    + <span class="bp">exact</span> (is_scott_continuous_monotone Hf).
+    + <span class="bp">exact</span> (is_scott_continuous_monotone Hg).
+  - <span class="nb">intros</span> I D HD w Hw.
+    <span class="nb">split</span>.
+    + <span class="nb">intro</span> i.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (is_least_upperbound_is_upperbound
+                 (is_scott_continuous_lub Hf HD w Hw)
+                 i).
+      * <span class="bp">exact</span> (is_least_upperbound_is_upperbound
+                 (is_scott_continuous_lub Hg HD w Hw)
+                 i).
+    + <span class="nb">intros</span> xy Hxy.
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      * use (is_least_upperbound_is_least
+               (is_scott_continuous_lub Hf HD w Hw)
+               (pr1 xy)).
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (pr1 (Hxy i)).
+      * use (is_least_upperbound_is_least
+               (is_scott_continuous_lub Hg HD w Hw)
+               (pr2 xy)).
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (pr2 (Hxy i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_scott_continuous_prodtofun</span>
+            {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">DW</span> : dcppo_struct W}
+            {<span class="nv">DX</span> : dcppo_struct X}
+            {<span class="nv">DY</span> : dcppo_struct Y}
+            {<span class="nv">f</span> : W → X}
+            (<span class="nv">Hf</span> : is_strict_scott_continuous DW DX f)
+            {<span class="nv">g</span> : W → Y}
+            (<span class="nv">Hg</span> : is_strict_scott_continuous DW DY g)
+  : is_strict_scott_continuous
+      DW
+      (prod_dcppo_struct DX DY)
+      (prodtofuntoprod (f ,, g)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (is_scott_continuous_prodtofun Hf Hg).
+  - use pathsdirprod.
+    + <span class="nb">apply</span> Hf.
+    + <span class="nb">apply</span> Hg.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pair_scott_continuous</span>
+           {<span class="nv">W</span> <span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+           (<span class="nv">f</span> : scott_continuous_map W X)
+           (<span class="nv">g</span> : scott_continuous_map W Y)
+  : scott_continuous_map W (X × Y)
+  := _ ,, is_scott_continuous_prodtofun (pr2 f) (pr2 g).
+
+<span class="kn">Notation</span> <span class="s2">"⟨ f , g ⟩"</span> := (pair_scott_continuous f g) : dcpo.
+
+<span class="kn">Definition</span> <span class="nf">tensor_scott_continuous_map</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : dcpo}
+           (<span class="nv">f₁</span> : scott_continuous_map X₁ Y₁)
+           (<span class="nv">f₂</span> : scott_continuous_map X₂ Y₂)
+  : scott_continuous_map (X₁ × X₂) (Y₁ × Y₂)
+  := ⟨ π₁ · f₁ , π₂ · f₂ ⟩.
+
+<span class="kn">Notation</span> <span class="s2">"f₁ ⊗ f₂"</span> := (tensor_scott_continuous_map f₁ f₂) : dcpo.
+
+<span class="sd">(** * 6. Swap &amp; associativity functions *)</span>
+<span class="kn">Definition</span> <span class="nf">dcpo_swap</span>
+           (<span class="nv">A</span> <span class="nv">B</span> : dcpo)
+  : scott_continuous_map (A × B) (B × A)
+  := ⟨ dirprod_pr2_scott_continuous_map _ _
+     , dirprod_pr1_scott_continuous_map _ _ ⟩.
+
+<span class="kn">Definition</span> <span class="nf">assoc_scott_continuous_map</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo)
+  : scott_continuous_map (X × Y × Z) ((X × Y) × Z)
+  := ⟨ ⟨ π₁ , π₂ · π₁ ⟩ , π₂ · π₂ ⟩.
+
+<span class="kn">Notation</span> <span class="s2">"'α'"</span> := (assoc_scott_continuous_map _ _ _) : dcpo.
+
+<span class="sd">(** * 7. Lemmas on upperbounds in the product *)</span>
+<span class="kn">Proposition</span> <span class="nf">prod_dcpo_lub</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">D</span> : directed_set (X × Y))
+  : ⨆ D = (⨆ (π₁ {{ D }}) ,, ⨆ (π₂ {{ D }})).
+<span class="kn">Proof</span>.
+  use (eq_lub (X × Y) D).
+  - <span class="nb">apply</span> is_least_upperbound_dcpo_lub.
+  - use is_least_upperbound_pair.
+    + <span class="bp">exact</span> (is_least_upperbound_dcpo_comp_lub
+               (dirprod_pr1_scott_continuous_map X Y)
+               D).
+    + <span class="bp">exact</span> (is_least_upperbound_dcpo_comp_lub
+               (dirprod_pr2_scott_continuous_map X Y)
+               D).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prod_directed_set_dcpo</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+           (<span class="nv">D₁</span> : directed_set X)
+           (<span class="nv">D₂</span> : directed_set Y)
+  : directed_set (X × Y)
+  := prod_directed_set D₁ D₂.
+
+<span class="kn">Proposition</span> <span class="nf">prod_dcpo_lub'</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+            (<span class="nv">D</span> : directed_set X)
+            (<span class="nv">D'</span> : directed_set Y)
+  : ⨆ (prod_directed_set_dcpo D D') = (⨆ D ,, ⨆ D').
+<span class="kn">Proof</span>.
+  use antisymm_dcpo.
+  - use dcpo_lub_is_least.
+    <span class="nb">intro</span> i.
+    use prod_dcpo_le ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (pr1 i).
+      * <span class="nb">apply</span> refl_dcpo.
+    + use less_than_dcpo_lub.
+      * <span class="bp">exact</span> (pr2 i).
+      * <span class="nb">apply</span> refl_dcpo.
+  - <span class="nb">assert</span> (Di := directed_set_el D).
+    <span class="nb">revert</span> Di.
+    use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+    <span class="nb">intro</span> Di.
+    <span class="nb">assert</span> (Di' := directed_set_el D').
+    <span class="nb">revert</span> Di'.
+    use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+    <span class="nb">intro</span> Di'.
+    use prod_dcpo_le.
+    + use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (pr1 (less_than_dcpo_lub
+                     (prod_directed_set_dcpo D D')
+                     (D i ,, D' Di')
+                     (i ,, Di')
+                     _)).
+      use prod_dcpo_le ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> refl_dcpo.
+      * <span class="nb">apply</span> refl_dcpo.
+    + use dcpo_lub_is_least.
+      <span class="nb">intro</span> i'.
+      <span class="nb">refine</span> (pr2 (less_than_dcpo_lub
+                     (prod_directed_set_dcpo D D')
+                     (D Di ,, D' i')
+                     (Di ,, i')
+                     _)).
+      use prod_dcpo_le ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> refl_dcpo.
+      * <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. A basis for the product *)</span>
+<span class="kn">Section</span> <span class="nf">ProductBasis</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+          (<span class="nv">BX</span> : dcpo_basis X)
+          (<span class="nv">BY</span> : dcpo_basis Y).
+
+  <span class="kn">Proposition</span> <span class="nf">way_below_prod_pr1</span>
+              {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : prod_dcpo X Y}
+              (<span class="nv">p</span> : xy₁ ≪ xy₂)
+    : pr1 xy₁ ≪ pr1 xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D q.
+    <span class="nb">pose</span> (D' := prod_directed_set_dcpo D (directed_set_from_basis BY (pr2 xy₂))).
+    <span class="nb">assert</span> (HD : xy₂ ⊑ ⨆ D').
+    {
+      <span class="nb">unfold</span> D'.
+      <span class="nb">rewrite</span> prod_dcpo_lub'.
+      <span class="nb">rewrite</span> approximating_basis_lub.
+      <span class="bp">exact</span> (q ,, refl_dcpo _).
+    }
+    <span class="nb">assert</span> (H := p D' HD).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ i H ].
+    <span class="bp">exact</span> (hinhpr (pr1 i ,, pr1 H)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">way_below_prod_pr2</span>
+              {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : prod_dcpo X Y}
+              (<span class="nv">p</span> : xy₁ ≪ xy₂)
+    : pr2 xy₁ ≪ pr2 xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D q.
+    <span class="nb">pose</span> (D' := prod_directed_set_dcpo (directed_set_from_basis BX (pr1 xy₂)) D).
+    <span class="nb">assert</span> (HD : xy₂ ⊑ ⨆ D').
+    {
+      <span class="nb">unfold</span> D'.
+      <span class="nb">rewrite</span> prod_dcpo_lub'.
+      <span class="nb">rewrite</span> approximating_basis_lub.
+      <span class="bp">exact</span> (refl_dcpo _ ,, q).
+    }
+    <span class="nb">assert</span> (H := p D' HD).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ i H ].
+    <span class="bp">exact</span> (hinhpr (pr2 i ,, pr2 H)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_way_below_prod</span>
+              {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : prod_dcpo X Y}
+              (<span class="nv">p</span> : pr1 xy₁ ≪ pr1 xy₂)
+              (<span class="nv">q</span> : pr2 xy₁ ≪ pr2 xy₂)
+    : xy₁ ≪ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> D r.
+    <span class="nb">rewrite</span> prod_dcpo_lub <span class="k">in</span> r.
+    <span class="nb">assert</span> (H := p (directed_set_comp π₁ D) (pr1 r)).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ i s₁ ].
+    <span class="nb">assert</span> (H := q (directed_set_comp π₂ D) (pr2 r)).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ j s₂ ].
+    <span class="nb">assert</span> (H := directed_set_top D i j).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ t [ u₁ u₂ ]].
+    <span class="nb">simple refine</span> (hinhpr (t ,, _ ,, _)).
+    - <span class="bp">exact</span> (trans_dcpo s₁ (pr1 u₁)).
+    - <span class="bp">exact</span> (trans_dcpo s₂ (pr2 u₂)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">way_below_prod_weq</span>
+              (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : prod_dcpo X Y)
+    : xy₁ ≪ xy₂ ≃ ((pr1 xy₁ ≪ pr1 xy₂) ∧ (pr2 xy₁ ≪ pr2 xy₂)).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> p.
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> (way_below_prod_pr1 p).
+      + <span class="bp">exact</span> (way_below_prod_pr2 p).
+    - <span class="nb">intros</span> p.
+      <span class="bp">exact</span> (to_way_below_prod (pr1 p) (pr2 p)).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dcpo_basis_data</span>
+    : dcpo_basis_data (prod_dcpo X Y).
+  <span class="kn">Proof</span>.
+    use make_dcpo_basis_data.
+    - <span class="bp">exact</span> (BX × BY)%type.
+    - <span class="bp">exact</span> (dirprodf BX BY).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_dcpo_basis_laws</span>
+    : dcpo_basis_laws (X × Y) prod_dcpo_basis_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">assert</span> (H := directed_set_el (directed_set_from_basis BX (pr1 xy))).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> a.
+        <span class="nb">induction</span> a <span class="k">as</span> [ a p ].
+        <span class="nb">assert</span> (H := directed_set_el (directed_set_from_basis BY (pr2 xy))).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b q ].
+        <span class="nb">refine</span> (hinhpr ((a ,, b) ,, _)).
+        use to_way_below_prod.
+        * <span class="bp">exact</span> p.
+        * <span class="bp">exact</span> q.
+      + <span class="nb">intros</span> ij₁ ij₂.
+        <span class="nb">assert</span> (H := directed_set_top
+                       (directed_set_from_basis BX (pr1 xy))
+                       (pr11 ij₁ ,, way_below_prod_pr1 (pr2 ij₁))
+                       (pr11 ij₂ ,, way_below_prod_pr1 (pr2 ij₂))).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span> [ k [ p₁ p₂ ]].
+        <span class="nb">assert</span> (H := directed_set_top
+                       (directed_set_from_basis BY (pr2 xy))
+                       (pr21 ij₁ ,, way_below_prod_pr2 (pr2 ij₁))
+                       (pr21 ij₂ ,, way_below_prod_pr2 (pr2 ij₂))).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> l.
+        <span class="nb">induction</span> l <span class="k">as</span> [ l [ q₁ q₂ ]].
+        <span class="nb">simple refine</span> (hinhpr (((_ ,, _) ,, _) ,, (_ ,, _) ,, (_ ,, _))).
+        * <span class="bp">exact</span> (pr1 k).
+        * <span class="bp">exact</span> (pr1 l).
+        * use to_way_below_prod.
+          ** <span class="bp">exact</span> (pr2 k).
+          ** <span class="bp">exact</span> (pr2 l).
+        * <span class="bp">exact</span> p₁.
+        * <span class="bp">exact</span> q₁.
+        * <span class="bp">exact</span> p₂.
+        * <span class="bp">exact</span> q₂.
+    - use is_least_upperbound_pair.
+      + <span class="nb">split</span>.
+        * <span class="nb">intros</span> a.
+          <span class="nb">refine</span> (is_least_upperbound_is_upperbound
+                    (is_least_upperbound_basis BX (pr1 xy))
+                    (pr11 a ,, _)).
+          <span class="nb">apply</span> (way_below_prod_pr1 (pr2 a)).
+        * <span class="nb">intros</span> a Ha.
+          <span class="nb">apply</span> (is_least_upperbound_is_least
+                   (is_least_upperbound_basis BX (pr1 xy))).
+          <span class="nb">intros</span> b.
+          <span class="nb">assert</span> (H := basis_nullary_interpolation BY (pr2 xy)).
+          <span class="nb">revert</span> H.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intro</span> H.
+          <span class="nb">induction</span> H <span class="k">as</span> [ c p ].
+          <span class="nb">simple refine</span> (Ha ((pr1 b ,, c) ,, _)).
+          use to_way_below_prod.
+          ** <span class="bp">exact</span> (pr2 b).
+          ** <span class="bp">exact</span> p.
+      + <span class="nb">split</span>.
+        * <span class="nb">intros</span> a.
+          <span class="nb">refine</span> (is_least_upperbound_is_upperbound
+                    (is_least_upperbound_basis BY (pr2 xy))
+                    (pr21 a ,, _)).
+          <span class="nb">apply</span> (way_below_prod_pr2 (pr2 a)).
+        * <span class="nb">intros</span> a Ha.
+          <span class="nb">apply</span> (is_least_upperbound_is_least
+                   (is_least_upperbound_basis BY (pr2 xy))).
+          <span class="nb">intros</span> b.
+          <span class="nb">assert</span> (H := basis_nullary_interpolation BX (pr1 xy)).
+          <span class="nb">revert</span> H.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> propproperty.
+          }
+          <span class="nb">intro</span> H.
+          <span class="nb">induction</span> H <span class="k">as</span> [ c p ].
+          <span class="nb">simple refine</span> (Ha ((c ,, pr1 b) ,, _)).
+          use to_way_below_prod.
+          ** <span class="bp">exact</span> p.
+          ** <span class="bp">exact</span> (pr2 b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_dcpo_basis</span>
+    : dcpo_basis (prod_dcpo X Y).
+  <span class="kn">Proof</span>.
+    use make_dcpo_basis.
+    - <span class="bp">exact</span> prod_dcpo_basis_data.
+    - <span class="bp">exact</span> prod_dcpo_basis_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProductBasis</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_continuous_struct_product</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : dcpo}
+           (<span class="nv">CX</span> : continuous_dcpo_struct X)
+           (<span class="nv">CY</span> : continuous_dcpo_struct Y)
+  : continuous_dcpo_struct (prod_dcpo X Y).
+<span class="kn">Proof</span>.
+  use continuous_struct_from_basis.
+  use prod_dcpo_basis.
+  - use basis_from_continuous_struct.
+    <span class="bp">exact</span> CX.
+  - use basis_from_continuous_struct.
+    <span class="bp">exact</span> CY.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 9. Products of Scott-open sets</span>
+
+<span class="sd">The Scott-open sets in the binary product are the products of Scott-open sets.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">scott_open_binprod</span>.
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : dcpo}.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_open_pr1</span>
+              (<span class="nv">P</span> : scott_open_set (A × B)%dcpo)
+              (<span class="nv">b</span> : B)
+    : is_scott_open (<span class="k">λ</span> <span class="nv">a</span>, P (a ,, b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a₁ a₂ p₁ p₂.
+      use (is_scott_open_upper_set P p₁).
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> p₂.
+      + <span class="nb">apply</span> refl_dcpo.
+    - <span class="nb">intros</span> D Dp.
+      <span class="nb">pose</span> (is_scott_open_lub_inaccessible
+              P
+              (prod_directed_set_dcpo D (const_directed_set B b D (directed_set_el D))))
+        <span class="k">as</span> p.
+      <span class="nb">rewrite</span> prod_dcpo_lub' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> const_lub <span class="k">in</span> p.
+      <span class="nb">assert</span> (H := p Dp).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( i &amp; H ) ; <span class="nb">cbn</span> <span class="k">in</span> i, H.
+      <span class="nb">refine</span> (hinhpr (pr1 i ,, _)).
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scott_open_pr1</span>
+             (<span class="nv">P</span> : scott_open_set (A × B))
+             (<span class="nv">b</span> : B)
+    : scott_open_set A.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span>, P (a ,, b)).
+    - <span class="bp">exact</span> (is_scott_open_pr1 P b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_open_pr2</span>
+              (<span class="nv">P</span> : scott_open_set (A × B))
+              (<span class="nv">a</span> : A)
+    : is_scott_open (<span class="k">λ</span> <span class="nv">b</span>, P (a ,, b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> b₁ b₂ p₁ p₂.
+      use (is_scott_open_upper_set P p₁).
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> refl_dcpo.
+      + <span class="bp">exact</span> p₂.
+    - <span class="nb">intros</span> D Dp.
+      <span class="nb">pose</span> (is_scott_open_lub_inaccessible
+              P
+              (prod_directed_set_dcpo (const_directed_set A a D (directed_set_el D)) D))
+        <span class="k">as</span> p.
+      <span class="nb">rewrite</span> prod_dcpo_lub' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> const_lub <span class="k">in</span> p.
+      <span class="nb">assert</span> (H := p Dp).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( i &amp; H ) ; <span class="nb">cbn</span> <span class="k">in</span> i, H.
+      <span class="nb">refine</span> (hinhpr (pr2 i ,, _)).
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">scott_open_pr2</span>
+             (<span class="nv">P</span> : scott_open_set (A × B))
+             (<span class="nv">a</span> : A)
+    : scott_open_set B.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span>, P (a ,, b)).
+    - <span class="bp">exact</span> (is_scott_open_pr2 P a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">prod_is_scott_open</span>
+              (<span class="nv">PA</span> : scott_open_set A)
+              (<span class="nv">PB</span> : scott_open_set B)
+    : is_scott_open (<span class="k">λ</span> (<span class="nv">x</span> : (A × B)%dcpo), PA (pr1 x) ∧ PB (pr2 x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> ( a₁ &amp; b₁ ) ( a₂ &amp; b₂ ) ( p₁ &amp; p₂ ) ( q₁ &amp; q₂ ).
+      <span class="bp">exact</span> (is_scott_open_upper_set PA p₁ q₁ ,, is_scott_open_upper_set PB p₂ q₂).
+    - <span class="nb">intros</span> D ( p &amp; q ).
+      <span class="nb">rewrite</span> prod_dcpo_lub <span class="k">in</span> p, q.
+      <span class="nb">cbn</span> <span class="k">in</span> p, q.
+      <span class="nb">assert</span> (H₁ := is_scott_open_lub_inaccessible PA (directed_set_comp π₁ D) p).
+      <span class="nb">assert</span> (H₂ := is_scott_open_lub_inaccessible PB (directed_set_comp π₂ D) q).
+      <span class="nb">revert</span> H₁.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( i₁ &amp; H₁ ) ; <span class="nb">cbn</span> <span class="k">in</span> i₁, H₁.
+      <span class="nb">revert</span> H₂.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( i₂ &amp; H₂ ) ; <span class="nb">cbn</span> <span class="k">in</span> i₂, H₂.
+      <span class="nb">assert</span> (H₃ := directed_set_top D i₁ i₂).
+      <span class="nb">revert</span> H₃.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( k &amp; r₁ &amp; r₂ ) ; <span class="nb">cbn</span> <span class="k">in</span> k, r₁, r₂.
+      <span class="nb">refine</span> (hinhpr (k ,, _ ,, _)).
+      + <span class="bp">exact</span> (is_scott_open_upper_set PA H₁ (pr1 r₁)).
+      + <span class="bp">exact</span> (is_scott_open_upper_set PB H₂ (pr2 r₂)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_scott_open</span>
+             (<span class="nv">PA</span> : scott_open_set A)
+             (<span class="nv">PB</span> : scott_open_set B)
+    : scott_open_set (A × B).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, PA (pr1 x) ∧ PB (pr2 x)).
+    - <span class="bp">exact</span> (prod_is_scott_open PA PB).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">scott_open_binprod</span>.
+
+<span class="sd">(** * 10. Strongly maximal elements in products</span>
+
+<span class="sd">     Applies to continuous DCPOs</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">StronglyMaximal</span>.
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : dcpo}
+          (<span class="nv">CA</span> : continuous_dcpo_struct A)
+          (<span class="nv">CB</span> : continuous_dcpo_struct B).
+
+  <span class="kn">Let</span> <span class="nf">basis_A</span> : dcpo_basis A := basis_from_continuous_struct CA.
+  <span class="kn">Let</span> <span class="nf">basis_B</span> : dcpo_basis B := basis_from_continuous_struct CB.
+
+  <span class="kn">Proposition</span> <span class="nf">strongly_maximal_pr1</span>
+              {<span class="nv">a</span> : A}
+              {<span class="nv">b</span> : B}
+              (<span class="nv">Hab</span> : @is_strongly_maximal (A × B)%dcpo (a ,, b))
+    : is_strongly_maximal a.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := nullary_interpolation CB b).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( bl &amp; p ).
+    <span class="nb">intros</span> x y q.
+    <span class="nb">pose</span> (qp := @to_way_below_prod A B (x ,, bl) (y ,, b) q p).
+    <span class="nb">assert</span> (H := Hab (x ,, bl) (y ,, b) qp).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ H | H ].
+    - use hdisj_in1.
+      <span class="bp">exact</span> (way_below_prod_pr1 basis_B H).
+    - use hdisj_in2.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( P₁ &amp; P₂ &amp; H₁ &amp; H₂ &amp; H₃ ).
+      use hinhpr.
+      <span class="nb">refine</span> (scott_open_pr1 P₁ b ,, scott_open_pr1 P₂ b ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> H₁.
+      + <span class="bp">exact</span> H₂.
+      + <span class="nb">intros</span> z n.
+        <span class="nb">refine</span> (H₃ (z ,, b) _).
+        <span class="bp">exact</span> n.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">strongly_maximal_pr2</span>
+              {<span class="nv">a</span> : A}
+              {<span class="nv">b</span> : B}
+              (<span class="nv">Hab</span> : @is_strongly_maximal (A × B)%dcpo (a ,, b))
+    : is_strongly_maximal b.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := nullary_interpolation CA a).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( al &amp; p ).
+    <span class="nb">intros</span> x y q.
+    <span class="nb">pose</span> (qp := @to_way_below_prod A B (al ,, x) (a ,, y) p q).
+    <span class="nb">assert</span> (H := Hab (al ,, x) (a ,, y) qp).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ H | H ].
+    - use hdisj_in1.
+      <span class="bp">exact</span> (way_below_prod_pr2 basis_A H).
+    - use hdisj_in2.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( P₁ &amp; P₂ &amp; H₁ &amp; H₂ &amp; H₃ ).
+      use hinhpr.
+      <span class="nb">refine</span> (scott_open_pr2 P₁ a ,, scott_open_pr2 P₂ a ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> H₁.
+      + <span class="bp">exact</span> H₂.
+      + <span class="nb">intros</span> z n.
+        <span class="nb">refine</span> (H₃ (a ,, z) _).
+        <span class="bp">exact</span> n.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">strongly_maximal_pair</span>
+              {<span class="nv">a</span> : A}
+              {<span class="nv">b</span> : B}
+              (<span class="nv">Ha</span> : is_strongly_maximal a)
+              (<span class="nv">Hb</span> : is_strongly_maximal b)
+    : @is_strongly_maximal (A × B)%dcpo (a ,, b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ( x₁ &amp; y₁ ) ( x₂ &amp; y₂ ) q.
+    <span class="nb">pose</span> (p₁ := way_below_prod_pr1 basis_B q : x₁ ≪ x₂).
+    <span class="nb">pose</span> (p₂ := way_below_prod_pr2 basis_A q : y₁ ≪ y₂).
+    <span class="nb">assert</span> (H :=  Ha x₁ x₂ p₁).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> H₁.
+    <span class="nb">assert</span> (H :=  Hb y₁ y₂ p₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> H₂.
+    <span class="nb">induction</span> H₁ <span class="k">as</span> [ H₁ | H₁ ], H₂ <span class="k">as</span> [ H₂ | H₂ ].
+    - use hdisj_in1.
+      use to_way_below_prod.
+      + <span class="bp">exact</span> H₁.
+      + <span class="bp">exact</span> H₂.
+    - use hdisj_in2.
+      <span class="nb">revert</span> H₂.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( P₁ &amp; P₂ &amp; r₁ &amp; r₂ &amp; r₃ ).
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> (prod_scott_open (true_scott_open_set _) P₁ ,, _).
+      <span class="nb">refine</span> (prod_scott_open (true_scott_open_set _) P₂ ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (tt ,, r₁).
+      + <span class="bp">exact</span> (tt ,, r₂).
+      + <span class="nb">intros</span> ( x₃ &amp; y₃ ).
+        <span class="nb">intros</span> ( ( _ &amp; s₁ ) &amp; ( _ &amp; s₂ ) ) ; <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂.
+        <span class="bp">exact</span> (r₃ _ (s₁ ,, s₂)).
+    - use hdisj_in2.
+      <span class="nb">revert</span> H₁.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( P₁ &amp; P₂ &amp; r₁ &amp; r₂ &amp; r₃ ).
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> (prod_scott_open P₁ (true_scott_open_set _) ,, _).
+      <span class="nb">refine</span> (prod_scott_open P₂ (true_scott_open_set _) ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (r₁ ,, tt).
+      + <span class="bp">exact</span> (r₂ ,, tt).
+      + <span class="nb">intros</span> ( x₃ &amp; y₃ ).
+        <span class="nb">intros</span> ( ( s₁ &amp; _ ) &amp; ( s₂ &amp; _ ) ) ; <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂.
+        <span class="bp">exact</span> (r₃ _ (s₁ ,, s₂)).
+    - use hdisj_in2.
+      <span class="nb">revert</span> H₁.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( P₁ &amp; P₂ &amp; r₁ &amp; r₂ &amp; r₃ ).
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> (prod_scott_open P₁ (true_scott_open_set _) ,, _).
+      <span class="nb">refine</span> (prod_scott_open P₂ (true_scott_open_set _) ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (r₁ ,, tt).
+      + <span class="bp">exact</span> (r₂ ,, tt).
+      + <span class="nb">intros</span> ( x₃ &amp; y₃ ).
+        <span class="nb">intros</span> ( ( s₁ &amp; _ ) &amp; ( s₂ &amp; _ ) ) ; <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂.
+        <span class="bp">exact</span> (r₃ _ (s₁ ,, s₂)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strongly_maximal_prod_weq</span>
+             (<span class="nv">a</span> : A)
+             (<span class="nv">b</span> : B)
+    : @is_strongly_maximal (A × B)%dcpo (a ,, b)
+       ≃
+       (is_strongly_maximal a ∧ is_strongly_maximal b).
+  <span class="kn">Proof</span>.
+    use logeqweq.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, strongly_maximal_pr1 p ,, strongly_maximal_pr2 p).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, strongly_maximal_pair (pr1 p) (pr2 p)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StronglyMaximal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/BinaryProducts.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  9. Products of Scott opens sets
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.PointedPosets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquifierEquivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> Equivalences for equifiers</span>
+
+<span class="sd"> ************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ContainsAdjEquiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Equifiers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+
+<span class="sd">  Suppose, we have a diagram as follows</span>
+
+
+<span class="sd">                        ---- f₁ ----&gt;</span>
+<span class="sd">     p₁ ---- i₁ ----&gt; x₁              y₁</span>
+<span class="sd">                        ---- g₁ ----&gt;</span>
+<span class="sd">     |                |               |</span>
+<span class="sd">     |                |               |</span>
+<span class="sd">     l₃      ≃        l₁     ≃        l₂</span>
+<span class="sd">     |                |               |</span>
+<span class="sd">     |                |               |</span>
+<span class="sd">     V                V               V</span>
+<span class="sd">                        ---- f₂ ----&gt;</span>
+<span class="sd">     p₂ ---- i₂ ----&gt; x₁              y₂</span>
+<span class="sd">                        ---- g₂ ----&gt;</span>
+
+
+<span class="sd">  where the columns are adjoint equivalences and both rows are equifier cones.</span>
+<span class="sd">  If the top row is an equifier, then so is the bottom row.</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">EquifierEquivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">p₁</span> <span class="nv">x₁</span> <span class="nv">y₁</span> <span class="nv">p₂</span> <span class="nv">x₂</span> <span class="nv">y₂</span> : B}
+          {<span class="nv">e₁</span> : p₁ --&gt; x₁}
+          {<span class="nv">f₁</span> <span class="nv">g₁</span> : x₁ --&gt; y₁}
+          {<span class="nv">α₁</span> <span class="nv">β₁</span> : f₁ ==&gt; g₁}
+          {<span class="nv">e₂</span> : p₂ --&gt; x₂}
+          {<span class="nv">f₂</span> <span class="nv">g₂</span> : x₂ --&gt; y₂}
+          {<span class="nv">α₂</span> <span class="nv">β₂</span> : f₂ ==&gt; g₂}
+          (<span class="nv">ep₁</span> : e₁ ◃ α₁ = e₁ ◃ β₁)
+          (<span class="nv">ep₂</span> : e₂ ◃ α₂ = e₂ ◃ β₂)
+          (<span class="nv">cone₁</span> := make_equifier_cone p₁ e₁ ep₁)
+          (<span class="nv">cone₂</span> := make_equifier_cone p₂ e₂ ep₂)
+          (<span class="nv">lx</span> : x₁ --&gt; x₂)
+          (<span class="nv">ly</span> : y₁ --&gt; y₂)
+          (<span class="nv">lp</span> : p₁ --&gt; p₂)
+          (<span class="nv">Hlx</span> : left_adjoint_equivalence lx)
+          (<span class="nv">Hly</span> : left_adjoint_equivalence ly)
+          (<span class="nv">Hlp</span> : left_adjoint_equivalence lp)
+          (<span class="nv">γ₁</span> : invertible_2cell (lp · e₂) (e₁ · lx))
+          (<span class="nv">γ₂</span> : invertible_2cell (lx · f₂) (f₁ · ly))
+          (<span class="nv">γ₃</span> : invertible_2cell (lx · g₂) (g₁ · ly))
+          (<span class="nv">H</span> : has_equifier_ump cone₁)
+          (<span class="nv">pα</span> : lx ◃ α₂ • γ₃
+                =
+                γ₂ • (α₁ ▹ _))
+          (<span class="nv">pβ</span> : lx ◃ β₂ • γ₃
+                =
+                γ₂ • (β₁ ▹ _)).
+
+  <span class="kn">Let</span> <span class="nf">rx</span> : x₂ --&gt; x₁
+    := left_adjoint_right_adjoint Hlx.
+  <span class="kn">Let</span> <span class="nf">ηx</span> : invertible_2cell (id₁ _) (lx · rx)
+    := left_equivalence_unit_iso Hlx.
+  <span class="kn">Let</span> <span class="nf">εx</span> : invertible_2cell (rx · lx) (id₁ _)
+    := left_equivalence_counit_iso Hlx.
+
+  <span class="kn">Let</span> <span class="nf">ry</span> : y₂ --&gt; y₁
+    := left_adjoint_right_adjoint Hly.
+  <span class="kn">Let</span> <span class="nf">ηy</span> : invertible_2cell (id₁ _) (ly · ry)
+    := left_equivalence_unit_iso Hly.
+  <span class="kn">Let</span> <span class="nf">εy</span> : invertible_2cell (ry · ly) (id₁ _)
+    := left_equivalence_counit_iso Hly.
+
+  <span class="kn">Let</span> <span class="nf">rp</span> : p₂ --&gt; p₁
+    := left_adjoint_right_adjoint Hlp.
+  <span class="kn">Let</span> <span class="nf">ηp</span> : invertible_2cell (id₁ _) (lp · rp)
+    := left_equivalence_unit_iso Hlp.
+  <span class="kn">Let</span> <span class="nf">εp</span> : invertible_2cell (rp · lp) (id₁ _)
+    := left_equivalence_counit_iso Hlp.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_1_left_adjoint_equivalence_path</span>
+             (<span class="nv">q</span> : equifier_cone f₂ g₂ α₂ β₂)
+    : equifier_cone_pr1 q · rx ◃ α₁
+      =
+      equifier_cone_pr1 q · rx ◃ β₁.
+  <span class="kn">Proof</span>.
+    use (adj_equiv_faithful Hly).
+    use (vcomp_lcancel (lassociator _ _ _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !rwhisker_lwhisker.
+    <span class="nb">apply</span> maponpaths_2.
+    use (vcomp_lcancel (lassociator _ _ _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- !lwhisker_lwhisker.
+    <span class="nb">apply</span> maponpaths_2.
+    use (vcomp_lcancel (_ ◃ (_ ◃ γ₂))).
+    {
+      is_iso.
+      <span class="nb">apply</span> property_from_invertible_2cell.
+    }
+    <span class="nb">rewrite</span> !lwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- pα, &lt;- pβ.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">apply</span> maponpaths_2.
+    use (vcomp_lcancel (_ ◃ rassociator _ _ _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !lwhisker_lwhisker_rassociator.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">apply</span> maponpaths_2.
+    use (vcomp_lcancel (_ ◃ (εx^-<span class="mi">1</span> ▹ _))).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !vcomp_whisker.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">apply</span> maponpaths_2.
+    use (vcomp_lcancel (_ ◃ linvunitor _)).
+    {
+      is_iso.
+    }
+    <span class="nb">rewrite</span> !lwhisker_vcomp.
+    <span class="nb">rewrite</span> !lwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- !linvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (equifier_cone_eq q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_1_left_adjoint_equivalence_mor</span>
+             (<span class="nv">q</span> : equifier_cone f₂ g₂ α₂ β₂)
+    : q --&gt; p₂
+    := equifier_ump_mor
+         H
+         (equifier_cone_pr1 q · rx)
+         (has_equifier_ump_1_left_adjoint_equivalence_path q)
+       · lp.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_1_left_adjoint_equivalence_pr1</span>
+             (<span class="nv">q</span> : equifier_cone f₂ g₂ α₂ β₂)
+    : invertible_2cell
+        (has_equifier_ump_1_left_adjoint_equivalence_mor q
+         · equifier_cone_pr1 cone₂)
+        (equifier_cone_pr1 q)
+    := comp_of_invertible_2cell
+         (rassociator_invertible_2cell _ _ _)
+         (comp_of_invertible_2cell
+            (lwhisker_of_invertible_2cell
+               _
+               γ₁)
+            (comp_of_invertible_2cell
+               (lassociator_invertible_2cell _ _ _)
+               (comp_of_invertible_2cell
+                  (rwhisker_of_invertible_2cell
+                     _
+                     (equifier_ump_mor_pr1 H _ _))
+                  (comp_of_invertible_2cell
+                     (rassociator_invertible_2cell _ _ _)
+                     (comp_of_invertible_2cell
+                        (lwhisker_of_invertible_2cell
+                           _
+                           εx)
+                        (runitor_invertible_2cell _)))))).
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_1_left_adjoint_equivalence</span>
+    : has_equifier_ump_1 cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    use make_equifier_1cell.
+    - <span class="bp">exact</span> (has_equifier_ump_1_left_adjoint_equivalence_mor q).
+    - <span class="bp">exact</span> (has_equifier_ump_1_left_adjoint_equivalence_pr1 q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">γ₁'</span> : invertible_2cell (rp · e₁) (e₂ · rx)
+    := comp_of_invertible_2cell
+         (rinvunitor_invertible_2cell _)
+         (comp_of_invertible_2cell
+            (lwhisker_of_invertible_2cell
+               _
+               ηx)
+            (comp_of_invertible_2cell
+               (lassociator_invertible_2cell _ _ _)
+               (comp_of_invertible_2cell
+                  (rwhisker_of_invertible_2cell
+                     _
+                     (rassociator_invertible_2cell _ _ _))
+                  (comp_of_invertible_2cell
+                     (rwhisker_of_invertible_2cell
+                        _
+                        (lwhisker_of_invertible_2cell
+                           _
+                           (inv_of_invertible_2cell γ₁)))
+                     (comp_of_invertible_2cell
+                        (rwhisker_of_invertible_2cell
+                           _
+                           (lassociator_invertible_2cell _ _ _))
+                        (comp_of_invertible_2cell
+                           (rwhisker_of_invertible_2cell
+                              _
+                              (rwhisker_of_invertible_2cell
+                                 _
+                                 εp))
+                           (rwhisker_of_invertible_2cell
+                              _
+                              (lunitor_invertible_2cell _)))))))).
+
+  <span class="kn">Section</span> <span class="nf">UMP2</span>.
+    <span class="kn">Context</span> {<span class="nv">z</span> : B}
+            (<span class="nv">u₁</span> <span class="nv">u₂</span> : z --&gt; p₂)
+            (<span class="nv">ξ</span> : u₁ · e₂ ==&gt; u₂ · e₂).
+
+    <span class="kn">Let</span> <span class="nf">ξ'</span> : u₁ · rp · e₁ ==&gt; u₂ · rp · e₁
+      := fully_faithful_1cell_inv_map
+           (adj_equiv_fully_faithful Hlx)
+           (rassociator _ _ _
+            • (_ ◃ γ₁^-<span class="mi">1</span>)
+            • lassociator _ _ _
+            • (rassociator _ _ _ ▹ _)
+            • ((_ ◃ εp) ▹ _)
+            • (runitor _ ▹ _)
+            • ξ
+            • (rinvunitor _ ▹ _)
+            • ((_ ◃ εp ^-<span class="mi">1</span>) ▹ _)
+            • (lassociator _ _ _ ▹ _)
+            • rassociator _ _ _
+            • (_ ◃ γ₁)
+            • lassociator _ _ _).
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump_2_left_adjoint_equivalence_cell</span>
+      : u₁ ==&gt; u₂
+      := rinvunitor _
+         • (_ ◃ εp^-<span class="mi">1</span>)
+         • lassociator _ _ _
+         • (equifier_ump_cell H ξ' ▹ _)
+         • rassociator _ _ _
+         • (_ ◃ εp)
+         • runitor _.
+
+    <span class="kn">Definition</span> <span class="nf">has_equifier_ump_2_left_adjoint_equivalence_pr1</span>
+      : has_equifier_ump_2_left_adjoint_equivalence_cell ▹ e₂ = ξ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> has_equifier_ump_2_left_adjoint_equivalence_cell.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">3</span> (use vcomp_move_R_pM ; [ is_iso | ]).
+      <span class="nb">cbn</span> -[εp ξ'].
+      use (vcomp_lcancel (lassociator _ _ _)) ; [ is_iso | ].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_rwhisker.
+      use (vcomp_lcancel (_ ◃ γ₁^-<span class="mi">1</span>)) ; [ is_iso | ].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+      use (vcomp_lcancel (rassociator _ _ _)) ; [ is_iso | ].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker_alt.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (equifier_ump_cell_pr1 H ξ').
+      }
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      }
+      <span class="nb">cbn</span> -[εp ξ'].
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> fully_faithful_1cell_inv_map_eq.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP2</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_2_left_adjoint_equivalence</span>
+    : has_equifier_ump_2 cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z u₁ u₂ ξ.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (has_equifier_ump_2_left_adjoint_equivalence_cell u₁ u₂ ξ).
+    - <span class="bp">exact</span> (has_equifier_ump_2_left_adjoint_equivalence_pr1 u₁ u₂ ξ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_eq_left_adjoint_equivalence</span>
+    : has_equifier_ump_eq cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z u₁ u₂ ξ φ₁ φ₂ q₁ q₂.
+    <span class="nb">enough</span> (φ₁ ▹ rp = φ₂ ▹ rp) <span class="k">as</span> H'.
+    {
+      use (adj_equiv_faithful (inv_adjequiv (_ ,, Hlp))).
+      <span class="bp">exact</span> H'.
+    }
+    use (equifier_ump_eq H) ; <span class="nb">cbn</span>.
+    - <span class="nb">simple refine</span> (rassociator _ _ _
+              • (_ ◃ γ₁')
+              • lassociator _ _ _
+              • (ξ ▹ _)
+              • rassociator _ _ _
+              • (_ ◃ γ₁'^-<span class="mi">1</span>)
+              • lassociator _ _ _) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      <span class="nb">cbn</span> -[γ₁'].
+      <span class="nb">rewrite</span> rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      {
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      }
+      <span class="nb">cbn</span> -[γ₁'].
+      <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker_alt.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> q₁.
+    - <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      <span class="nb">cbn</span> -[γ₁'].
+      <span class="nb">rewrite</span> rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      {
+        <span class="nb">apply</span> property_from_invertible_2cell.
+      }
+      <span class="nb">cbn</span> -[γ₁'].
+      <span class="nb">rewrite</span> &lt;- vcomp_whisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker_alt.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> q₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_equifier_ump_left_adjoint_equivalence</span>
+    : has_equifier_ump cone₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> has_equifier_ump_1_left_adjoint_equivalence.
+    - <span class="bp">exact</span> has_equifier_ump_2_left_adjoint_equivalence.
+    - <span class="bp">exact</span> has_equifier_ump_eq_left_adjoint_equivalence.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EquifierEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/EquifierEquivalences.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Equivalences for equifiers
+  &gt;
+  &gt;  ************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

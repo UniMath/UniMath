@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NWFSisWFS.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.Retract.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.WFS.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ModelCategories.NWFS.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> morcls.
+
+<span class="kn">Definition</span> <span class="nf">isAlgebra</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : Monad (arrow C)) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :=
+    <span class="k">∃</span> <span class="nv">α</span>, Algebra_laws M (mor_to_arrow_ob f,, α).
+<span class="kn">Definition</span> <span class="nf">isCoAlgebra</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : Monad (op_cat (arrow C))) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :=
+    <span class="k">∃</span> <span class="nv">α</span>, Algebra_laws M (mor_to_arrow_ob f,, α).
+
+<span class="c">(* we can obtain a wfs from an nwfs *)</span>
+<span class="c">(* this is exactly ||nwfs_R_maps_disp f|| I think *)</span>
+<span class="kn">Definition</span> <span class="nf">nwfs_R_maps_class</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) : morphism_class C :=
+    <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : x --&gt; y), isAlgebra (nwfs_R_monad n) f.
+<span class="kn">Definition</span> <span class="nf">nwfs_L_maps_class</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) : morphism_class C :=
+    <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">f</span> : x --&gt; y), isCoAlgebra (nwfs_L_monad n) (opp_mor f).
+
+
+<span class="c">(*</span>
+<span class="c">Shape of comonad morphism diagram (2.15, Garner)</span>
+<span class="c">  A ===== A ===== A  ~~&gt; id_A</span>
+<span class="c">  |       |       |</span>
+<span class="c">f |   α   |λf  η  | f</span>
+<span class="c">  v       v       v</span>
+<span class="c">  B ---&gt; Kf ----&gt; B  ~~&gt; id_B</span>
+<span class="c">     s       ρ_f</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">L_map_section</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b} (<span class="nv">hf</span> : nwfs_L_maps_class n _ _ f) :
+    <span class="k">∃</span> <span class="nv">s</span>, f · s = arrow_mor (fact_L n f) ×
+         s · arrow_mor (fact_R n f) = identity _.
+<span class="kn">Proof</span>.
+  use (hinhuniv _ hf).
+  <span class="nb">intro</span> hf'.
+  <span class="nb">destruct</span> hf' <span class="k">as</span> [[[ida s] αfcomm] [hαfη _]].
+  <span class="nb">cbn</span> <span class="k">in</span> ida, s, αfcomm.
+  <span class="nb">simpl</span> <span class="k">in</span> hαfη.
+  <span class="nb">cbn</span> <span class="k">in</span> hαfη.
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">s</span>.
+
+  <span class="c">(* top line of hαfη: *)</span>
+  <span class="nb">assert</span> (ida = identity a) <span class="k">as</span> Hida.
+  {
+    <span class="c">(* base_paths : equality in pr1 of ∑-type (paths in base category)</span>
+<span class="c">       pathsdirprodweq : _ × _ = _ × _ -&gt; equality of terms</span>
+<span class="c">    *)</span>
+    <span class="nb">set</span> (top_line := dirprod_pr1 (pathsdirprodweq (base_paths _ _ hαfη))).
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> top_line.
+    <span class="bp">exact</span> top_line.
+  }
+
+  <span class="nb">split</span>.
+  - <span class="c">(* f ⋅ s = λ_f *)</span>
+    <span class="c">(* commutativity and ida = identity a *)</span>
+    <span class="nb">specialize</span> (αfcomm) <span class="k">as</span> αfcomm'.
+    <span class="nb">rewrite</span> Hida, id_left <span class="k">in</span> αfcomm'.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> αfcomm'.
+  - <span class="c">(* s · ρ_f = id_b *)</span>
+    <span class="c">(* bottom line of hαfη *)</span>
+    <span class="nb">set</span> (bottom_line := dirprod_pr2 (pathsdirprodweq (base_paths _ _ hαfη))).
+    <span class="bp">exact</span> bottom_line.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Shape of monad morphism diagram (2.15, Garner)</span>
+<span class="c">     λg       p</span>
+<span class="c">  C ---&gt; Kg ----&gt; C  ~~&gt; id_C</span>
+<span class="c">  |       |       |</span>
+<span class="c">g |   η   |ρg  α  | g</span>
+<span class="c">  v       v       v</span>
+<span class="c">  D ===== D ===== D  ~~&gt; id_D</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">R_map_section</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">g</span> : c --&gt; d} (<span class="nv">hg</span> : nwfs_R_maps_class n _ _ g) :
+    <span class="k">∃</span> <span class="nv">p</span>, p · g = arrow_mor (fact_R n g) ×
+         arrow_mor (fact_L n g) · p = identity _.
+<span class="kn">Proof</span>.
+  use (hinhuniv _ hg).
+  <span class="nb">intro</span> hg'.
+  <span class="nb">destruct</span> hg' <span class="k">as</span> [[[p idd] αgcomm] [hαgη _]].
+  <span class="nb">cbn</span> <span class="k">in</span> p, idd, αgcomm.
+  <span class="nb">simpl</span> <span class="k">in</span> hαgη.
+  <span class="nb">cbn</span> <span class="k">in</span> hαgη.
+
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">p</span>.
+
+  <span class="c">(* bottom line of hαgη: *)</span>
+  <span class="nb">assert</span> (idd = identity d) <span class="k">as</span> Hidd.
+  {
+    <span class="c">(* base_paths : equality in pr1 of ∑-type (paths in base category)</span>
+<span class="c">       pathsdirprodweq : _ × _ = _ × _ -&gt; equality of terms</span>
+<span class="c">    *)</span>
+    <span class="nb">set</span> (bottom_line := dirprod_pr2 (pathsdirprodweq (base_paths _ _ hαgη))).
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> bottom_line.
+    <span class="bp">exact</span> bottom_line.
+  }
+
+  <span class="nb">split</span>.
+  - <span class="c">(* p ⋅ g = ρ_g *)</span>
+    <span class="c">(* commutativity and ida = identity a *)</span>
+    <span class="nb">specialize</span> (αgcomm) <span class="k">as</span> αgcomm'.
+    <span class="nb">rewrite</span> Hidd, id_right <span class="k">in</span> αgcomm'.
+    <span class="bp">exact</span> αgcomm'.
+  - <span class="c">(* λg · p = id_c *)</span>
+    <span class="c">(* top line of hαfη *)</span>
+    <span class="nb">set</span> (top_line := dirprod_pr1 (pathsdirprodweq (base_paths _ _ hαgη))).
+    <span class="bp">exact</span> top_line.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L_map_R_map_lp</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+    {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : c --&gt; d} (<span class="nv">hf</span> : nwfs_L_maps_class n _ _ f)
+    (<span class="nv">hg</span> : nwfs_R_maps_class n c d g) : lp_hProp f g.
+<span class="kn">Proof</span>.
+  <span class="c">(* want to construct a lift of an L-map and an R-map</span>
+<span class="c">     using monad properties *)</span>
+  <span class="nb">intros</span> h k H.
+
+  use (hinhuniv _ (L_map_section hf)).
+  <span class="nb">intro</span> Hs.
+  <span class="nb">destruct</span> Hs <span class="k">as</span> [s [Hs0 Hs1]].
+
+  use (hinhuniv _ (R_map_section hg)).
+  <span class="nb">intro</span> Hp.
+  <span class="nb">destruct</span> Hp <span class="k">as</span> [p [Hp0 Hp1]].
+
+  <span class="nb">apply</span> hinhpr.
+
+  <span class="nb">set</span> (hk := mors_to_arrow_mor f g h k H).
+  <span class="nb">set</span> (Fhk := functor_on_morphisms (fact_functor n) hk).
+  <span class="c">(* Kf --&gt; Kg *)</span>
+  <span class="nb">set</span> (Khk := three_mor11 Fhk).
+
+  <span class="c">(* commutativity in diagrams *)</span>
+  <span class="nb">set</span> (Hhk := three_mor_comm Fhk).
+  <span class="nb">simpl</span> <span class="k">in</span> Hhk.
+  <span class="nb">destruct</span> Hhk <span class="k">as</span> [Hhk0 Hhk1].
+
+  <span class="c">(*</span>
+<span class="c">              h</span>
+<span class="c">    A ==== A ----&gt; C</span>
+<span class="c">    |      |       |</span>
+<span class="c">  f |  Lf  |       |</span>
+<span class="c">    v      v  Khk  v   p</span>
+<span class="c">    B ---&gt; Kf ---&gt; Kg ---&gt; C</span>
+<span class="c">        s   |       |       |</span>
+<span class="c">            |       |  Rg   | g</span>
+<span class="c">            v       |       v</span>
+<span class="c">            B ----&gt; D ===== D</span>
+<span class="c">                k</span>
+<span class="c">  *)</span>
+
+  <span class="k">exists</span> (<span class="nv">s</span> · Khk · p).
+  <span class="nb">split</span>.
+  - <span class="c">(* f · (s · Khk · p) = h *)</span>
+    <span class="nb">rewrite</span> assoc, assoc.
+    <span class="nb">rewrite</span> Hs0.
+    <span class="c">(* λ_f · Khk · p = h *)</span>
+    <span class="c">(* rewrite Hhk0 : (λ_f · Hhk = h · λ_g) *)</span>
+    etrans.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> Hhk0.
+    <span class="c">(* h · λ_g · p = h *)</span>
+    <span class="c">(* rewrite Hp1 : (λ_g · p = id_C) *)</span>
+    <span class="nb">rewrite</span> &lt;- assoc.
+    etrans.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> Hp1.
+    <span class="c">(* h · id_C = h *)</span>
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  - <span class="c">(* s · Khk · p · g = k *)</span>
+    <span class="nb">rewrite</span> &lt;- (assoc _ p g).
+    <span class="nb">rewrite</span> Hp0.
+    <span class="c">(* s · Khk · ρ_g = k *)</span>
+    <span class="c">(* rewrite Hhk1 : ρ_f · k = Khk · ρ_g *)</span>
+    <span class="nb">rewrite</span> &lt;- assoc.
+    etrans.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (pathsinv0 Hhk1).
+    <span class="c">(* s · ρ_f · k = k *)</span>
+    <span class="c">(* rewrite Hs1 : s · ρ_f = id_B *)</span>
+    <span class="nb">rewrite</span> assoc.
+    etrans.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> Hs1.
+    <span class="c">(* id_B · k = k *)</span>
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_L_maps_subs_llp_R_maps</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    nwfs_L_maps_class n ⊆ llp (nwfs_R_maps_class n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f hf.
+  <span class="nb">intros</span> c d g hg.
+  <span class="bp">exact</span> (L_map_R_map_lp hf hg).
+<span class="kn">Qed</span>.
+
+<span class="c">(* dual to above statement *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_R_maps_subs_rlp_L_maps</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    nwfs_R_maps_class n ⊆ rlp (nwfs_L_maps_class n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c d g hg.
+  <span class="nb">intros</span> a b f hf.
+  <span class="bp">exact</span> (L_map_R_map_lp hf hg).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_L_maps_cl_subs_llp_R_maps_cl</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    (nwfs_L_maps_class n)^cl ⊆ llp ((nwfs_R_maps_class n)^cl).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f Hf.
+  <span class="nb">intros</span> c d g Hg.
+
+  use (Hf).
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> H <span class="k">as</span> [x [y [f' [Lf' Retff']]]].
+
+  use (Hg).
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> H <span class="k">as</span> [z [w [g' [Rg' Retgg']]]].
+
+  use (lp_of_retracts Retff' Retgg').
+  <span class="bp">exact</span> (nwfs_L_maps_subs_llp_R_maps n _ _ _ Lf' _ _ _ Rg').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_R_maps_cl_subs_rlp_L_maps_cl</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    (nwfs_R_maps_class n)^cl ⊆ rlp ((nwfs_L_maps_class n)^cl).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c d g Hg.
+  <span class="nb">intros</span> a b f Hf.
+
+  use (Hf).
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> H <span class="k">as</span> [x [y [f' [Lf' Retff']]]].
+
+  use (Hg).
+  <span class="nb">intro</span> H.
+  <span class="nb">destruct</span> H <span class="k">as</span> [z [w [g' [Rg' Retgg']]]].
+
+  use (lp_of_retracts Retff' Retgg').
+  <span class="bp">exact</span> (nwfs_R_maps_subs_rlp_L_maps n _ _ _ Rg' _ _ _ Lf').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_Lf_is_L_map</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    ∏ f : arrow C, (nwfs_L_maps_class n) _ _ (arrow_mor (fact_L n f)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+
+  <span class="c">(* unfold nwfs_L_maps_class, isCoAlgebra. *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">nwfs_Σ</span> <span class="nv">n</span> <span class="nv">f</span>).
+
+  <span class="nb">split</span>; use subtypePath; <span class="kp">try</span> (<span class="nb">intro</span>; <span class="nb">apply</span> homset_property); <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> pathsdirprod.
+    * etrans.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (nwfs_Σ_top_map_id n f).
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    * <span class="bp">exact</span> (nwfs_Σ_bottom_map_inv n f).
+  - <span class="nb">apply</span> pathsdirprod.
+    * <span class="nb">apply</span> cancel_precomposition.
+      <span class="c">(* rhs is just pr11 nwfs_Σ n f</span>
+<span class="c">         unfold three_mor00; simpl. *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      etrans.
+      <span class="bp">exact</span> (nwfs_Σ_top_map_id n f).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (nwfs_Σ_top_map_id n (mor_to_arrow_ob _)).
+    * <span class="bp">exact</span> (nwfs_Σ_bottom_map_L_is_middle_map_of_Σ _ _).
+<span class="kn">Qed</span>.
+
+<span class="c">(* dual statement *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Rf_is_R_map</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    ∏ f : arrow C, (nwfs_R_maps_class n) _ _ (arrow_mor (fact_R n f)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+
+  <span class="c">(* unfold nwfs_R_maps_class, isAlgebra. *)</span>
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">nwfs_Π</span> <span class="nv">n</span> <span class="nv">f</span>).
+
+  <span class="nb">split</span>; use subtypePath; <span class="kp">try</span> (<span class="nb">intro</span>; <span class="nb">apply</span> homset_property); <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> pathsdirprod.
+    * <span class="bp">exact</span> (nwfs_Π_top_map_inv n f).
+    * etrans.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (nwfs_Π_bottom_map_id n f).
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  - <span class="nb">apply</span> pathsdirprod.
+    * <span class="bp">exact</span> (nwfs_Π_bottom_map_R_is_middle_map_of_Π _ _).
+    * <span class="nb">apply</span> cancel_postcomposition.
+      <span class="c">(* rhs is just pr21 nwfs_Π n f</span>
+<span class="c">        unfold three_mor22; simpl. *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      etrans.
+      <span class="bp">exact</span> (nwfs_Π_bottom_map_id n f).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (nwfs_Π_bottom_map_id n (mor_to_arrow_ob _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_llp_R_maps_cl_subs_L_maps_cl</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    llp ((nwfs_R_maps_class n)^cl) ⊆ ((nwfs_L_maps_class n)^cl).
+<span class="kn">Proof</span>.
+  <span class="c">(* Want to construct retract to L-map using lift.</span>
+<span class="c">     The L-map will be Lf *)</span>
+  <span class="nb">intros</span> a b f Hf.
+
+  <span class="nb">set</span> (Lf := arrow_mor (fact_L n f)).
+  <span class="nb">set</span> (Rf := arrow_mor (fact_R n f)).
+  <span class="nb">cbn</span> <span class="k">in</span> Rf.
+
+  <span class="c">(* f ∈ llp ((R-Map)^cl), so has llp with Rf *)</span>
+  <span class="c">(* the lift gives us precisely the map we need for the retract *)</span>
+  use (Hf _ _ Rf).
+  - <span class="nb">apply</span> in_morcls_retc_if_in_morcls.
+    <span class="bp">exact</span> (nwfs_Rf_is_R_map _ _).
+  - <span class="bp">exact</span> Lf.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="nb">rewrite</span> id_right.
+    <span class="c">(* or: three_comp (n (mor_to_arrow_ob f)) *)</span>
+    <span class="bp">exact</span> (LR_compatibility n f).
+  - <span class="nb">intro</span> hl.
+    <span class="nb">destruct</span> hl <span class="k">as</span> [l [hl0 hl1]].
+
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">_</span>, _, Lf.
+    <span class="nb">split</span>.
+    * <span class="bp">exact</span> (nwfs_Lf_is_L_map n f).
+    <span class="c">(*</span>
+<span class="c">      A ===== A ===== A</span>
+<span class="c">      |       |       |</span>
+<span class="c">    f |       | λf    | f</span>
+<span class="c">      v       v       v</span>
+<span class="c">      B ----&gt; Kf ---&gt; B</span>
+<span class="c">          l       ρf</span>
+<span class="c">    *)</span>
+    * use make_retract.
+      + <span class="bp">exact</span> (identity _).
+      + <span class="bp">exact</span> (identity _).
+      + <span class="bp">exact</span> l.
+      + <span class="bp">exact</span> Rf.
+      + use make_is_retract.
+        -- <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+        -- <span class="bp">exact</span> hl1.
+        -- <span class="nb">rewrite</span> id_left.
+           <span class="bp">exact</span> (pathsinv0 hl0).
+        -- <span class="nb">rewrite</span> id_left.
+           <span class="nb">apply</span> pathsinv0.
+           <span class="bp">exact</span> (LR_compatibility n f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_rlp_L_maps_cl_subs_R_maps_cl</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :
+    rlp ((nwfs_L_maps_class n)^cl) ⊆ ((nwfs_R_maps_class n)^cl).
+<span class="kn">Proof</span>.
+  <span class="c">(* Want to construct R-map with retract from f using lift.</span>
+<span class="c">     The map will be Rf *)</span>
+  <span class="nb">intros</span> a b f hf.
+
+  <span class="nb">set</span> (Lf := arrow_mor (fact_L n f)).
+  <span class="nb">set</span> (Rf := arrow_mor (fact_R n f)).
+  <span class="nb">cbn</span> <span class="k">in</span> Lf, Rf.
+
+  <span class="c">(* f ∈ rlp (L-Map), so has rlp with Lf *)</span>
+  <span class="c">(* the lift gives us precisely the map we need for the retract *)</span>
+  use (hf _ _ Lf).
+
+  - <span class="nb">apply</span> in_morcls_retc_if_in_morcls.
+    <span class="bp">exact</span> (nwfs_Lf_is_L_map n f).
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> Rf.
+  - <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="c">(* or: three_comp (n (mor_to_arrow_ob f)) *)</span>
+    <span class="bp">exact</span> (LR_compatibility n f).
+  - <span class="nb">intro</span> hl.
+    <span class="nb">destruct</span> hl <span class="k">as</span> [l [hl0 hl1]].
+
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">_</span>, _, Rf.
+    <span class="nb">split</span>.
+    * <span class="bp">exact</span> (nwfs_Rf_is_R_map n f).
+    <span class="c">(*</span>
+<span class="c">         λf       l</span>
+<span class="c">      A ---&gt; Kf ----&gt; A</span>
+<span class="c">      |       |       |</span>
+<span class="c">    f |       | ρf    | f</span>
+<span class="c">      v       v       v</span>
+<span class="c">      B ===== B ===== B</span>
+<span class="c">    *)</span>
+    * use make_retract.
+      + <span class="bp">exact</span> Lf.
+      + <span class="bp">exact</span> l.
+      + <span class="bp">exact</span> (identity _).
+      + <span class="bp">exact</span> (identity _).
+      + use make_is_retract.
+        -- <span class="bp">exact</span> hl0.
+        -- <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+        -- <span class="nb">rewrite</span> id_right.
+           <span class="bp">exact</span> (LR_compatibility n f).
+        -- <span class="nb">rewrite</span> id_right.
+           <span class="bp">exact</span> hl1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nwfs_is_wfs</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) : wfs C.
+<span class="kn">Proof</span>.
+  use make_wfs.
+  - <span class="bp">exact</span> ((nwfs_L_maps_class n)^cl).
+  - <span class="bp">exact</span> ((nwfs_R_maps_class n)^cl).
+  - use make_is_wfs.
+    * <span class="nb">apply</span> morphism_class_subset_antisymm.
+      + <span class="bp">exact</span> (nwfs_L_maps_cl_subs_llp_R_maps_cl _).
+      + <span class="bp">exact</span> (nwfs_llp_R_maps_cl_subs_L_maps_cl _).
+    * <span class="nb">apply</span> morphism_class_subset_antisymm.
+      + <span class="bp">exact</span> (nwfs_R_maps_cl_subs_rlp_L_maps_cl _).
+      + <span class="bp">exact</span> (nwfs_rlp_L_maps_cl_subs_R_maps_cl _).
+    * <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> hinhpr.
+
+      <span class="nb">set</span> (fact := n f).
+      <span class="nb">set</span> (f01 := three_mor01 fact).
+      <span class="nb">set</span> (f12 := three_mor12 fact).
+      <span class="nb">cbn</span> <span class="k">in</span> f01, f12.
+
+      <span class="k">exists</span> (<span class="nv">three_ob1</span> <span class="nv">fact</span>), f01, f12.
+
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">apply</span> in_morcls_retc_if_in_morcls.
+        <span class="bp">exact</span> (nwfs_Lf_is_L_map n (mor_to_arrow_ob (three_mor02 fact))).
+      + <span class="nb">apply</span> in_morcls_retc_if_in_morcls.
+        <span class="bp">exact</span> (nwfs_Rf_is_R_map n (mor_to_arrow_ob (three_mor02 fact))).
+      + <span class="bp">exact</span> (three_comp fact).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/ModelCategories/NWFSisWFS.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

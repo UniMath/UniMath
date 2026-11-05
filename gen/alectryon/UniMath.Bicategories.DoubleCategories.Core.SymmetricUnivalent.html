@@ -1,0 +1,1111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SymmetricUnivalent.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> Symmetrically univalent double categories</span>
+
+<span class="sd"> The notion of univalence for pseudo double categories is as follows:</span>
+<span class="sd"> - The vertical category is required to be univalent</span>
+<span class="sd"> - The 2-sided displayed category of horizontal morphisms and squares is required to</span>
+<span class="sd">   be univalent</span>
+<span class="sd"> This is not a symmetric notion: horizontal morphisms and vertical morphisms play a</span>
+<span class="sd"> different role in this definition. However, in some examples a stronger requirement</span>
+<span class="sd"> is satisfied.</span>
+
+<span class="sd"> Let us look at the double category of squares in aunivalent  category `C`. This</span>
+<span class="sd"> double category is defined as follows:</span>
+<span class="sd"> - Objects: objects in `C`</span>
+<span class="sd"> - Vertical morphisms: morphisms in `C`</span>
+<span class="sd"> - Horizontal morphisms: morphisms in `C`</span>
+<span class="sd"> - Squares: commutative squares in `C`</span>
+<span class="sd"> For this double category, we both have a univalent category of objects and vertical</span>
+<span class="sd"> morphisms and of objects and horizontal morphisms. In addition, both the categories of</span>
+<span class="sd"> vertical morphisms and squares and of horizontal morphisms and squares are univalent.</span>
+<span class="sd"> This gives a stronger notion of univalence for double categories, which we call</span>
+<span class="sd"> symmetric univalence.</span>
+
+<span class="sd"> In this file, we define this notion. To do so, we first define the transpose of a</span>
+<span class="sd"> pseudo double category ([transpose_double_cat]). To construct this transpose, we first</span>
+<span class="sd"> assume that the horizontal morphisms in `C` forms a set. In order to guarantee that the</span>
+<span class="sd"> transpose is a univalent pseudo double category, we need to add two requirements:</span>
+<span class="sd"> 1. The category of objects and horizontal morphisms is univalent</span>
+<span class="sd"> 2. The category of vertical morphisms and squares is univalent</span>
+<span class="sd"> Symmetric univalence is the conjunction of these requirements.</span>
+
+<span class="sd"> Note that we explicitly assume that the horizontal morphisms form a set in our definition</span>
+<span class="sd"> of symmetric univalence ([symmetric_univalent]) even though it follows from the univalence</span>
+<span class="sd"> conditions. The reason for that is that we want to reuse the notions of univalence that</span>
+<span class="sd"> we defined for categories and for 2-sided displayed categories. These two notions</span>
+<span class="sd"> already have the requirement that the morphisms for a set in them, so in order to use</span>
+<span class="sd"> them, we must have that the horizontal morphisms form a set.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The horizontal category</span>
+<span class="sd"> 2. The 2-sided displayed category of vertical morphisms and squares</span>
+<span class="sd"> 3. A useful lemma for `idtoiso`</span>
+<span class="sd"> 4. Horizontal identities</span>
+<span class="sd"> 5. Horizontal composition</span>
+<span class="sd"> 6. The left unitor</span>
+<span class="sd"> 7. The right unitor</span>
+<span class="sd"> 8. The associator</span>
+<span class="sd"> 9. The triangle and pentagon equations</span>
+<span class="sd"> 10. The dual double category</span>
+<span class="sd"> 11. Symmetric univalence for double categories</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Comma.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.
+<span class="kn">Import</span> TransportSquare.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">TransposePseudoDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : univalent_double_cat)
+          (<span class="nv">HC</span> : ∏ (x y : C), isaset (x --&gt;h y)).
+
+  <span class="sd">(** * 1. The horizontal category *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_precategory_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt;h y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_precategory_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> transpose_precategory_ob_mor.
+    - <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_h (C := C) x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f ·h g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_precategory_laws</span>
+    : is_precategory transpose_precategory_data.
+  <span class="kn">Proof</span>.
+    use is_precategory_one_assoc_to_two.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> x y h.
+      use globular_iso_square_to_path.
+      <span class="nb">apply</span> lunitor_globular_iso_square.
+    - <span class="nb">intros</span> x y h.
+      use globular_iso_square_to_path.
+      <span class="nb">apply</span> runitor_globular_iso_square.
+    - <span class="nb">intros</span> w x y z h₁ h₂ h₃.
+      use globular_iso_square_to_path.
+      <span class="nb">apply</span> associator_globular_iso_square.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_precategory</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> transpose_precategory_data.
+    - <span class="bp">exact</span> transpose_precategory_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_category</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> transpose_precategory.
+    - <span class="bp">exact</span> HC.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The 2-sided displayed category of vertical morphisms and squares *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_twosided_disp_cat_ob_mor</span>
+    : twosided_disp_cat_ob_mor transpose_category transpose_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C), x --&gt;v y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">h₁</span> <span class="nv">h₂</span>, square v₁ v₂ h₁ h₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_twosided_disp_cat_id_comp</span>
+    : twosided_disp_cat_id_comp transpose_twosided_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_h_square f).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">h₃</span> <span class="nv">vx₁</span> <span class="nv">vx₂</span> <span class="nv">vy₁</span> <span class="nv">vy₂</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, _).
+      <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂ ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (s₁ ⋆h s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_twosided_disp_cat_data</span>
+    : twosided_disp_cat_data transpose_category transpose_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> transpose_twosided_disp_cat_ob_mor.
+    - <span class="bp">exact</span> transpose_twosided_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_disp_mor2_transpose</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : transpose_category}
+              {<span class="nv">h</span> <span class="nv">h'</span> : x₁ --&gt; x₂}
+              {<span class="nv">k</span> <span class="nv">k'</span> : y₁ --&gt; y₂}
+              {<span class="nv">v₁</span> : transpose_twosided_disp_cat_data x₁ y₁}
+              {<span class="nv">v₂</span> : transpose_twosided_disp_cat_data x₂ y₂}
+              (<span class="nv">p</span> : h = h')
+              (<span class="nv">q</span> : k = k')
+              (<span class="nv">s</span> : v₁ --&gt;[ h' ][ k' ] v₂)
+    : transportb_disp_mor2 p q s
+      =
+      transportf_square
+        (id_v_right _ @ id_v_left _)
+        (id_v_right _ @ id_v_left _)
+        (path_to_globular_iso_square p ⋆v s ⋆v path_to_globular_iso_square (!q)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> h, k.
+    <span class="nb">rewrite</span> &lt;- !(path_to_globular_iso_square_id (C := C)).
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_twosided_disp_cat_axioms</span>
+    : twosided_disp_cat_axioms transpose_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> id_two_disp_left_law ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_id_right_v'.
+      }
+      <span class="nb">rewrite</span> &lt;- lunitor_linvunitor_h'.
+      <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+      <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_inv (C := C)).
+      <span class="nb">rewrite</span> globular_iso_to_path_to_iso.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (square_assoc_v (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> lunitor_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> id_two_disp_right_law ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_id_right_v'.
+      }
+      <span class="nb">rewrite</span> &lt;- runitor_rinvunitor_h'.
+      <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+      <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_inv (C := C)).
+      <span class="nb">rewrite</span> globular_iso_to_path_to_iso.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (square_assoc_v (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> runitor_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> assoc_two_disp_law ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ v₁ v₂ v₃ v₄ h₁ h₂ h₃ k₁ k₂ k₃ s₁ s₂ s₃.
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> square_id_right_v'.
+      }
+      <span class="nb">rewrite</span> &lt;- lassociator_rassociator_h'.
+      <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+      <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_inv (C := C)).
+      <span class="nb">rewrite</span> globular_iso_to_path_to_iso.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (square_assoc_v (C := C)).
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> lassociator_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂.
+      <span class="nb">apply</span> isaset_square.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_twosided_disp_cat</span>
+    : twosided_disp_cat transpose_category transpose_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> transpose_twosided_disp_cat_data.
+    - <span class="bp">exact</span> transpose_twosided_disp_cat_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. A useful lemma for `idtoiso` *)</span>
+  <span class="kn">Proposition</span> <span class="nf">idtoiso_twosided_disp_transpose</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">v₁</span> <span class="nv">v₂</span> : x --&gt;v y}
+              (<span class="nv">p</span> : v₁ = v₂)
+    : pr1 (idtoiso_twosided_disp (D := transpose_twosided_disp_cat) (idpath _) (idpath _) p)
+      =
+      transportf_square
+        (idpath _)
+        p
+        (id_h_square v₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Horizontal identities *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_hor_id_data</span>
+    : hor_id_data transpose_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_v (C := C) x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">h</span>, id_v_square h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_hor_id_laws</span>
+    : hor_id_laws transpose_hor_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span> x.
+      <span class="nb">rewrite</span> id_h_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z h k.
+      <span class="nb">rewrite</span> comp_h_square_id.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_hor_id</span>
+    : hor_id transpose_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> transpose_hor_id_data.
+    - <span class="bp">exact</span> transpose_hor_id_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Horizontal composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_hor_comp_data</span>
+    : hor_comp_data transpose_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">v₁</span> <span class="nv">v₂</span>, v₁ ·v v₂).
+    - <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">h₃</span> <span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆v s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_hor_comp_laws</span>
+    : hor_comp_laws transpose_hor_comp_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> x y z v w.
+      <span class="nb">rewrite</span> id_h_square_comp.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ z₁ z₂ z₃ h₁ h₁' h₂ h₂' h₃ h₃' u₁ u₂ v₁ v₂ w₁ w₂ s₁ s₁' s₂ s₂'.
+      <span class="nb">rewrite</span> comp_h_square_comp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_hor_comp</span>
+    : hor_comp transpose_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> transpose_hor_comp_data.
+    - <span class="bp">exact</span> transpose_hor_comp_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 6. The left unitor *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_lunitor_data</span>
+    : double_lunitor_data transpose_hor_id transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> x, y, f.
+    <span class="nb">refine</span> (idtoiso_twosided_disp (idpath _) (idpath _) _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Arguments</span> transpose_lunitor_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_lunitor_laws</span>
+    : double_lunitor_laws transpose_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> double_lunitor_laws ; <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+    <span class="nb">rewrite</span> pathscomp_inv.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_comp (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_comp.
+    }
+    <span class="nb">rewrite</span> &lt;- !(path_to_globular_iso_square_inv (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_inv.
+    }
+    <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (lunitor_square (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> square_assoc_v'.
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> linvunitor_lunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (runitor_square' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> runitor_rinvunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> id_h_square_comp.
+    <span class="nb">rewrite</span> id_h_square_id.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_lunitor</span>
+    : double_cat_lunitor transpose_hor_id transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> transpose_lunitor_data.
+    - <span class="bp">exact</span> transpose_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. The right unitor *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_runitor_data</span>
+    : double_runitor_data transpose_hor_id transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> x, y, f.
+    <span class="nb">refine</span> (idtoiso_twosided_disp (idpath _) (idpath _) _).
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Arguments</span> transpose_runitor_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_runitor_laws</span>
+    : double_runitor_laws transpose_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> double_runitor_laws ; <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ v₁ v₂ h₁ h₂ s.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+    <span class="nb">rewrite</span> pathscomp_inv.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_comp (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_comp.
+    }
+    <span class="nb">rewrite</span> &lt;- !(path_to_globular_iso_square_inv (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_inv.
+    }
+    <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (lunitor_square (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> square_assoc_v'.
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> linvunitor_lunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (runitor_square' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> runitor_rinvunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> id_h_square_comp.
+    <span class="nb">rewrite</span> id_h_square_id.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_runitor</span>
+    : double_cat_runitor transpose_hor_id transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> transpose_runitor_data.
+    - <span class="bp">exact</span> transpose_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 8. The associator *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_associator_data</span>
+    : double_associator_data transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z v₁ v₂ v₃ ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (idtoiso_twosided_disp (idpath _) (idpath _) _).
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Arguments</span> transpose_associator_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_associator_laws</span>
+    : double_associator_laws transpose_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> double_associator_laws ; <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">intros</span> w₁ w₂ x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ v₄ v₅ v₆ h₁ h₂ h₃ h₄ s₁ s₂ s₃.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+    <span class="nb">rewrite</span> pathscomp_inv.
+    <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">rewrite</span> &lt;- (path_to_globular_iso_square_comp (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_comp.
+    }
+    <span class="nb">rewrite</span> &lt;- !(path_to_globular_iso_square_inv (C := C)).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_inv.
+    }
+    <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (lunitor_square (C := C)).
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> square_assoc_v'.
+    }
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> square_assoc_v.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> linvunitor_lunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (runitor_square' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> runitor_rinvunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportf_hcomp_l.
+    <span class="nb">rewrite</span> transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !id_h_square_comp.
+    <span class="nb">rewrite</span> square_assoc_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">apply</span> transportf_square_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_associator</span>
+    : double_cat_associator transpose_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> transpose_associator_data.
+    - <span class="bp">exact</span> transpose_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 9. The triangle and pentagon equations *)</span>
+  <span class="kn">Proposition</span> <span class="nf">transpose_triangle_law</span>
+    : triangle_law transpose_lunitor transpose_runitor transpose_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> triangle_law.
+    <span class="nb">unfold</span> double_associator, double_lunitor, double_runitor.
+    <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">intros</span> x y z v w.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_inv.
+    }
+    <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> !transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (lunitor_square' (C := C)).
+    }
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitor_linvunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> !id_h_square_comp.
+    <span class="nb">rewrite</span> !id_h_square_id.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">rewrite</span> square_id_left_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> !transportf_square_prewhisker.
+    <span class="nb">rewrite</span> !transportf_square_postwhisker.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    <span class="nb">rewrite</span> !transportf_hcomp_r.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">apply</span> maponpaths_2.
+    use transportf_square_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transpose_pentagon_law</span>
+    : pentagon_law transpose_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> pentagon_law ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> double_associator.
+    <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">intros</span> v w x y z v₁ v₂ v₃ v₄.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> idtoiso_twosided_disp_transpose.
+    }
+    <span class="nb">rewrite</span> transportb_disp_mor2_transpose.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> path_to_globular_iso_square_inv.
+    }
+    <span class="nb">rewrite</span> !globular_iso_to_path_to_iso.
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (runitor_square' (C := C)).
+    }
+    <span class="nb">rewrite</span> transportf_square_prewhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> &lt;- square_assoc_v'.
+    <span class="nb">rewrite</span> transportf_f_square.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> runitor_rinvunitor_h.
+    }
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_square_postwhisker.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> square_id_right_v.
+    <span class="nb">unfold</span> transportb_square.
+    <span class="nb">rewrite</span> transportf_f_square.
+    <span class="nb">rewrite</span> !transportf_hcomp_l.
+    <span class="nb">rewrite</span> !transportf_f_square.
+    use transportf_square_eq.
+    <span class="nb">rewrite</span> &lt;- !id_h_square_comp.
+    <span class="nb">rewrite</span> transportf_square_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> transportf_square_id_h_square_eq'.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> transportf_square_id_h_square_eq'.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> transportf_square_id_h_square_eq'.
+    }
+    use eq_hcomp_square.
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !assocl_v ;
+         <span class="nb">apply</span> idpath).
+    - <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (transportf_hcomp_r (idpath _)).
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> transportf_square_id_h_square_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 10. The dual double category *)</span>
+  <span class="kn">Definition</span> <span class="nf">transpose_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> transpose_category.
+    - <span class="bp">exact</span> transpose_twosided_disp_cat.
+    - <span class="bp">exact</span> transpose_hor_id.
+    - <span class="bp">exact</span> transpose_hor_comp.
+    - <span class="bp">exact</span> transpose_lunitor.
+    - <span class="bp">exact</span> transpose_runitor.
+    - <span class="bp">exact</span> transpose_associator.
+    - <span class="bp">exact</span> transpose_triangle_law.
+    - <span class="bp">exact</span> transpose_pentagon_law.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transpose_univalentdouble_cat</span>
+             (<span class="nv">HC'</span> : is_univalent transpose_category)
+             (<span class="nv">HC''</span> : is_univalent_twosided_disp_cat transpose_twosided_disp_cat)
+    : univalent_double_cat.
+  <span class="kn">Proof</span>.
+    use make_univalent_double_cat.
+    - <span class="bp">exact</span> transpose_double_cat.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> HC'.
+      + <span class="bp">exact</span> HC''.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TransposePseudoDoubleCat</span>.
+
+<span class="sd">(** * 11. Symmetric univalence for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">symmetric_univalent</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : UU
+  := ∑ (HC : ∏ (x y : C), isaset (x --&gt;h y)),
+     is_univalent (transpose_category C HC)
+     ×
+     is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C HC).
+
+<span class="kn">Definition</span> <span class="nf">make_symmetric_univalent</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           (<span class="nv">H₁</span> : ∏ (x y : C), isaset (x --&gt;h y))
+           (<span class="nv">H₂</span> : is_univalent (transpose_category C H₁))
+           (<span class="nv">H₃</span> : is_univalent_twosided_disp_cat (transpose_twosided_disp_cat C H₁))
+  : symmetric_univalent C
+  := H₁ ,, H₂ ,, H₃.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/SymmetricUnivalent.v</tt>, line 54)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  11. Symmetric univalence for double categories
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

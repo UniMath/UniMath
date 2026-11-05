@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetGroupoidComprehension.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> The comprehension functor of setgroupoids</span>
+
+<span class="sd"> In this file, we define the comprehension functor that sends isofibrations on some</span>
+<span class="sd"> setgroupoid [Γ] to a functor into [Γ]. Since we represent isofibrations using displayed</span>
+<span class="sd"> categories, we use the total category and the projection of a displayed category. We</span>
+<span class="sd"> also show that this functor is Cartesian. To do so, we verify that the chosen lifts, which</span>
+<span class="sd"> are given by reindexing, are sent to pullback squares.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The total category of an isofibration</span>
+<span class="sd"> 2. The comprehension functor</span>
+<span class="sd"> 3. Some transport lemmas that we need</span>
+<span class="sd"> 4. The comprehension functor is Cartesian</span>
+<span class="sd"> 5. Comprehension for split isofibrations</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetGroupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.PreservesCleaving.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.SetGroupoidsIsoFib.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The total category of an isofibration *)</span>
+<span class="kn">Definition</span> <span class="nf">total_set_groupoid</span>
+           {<span class="nv">G</span> : setgroupoid}
+           (<span class="nv">D</span> : disp_cat_isofib G)
+  : setgroupoid.
+<span class="kn">Proof</span>.
+  use make_setgroupoid.
+  - use make_setcategory.
+    + <span class="bp">exact</span> (total_category (pr11 D)).
+    + <span class="kp">abstract</span>
+        (use isaset_total2 ; [ <span class="nb">apply</span> isaset_ob | ] ;
+         <span class="nb">apply</span> isaset_ob_disp_set_grpd).
+  - <span class="nb">intros</span> x y f.
+    use is_z_iso_total.
+    + <span class="nb">apply</span> G.
+    + <span class="nb">apply</span> is_z_iso_disp_set_grpd.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">total_functor_commute_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : total_functor FF ∙ pr1_category D₂
+    =
+    pr1_category D₁ ∙ F.
+<span class="kn">Proof</span>.
+  use functor_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The comprehension functor *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_isofib_comprehension_data</span>
+  : disp_functor_data
+      (functor_identity _)
+      disp_cat_isofib
+      (disp_codomain _).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">G</span> : setgroupoid)
+             (<span class="nv">D</span> : disp_cat_isofib G),
+           total_set_groupoid D
+           ,,
+           pr1_category _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">G₁</span> <span class="nv">G₂</span> : setgroupoid)
+              (<span class="nv">D₁</span> : disp_cat_isofib G₁)
+              (<span class="nv">D₂</span> : disp_cat_isofib G₂)
+              (<span class="nv">F</span> : G₁ ⟶ G₂)
+              (<span class="nv">FF</span> : D₁ --&gt;[ F ] D₂),
+             total_functor (pr1 FF)
+             ,,
+             _).
+    <span class="bp">exact</span> (total_functor_commute_eq (pr1 FF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_isofib_comprehension_axioms</span>
+  : disp_functor_axioms disp_cat_isofib_comprehension_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_isofib_comprehension</span>
+  : disp_functor
+      (functor_identity _)
+      disp_cat_isofib
+      (disp_codomain _).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_isofib_comprehension_data.
+  - <span class="bp">exact</span> disp_cat_isofib_comprehension_axioms.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Some transport lemmas that we need *)</span>
+<span class="kn">Definition</span> <span class="nf">transportf_functor_disp_ob</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D</span> : disp_cat C₂}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+           (<span class="nv">p</span> : F₁ = F₂)
+           {<span class="nv">x</span> : C₁}
+           (<span class="nv">xx</span> : D (F₁ x))
+  : D (F₂ x)
+  := transportf D (maponpaths (<span class="k">λ</span> (<span class="nv">F</span> : _ ⟶ _), F x) p) xx.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_functor_disp_ob_eq_b</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : disp_cat C₂}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            (<span class="nv">p</span> : F₁ = F₂)
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">xx</span> : D (F₁ x))
+  : transportb D (path_functor_ob p _) (transportf_functor_disp_ob p xx)
+    =
+    xx.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_functor_disp_ob_eq_f</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : disp_cat C₂}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            (<span class="nv">p</span> : F₁ = F₂)
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">xx</span> : D (F₁ x))
+  : transportf D (path_functor_ob p _) xx
+    =
+    transportf_functor_disp_ob p xx.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_functor_disp_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D</span> : disp_cat C₂}
+           {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+           (<span class="nv">p</span> : F₁ = F₂)
+           {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+           {<span class="nv">f</span> : x --&gt; y}
+           {<span class="nv">xx</span> : D (F₁ x)}
+           {<span class="nv">yy</span> : D (F₁ y)}
+           (<span class="nv">ff</span> : xx --&gt;[ #F₁ f ] yy)
+  : transportf_functor_disp_ob p xx
+    --&gt;[ #F₂ f ]
+    transportf_functor_disp_ob p yy.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> ff.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_functor_disp_mor_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : disp_cat C₂}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            (<span class="nv">p</span> : F₁ = F₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx</span> : D (F₁ x)}
+            {<span class="nv">yy</span> : D (F₁ y)}
+            (<span class="nv">ff</span> : xx --&gt;[ #F₁ f ] yy)
+  : transportf_functor_disp_mor p ff
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (path_functor_mor_left p f)
+      (idtoiso_disp _ (transportf_functor_disp_ob_eq_b p xx)
+       ;; ff
+       ;; idtoiso_disp _ (transportf_functor_disp_ob_eq_f p yy))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left_disp.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> !transport_f_f.
+  <span class="nb">refine</span> (!_).
+  use transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_functor_disp_mor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : disp_cat C₂}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            (<span class="nv">p</span> : F₁ = F₂)
+            {<span class="nv">x</span> : C₁}
+            (<span class="nv">xx</span> : D (F₁ x))
+  : transportf_functor_disp_mor
+      p
+      (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (functor_id _ _) (id_disp xx))
+    =
+    transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (functor_id F₂ x)
+      (id_disp _).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_functor_disp_mor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D</span> : disp_cat C₂}
+            {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ ⟶ C₂}
+            (<span class="nv">p</span> : F₁ = F₂)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">g</span> : y --&gt; z}
+            {<span class="nv">xx</span> : D (F₁ x)}
+            {<span class="nv">yy</span> : D (F₁ y)}
+            {<span class="nv">zz</span> : D (F₁ z)}
+            (<span class="nv">ff</span> : xx --&gt;[ #F₁ f ] yy)
+            (<span class="nv">gg</span> : yy --&gt;[ #F₁ g ] zz)
+  : (transportf_functor_disp_mor
+       p
+       (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (functor_comp F₁ _ _) (ff ;; gg))
+     =
+     transportb
+       (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+       (functor_comp F₂ _ _)
+       (transportf_functor_disp_mor p ff ;; transportf_functor_disp_mor p gg))%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. The comprehension functor is Cartesian *)</span>
+<span class="kn">Section</span> <span class="nf">ComprehensionPullback</span>.
+  <span class="kn">Context</span> {<span class="nv">G₀</span> <span class="nv">G₁</span> <span class="nv">G₂</span> : setgroupoid}
+          {<span class="nv">F</span> : G₁ ⟶ G₂}
+          {<span class="nv">D</span> : disp_setgrpd G₂}
+          (<span class="nv">I</span> : cleaving D)
+          {<span class="nv">H₁</span> : G₀ ⟶ total_category D}
+          {<span class="nv">H₂</span> : G₀ ⟶ G₁}
+          (<span class="nv">p</span> : H₁ ∙ pr1_category _ = H₂ ∙ F).
+
+  <span class="kn">Definition</span> <span class="nf">isofib_comprehension_pb_mor_data</span>
+    : functor_data G₀ (total_category (reindex_disp_cat F D)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, H₂ x ,, transportf_functor_disp_ob p (pr2 (H₁ x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>,
+             #H₂ f
+             ,,
+             transportf_functor_disp_mor p (pr2 (#H₁ f))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isofib_comprehension_pb_mor_laws</span>
+    : is_functor isofib_comprehension_pb_mor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x.
+      use total2_paths_f.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> functor_id.
+      + <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!fiber_paths (!(functor_id H₁ x))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ transportf_functor_disp_mor_id p _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (homset_property G₂).
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (transportf_reindex (F := F) _ _ @ _).
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x y z f g.
+      use total2_paths_f.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> functor_comp.
+      + <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!fiber_paths (!(functor_comp H₁ f g))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ transportf_functor_disp_mor_comp p _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (homset_property G₂).
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (transportf_reindex (F := F) _ _ @ _).
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isofib_comprehension_pb_mor</span>
+    : G₀ ⟶ total_category (reindex_disp_cat F D).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> isofib_comprehension_pb_mor_data.
+    - <span class="bp">exact</span> isofib_comprehension_pb_mor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Arguments</span> transportf {X} P {x x' e} _.
+
+  <span class="kn">Proposition</span> <span class="nf">isofib_comprehension_pb_mor_pr1</span>
+    : isofib_comprehension_pb_mor
+      ∙ total_functor (reindex_disp_cat_disp_functor F D)
+      =
+      H₁.
+  <span class="kn">Proof</span>.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_data_eq_alt.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> x ;
+         use total2_paths_f ; [ <span class="bp">exact</span> (!(path_functor_ob p x)) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> transportf_functor_disp_ob ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">apply</span> transportf_set ;
+         <span class="nb">apply</span> isaset_ob).
+    - <span class="nb">intros</span> x y f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_total_category.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> idtoiso_total_category.
+      }
+      <span class="nb">refine</span> (!_).
+      use total2_paths_f.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) _
+                   @ path_functor_mor (!p) f
+                   @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _) ;
+           <span class="nb">apply</span> setcategory_eq_idtoiso).
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> transportf_functor_disp_mor_eq.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> (assoc_disp_var (D := D)).
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> (assoc_disp_var (D := D)).
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (idtoiso_disp_comp' (D := D)).
+        }
+        <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> idtoiso_disp_set_grpd_refl.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">refine</span> (_ @ idtoiso_disp_set_grpd_precomp _ _ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homset_property G₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isofib_comprehension_pb_mor_pr2</span>
+    : isofib_comprehension_pb_mor
+      ∙ pr1_category (reindex_disp_cat F D)
+      =
+      H₂.
+  <span class="kn">Proof</span>.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> {<span class="nv">H'</span> : G₀ ⟶ total_category (reindex_disp_cat F D)}
+          (<span class="nv">p₁</span> : H' ∙ total_functor (reindex_disp_cat_disp_functor F (pr1 D))
+                =
+                H₁)
+          (<span class="nv">p₂</span> : H' ∙ pr1_category (reindex_disp_cat F (pr1 D)) = H₂).
+
+  <span class="kn">Lemma</span> <span class="nf">isofib_comprehension_pb_mor_unique_ob</span>
+    : H' ~ isofib_comprehension_pb_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (path_functor_ob p₂ x).
+    - <span class="nb">rewrite</span> transportf_reindex_ob ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportf_functor_disp_ob.
+      use transportf_transpose_right.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">refine</span> (_ @ fiber_paths (path_functor_ob p₁ x)).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isaset_ob.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'idtoiso_d'"</span> := (idtoiso_disp _ _) (<span class="kn">only printing</span>).
+
+  <span class="kn">Proposition</span> <span class="nf">isofib_comprehension_pb_mor_unique</span>
+    : H' = isofib_comprehension_pb_mor.
+  <span class="kn">Proof</span>.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_data_eq.
+    - <span class="bp">exact</span> isofib_comprehension_pb_mor_unique_ob.
+    - <span class="nb">intros</span> x₁ x₂ f.
+      <span class="nb">rewrite</span> double_transport_idtoiso.
+      <span class="nb">rewrite</span> assoc'.
+      use z_iso_inv_on_right.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_total_category.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> idtoiso_total_category.
+      }
+      use total2_paths_f.
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ !(path_functor_mor p₂ f) @ _).
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths_2.
+          use setcategory_eq_idtoiso.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths.
+          use setcategory_eq_idtoiso.
+      + etrans.
+        {
+          <span class="nb">apply</span> transportf_reindex.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> transportf_functor_disp_ob, transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">pose proof</span> (transportb_transpose_right
+                      (fiber_paths (path_functor_mor p₁ f))) <span class="k">as</span> q.
+        <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">simple refine</span> (_ @ maponpaths
+                               (<span class="k">λ</span> <span class="nv">f</span>,
+                                 transportf
+                                   (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                                   (f ;; idtoiso_disp _ (idpath _))%mor_disp)
+                               q).
+          * <span class="nb">cbn</span>.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">rewrite</span> (assoc_disp_var (D := D)).
+            <span class="nb">rewrite</span> transport_f_f.
+            etrans.
+            {
+              <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="bp">exact</span> (idtoiso_total_category_pr2 (path_functor_ob p₁ x₂)).
+            }
+            <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            <span class="nb">rewrite</span> transport_f_f.
+            etrans.
+            {
+              <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (idtoiso_disp_comp' _ _).
+            }
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            <span class="nb">rewrite</span> transport_f_f.
+            <span class="nb">rewrite</span> idtoiso_reindex_disp_cat'.
+            <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+            use transportf_transpose_right.
+            <span class="nb">unfold</span> transportb.
+            <span class="nb">rewrite</span> transport_f_f.
+            <span class="nb">refine</span> (_ @ idtoiso_disp_set_grpd_postcomp _ _ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (homset_property G₂).
+          * <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (_ @ pr1_maponpaths_idtoiso _ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (idtoiso_total_category (D := D) (path_functor_ob p₁ x₂)).
+            }
+            <span class="nb">cbn</span>.
+            <span class="nb">refine</span> (!(pr1_idtoiso_concat (C := G₂) _ _) @ _).
+            use setcategory_eq_idtoiso.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> transportf_functor_disp_mor_eq.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">unfold</span> transportf_functor_disp_ob.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (idtoiso_total_category_pr2 (path_functor_ob p₁ x₁)).
+        }
+        <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !(assoc_disp (D := D)).
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">rewrite</span> idtoiso_reindex_disp_cat'.
+        <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (idtoiso_disp_comp' (D := D) _ _).
+        }
+        <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        use transportf_transpose_right.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">refine</span> (_ @ idtoiso_disp_set_grpd_prepostcomp _ _ _ _ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homset_property G₂).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ComprehensionPullback</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_isofib_comprehension_cartesian</span>
+  : is_cartesian_disp_functor disp_cat_isofib_comprehension.
+<span class="kn">Proof</span>.
+  use is_cartesian_disp_functor_chosen_lifts.
+  - <span class="bp">exact</span> cleaving_disp_cat_isofib.
+  - <span class="nb">intros</span> G₁ G₂ F D.
+    use isPullback_cartesian_in_cod_disp.
+    <span class="nb">intros</span> G₀ H₁ H₂ p.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> (isofib_comprehension_pb_mor p).
+      * <span class="nb">apply</span> isofib_comprehension_pb_mor_pr1.
+      * <span class="nb">apply</span> isofib_comprehension_pb_mor_pr2.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> H' ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         <span class="bp">exact</span> (isofib_comprehension_pb_mor_unique
+                  _
+                  (pr12 H')
+                  (pr22 H'))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Comprehension for split isofibrations *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_split_isofib_comprehension_data</span>
+  : disp_functor_data
+      (functor_identity _)
+      disp_cat_split_isofib
+      (disp_codomain _).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">G</span> : setgroupoid)
+             (<span class="nv">D</span> : disp_cat_split_isofib G),
+           total_set_groupoid (pr1 D)
+           ,,
+           pr1_category _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">G₁</span> <span class="nv">G₂</span> : setgroupoid)
+              (<span class="nv">D₁</span> : disp_cat_split_isofib G₁)
+              (<span class="nv">D₂</span> : disp_cat_split_isofib G₂)
+              (<span class="nv">F</span> : G₁ ⟶ G₂)
+              (<span class="nv">FF</span> : D₁ --&gt;[ F ] D₂),
+             total_functor (pr11 FF)
+             ,,
+             _).
+    <span class="bp">exact</span> (total_functor_commute_eq (pr11 FF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_split_isofib_comprehension_axioms</span>
+  : disp_functor_axioms disp_cat_split_isofib_comprehension_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use functor_eq ; [ <span class="nb">apply</span> homset_property | ] ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_split_isofib_comprehension</span>
+  : disp_functor
+      (functor_identity _)
+      disp_cat_split_isofib
+      (disp_codomain _).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_split_isofib_comprehension_data.
+  - <span class="bp">exact</span> disp_cat_split_isofib_comprehension_axioms.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_split_isofib_comprehension_cartesian</span>
+  : is_cartesian_disp_functor disp_cat_split_isofib_comprehension.
+<span class="kn">Proof</span>.
+  use is_cartesian_disp_functor_chosen_lifts.
+  - <span class="bp">exact</span> cleaving_disp_cat_split_isofib.
+  - <span class="nb">intros</span> G₁ G₂ F D.
+    use isPullback_cartesian_in_cod_disp.
+    <span class="nb">intros</span> G₀ H₁ H₂ p.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> (isofib_comprehension_pb_mor p).
+      * <span class="nb">apply</span> isofib_comprehension_pb_mor_pr1.
+      * <span class="nb">apply</span> isofib_comprehension_pb_mor_pr2.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> H' ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         <span class="bp">exact</span> (isofib_comprehension_pb_mor_unique
+                  _
+                  (pr12 H')
+                  (pr22 H'))).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/SetGroupoidComprehension.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Comprehension for split isofibrations
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

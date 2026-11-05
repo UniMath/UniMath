@@ -1,0 +1,845 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Determinism.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Determinism</span>
+
+<span class="sd">In this file, we provide the definition of a deterministic morphisms in a Markov category.</span>
+<span class="sd">A morphism f : x --&gt; y is deterministic if it commutes with copying, i.e.</span>
+<span class="sd">[f · copy y = copy x · f #⊗ f].</span>
+
+<span class="sd">In probabilitic models, this condition accurately identifies those morphisms which behave deterministically. </span>
+<span class="sd">The determinism condition expresses that the following are equivalent: running a computation twice,</span>
+<span class="sd">versus running it once and copying (sharing) the result.</span>
+
+<span class="sd">We give proofs of determinism of all relevant structure morphisms of the Markov category C,</span>
+<span class="sd">and prove various lemmas about composition of deterministic maps. These lemmas unlock some mild automation:</span>
+<span class="sd">Using a hint database [autodet], we can solve some goals of the form [is_deterministic] automatically.</span>
+
+<span class="sd">Further automation is unlocked as follows: We say that a morphism is in pairing-projection form if it is </span>
+<span class="sd">written using pairing ⟨ , ⟩, proj1, proj2, composition, identity and delete.</span>
+
+<span class="sd">We show a series of [pairing_proj] lemmas which show how to express all structure maps and constructs </span>
+<span class="sd">such as tensor [f #⊗ g] in pairing-projection form. On terms in pairing-projection form, we can use a</span>
+<span class="sd">rewrite system to simplify them automatically. For deterministic morphisms, we apply an η-law to break them </span>
+<span class="sd">down into components. This automation strategy [markov_coherence] is complete for equalities between structure maps.</span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Definition of Determinism</span>
+<span class="sd">2. Examples and Properies</span>
+<span class="sd">3. Automation: We provide</span>
+<span class="sd">  - 3.1 A Hint Database [autodet]</span>
+<span class="sd">  - 3.2 Lemmas for a Calculus of Pairings</span>
+<span class="sd">  - 3.3 Coherence Tactics</span>
+
+<span class="sd">References</span>
+<span class="sd">- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' </span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+<span class="sd">(** * 1. Definition of Determinism *)</span>
+
+<span class="kn">Section</span> <span class="nf">DefDeterminism</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Definition</span> <span class="nf">is_deterministic</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU
+    := f · copy y = copy x · f #⊗ f.
+
+  <span class="c">(* Accessors *)</span>
+  
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    is_deterministic f -&gt; f · copy y = copy x · f #⊗ f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d. <span class="bp">exact</span> d.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_eq'</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    is_deterministic f -&gt; f · ⟨identity y, identity y⟩ = ⟨f, f⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d. <span class="nb">rewrite</span> pairing_id. <span class="bp">exact</span> d.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">make_is_deterministic</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    f · copy y = copy x · f #⊗ f -&gt; is_deterministic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">make_is_deterministic'</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    f · ⟨identity y, identity y⟩ = ⟨f, f⟩ -&gt; is_deterministic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="nb">rewrite</span> pairing_id <span class="k">in</span> e. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_deterministic</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : isaprop (is_deterministic f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">deterministic_iso</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : UU
+    := ∑ (f : z_iso x y), is_deterministic f. 
+
+  <span class="kn">Coercion</span> <span class="nf">deterministic_iso_to_z_iso</span> {x y : C} 
+    (f : deterministic_iso x y) : z_iso x y := pr1 f.
+  
+  <span class="kn">Proposition</span> <span class="nf">deterministic_iso_to_z_iso_is_deterministic</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+    (<span class="nv">f</span> : deterministic_iso x y) : is_deterministic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> f <span class="k">as</span> [z d].
+    <span class="bp">exact</span> d.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DefDeterminism</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> is_deterministic.
+
+<span class="sd">(** * 2. Examples and Properties *)</span>
+
+<span class="kn">Section</span> <span class="nf">ExamplesAndProperties</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_identity</span> {<span class="nv">x</span> : C} : 
+    is_deterministic (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">rewrite</span> tensor_id_id, id_left, id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">identity_deterministic_iso</span> (<span class="nv">x</span> : C) : deterministic_iso x x.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">apply</span> identity_z_iso.
+    + <span class="nb">apply</span> is_deterministic_identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_composition</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+    {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} 
+    (<span class="nv">df</span> : is_deterministic f) (<span class="nv">dg</span> : is_deterministic g)
+    : is_deterministic (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">apply</span> is_deterministic_eq <span class="k">in</span> df, dg.
+    <span class="nb">rewrite</span> tensor_comp_mor.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- df.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- dg.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_to_terminal</span> {<span class="nv">x</span> : C} (<span class="nv">f</span> : x --&gt; I_{C}) :
+    is_deterministic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    use cancel_z_iso.
+    - <span class="nb">apply</span> I_{C}.
+    - <span class="nb">apply</span> z_iso_from_mon_runitor. 
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> markov_category_unit_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_del</span> (<span class="nv">x</span> : C) :
+    is_deterministic (del x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_deterministic_to_terminal.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_sym_mon_braiding</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    is_deterministic (sym_mon_braiding _ x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">rewrite</span> &lt;- !copy_tensor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath. 
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> inner_swap_commute_with_swap.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_copy_assoc</span> (<span class="nv">x</span> : C)
+    : copy x
+      · copy x #⊗ copy x
+      =
+      copy x
+      · identity x #⊗ copy x
+      · identity x #⊗ (copy x #⊗ identity x)
+      · identity x #⊗ mon_lassociator x x x
+      · mon_rassociator x x (x ⊗ x).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">rewrite</span> tensor_split'.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> copy_assoc.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> &lt;- tensor_rassociator.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> copy_assoc'. 
+      }
+      <span class="nb">rewrite</span> !tensor_comp_id_l.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+      
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_copy</span> (<span class="nv">x</span> : C) :
+    is_deterministic (copy x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">rewrite</span> &lt;- copy_tensor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> double_copy_assoc.
+      <span class="nb">unfold</span> inner_swap.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_rassociator_lassociator.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> tensor_mor_right.
+        <span class="nb">rewrite</span> tensor_mor_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_lassociator_rassociator.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> copy_comm.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">apply</span> idpath. 
+    }
+    <span class="nb">symmetry</span>.
+    etrans.
+    {
+      <span class="nb">rewrite</span> double_copy_assoc.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.    
+  
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_tensor</span> {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C}
+    {<span class="nv">f1</span> : x1 --&gt; y1} {<span class="nv">f2</span> : x2 --&gt; y2}
+    (<span class="nv">d1</span> : is_deterministic f1) (<span class="nv">d2</span> : is_deterministic f2)
+    : is_deterministic (f1 #⊗ f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">apply</span> is_deterministic_eq <span class="k">in</span> d1, d2.
+    <span class="nb">rewrite</span> &lt;- !copy_tensor.
+    etrans.
+    {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+      <span class="nb">rewrite</span> d1, d2.
+      <span class="nb">rewrite</span> tensor_comp_mor.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> naturality_inner_swap.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_lunitor</span> (<span class="nv">x</span> : C) :
+    is_deterministic (mon_lunitor x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">rewrite</span> &lt;- copy_tensor.
+    <span class="nb">rewrite</span> &lt;- precompose_inner_swap_with_lunitors_on_right.
+    <span class="nb">symmetry</span>.
+    etrans.
+    { 
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> inner_swap_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> tensor_mor_right.
+    <span class="nb">rewrite</span> &lt;- tensor_lunitor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> tensor_comp_mor.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> markov_category_unit_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_runitor</span> (<span class="nv">x</span> : C) :
+    is_deterministic (mon_runitor x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">rewrite</span> &lt;- copy_tensor.
+    <span class="nb">rewrite</span> &lt;- precompose_inner_swap_with_lunitors_and_runitor.
+    <span class="nb">symmetry</span>.
+    etrans.
+    { 
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> inner_swap_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> tensor_mor_left.
+    <span class="nb">rewrite</span> &lt;- tensor_runitor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">symmetry</span>.
+      <span class="nb">apply</span> tensor_comp_mor.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> markov_category_unit_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_inverse</span> {<span class="nv">x</span> <span class="nv">y</span> : C} 
+    (<span class="nv">f</span> : z_iso x y) (<span class="nv">df</span> : is_deterministic f)
+    : is_deterministic (inv_from_z_iso f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    <span class="nb">apply</span> is_deterministic_eq <span class="k">in</span> df.
+    use z_iso_inv_on_right.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> df.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_linvunitor</span> (<span class="nv">x</span> : C) :
+    is_deterministic (mon_linvunitor x).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (is_deterministic_inverse (z_iso_from_mon_lunitor x) _).
+    <span class="nb">apply</span> is_deterministic_mon_lunitor.
+  <span class="kn">Qed</span>.
+        
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_rinvunitor</span> (<span class="nv">x</span> : C) :
+    is_deterministic (mon_rinvunitor x).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (is_deterministic_inverse (z_iso_from_mon_runitor x) _).
+    <span class="nb">apply</span> is_deterministic_mon_runitor.
+  <span class="kn">Qed</span>.  
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_lassociator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) :
+    is_deterministic (mon_lassociator x y z).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_deterministic.
+    etrans.
+    {
+      <span class="nb">rewrite</span> &lt;- !copy_tensor.
+      <span class="nb">rewrite</span> tensor_comp_l_id_r.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">symmetry</span>.
+    etrans.
+    {
+      <span class="nb">rewrite</span> &lt;- !copy_tensor.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> inner_swap_hexagon'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_mon_rassociator</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) :
+    is_deterministic (mon_rassociator x y z).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (is_deterministic_inverse (z_iso_from_mon_lassociator x y z) _).
+    <span class="nb">apply</span> is_deterministic_mon_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_pairing</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; x) (<span class="nv">g</span> : a --&gt; y)
+    (<span class="nv">df</span> : is_deterministic f) (<span class="nv">dg</span> : is_deterministic g) : is_deterministic ⟨f, g⟩. 
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">apply</span> is_deterministic_composition.
+    - <span class="nb">apply</span> is_deterministic_copy.
+    - <span class="nb">apply</span> is_deterministic_tensor ; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_proj1</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : is_deterministic (@proj1 C x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> proj1.
+    <span class="nb">apply</span> is_deterministic_composition.
+    - <span class="nb">apply</span> is_deterministic_tensor.
+      * <span class="nb">apply</span> is_deterministic_identity.
+      * <span class="nb">apply</span> is_deterministic_del.
+    - <span class="nb">apply</span> is_deterministic_mon_runitor.
+  <span class="kn">Qed</span>.     
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_proj2</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : is_deterministic (@proj2 C x y).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> proj2.
+    <span class="nb">apply</span> is_deterministic_composition.
+    - <span class="nb">apply</span> is_deterministic_tensor.
+      * <span class="nb">apply</span> is_deterministic_del.
+      * <span class="nb">apply</span> is_deterministic_identity.
+    - <span class="nb">apply</span> is_deterministic_mon_lunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C) : is_deterministic (inner_swap C x y z w).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">apply</span> is_deterministic_composition; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_mon_lassociator.
+    <span class="nb">apply</span> is_deterministic_composition; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_mon_rassociator.
+    <span class="nb">rewrite</span> tensor_mor_left, tensor_mor_right.
+    <span class="nb">apply</span> is_deterministic_tensor; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_identity.
+    <span class="nb">apply</span> is_deterministic_composition; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_mon_rassociator.
+    <span class="nb">apply</span> is_deterministic_composition; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_mon_lassociator.
+    <span class="nb">apply</span> is_deterministic_tensor; <span class="kp">try</span> <span class="nb">apply</span> is_deterministic_sym_mon_braiding.
+    <span class="nb">apply</span> is_deterministic_identity.
+  <span class="kn">Qed</span>.
+  
+<span class="kn">End</span> <span class="nf">ExamplesAndProperties</span>.
+
+<span class="sd">(** * 3. Automation *)</span>
+
+<span class="sd">(** ** 3.1 A Hint Database [autodet] *)</span>
+
+<span class="c">(* We can automatically derive that some morphisms are deterministic by </span>
+<span class="c">   composing various primitive determinism statements *)</span>
+
+<span class="kn">Create HintDb</span> autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_identity : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_composition : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_del : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_sym_mon_braiding : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_copy : autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_lassociator : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_lunitor : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_linvunitor : autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_rassociator : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_runitor : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_mon_rinvunitor : autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_tensor : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_pairing : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_proj1 : autodet.
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_proj2 : autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> is_deterministic_inner_swap : autodet.
+
+#[<span class="kn">global</span>] <span class="kn">Hint Resolve</span> deterministic_iso_to_z_iso_is_deterministic : autodet.
+
+<span class="sd">(** ** 3.2 Lemmas for a Calculus of Pairings *)</span>
+
+<span class="c">(* By rewriting all (deterministic) structural maps into explicit pairing form, </span>
+<span class="c">   we can reason equationally about such composites.</span>
+<span class="c">   </span>
+<span class="c">   Eta-expansion for deterministic maps says that two such maps are equal if and only if </span>
+<span class="c">   their marginals are equal, which lets us reduce equations further </span>
+<span class="c">*)</span>
+
+<span class="kn">Section</span> <span class="nf">PairingCalculus</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">proj_inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : inner_swap _ x x y y · proj1 #⊗ proj2 = proj1 #⊗ proj2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> proj1, proj2.
+    <span class="nb">rewrite</span> !tensor_comp_mor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> naturality_inner_swap.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> inner_swap_along_unit.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_id</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    identity (x ⊗ y) = ⟨proj1, proj2⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">rewrite</span> &lt;- copy_tensor.
+    <span class="nb">rewrite</span> assoc', proj_inner_swap.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> copy_proj1, copy_proj2.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_det</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    is_deterministic f -&gt; ⟨f,f⟩ = f · ⟨identity y, identity y⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> det.
+    <span class="nb">rewrite</span> pairing_id.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">rewrite</span> det.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_precomp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} 
+    (<span class="nv">f</span> : y --&gt; z) (<span class="nv">g</span> : y --&gt; w) (<span class="nv">h</span> : x --&gt; y) 
+    : is_deterministic h -&gt; ⟨h · f, h · g⟩ = h · ⟨f, g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> det.
+    <span class="nb">rewrite</span> &lt;- pairing_tensor.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">rewrite</span> &lt;- det, assoc.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_eta</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">h</span> : x --&gt; y ⊗ z) :
+    is_deterministic h -&gt; h = ⟨h · proj1, h · proj2⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> det.
+    <span class="nb">rewrite</span> pairing_precomp ; [..|<span class="bp">assumption</span>].
+    <span class="nb">rewrite</span> &lt;- pairing_proj_id.
+    <span class="nb">rewrite</span> id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_eta</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y ⊗ z) 
+    (<span class="nv">df</span> : is_deterministic f) (<span class="nv">dg</span> : is_deterministic g)
+    : f · proj1 = g · proj1 -&gt; f · proj2 = g · proj2 -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e1 e2.
+    <span class="nb">rewrite</span> (pairing_eta f); [..|<span class="bp">assumption</span>].
+    <span class="nb">rewrite</span> (pairing_eta g); [..|<span class="bp">assumption</span>].
+    <span class="nb">rewrite</span> e1, e2.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_tensor</span> {<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C} (<span class="nv">f</span> : x1 --&gt; y1) (<span class="nv">g</span> : x2 --&gt; y2) :
+    f #⊗ g = ⟨proj1 · f, proj2 · g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- pairing_tensor.
+    <span class="nb">rewrite</span> &lt;- pairing_proj_id, id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_whisker_l</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">g</span> : y --&gt; z) :
+    x ⊗^{C}_{l} g = ⟨proj1, proj2 · g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> tensor_mor_left, pairing_proj_tensor, id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_whisker_r</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    f ⊗^{C}_{r} z = ⟨proj1 · f, proj2⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> tensor_mor_right, pairing_proj_tensor, id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_copy</span> {<span class="nv">x</span> : C} :
+    copy x = ⟨identity x, identity x⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> pairing_id.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_braiding</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    sym_mon_braiding C x y = ⟨proj2, proj1⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> det_eta; <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    - <span class="nb">rewrite</span> pairing_proj1.
+      <span class="nb">rewrite</span> sym_mon_braiding_proj1.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> pairing_proj2.
+      <span class="nb">rewrite</span> sym_mon_braiding_proj2.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_rassociator</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} :
+    mon_rassociator x y z = ⟨⟨proj1, proj2 · proj1⟩, proj2 · proj2⟩.
+  <span class="kn">Proof</span>.
+    use cancel_z_iso.
+    - <span class="bp">exact</span> (x ⊗ (y ⊗ z)).
+    - <span class="nb">apply</span> z_iso_from_mon_lassociator.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator, pairing_lassociator.
+      <span class="nb">rewrite</span> pairing_precomp; [..|<span class="nb">auto with</span> autodet].
+      <span class="nb">rewrite</span> &lt;- pairing_proj_id, id_right.
+      <span class="nb">rewrite</span> &lt;- pairing_proj_id.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_lassociator</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} :
+    mon_lassociator x y z = ⟨proj1 · proj1, ⟨proj1 · proj2, proj2⟩⟩.
+  <span class="kn">Proof</span>.
+    use cancel_z_iso.
+    - <span class="bp">exact</span> ((x ⊗ y) ⊗ z).
+    - <span class="nb">apply</span> z_iso_from_mon_rassociator.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator, pairing_rassociator.
+      <span class="nb">rewrite</span> pairing_precomp; [..|<span class="nb">auto with</span> autodet].
+      <span class="nb">rewrite</span> &lt;- pairing_proj_id, id_right.
+      <span class="nb">rewrite</span> pairing_proj_id.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_lunitor</span> {<span class="nv">x</span> : C} :
+    mon_lunitor x = proj2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> proj2.
+    <span class="nb">assert</span>(e : del I_{C} = identity I_{C}). { <span class="nb">apply</span> markov_category_unit_eq. }
+    <span class="nb">rewrite</span> e, tensor_id_id, id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_linvunitor</span> {<span class="nv">x</span> : C} :
+    mon_linvunitor x = ⟨del x, identity x⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> det_eta; <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    - <span class="nb">apply</span> markov_category_unit_eq.
+    - <span class="nb">rewrite</span> pairing_proj2.
+      <span class="nb">rewrite</span> &lt;- pairing_proj_lunitor. 
+      <span class="nb">rewrite</span> mon_linvunitor_lunitor.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_runitor</span> {<span class="nv">x</span> : C} :
+    mon_runitor x = proj1.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> proj1.
+    <span class="nb">assert</span>(e : del I_{C} = identity I_{C}). { <span class="nb">apply</span> markov_category_unit_eq. }
+    <span class="nb">rewrite</span> e, tensor_id_id, id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_rinvunitor</span> {<span class="nv">x</span> : C} :
+    mon_rinvunitor x = ⟨identity x, del x⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> det_eta; <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    - <span class="nb">rewrite</span> pairing_proj1.
+      <span class="nb">rewrite</span> &lt;- pairing_proj_runitor. 
+      <span class="nb">rewrite</span> mon_rinvunitor_runitor.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">apply</span> markov_category_unit_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_inner_swap'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} :
+    inner_swap C x y z w = ⟨ proj1 #⊗ proj1 , proj2 #⊗ proj2 ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">transitivity</span> ((⟨proj1, proj2⟩ #⊗ ⟨proj1, proj2⟩) · inner_swap C x y z w). {
+      <span class="nb">rewrite</span> &lt;- !pairing_proj_id, tensor_id_id, id_left.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> pairing_inner_swap.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_proj_inner_swap</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} :
+    inner_swap C x y z w = ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2 , proj2 · proj2 ⟩ ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !pairing_proj_tensor.
+    <span class="nb">apply</span> pairing_proj_inner_swap'.
+  <span class="kn">Qed</span>. 
+  
+<span class="kn">End</span> <span class="nf">PairingCalculus</span>.
+
+<span class="sd">(** ** 3.3 Coherence Tactics *)</span>
+
+<span class="c">(* Some tactic automation for simplifying </span>
+<span class="c">    some composites of structural maps, i.e.</span>
+<span class="c">    identities, braidings, pairings, </span>
+<span class="c">    projections, tensors and associators *)</span>
+
+<span class="c">(* Expand out all all structural maps </span>
+<span class="c">    in terms of just pairing and projections *)</span>
+<span class="kn">Ltac</span> <span class="nf">pairing_proj_expand</span> :=
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_whisker_l);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_whisker_r);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_tensor);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_copy);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_id);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_braiding);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_lassociator);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_rassociator);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_lunitor);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_linvunitor);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_runitor);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_rinvunitor);
+  (<span class="kp">repeat</span> <span class="nb">rewrite</span> pairing_proj_inner_swap).
+
+<span class="kn">Ltac</span> <span class="nf">normalize_assoc</span> :=
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+
+<span class="kn">Ltac</span> <span class="nf">markov_step</span> :=
+     (<span class="nb">rewrite</span> id_left)
+  || (<span class="nb">rewrite</span> id_right)
+  || (<span class="nb">rewrite</span> pairing_proj1)
+  || (<span class="nb">rewrite</span> pairing_proj2)
+  || (<span class="nb">rewrite</span> pairing_proj1_nested)
+  || (<span class="nb">rewrite</span> pairing_proj2_nested).
+
+<span class="c">(* never fails *)</span>
+
+<span class="kn">Ltac</span> <span class="nf">markov_simpl</span> :=
+  <span class="kp">repeat</span> (normalize_assoc; markov_step).
+
+<span class="kn">Ltac</span> <span class="nf">markov_split</span> :=
+  <span class="kp">repeat</span> (<span class="nb">apply</span> det_eta; <span class="kp">try</span> <span class="nb">auto</span> <span class="mi">20</span> <span class="k">with</span> autodet).
+
+<span class="kn">Ltac</span> <span class="nf">markov_solve</span> :=
+  pairing_proj_expand; markov_simpl; 
+  <span class="kp">try</span> <span class="nb">apply</span> markov_category_unit_eq;
+  <span class="kp">try</span> <span class="bp">reflexivity</span>.
+
+<span class="kn">Ltac</span> <span class="nf">markov_coherence</span> :=
+  <span class="kp">abstract</span> (
+    pairing_proj_expand; markov_simpl;
+    markov_split; <span class="c">(* split goals with eta rule *)</span>
+    markov_solve
+  ).
+
+<span class="c">(* Some lemmas that are solved by the tactic *)</span>
+
+<span class="kn">Section</span> <span class="nf">Corollaries</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Lemma</span> <span class="nf">rassociator_proj</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) :
+    mon_rassociator x y z · proj1 = identity x #⊗ proj1.
+  <span class="kn">Proof</span>.
+    markov_coherence. 
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rassociator_proj1_tensor</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) :
+    mon_rassociator x y z · proj1 #⊗ identity z = identity x #⊗ proj2.
+  <span class="kn">Proof</span>.
+    markov_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rassociator_proj2_tensor</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) :
+    mon_rassociator x y z · proj2 #⊗ identity z = proj2.
+  <span class="kn">Proof</span>.
+    markov_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">copy_copy</span> (<span class="nv">x</span> : C)
+    : copy x · copy (x ⊗ x) = copy x · copy x #⊗ copy x.
+  <span class="kn">Proof</span>.
+    markov_coherence.
+  <span class="kn">Qed</span>.
+  
+  <span class="kn">Proposition</span> <span class="nf">copy_pairing</span> 
+      {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+      {<span class="nv">f</span> : x ⊗ x --&gt; y} {<span class="nv">g</span> : x ⊗ x --&gt; z}
+    : copy x · ⟨f,g⟩ = ⟨copy x · f, copy x · g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">rewrite</span> tensor_comp_mor, !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> copy_copy.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">inner_swap_proj</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} : 
+    ⟨ ⟨ proj1 · proj1 , proj2 · proj1 ⟩ , ⟨ proj1 · proj2, proj2 · proj2 ⟩ ⟩ 
+    = inner_swap _ x y z w.
+  <span class="kn">Proof</span>.
+    markov_coherence.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Corollaries</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/Determinism.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

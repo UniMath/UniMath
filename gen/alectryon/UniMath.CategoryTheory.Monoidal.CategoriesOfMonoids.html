@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoriesOfMonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** In this file, the category of monoids internal to a monoidal category is defined</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoidsWhiskered.v</span>
+<span class="sd">(git log -- UniMath/CategoryTheory/Monoidal/CategoriesOfMonoids.v gives information on a prior development for the "tensored" format of monoidal categories)</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Category_of_Monoids</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).
+
+  <span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (x ⊗_{M} y).
+  <span class="kn">Notation</span> <span class="s2">"x ⊗l f"</span> := (x ⊗^{M}_{l} f) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f ⊗r y"</span> := (f ⊗^{M}_{r} y) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f ⊗⊗ g"</span> := (f ⊗^{M} g) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Let</span> <span class="nf">I</span> : C := monoidal_unit M.
+  <span class="kn">Let</span> <span class="nf">lu</span> : leftunitor_data M (monoidal_unit M) := monoidal_leftunitordata M.
+  <span class="kn">Let</span> <span class="nf">ru</span> : rightunitor_data M (monoidal_unit M) := monoidal_rightunitordata M.
+  <span class="kn">Let</span> <span class="nf">α</span> : associator_data M := monoidal_associatordata M.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_data</span> (<span class="nv">x</span> : C) : UU
+    := C⟦x ⊗ x, x⟧ × C⟦I, x⟧.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_data_multiplication</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x)
+    : C⟦x ⊗ x, x⟧
+    := pr1 m.
+  <span class="kn">Notation</span> <span class="s2">"μ_{ m }"</span> := (monoid_data_multiplication m).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_data_unit</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x)
+    : C⟦I, x⟧
+    := pr2 m.
+  <span class="kn">Notation</span> <span class="s2">"η_{ m }"</span> := (monoid_data_unit m).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_laws_assoc</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x) : UU
+    := α x x x · (x ⊗l μ_{m}) · μ_{m} = μ_{m} ⊗r x · μ_{m}.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_laws_unit_left</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x) : UU
+    := (η_{m} ⊗r x) · μ_{m} = lu x.
+  <span class="kn">Definition</span> <span class="nf">monoid_laws_unit_right</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x) : UU
+    := (x ⊗l η_{m}) · μ_{m} = ru x.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_laws</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x) : UU
+    := monoid_laws_unit_left m × monoid_laws_unit_right m × monoid_laws_assoc m.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_monoid_laws</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid_data x)
+    : isaprop (monoid_laws m).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid</span> (<span class="nv">x</span> : C) : UU
+    := ∑ m : monoid_data x, monoid_laws m.
+
+  <span class="kn">Definition</span> <span class="nf">make_monoid</span>
+    {<span class="nv">x</span> : C} (<span class="nv">μ</span> : C⟦x ⊗ x, x⟧) (<span class="nv">η</span> : C⟦monoidal_unit M, x⟧)
+    (<span class="nv">p_ul</span> : (η ⊗r x) · μ = lu x)
+    (<span class="nv">p_ur</span> : (x ⊗l η) · μ = ru x)
+    (<span class="nv">p_assoc</span> : α x x x · (x ⊗l μ) · μ = μ ⊗r x · μ)
+    : monoid x.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, (_ ,, _ ,, _)).
+    - <span class="bp">exact</span> μ.
+    - <span class="bp">exact</span> η.
+    - <span class="bp">exact</span> p_ul.
+    - <span class="bp">exact</span> p_ur.
+    - <span class="bp">exact</span> p_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_data</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid x)
+    : monoid_data x := pr1 m.
+  <span class="kn">Coercion</span> <span class="nf">monoid_to_monoid_data</span> : monoid &gt;-&gt; monoid_data.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_laws</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid x)
+    : monoid_laws m := pr2 m.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_unit_left_law</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid x)
+    : monoid_laws_unit_left m := pr1 (monoid_to_monoid_laws m).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_unit_right_law</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid x)
+    : monoid_laws_unit_right m := pr12 (monoid_to_monoid_laws m).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_assoc_law</span> {<span class="nv">x</span> : C} (<span class="nv">m</span> : monoid x)
+    : monoid_laws_assoc m := pr22 (monoid_to_monoid_laws m).
+
+  <span class="kn">Definition</span> <span class="nf">is_monoid_mor_mult</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">mx</span> : monoid x) (<span class="nv">my</span> : monoid y) (<span class="nv">f</span> : C⟦x,y⟧) : UU
+    := (f ⊗⊗ f) · μ_{my} = μ_{mx} · f.
+
+  <span class="kn">Definition</span> <span class="nf">is_monoid_mor_unit</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">mx</span> : monoid x) (<span class="nv">my</span> : monoid y) (<span class="nv">f</span> : C⟦x,y⟧) : UU
+    := η_{mx} · f = η_{my}.
+
+  <span class="kn">Definition</span> <span class="nf">is_monoid_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">mx</span> : monoid x) (<span class="nv">my</span> : monoid y) (<span class="nv">f</span> : C⟦x,y⟧) : UU
+    := is_monoid_mor_mult mx my f × is_monoid_mor_unit mx my f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_monoid_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : C}
+        (<span class="nv">mx</span> : monoid x) (<span class="nv">my</span> : monoid y) (<span class="nv">f</span> : C⟦x,y⟧)
+    : isaprop (is_monoid_mor mx my f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_disp_cat_ob_mor</span> : disp_cat_ob_mor C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">monoid</span> <span class="nv">x</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">mx</span> <span class="nv">my</span> <span class="nv">f</span>, is_monoid_mor mx my f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">id_is_monoid_mor</span> {<span class="nv">x</span> : C} (<span class="nv">xx</span> : monoid x)
+    : is_monoid_mor xx xx (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> (_ @ ! id_right _).
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2, bifunctor_distributes_over_id.
+        <span class="nb">apply</span> (bifunctor_leftid M).
+        <span class="nb">apply</span> (bifunctor_rightid M).
+      }
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comp_is_monoid_mor</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        {<span class="nv">f</span> : C ⟦ x, y ⟧} {<span class="nv">g</span> : C ⟦ y, z ⟧}
+        {<span class="nv">xx</span> : monoid x} {<span class="nv">yy</span> : monoid y} {<span class="nv">zz</span> : monoid z}
+        (<span class="nv">pf</span> : is_monoid_mor xx yy f) (<span class="nv">pg</span> : is_monoid_mor yy zz g)
+    : is_monoid_mor xx zz (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> bifunctor_distributes_over_comp.
+        <span class="nb">apply</span> (bifunctor_leftcomp M).
+        <span class="nb">apply</span> (bifunctor_rightcomp M).
+        <span class="nb">apply</span> (bifunctor_equalwhiskers M).
+      }
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> assoc'.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> maponpaths, (pr1 pg).
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> maponpaths_2, (pr1 pf).
+      <span class="nb">apply</span> assoc'.
+    - <span class="nb">unfold</span> is_monoid_mor_unit.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> assoc.
+      etrans.
+      <span class="mi">1</span>: <span class="nb">apply</span> maponpaths_2, (pr2 pf).
+      <span class="nb">apply</span> (pr2 pg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_disp_cat_id_comp</span>
+    : disp_cat_id_comp C monoid_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_is_monoid_mor.
+    - <span class="nb">intros</span> x y z f g xx yy zz pf pg.
+      <span class="bp">exact</span> (comp_is_monoid_mor pf pg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_disp_cat_data</span> : disp_cat_data C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">monoid_disp_cat_ob_mor</span>.
+    <span class="bp">exact</span> monoid_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_disp_cat_data_is_locally_propositional</span> : locally_propositional monoid_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">apply</span> isaprop_is_monoid_mor).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_disp_cat</span> : disp_cat C
+    := make_disp_cat_locally_prop monoid_disp_cat_data_is_locally_propositional.
+
+  <span class="kn">Definition</span> <span class="nf">category_of_monoids_in_monoidal_cat</span> : category
+    := total_category monoid_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">MON</span> : category := category_of_monoids_in_monoidal_cat.
+
+  <span class="kn">Lemma</span> <span class="nf">MON_mor_eq</span> {<span class="nv">X</span> <span class="nv">X'</span> : MON} (<span class="nv">r</span> <span class="nv">r'</span> : MON⟦X,X'⟧) : pr1 r = pr1 r' -&gt; r = r'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> mor_eq_total_category_when_locally_prop.
+    <span class="bp">exact</span> monoid_disp_cat_data_is_locally_propositional.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_carrier</span>
+             (<span class="nv">X</span> : MON)
+    : ob C := pr1 X.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_struct</span> (<span class="nv">X</span> : MON)
+    : monoid (monoid_carrier X)
+    := pr2 X.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_multiplication</span> (<span class="nv">X</span> : MON)
+    : C⟦monoid_carrier X ⊗_{ M} monoid_carrier X, monoid_carrier X⟧
+    := monoid_data_multiplication (monoid_struct X).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_unit</span> (<span class="nv">X</span> : MON)
+    : C⟦I, monoid_carrier X⟧
+    := monoid_data_unit (monoid_struct X).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_left_unit_law</span> (<span class="nv">X</span> : MON)
+    : monoid_laws_unit_left (monoid_struct X)
+    := monoid_to_unit_left_law (monoid_struct X).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_right_unit_law</span> (<span class="nv">X</span> : MON)
+    : monoid_laws_unit_right (monoid_struct X)
+    := monoid_to_unit_right_law (monoid_struct X).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_assoc_law</span> (<span class="nv">X</span> : MON)
+    : monoid_laws_assoc (monoid_struct X)
+    := monoid_to_assoc_law (monoid_struct X).
+<span class="kn">End</span> <span class="nf">Category_of_Monoids</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_monoid</span>
+  (<span class="nv">V</span> : monoidal_cat)
+  : monoid V (monoidal_unit V).
+<span class="kn">Proof</span>.
+  use make_monoid.
+  - <span class="bp">exact</span> (monoidal_leftunitordata V (monoidal_unit V)).
+  - <span class="bp">exact</span> (identity (monoidal_unit V)).
+  - etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (bifunctor_rightid V).
+    }
+    <span class="nb">apply</span> id_left.
+  - etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (bifunctor_leftid V).
+    }
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="nb">apply</span> unitors_coincide_on_unit.
+  - <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> unitors_coincide_on_unit.
+         <span class="nb">apply</span> monoidal_triangleidentity. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Monoids in the monoidal category [monoidal_swapped M] and monoids in M are equivalent *)</span>
+
+<span class="kn">Section</span> <span class="nf">MonoidsSwapped</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_data</span> {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid M R)
+    : monoid_data (monoidal_swapped M) R.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (monoid_data_multiplication _ m).
+    - <span class="bp">exact</span> (monoid_data_unit _ m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monoid_swapped_laws</span>
+    {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid M R)
+    : monoid_laws (monoidal_swapped M) (monoid_to_monoid_swapped_data m).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - use monoid_to_unit_right_law.
+    - use monoid_to_unit_left_law.
+    - <span class="nb">unfold</span> monoid_laws_assoc; <span class="nb">cbn</span>.
+      etrans.
+      { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ _); use monoid_to_assoc_law. }
+      <span class="nb">rewrite</span> &lt;- id_left; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc.
+      use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) (pr2 (monoidal_associatorisolaw _ _ _ _))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_monoid</span>
+    {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid M R)
+    : monoid (monoidal_swapped M) R
+    := monoid_to_monoid_swapped_data m ,, monoid_to_monoid_swapped_laws m.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_mon</span> (<span class="nv">R</span> : MON M)
+    : MON (monoidal_swapped M)
+    := pr1 R ,, monoid_to_monoid_swapped_monoid (pr2 R).
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monoid_swapped_mor_law</span> {<span class="nv">R</span> <span class="nv">R'</span> : MON M} (<span class="nv">f</span> : R --&gt; R')
+    : is_monoid_mor (monoidal_swapped M) (monoid_to_monoid_swapped_monoid (pr2 R))
+      (monoid_to_monoid_swapped_monoid (pr2 R')) (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> is_monoid_mor_mult.
+      <span class="nb">cbn</span>; <span class="nb">rewrite</span> (monoidal_swapped_whiskering M).
+      use (pr12 f).
+    - use (pr22 f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_mor</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : MON M) (<span class="nv">f</span> : R --&gt; R')
+    : monoid_to_monoid_swapped_mon R --&gt; monoid_to_monoid_swapped_mon R'
+    := pr1 f ,, monoid_to_monoid_swapped_mor_law f.
+
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_functor_data</span>
+    : functor_data (MON M) (MON (monoidal_swapped M)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> monoid_to_monoid_swapped_mon.
+    - <span class="bp">exact</span> monoid_to_monoid_swapped_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monoid_swapped_functor_laws</span>
+    : is_functor monoid_to_monoid_swapped_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+    - <span class="nb">intros</span> ? ? ? ? ?.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monoid_swapped_functor</span> : (MON M) ⟶ (MON (monoidal_swapped M))
+    := make_functor monoid_to_monoid_swapped_functor_data monoid_to_monoid_swapped_functor_laws.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_data</span> {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid (monoidal_swapped M) R)
+    : monoid_data M R.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (monoid_data_multiplication _ m).
+    - <span class="bp">exact</span> (monoid_data_unit _ m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_swapped_to_monoid_laws</span>
+    {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid (monoidal_swapped M) R)
+    : monoid_laws M (monoid_swapped_to_monoid_data m).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - use (monoid_to_unit_right_law _ m).
+    - use (monoid_to_unit_left_law _ m).
+    - <span class="nb">unfold</span> monoid_laws_assoc; <span class="nb">cbn</span>.
+      etrans.
+      { <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">refine</span> (!maponpaths _ _); use (monoid_to_assoc_law _ m). }
+      <span class="nb">rewrite</span> &lt;- id_left; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc.
+      use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _ · _) (pr1 (monoidal_associatorisolaw _ _ _ _))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_monoid</span>
+    {<span class="nv">R</span> : C} (<span class="nv">m</span> : monoid (monoidal_swapped M) R)
+    : monoid M R
+    := monoid_swapped_to_monoid_data m ,, monoid_swapped_to_monoid_laws m.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_mon</span> (<span class="nv">R</span> : MON (monoidal_swapped M))
+    : MON M
+    := pr1 R ,, monoid_swapped_to_monoid_monoid (pr2 R).
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_swapped_to_monoid_mor_law</span> {<span class="nv">R</span> <span class="nv">R'</span> : MON (monoidal_swapped M)} (<span class="nv">f</span> : R --&gt; R')
+    : is_monoid_mor M (monoid_swapped_to_monoid_monoid (pr2 R))
+      (monoid_swapped_to_monoid_monoid (pr2 R')) (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> is_monoid_mor_mult.
+      <span class="nb">cbn</span>; <span class="nb">rewrite</span> (monoidal_swapped_whiskering (monoidal_swapped M)).
+      use (pr12 f).
+    - use (pr22 f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_mor</span>
+    (<span class="nv">R</span> <span class="nv">R'</span> : MON (monoidal_swapped M)) (<span class="nv">f</span> : R --&gt; R')
+    : monoid_swapped_to_monoid_mon R --&gt; monoid_swapped_to_monoid_mon R'
+    := pr1 f ,, monoid_swapped_to_monoid_mor_law f.
+
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_functor_data</span>
+    : functor_data (MON (monoidal_swapped M)) (MON M).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> monoid_swapped_to_monoid_mon.
+    - <span class="bp">exact</span> monoid_swapped_to_monoid_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_swapped_to_monoid_functor_laws</span>
+    : is_functor monoid_swapped_to_monoid_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+    - <span class="nb">intros</span> ? ? ? ? ?.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_swapped_to_monoid_functor</span> : (MON (monoidal_swapped M)) ⟶ (MON M)
+    := make_functor monoid_swapped_to_monoid_functor_data monoid_swapped_to_monoid_functor_laws.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_to_swap_unswap_data</span>
+    : nat_trans_data (functor_identity (MON M)) (monoid_to_monoid_swapped_functor ∙ monoid_swapped_to_monoid_functor).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> R; <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>); <span class="nb">cbn</span>; <span class="nb">split</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">unfold</span> is_monoid_mor_mult; <span class="nb">cbn</span>; <span class="nb">unfold</span> functoronmorphisms1;
+        <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid M), (bifunctor_rightid M), id_left, id_left, id_right
+      ).
+    - <span class="kp">abstract</span> (use id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">id_to_swap_unswap_nat</span>
+    : is_nat_trans _ _ id_to_swap_unswap_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?.
+    <span class="nb">apply</span> MON_mor_eq.
+    <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_to_swap_unswap</span>
+    : functor_identity (MON M) ⟹ monoid_to_monoid_swapped_functor ∙ monoid_swapped_to_monoid_functor
+    := make_nat_trans _ _ _ id_to_swap_unswap_nat.
+
+  <span class="kn">Local Definition</span> <span class="nf">unswap_swap_to_id_data</span>
+    : nat_trans_data (monoid_swapped_to_monoid_functor ∙ monoid_to_monoid_swapped_functor) (functor_identity (MON (monoidal_swapped M))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> R; <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>); <span class="nb">cbn</span>; <span class="nb">split</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">unfold</span> is_monoid_mor_mult; <span class="nb">cbn</span>; <span class="nb">unfold</span> functoronmorphisms1;
+        <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid (monoidal_swapped M)), (bifunctor_rightid (monoidal_swapped M)), id_left, id_left, id_right
+      ).
+    - <span class="kp">abstract</span> (use id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">unswap_swap_to_id_nat</span>
+    : is_nat_trans _ _ unswap_swap_to_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ?.
+    <span class="nb">apply</span> MON_mor_eq.
+    <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">unswap_swap_to_id</span>
+    : monoid_swapped_to_monoid_functor ∙ monoid_to_monoid_swapped_functor ⟹ functor_identity (MON (monoidal_swapped M))
+    := make_nat_trans _ _ _ unswap_swap_to_id_nat.
+
+  <span class="kn">Definition</span> <span class="nf">equivalence_monoids_monoids_swapped_adjunction</span>
+    : adjunction_data (MON M) (MON (monoidal_swapped M)).
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> monoid_to_monoid_swapped_functor.
+    - <span class="bp">exact</span> monoid_swapped_to_monoid_functor.
+    - <span class="bp">exact</span> id_to_swap_unswap.
+    - <span class="bp">exact</span> unswap_swap_to_id.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equivalence_monoids_monoids_swapped_forms_equivalence</span>
+    : forms_equivalence equivalence_monoids_monoids_swapped_adjunction.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> R; use tpair; <span class="nb">cbn</span>.
+      + <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>); <span class="nb">split</span>.
+        * <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_monoid_mor_mult, functoronmorphisms1;
+            <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid M), (bifunctor_rightid M), id_left, id_left, id_right
+          ).
+        * <span class="kp">abstract</span> (use id_right).
+      + <span class="nb">split</span>.
+        * <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+        * <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+    - <span class="nb">intro</span> R; use tpair; <span class="nb">cbn</span>.
+      + <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>); <span class="nb">split</span>.
+        * <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_monoid_mor_mult, functoronmorphisms1;
+            <span class="bp">now</span> <span class="nb">rewrite</span> (bifunctor_leftid (monoidal_swapped M)), (bifunctor_rightid (monoidal_swapped M)), id_left, id_left, id_right
+          ).
+        * <span class="kp">abstract</span> (use id_right).
+      + <span class="nb">split</span>.
+        * <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+        * <span class="nb">apply</span> MON_mor_eq.
+          use id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equivalence_monoids_monoids_swapped</span>
+    : equivalence_of_cats (MON M) (MON (monoidal_swapped M)).
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - <span class="bp">exact</span> equivalence_monoids_monoids_swapped_adjunction.
+    - <span class="bp">exact</span> equivalence_monoids_monoids_swapped_forms_equivalence.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MonoidsSwapped</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/CategoriesOfMonoids.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

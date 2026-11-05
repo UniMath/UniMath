@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Biequiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The biequivalence between categories with finite limits and comprehension categories</span>
+
+<span class="sd"> In this file, we conclude the construction of the biequivalence between the bicategory of</span>
+<span class="sd"> univalent categories with finite limits and the bicategory of DFL comprehension categories.</span>
+<span class="sd"> This corresponds to the first part of Theorem 6.1 in the paper "The biequivalence of locally</span>
+<span class="sd"> cartesian closed categories and Martin-Löf type theories" by Clairambault and Dybjer.</span>
+
+<span class="sd"> In the file on DFL comprehension categories, we already mentioned some differences between</span>
+<span class="sd"> our construction and theirs. However, these only concered the fact that Clairambault and Dybjer</span>
+<span class="sd"> considered categories with families, whereas we consider comprehension categories, and the fact</span>
+<span class="sd"> that we consider univalent categories. There is one more difference to notice. Clairambault</span>
+<span class="sd"> and Dybjer construct the inverse pseudonatural transformations and the modifications explicitly,</span>
+<span class="sd"> whereas we use the fact that a pseudotransformation is an adjoint equivalence if it is a</span>
+<span class="sd"> pointwise adjoint equivalence. This simplifies the construction, because we only have to</span>
+<span class="sd"> construct two pseudotransformations and we don't have to construct any invertible modification.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "The biequivalence of locally cartesian closed categories and Martin-Löf type theories" by</span>
+<span class="sd">   Clairambault and Dybjer</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Biequivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Unit.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.Counit.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_unit_counit</span>
+  : is_biequivalence_unit_counit
+      finlim_to_dfl_comp_cat_psfunctor
+      dfl_comp_cat_to_finlim_psfunctor
+  := finlim_dfl_comp_cat_unit
+     ,,
+     finlim_dfl_comp_cat_counit_inv.
+
+<span class="kn">Definition</span> <span class="nf">finlim_dfl_comp_cat_biequivalence_adjoints</span>
+  : is_biequivalence_adjoints finlim_dfl_comp_cat_biequivalence_unit_counit.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> finlim_dfl_comp_cat_unit_left_adjoint_equivalence.
+  - <span class="nb">apply</span> inv_left_adjoint_equivalence.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_biequivalence_finlim_to_dfl_comp_cat_psfunctor</span>
+  : is_biequivalence finlim_to_dfl_comp_cat_psfunctor
+  := dfl_comp_cat_to_finlim_psfunctor
+     ,,
+     finlim_dfl_comp_cat_biequivalence_unit_counit
+     ,,
+     finlim_dfl_comp_cat_biequivalence_adjoints.
+
+<span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_psfunctor</span>
+  : biequivalence
+      bicat_of_univ_cat_with_finlim
+      bicat_of_dfl_full_comp_cat
+  := finlim_to_dfl_comp_cat_psfunctor
+     ,,
+     is_biequivalence_finlim_to_dfl_comp_cat_psfunctor.
+
+<span class="kn">Definition</span> <span class="nf">finlim_biequiv_dfl_comp_cat_psfunctor_triangle</span>
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : invertible_2cell
+      (identity _)
+      (finlim_dfl_comp_cat_unit (dfl_full_comp_cat_to_finlim C)
+       · dfl_functor_comp_cat_to_finlim_functor (finlim_dfl_comp_cat_counit C)).
+<span class="kn">Proof</span>.
+  use invertible_2cell_cat_with_finlim.
+  use make_nat_z_iso.
+  - use make_nat_trans.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> id_right, id_left ;
+         <span class="nb">apply</span> idpath).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Biequivalence/Biequiv.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    Clairambault and Dybjer
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

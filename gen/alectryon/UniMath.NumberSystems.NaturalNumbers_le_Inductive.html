@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NaturalNumbers_le_Inductive.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Natural numbers and their properties. Vladimir Voevodsky. Apr. - Sep. 2011</span>
+
+<span class="sd">This file contains the formulations and proofs of general properties of natural</span>
+<span class="sd">numbers from the univalent perspecive. *)</span>
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">- Inductive types [le] with values in [UU]</span>
+<span class="sd"> - A generalization of [le] and its properties</span>
+<span class="sd"> - Inductive types [le] with values in [UU] are in [hProp]</span>
+<span class="sd"> - Comparison between [le] with values in [UU] and [natleh]</span>
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Settings *)</span>
+
+<span class="sd">(** Imports. *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="sd">(** ** Inductive types [le] with values in [UU].</span>
+
+<span class="sd">This part is included for illustration purposes only. In practice it is easier</span>
+<span class="sd">to work with [natleh] than with [le].</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** *** A generalization of [le] and its properties. *)</span>
+
+<span class="kn">Inductive</span> <span class="nf">leF</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> : T) : T -&gt; UU :=
+| leF_O : leF F t t
+| leF_S : ∏ t' : T, leF F t t' -&gt; leF F t (F t').
+
+<span class="kn">Lemma</span> <span class="nf">leFiter</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> : T) (<span class="nv">n</span> : nat) : leF F t (iteration F n t).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> leF_O.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> leF_S. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leFtototal2withnat</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> <span class="nv">t'</span> : T) (<span class="nv">a</span> : leF F t t') :
+  total2 (<span class="k">λ</span> <span class="nv">n</span> : nat, (iteration F n t) = t').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> a <span class="k">as</span> [ | b H0 IH0 ].
+  - <span class="nb">split with</span> O. <span class="nb">apply</span> idpath.
+  - <span class="nb">split with</span> (S (pr1 IH0)). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (@maponpaths _ _ F (iteration F (pr1 IH0) t) b).
+    <span class="nb">apply</span> (pr2 IH0).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total2withnattoleF</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> <span class="nv">t'</span> : T)
+      (<span class="nv">a</span> : total2 (<span class="k">λ</span> <span class="nv">n</span> : nat, (iteration F n t) = t')) : leF F t t'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">destruct</span> a <span class="k">as</span> [ n e ]. <span class="nb">destruct</span> e. <span class="nb">apply</span> leFiter.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">leFtototal2withnat_l0</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> : T) (<span class="nv">n</span> : nat) :
+  (leFtototal2withnat F t _ (leFiter F t n)) = (tpair _  n (idpath (iteration F n t))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>.
+    <span class="nb">set</span> (h := <span class="k">fun</span> <span class="nv">ne</span> : total2 (<span class="k">λ</span> <span class="nv">n0</span> : nat, paths (iteration F n0 t) (iteration F n t)) =&gt;
+                tpair (<span class="k">λ</span> <span class="nv">n0</span> : nat, paths (iteration F n0 t) (iteration F (S n) t)) (S (pr1 ne))
+                      (maponpaths F (pr2 ne))).
+    <span class="nb">apply</span> (@maponpaths _ _ h  _ _ IHn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqleFtototal2withnat</span> {<span class="nv">T</span> : UU} (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> <span class="nv">t'</span> : T) : isweq (leFtototal2withnat F t t').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := leFtototal2withnat F t t').
+  <span class="nb">set</span> (g := total2withnattoleF  F t t').
+  <span class="nb">assert</span> (egf : ∏ x : _, paths (g (f x)) x).
+  {
+    <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [ | y H0 IHH0 ].
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>. <span class="nb">simpl</span> <span class="k">in</span> IHH0.
+      <span class="nb">destruct</span> (leFtototal2withnat F t y H0) <span class="k">as</span> [ m e ].
+      <span class="nb">destruct</span> e. <span class="nb">simpl</span>. <span class="nb">simpl</span> <span class="k">in</span> IHH0.
+      <span class="nb">apply</span> (@maponpaths _ _ (leF_S F t (iteration F m t)) _ _ IHH0).
+  }
+  <span class="nb">assert</span> (efg : ∏ x : _, paths (f (g x)) x).
+  {
+    <span class="nb">intro</span> x. <span class="nb">destruct</span> x <span class="k">as</span> [ n e ]. <span class="nb">destruct</span> e. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> leFtototal2withnat_l0.
+  }
+  <span class="nb">apply</span> (isweq_iso _ _ egf efg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqleFtototalwithnat</span> { <span class="nv">T</span> : UU } (<span class="nv">F</span> : T -&gt; T) (<span class="nv">t</span> <span class="nv">t'</span> : T) :
+  weq (leF F t t') (total2 (<span class="k">λ</span> <span class="nv">n</span> : nat, (iteration F n t) = t')) :=
+  make_weq _ (isweqleFtototal2withnat F t t').
+
+
+<span class="sd">(** *** Inductive types [le] with values in [UU] are in [hProp] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">le</span> (<span class="nv">n</span> : nat) : nat -&gt; UU := leF S n.
+
+<span class="kn">Definition</span> <span class="nf">le_n</span> : ∏ t : nat, leF S t t := leF_O S.
+
+<span class="kn">Definition</span> <span class="nf">le_S</span> : ∏ t t' : nat, leF S t t' → leF S t (S t') := leF_S S.
+
+<span class="kn">Theorem</span> <span class="nf">isaprople</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : isaprop (le n m).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (weqleFtototalwithnat S n m)).
+  <span class="nb">apply</span> invproofirrelevance. <span class="nb">intros</span> x x'.
+  <span class="nb">set</span> (i := @pr1 _ (<span class="k">λ</span> <span class="nv">n0</span> : nat, (iteration S n0 n) = m)).
+  <span class="nb">assert</span> (isc : isincl i) <span class="bp">by</span> <span class="nb">apply</span> (isinclpr1 _ (<span class="k">λ</span> <span class="nv">n0</span> : nat, isasetnat (iteration S n0 n) m)).
+  <span class="nb">apply</span> (invmaponpathsincl _  isc).
+  <span class="nb">destruct</span> x <span class="k">as</span> [ n1 e1 ]. <span class="nb">destruct</span> x' <span class="k">as</span> [ n2 e2 ]. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (int1 := pathsinv0 (pathsitertoplus n1 n)).
+  <span class="nb">set</span> (int2 := pathsinv0 (pathsitertoplus n2 n)).
+  <span class="nb">set</span> (ee1 := pathscomp0 int1 e1).
+  <span class="nb">set</span> (ee2 := pathscomp0 int2 e2).
+  <span class="nb">set</span> (e := pathscomp0 ee1 (pathsinv0 ee2)).
+  <span class="nb">apply</span> (invmaponpathsincl _ (isinclnatplusr n) n1 n2 e).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Comparison between [le] with values in [UU] and [natleh]. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">letoleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : le n m -&gt; n ≤ m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H. <span class="nb">induction</span> H <span class="k">as</span> [ | m H0 IHH0 ].
+  - <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">apply</span> natlehtolehs. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">natlehtole</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : n ≤ m -&gt;  le n m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H. <span class="nb">induction</span> m <span class="k">as</span> [|m IHm].
+  - <span class="nb">assert</span> (int := natleh0tois0 H). <span class="nb">clear</span> H. <span class="nb">destruct</span> int. <span class="nb">apply</span> le_n.
+  - <span class="nb">set</span> (int2 := natlehchoice2 n (S m) H).
+    <span class="nb">destruct</span> int2 <span class="k">as</span> [ isnatleh | iseq ].
+    <span class="nb">apply</span> (le_S n m (IHm isnatleh)). <span class="nb">destruct</span> iseq.
+    <span class="nb">apply</span> le_n.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweqletoleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : isweq (<span class="k">let</span><span class="nv">oleh</span> <span class="nv">n</span> <span class="nv">m</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (is1 := isaprople n m). <span class="nb">set</span> (is2 := pr2 (n ≤ m)).
+  <span class="nb">apply</span> (isweqimplimpl (<span class="k">let</span><span class="nv">oleh</span> <span class="nv">n</span> <span class="nv">m</span>) (natlehtole n m) is1 is2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqletoleh</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : le n m ≃ n ≤ m := make_weq _ (isweqletoleh n m).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/NumberSystems/NaturalNumbers_le_Inductive.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Imports. *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt;
+  &gt; (** ** Inductive types [le] with values in [UU].
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ApFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Given a map between two functors, we get a pseudofunctor between their fundamental bigroupoids.</span>
+
+<span class="sd">Authors: Dan Frumin, Niels van der Weide</span>
+
+<span class="sd">Ported from: https://github.com/nmvdw/groupoids</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.TwoType.
+
+<span class="kn">Section</span> <span class="nf">ApFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+          (<span class="nv">HX</span> : isofhlevel <span class="mi">4</span> X)
+          (<span class="nv">HY</span> : isofhlevel <span class="mi">4</span> Y).
+  <span class="kn">Variable</span> (<span class="nv">f</span> : X → Y).
+
+  <span class="kn">Definition</span> <span class="nf">ap_functor_data</span>
+    : psfunctor_data (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, maponpaths f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s</span>, maponpaths (maponpaths f) s).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idpath (idpath (f x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span> <span class="nv">q</span>, !(maponpathscomp0 f p q)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ap_functor_laws</span>
+    : psfunctor_laws ap_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y p₁ p₂ p₃ s₁ s₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="bp">exact</span> (maponpathscomp0 (maponpaths f) s₁ s₂).
+    - <span class="nb">intros</span> x y p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x y p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> w x y z p q r ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p, q, r ; <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x y z p q₁ q₂ s ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> s ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pathscomp0rid _).
+    - <span class="nb">intros</span> x y z p₁ p₂ q s ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> s ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pathscomp0rid _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ap_psfunctor</span>
+    : psfunctor (fundamental_bigroupoid X HX) (fundamental_bigroupoid Y HY).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> ap_functor_data.
+    - <span class="bp">exact</span> ap_functor_laws.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a.
+        <span class="bp">exact</span> (fundamental_groupoid_2cell_iso Y HY (idpath(idpath (f a)))).
+      + <span class="nb">intros</span> a b c p q.
+        <span class="bp">exact</span> (fundamental_groupoid_2cell_iso Y HY (!(maponpathscomp0 f p q))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ApFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/ApFunctor.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Ported from: https://github.com/nmvdw/groupoids
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

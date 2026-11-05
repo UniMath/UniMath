@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PosetEnrichedLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Limits in categories enriched over posets</span>
+
+<span class="sd"> If we have a category enriched over posets, then we can</span>
+<span class="sd"> characterize terminal objects, products, and equalizers using</span>
+<span class="sd"> elementary terms. Such a category has a terminal object if and</span>
+<span class="sd"> only if the underlying category has a terminal object. For</span>
+<span class="sd"> products and equalizers, we also demand that the arrow coming</span>
+<span class="sd"> from the universal property is monotone.</span>
+
+<span class="sd"> To construct powers in a category `C` enriched over posets, we</span>
+<span class="sd"> assume that we have a poset `P` and an object `x` of `C`. To</span>
+<span class="sd"> construct the power, we take a product of `x` indexed by the</span>
+<span class="sd"> underlying set of `P`. As such, `C` must have 'large enough'</span>
+<span class="sd"> products, because otherwise, this product cannot be constructed.</span>
+<span class="sd"> Note that for powers, we do not construct an equivalence between</span>
+<span class="sd"> the elementary version and the enriched version. The reason for</span>
+<span class="sd"> that, is that for the elementary version, we assume that `C` has</span>
+<span class="sd"> products of all diagrams indexed by the underlying set of a poset</span>
+<span class="sd"> `P`. However, for powers, we only need such products for constant</span>
+<span class="sd"> diagrams. As such, our elementary version is actually stronger.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Terminal object</span>
+<span class="sd"> 2. Binary products</span>
+<span class="sd"> 3. Equalizers</span>
+<span class="sd"> 4. Powers</span>
+<span class="sd"> 5. Type indexed products</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.CategoryOfPosets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.PosetEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedBinaryProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedPowers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.PosetsMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.CartesianMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">PosetEnrichmentLimits</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : poset_enrichment C).
+
+  <span class="kn">Let</span> <span class="nf">E'</span> : enrichment C poset_sym_mon_closed_cat
+    := make_enrichment_over_poset C E.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Terminal object</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">PosetEnrichedTerminal</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C}
+            (<span class="nv">Hx</span> : isTerminal C x).
+
+    <span class="kn">Let</span> <span class="nf">T</span> : Terminal C := make_Terminal x Hx.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_is_terminal</span>
+      : is_terminal_enriched E' x.
+    <span class="kn">Proof</span>.
+      use make_is_terminal_enriched.
+      - <span class="nb">intros</span> P y.
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, TerminalArrow T y).
+        + <span class="kp">abstract</span>
+            (<span class="nb">intros</span> x₁ x₂ p ;
+             <span class="nb">apply</span> refl_PartialOrder).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> P y f g ;
+           use eq_monotone_function ;
+           <span class="nb">intros</span> z ;
+           <span class="nb">apply</span> (@TerminalArrowEq _ T)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetEnrichedTerminal</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_terminal</span>
+             (<span class="nv">HC</span> : Terminal C)
+    : terminal_enriched E'
+    := pr1 HC ,, poset_enrichment_is_terminal (pr2 HC).
+
+  <span class="kn">Definition</span> <span class="nf">poset_terminal_enriched_weq_Terminal</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : terminal_enriched E' ≃ Terminal C.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">T</span>, terminal_underlying E' T).
+    - <span class="bp">exact</span> make_poset_enrichment_terminal.
+    - <span class="nb">apply</span> (isaprop_terminal_enriched _ HC).
+    - <span class="nb">apply</span> (isaprop_Terminal _ HC).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Binary products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_binary_prod</span>
+    : UU
+    := ∑ (BC : BinProducts C),
+       ∏ (x y₁ y₂ : C)
+         (f f' : x --&gt; y₁)
+         (qf : E _ _ f f')
+         (g g' : x --&gt; y₂)
+         (qg : E _ _ g g'),
+       E _ _ (BinProductArrow _ (BC y₁ y₂) f g)
+             (BinProductArrow _ (BC y₁ y₂) f' g').
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_poset_enrichment_binary_prod</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop poset_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+    - <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (isaprop_BinProduct HC).
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">PosetEnrichedProdAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">EBC</span> : poset_enrichment_binary_prod).
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_binary_prod</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : C
+      := pr1 EBC x y.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_pr1</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : poset_enrichment_obj_binary_prod x y --&gt; x
+      := BinProductPr1 _ (pr1 EBC x y).
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_pr2</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : poset_enrichment_obj_binary_prod x y --&gt; y
+      := BinProductPr2 _ (pr1 EBC x y).
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_pair</span>
+               {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> : z --&gt; x)
+               (<span class="nv">g</span> : z --&gt; y)
+      : z --&gt; poset_enrichment_obj_binary_prod x y
+      := BinProductArrow _ (pr1 EBC x y) f g.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_obj_pair_pr1</span>
+                {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : z --&gt; x)
+                (<span class="nv">g</span> : z --&gt; y)
+      : poset_enrichment_obj_pair f g · poset_enrichment_obj_pr1 x y
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> BinProductPr1Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_obj_pair_pr2</span>
+                {<span class="nv">z</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> : z --&gt; x)
+                (<span class="nv">g</span> : z --&gt; y)
+      : poset_enrichment_obj_pair f g · poset_enrichment_obj_pr2 x y
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> BinProductPr2Commutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_binary_prod_arr_eq</span>
+                {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; poset_enrichment_obj_binary_prod x y}
+                (<span class="nv">p</span> : f · poset_enrichment_obj_pr1 x y
+                     =
+                     g · poset_enrichment_obj_pr1 x y)
+                (<span class="nv">q</span> : f · poset_enrichment_obj_pr2 x y
+                     =
+                     g · poset_enrichment_obj_pr2 x y)
+      : f = g.
+    <span class="kn">Proof</span>.
+      use (BinProductArrowsEq _ _ _ (pr1 EBC x y)).
+      - <span class="bp">exact</span> p.
+      - <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_binary_prod_pair</span>
+               (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+      : E' ⦃ z, x ⦄ ⊗ (E' ⦃ z , y ⦄) --&gt; E' ⦃ z , poset_enrichment_obj_binary_prod x y ⦄.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span>, poset_enrichment_obj_pair (pr1 fg) (pr2 fg)).
+      - <span class="nb">intros</span> fg₁ fg₂ p.
+        <span class="nb">apply</span> (pr2 EBC).
+        + <span class="bp">exact</span> (pr1 p).
+        + <span class="bp">exact</span> (pr2 p).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetEnrichedProdAccessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">PosetProd</span>.
+    <span class="kn">Context</span> (<span class="nv">EBC</span> : poset_enrichment_binary_prod)
+            (<span class="nv">x</span> <span class="nv">y</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">make_poset_enriched_binary_prod_cone</span>
+      : enriched_binary_prod_cone E' x y.
+    <span class="kn">Proof</span>.
+      use make_enriched_binary_prod_cone.
+      - <span class="bp">exact</span> (poset_enrichment_obj_binary_prod EBC x y).
+      - <span class="bp">exact</span> (enriched_from_arr E' (poset_enrichment_obj_pr1 EBC x y)).
+      - <span class="bp">exact</span> (enriched_from_arr E' (poset_enrichment_obj_pr2 EBC x y)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_binary_prod_is_prod</span>
+      : is_binary_prod_enriched E' x y make_poset_enriched_binary_prod_cone.
+    <span class="kn">Proof</span>.
+      use make_is_binary_prod_enriched.
+      - <span class="nb">intros</span> z P f g.
+        <span class="nb">refine</span> (_ · poset_enrichment_binary_prod_pair _ _ _ _).
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (prodtofuntoprod (pr1 f ,, pr1 g)).
+        + <span class="nb">apply</span> prodtofun_is_monotone.
+          * <span class="bp">exact</span> (pr2 f).
+          * <span class="bp">exact</span> (pr2 g).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z P f g ;
+           use eq_monotone_function ;
+           <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> poset_enrichment_obj_pair_pr1).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z P f g ;
+           use eq_monotone_function ;
+           <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> poset_enrichment_obj_pair_pr2).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> z P φ₁ φ₂ q₁ q₂ ;
+           use eq_monotone_function ;
+           <span class="nb">intro</span> w ;
+           use poset_enrichment_binary_prod_arr_eq ;
+           [ <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) q₁) w)
+           | <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) q₂) w) ]).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetProd</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_binary_prod</span>
+             (<span class="nv">EBC</span> : poset_enrichment_binary_prod)
+    : enrichment_binary_prod E'
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>,
+       make_poset_enriched_binary_prod_cone EBC x y
+       ,,
+       poset_enrichment_binary_prod_is_prod EBC x y.
+
+  <span class="kn">Section</span> <span class="nf">ToPosetProduct</span>.
+    <span class="kn">Context</span> (<span class="nv">EP</span> : enrichment_binary_prod E')
+            {<span class="nv">x</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}.
+
+    <span class="kn">Let</span> <span class="nf">prod</span> : poset_sym_mon_closed_cat
+      := (E' ⦃ x , y₁ ⦄) ⊗ (E' ⦃ x , y₂ ⦄).
+
+    <span class="kn">Let</span> <span class="nf">prod_pr1</span> : prod --&gt; E' ⦃ x, y₁ ⦄
+      := _ ,, dirprod_pr1_is_monotone _ _.
+
+    <span class="kn">Let</span> <span class="nf">prod_pr2</span> : prod --&gt; E' ⦃ x, y₂ ⦄
+      := _ ,, dirprod_pr2_is_monotone _ _.
+
+    <span class="kn">Definition</span> <span class="nf">poset_to_underlying_binary_prod_map</span>
+               (<span class="nv">f</span> : x --&gt; y₁)
+               (<span class="nv">g</span> : x --&gt; y₂)
+      : x --&gt; underlying_BinProduct E' y₁ y₂ (pr2 (EP y₁ y₂))
+      := pr1 (BinProductArrow
+                category_of_posets
+                (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y₁ y₂)) x)
+                prod_pr1
+                prod_pr2)
+             (f ,, g).
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_binary_prod_map_pr1</span>
+                (<span class="nv">f</span> : x --&gt; y₁)
+                (<span class="nv">g</span> : x --&gt; y₂)
+      : poset_to_underlying_binary_prod_map f g
+        · enriched_prod_cone_pr1 E' y₁ y₂ (pr1 (EP y₁ y₂))
+        =
+        f.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (eqtohomot
+               (maponpaths
+                  pr1
+                  (BinProductPr1Commutes
+                     category_of_posets
+                     _ _
+                     (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y₁ y₂)) x)
+                     _
+                     prod_pr1
+                     prod_pr2))
+               (f ,, g)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_binary_prod_map_pr2</span>
+                (<span class="nv">f</span> : x --&gt; y₁)
+                (<span class="nv">g</span> : x --&gt; y₂)
+      : poset_to_underlying_binary_prod_map f g
+        · enriched_prod_cone_pr2 E' y₁ y₂ (pr1 (EP y₁ y₂))
+        =
+        g.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (eqtohomot
+               (maponpaths
+                  pr1
+                  (BinProductPr2Commutes
+                     category_of_posets
+                     _ _
+                     (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y₁ y₂)) x)
+                     _
+                     prod_pr1
+                     prod_pr2))
+               (f ,, g)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_binary_prod_map_monotone</span>
+                {<span class="nv">φ₁</span> <span class="nv">φ₂</span> : x --&gt; y₁}
+                {<span class="nv">ψ₁</span> <span class="nv">ψ₂</span> : x --&gt; y₂}
+                (<span class="nv">p</span> : E x y₁ φ₁ φ₂)
+                (<span class="nv">q</span> : E x y₂ ψ₁ ψ₂)
+      : E _ _ (poset_to_underlying_binary_prod_map φ₁ ψ₁)
+              (poset_to_underlying_binary_prod_map φ₂ ψ₂).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr2 (@BinProductArrow
+                    _ _ _
+                    (is_binary_prod_enriched_to_BinProduct E' _ _ (pr2 (EP y₁ y₂)) x)
+                    prod
+                    prod_pr1
+                    prod_pr2)
+                 (φ₁ ,, ψ₁)
+                 (φ₂ ,, ψ₂)
+                 (p ,, q)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_binary_prod_map_eq</span>
+                (<span class="nv">f</span> : x --&gt; y₁)
+                (<span class="nv">g</span> : x --&gt; y₂)
+      : BinProductArrow C (underlying_BinProduct E' y₁ y₂ (pr2 (EP y₁ y₂))) f g
+        =
+        poset_to_underlying_binary_prod_map f g.
+    <span class="kn">Proof</span>.
+      use is_binary_prod_enriched_arrow_eq.
+      - <span class="bp">exact</span> (pr2 (EP y₁ y₂)).
+      - <span class="nb">refine</span> (_ @ !(poset_to_underlying_binary_prod_map_pr1 f g)).
+        <span class="nb">apply</span> (BinProductPr1Commutes
+                 C
+                 _ _
+                 (underlying_BinProduct E' y₁ y₂ (pr2 (EP y₁ y₂)))
+                 _
+                 f g).
+      - <span class="nb">refine</span> (_ @ !(poset_to_underlying_binary_prod_map_pr2 f g)).
+        <span class="nb">apply</span> (BinProductPr2Commutes
+                 C
+                 _ _
+                 (underlying_BinProduct E' y₁ y₂ (pr2 (EP y₁ y₂)))
+                 _
+                 f g).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ToPosetProduct</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_poset_enrichment_binary_prod</span>
+             (<span class="nv">EP</span> : enrichment_binary_prod E')
+    : poset_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, underlying_BinProduct E' x y (pr2 (EP x y))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y₁ y₂ f f' p g g' q ;
+         <span class="nb">rewrite</span> !poset_to_underlying_binary_prod_map_eq ;
+         <span class="nb">apply</span> (poset_to_underlying_binary_prod_map_monotone EP p q)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_binary_prod_weq</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : enrichment_binary_prod E' ≃ poset_enrichment_binary_prod.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">apply</span> to_poset_enrichment_binary_prod.
+    - <span class="nb">apply</span> make_poset_enrichment_binary_prod.
+    - <span class="nb">apply</span> (isaprop_enrichment_binary_prod HC).
+    - <span class="nb">apply</span> (isaprop_poset_enrichment_binary_prod HC).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_equalizers</span>
+    : UU
+    := ∑ (EC : Equalizers C),
+       ∏ (w x y : C)
+         (f g : x --&gt; y)
+         (h₁ h₂ : w --&gt; x)
+         (p₁ : h₁ · f = h₁ · g)
+         (p₂ : h₂ · f = h₂ · g)
+         (qh : E _ _ h₁ h₂),
+       E _ _ (EqualizerIn (EC x y f g) w h₁ p₁)
+             (EqualizerIn (EC x y f g) w h₂ p₂).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_poset_enrichment_equalizers</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop poset_enrichment_equalizers.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_Equalizer.
+      <span class="bp">exact</span> HC.
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">PosetEnrichedEqualizerAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">EEC</span> : poset_enrichment_equalizers).
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_equalizer</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+      : C
+      := pr1 EEC x y f g.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_equalizer_pr</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+      : poset_enrichment_obj_equalizer f g --&gt; x
+      := EqualizerArrow (pr1 EEC x y f g).
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_obj_pr_eq</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+      : poset_enrichment_obj_equalizer_pr f g · f
+        =
+        poset_enrichment_obj_equalizer_pr f g · g.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> EqualizerEqAr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_to_equalizer</span>
+               {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+               {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+               (<span class="nv">h</span> : w --&gt; x)
+               (<span class="nv">q</span> : h · f = h · g)
+      : w --&gt; poset_enrichment_obj_equalizer f g
+      := EqualizerIn (pr1 EEC x y f g) w h q.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_obj_to_equalizer_pr</span>
+                {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+                (<span class="nv">h</span> : w --&gt; x)
+                (<span class="nv">q</span> : h · f = h · g)
+      : poset_enrichment_obj_to_equalizer h q · poset_enrichment_obj_equalizer_pr f g
+        =
+        h.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> EqualizerCommutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_enrichment_equalizer_arr_eq</span>
+                {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+                {<span class="nv">h₁</span> <span class="nv">h₂</span> : w --&gt; poset_enrichment_obj_equalizer f g}
+                (<span class="nv">q</span> : h₁ · poset_enrichment_obj_equalizer_pr f g
+                     =
+                     h₂ · poset_enrichment_obj_equalizer_pr f g)
+      : h₁ = h₂.
+    <span class="kn">Proof</span>.
+      use EqualizerInsEq.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_to_equalizer</span>
+               {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y)
+      : Equalizers_category_of_posets
+          _
+          _
+          (postcomp_arr E' w f)
+          (postcomp_arr E' w g)
+        --&gt;
+        E' ⦃ w , poset_enrichment_obj_equalizer f g ⦄.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">hp</span>, poset_enrichment_obj_to_equalizer (pr1 hp) (pr2 hp)).
+      - <span class="nb">intros</span> h₁ h₂ q.
+        <span class="nb">apply</span> EEC.
+        <span class="bp">exact</span> q.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetEnrichedEqualizerAccessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">PosetEqualizer</span>.
+    <span class="kn">Context</span> (<span class="nv">EEC</span> : poset_enrichment_equalizers)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_equalizer_cone</span>
+      : enriched_equalizer_cone E' f g.
+    <span class="kn">Proof</span>.
+      use make_enriched_equalizer_cone.
+      - <span class="bp">exact</span> (poset_enrichment_obj_equalizer EEC f g).
+      - <span class="bp">exact</span> (enriched_from_arr E' (poset_enrichment_obj_equalizer_pr EEC f g)).
+      - <span class="bp">exact</span> (poset_enrichment_obj_pr_eq EEC f g).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_equalizer_is_equalizer</span>
+      : is_equalizer_enriched
+          E'
+          f g
+          make_poset_enrichment_equalizer_cone.
+    <span class="kn">Proof</span>.
+      use make_is_equalizer_enriched.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> w P φ₁ φ₂ q ;
+           use eq_monotone_function ;
+           <span class="nb">intro</span> z ;
+           use poset_enrichment_equalizer_arr_eq ;
+           <span class="bp">exact</span> (eqtohomot (maponpaths pr1 q) z)).
+      - <span class="nb">intros</span> w P h q.
+        <span class="nb">refine</span> (_ · poset_enrichment_to_equalizer EEC f g).
+        <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 h z ,, _).
+          <span class="bp">exact</span> (eqtohomot (maponpaths pr1 q) z).
+        + <span class="kp">abstract</span>
+            (<span class="nb">apply</span> Equalizer_map_monotone ;
+             <span class="nb">apply</span> (pr2 h)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> w P h q ;
+           use eq_monotone_function ;
+           <span class="nb">intros</span> z ;
+           <span class="nb">apply</span> poset_enrichment_obj_to_equalizer_pr).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetEqualizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_equalizers</span>
+             (<span class="nv">EEC</span> : poset_enrichment_equalizers)
+    : enrichment_equalizers E'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (make_poset_enrichment_equalizer_cone EEC f g).
+    - <span class="bp">exact</span> (make_poset_enrichment_equalizer_is_equalizer EEC f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToPosetEqualizer</span>.
+    <span class="kn">Context</span> (<span class="nv">EEC</span> : enrichment_equalizers E')
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y).
+
+    <span class="kn">Let</span> <span class="nf">Eq</span> : Equalizer _ _
+      := Equalizers_category_of_posets
+           _
+           _
+           (postcomp_arr E' w f)
+           (postcomp_arr E' w g).
+
+    <span class="kn">Let</span> <span class="nf">Eq_pr</span> : Eq --&gt; E' ⦃ w , x ⦄
+      := EqualizerArrow _.
+
+    <span class="kn">Let</span> <span class="nf">Eq_path</span> : Eq_pr · postcomp_arr E' w f
+                  =
+                  Eq_pr · postcomp_arr E' w g
+      := EqualizerEqAr _.
+
+    <span class="kn">Definition</span> <span class="nf">poset_to_underlying_equalizer_map</span>
+               (<span class="nv">h</span> : w --&gt; x)
+               (<span class="nv">q</span> : h · f = h · g)
+      : w --&gt; underlying_Equalizer E' f g (pr2 (EEC x y f g))
+      := pr1 (EqualizerIn
+                (is_equalizer_enriched_to_Equalizer E' f g (pr2 (EEC x y f g)) w)
+                Eq
+                Eq_pr
+                Eq_path)
+              (h ,, q).
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_equalizer_map_pr</span>
+                (<span class="nv">h</span> : w --&gt; x)
+                (<span class="nv">q</span> : h · f = h · g)
+      : poset_to_underlying_equalizer_map h q
+        · enriched_equalizer_cone_pr E' f g (pr1 (EEC x y f g))
+        =
+        h.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (eqtohomot
+               (maponpaths
+                  pr1
+                  (EqualizerCommutes
+                     (is_equalizer_enriched_to_Equalizer E' f g (pr2 (EEC x y f g)) w)
+                     Eq
+                     Eq_pr
+                     Eq_path))
+               (h ,, q)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_equalizer_map_monotone</span>
+                (<span class="nv">h₁</span> <span class="nv">h₂</span> : w --&gt; x)
+                (<span class="nv">q₁</span> : h₁ · f = h₁ · g)
+                (<span class="nv">q₂</span> : h₂ · f = h₂ · g)
+                (<span class="nv">ph</span> : E w x h₁ h₂)
+      : E _ _ (poset_to_underlying_equalizer_map h₁ q₁)
+              (poset_to_underlying_equalizer_map h₂ q₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (pr2 (EqualizerIn
+                    (is_equalizer_enriched_to_Equalizer E' f g (pr2 (EEC x y f g)) w)
+                    Eq
+                    Eq_pr
+                    Eq_path)
+               (h₁ ,, q₁)
+               (h₂ ,, q₂)
+               ph).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_equalizer_map_eq</span>
+                (<span class="nv">h</span> : w --&gt; x)
+                (<span class="nv">q</span> : h · f = h · g)
+      : EqualizerIn (underlying_Equalizer E' f g (pr2 (EEC x y f g))) w h q
+        =
+        poset_to_underlying_equalizer_map h q.
+    <span class="kn">Proof</span>.
+      use underlying_Equalizer_arr_eq.
+      {
+        <span class="bp">exact</span> (pr2 (EEC x y f g)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (EqualizerCommutes (underlying_Equalizer E' f g (pr2 (EEC x y f g)))).
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> poset_to_underlying_equalizer_map_pr.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ToPosetEqualizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_poset_enrichment_equalizer</span>
+             (<span class="nv">EEC</span> : enrichment_equalizers E')
+    : poset_enrichment_equalizers.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, underlying_Equalizer E' f g (pr2 (EEC x y f g))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> w x y f g h₁ h₂ p₁ p₂ qh ;
+         <span class="nb">rewrite</span> !poset_to_underlying_equalizer_map_eq ;
+         <span class="nb">apply</span> poset_to_underlying_equalizer_map_monotone ;
+         <span class="bp">exact</span> qh).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_equalizer_weq</span>
+             (<span class="nv">HC</span> : is_univalent C)
+    : enrichment_equalizers E' ≃ poset_enrichment_equalizers.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">apply</span> to_poset_enrichment_equalizer.
+    - <span class="nb">apply</span> make_poset_enrichment_equalizers.
+    - <span class="nb">apply</span> (isaprop_enrichment_equalizers HC).
+    - <span class="nb">apply</span> (isaprop_poset_enrichment_equalizers HC).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Powers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_pows</span>
+    : UU
+    := ∑ (prods : ∏ (P : poset_sym_mon_closed_cat), Products (pr11 P) C),
+       ∏ (P : poset_sym_mon_closed_cat)
+         (x : C),
+       is_monotone (pr2 P) (E (prods P (<span class="k">λ</span> <span class="nv">_</span>, x)) x) (ProductPr _ _ (prods P (<span class="k">λ</span> <span class="nv">_</span>, x)))
+       ×
+       (∏ (y : C),
+        is_monotone
+          (monotone_function_PartialOrder
+             (pr2 P)
+             (E y x))
+          (E y (prods P (<span class="k">λ</span> <span class="nv">_</span>, x)))
+          (<span class="k">λ</span> <span class="nv">f</span>, ProductArrow _ _ (prods P (<span class="k">λ</span> <span class="nv">_</span>, x)) (pr1 f))).
+
+  <span class="kn">Section</span> <span class="nf">PosetEnrichmentPowersAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">HE</span> : poset_enrichment_pows).
+
+    <span class="kn">Definition</span> <span class="nf">poset_pows_prod</span>
+               (<span class="nv">P</span> : poset_sym_mon_closed_cat)
+               (<span class="nv">x</span> : C)
+      : Product (pr11 P) C (<span class="k">λ</span> <span class="nv">_</span>, x)
+      := pr1 HE P (<span class="k">λ</span> <span class="nv">_</span>, x).
+
+    <span class="kn">Definition</span> <span class="nf">poset_pows_pr</span>
+               {<span class="nv">P</span> : poset_sym_mon_closed_cat}
+               {<span class="nv">x</span> : C}
+               (<span class="nv">i</span> : pr11 P)
+      : poset_pows_prod P x --&gt; x
+      := ProductPr _ _ (poset_pows_prod P x) i.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_pows_monotone_pr</span>
+                (<span class="nv">P</span> : poset_sym_mon_closed_cat)
+                (<span class="nv">x</span> : C)
+      : is_monotone
+          (pr2 P)
+          (E (poset_pows_prod P x) x)
+          poset_pows_pr.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr1 (pr2 HE P x)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">poset_pows_monotone_product_arr</span>
+                (<span class="nv">P</span> : poset_sym_mon_closed_cat)
+                (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : is_monotone
+          (monotone_function_PartialOrder
+             (pr2 P)
+             (E y x))
+          (E y (poset_pows_prod P x))
+          (<span class="k">λ</span> <span class="nv">f</span>, ProductArrow _ _ (poset_pows_prod P x) (pr1 f)).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr2 (pr2 HE P x) y).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PosetEnrichmentPowersAccessors</span>.
+
+  <span class="kn">Section</span> <span class="nf">PosetEnrichmentPowers</span>.
+    <span class="kn">Context</span> (<span class="nv">HE</span> : poset_enrichment_pows)
+            (<span class="nv">P</span> : poset_sym_mon_closed_cat)
+            (<span class="nv">x</span> : C).
+
+    <span class="kn">Let</span> <span class="nf">pow</span> : Product _ C (<span class="k">λ</span> <span class="nv">_</span>, x) := poset_pows_prod HE P x.
+    <span class="kn">Let</span> <span class="nf">pow_pr</span> : ∏ (_ : pr11 P), pow --&gt; x := <span class="k">λ</span> <span class="nv">i</span>, poset_pows_pr HE i.
+
+    <span class="kn">Definition</span> <span class="nf">poset_power_cone</span>
+      : power_cone E' P x.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> pow.
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> pow_pr.
+        + <span class="bp">exact</span> (poset_pows_monotone_pr HE P x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_power_map</span>
+               (<span class="nv">y</span> : C)
+      : P ⊸ (E' ⦃ y, x ⦄) --&gt; E' ⦃ y, poset_power_cone ⦄.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="nb">intro</span> f.
+        <span class="bp">exact</span> (ProductArrow _ _ pow (pr1 f)).
+      - <span class="bp">exact</span> (poset_pows_monotone_product_arr HE P x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_power_is_power</span>
+      : is_power_enriched E' P x poset_power_cone.
+    <span class="kn">Proof</span>.
+      use make_is_power_enriched.
+      - <span class="bp">exact</span> poset_power_map.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> y ;
+           use eq_monotone_function ;
+           <span class="nb">intro</span> f ;
+           <span class="nb">cbn</span> <span class="k">in</span> f ;
+           use ProductArrow_eq ;
+           <span class="nb">intro</span> i ;
+           <span class="nb">apply</span> (ProductPrCommutes _ _ _ pow)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> y ;
+           use eq_monotone_function ;
+           <span class="nb">intro</span> f ;
+           use eq_monotone_function ;
+           <span class="nb">intro</span> i ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> (ProductPrCommutes _ _ _ pow)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PosetEnrichmentPowers</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_enrichment_powers_from_products</span>
+             (<span class="nv">HE</span> : poset_enrichment_pows)
+    : enrichment_power E'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P x.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (poset_power_cone HE P x).
+    - <span class="nb">apply</span> poset_power_is_power.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Type indexed products</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">TypeIndexedProducts</span>.
+    <span class="kn">Context</span> (<span class="nv">J</span> : UU).
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_prod</span>
+      : UU
+      := ∑ (PC : Products J C),
+         ∏ (x : C)
+           (ys : J → C)
+           (fs₁ : ∏ (j : J), x --&gt; ys j)
+           (fs₂ : ∏ (j : J), x --&gt; ys j)
+           (q : ∏ (j : J), E _ _ (fs₁ j) (fs₂ j)),
+         E _ _ (ProductArrow _ _ (PC ys) fs₁)
+               (ProductArrow _ _ (PC ys) fs₂).
+
+    <span class="kn">Proposition</span> <span class="nf">isaprop_poset_enrichment_prod</span>
+                (<span class="nv">HC</span> : is_univalent C)
+      : isaprop poset_enrichment_prod.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, (_ ,, _))).
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_Product.
+        <span class="bp">exact</span> HC.
+      - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">PosetEnrichedProdAccessors</span>.
+      <span class="kn">Context</span> (<span class="nv">EC</span> : poset_enrichment_prod).
+
+      <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_prod</span>
+                 (<span class="nv">ys</span> : J → C)
+        : C
+        := pr1 EC ys.
+
+      <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_prod_pr</span>
+                 (<span class="nv">ys</span> : J → C)
+                 (<span class="nv">j</span> : J)
+        : poset_enrichment_obj_prod ys --&gt; ys j
+        := ProductPr _ _ (pr1 EC ys) j.
+
+      <span class="kn">Definition</span> <span class="nf">poset_enrichment_obj_prod_pair</span>
+                 {<span class="nv">x</span> : C}
+                 {<span class="nv">ys</span> : J → C}
+                 (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+        : x --&gt; poset_enrichment_obj_prod ys
+        := ProductArrow _ _ (pr1 EC ys) fs.
+
+      <span class="kn">Proposition</span> <span class="nf">poset_enrichment_obj_prod_pair_pr</span>
+                  {<span class="nv">x</span> : C}
+                  {<span class="nv">ys</span> : J → C}
+                  (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+                  (<span class="nv">j</span> : J)
+        : poset_enrichment_obj_prod_pair fs · poset_enrichment_obj_prod_pr ys j
+          =
+          fs j.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> ProductPrCommutes.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">poset_enrichment_prod_arr_eq</span>
+                  {<span class="nv">x</span> : C}
+                  {<span class="nv">ys</span> : J → C}
+                  {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; poset_enrichment_obj_prod ys}
+                  (<span class="nv">p</span> : ∏ (j : J),
+                       f · poset_enrichment_obj_prod_pr ys j
+                       =
+                       g · poset_enrichment_obj_prod_pr ys j)
+        : f = g.
+      <span class="kn">Proof</span>.
+        use (ProductArrow_eq _ _ _ (pr1 EC ys)).
+        <span class="bp">exact</span> p.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">poset_enrichment_prod_pair</span>
+                 (<span class="nv">x</span> : C)
+                 (<span class="nv">ys</span> : J → C)
+        : Products_category_of_posets J (<span class="k">λ</span> <span class="nv">j</span>, E' ⦃ x , ys j ⦄)
+          --&gt;
+          E' ⦃ x , poset_enrichment_obj_prod ys ⦄.
+      <span class="kn">Proof</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fs</span>, poset_enrichment_obj_prod_pair (<span class="k">λ</span> <span class="nv">j</span>, fs j)).
+        - <span class="nb">intros</span> fs₁ fs₂ p.
+          <span class="nb">apply</span> (pr2 EC).
+          <span class="bp">exact</span> p.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">PosetEnrichedProdAccessors</span>.
+
+    <span class="kn">Section</span> <span class="nf">PosetProd</span>.
+      <span class="kn">Context</span> (<span class="nv">EBC</span> : poset_enrichment_prod)
+              (<span class="nv">ys</span> : J → C).
+
+      <span class="kn">Definition</span> <span class="nf">make_poset_enriched_prod_cone</span>
+        : enriched_prod_cone E' ys.
+      <span class="kn">Proof</span>.
+        use make_enriched_prod_cone.
+        - <span class="bp">exact</span> (poset_enrichment_obj_prod EBC ys).
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">j</span>, enriched_from_arr E' (poset_enrichment_obj_prod_pr EBC ys j)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">poset_enrichment_prod_is_prod</span>
+        : is_prod_enriched E' ys make_poset_enriched_prod_cone.
+      <span class="kn">Proof</span>.
+        use make_is_prod_enriched.
+        - <span class="nb">intros</span> z P fs.
+          <span class="nb">refine</span> (_ · poset_enrichment_prod_pair _ _ _).
+          <span class="nb">simple refine</span> (_ ,, _).
+          + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">j</span>, pr1 (fs j) x).
+          + <span class="kp">abstract</span>
+              (use is_monotone_depfunction_poset_pair ;
+               <span class="nb">intro</span> j ;
+               <span class="bp">exact</span> (pr2 (fs j))).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z P f g ;
+             use eq_monotone_function ;
+             <span class="nb">intros</span> w ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> poset_enrichment_obj_prod_pair_pr).
+        - <span class="kp">abstract</span>
+            (<span class="nb">intros</span> z P φ₁ φ₂ q ;
+             use eq_monotone_function ;
+             <span class="nb">intro</span> w ;
+             use poset_enrichment_prod_arr_eq ;
+             <span class="nb">intro</span> j ;
+             <span class="bp">exact</span> (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f) (q j)) w)).
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">PosetProd</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_poset_enrichment_prod</span>
+               (<span class="nv">EBC</span> : poset_enrichment_prod)
+      : enrichment_prod E' J
+      := <span class="k">λ</span> <span class="nv">ys</span>,
+         make_poset_enriched_prod_cone EBC ys
+         ,,
+         poset_enrichment_prod_is_prod EBC ys.
+
+    <span class="kn">Section</span> <span class="nf">ToPosetProduct</span>.
+      <span class="kn">Context</span> (<span class="nv">EP</span> : enrichment_prod E' J)
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ys</span> : J → C).
+
+      <span class="kn">Let</span> <span class="nf">prod</span> : poset_sym_mon_closed_cat
+        := Products_category_of_posets J (<span class="k">λ</span> <span class="nv">j</span>, E' ⦃ x , ys j ⦄).
+
+      <span class="kn">Let</span> <span class="nf">prod_pr</span> : ∏ (j : J), prod --&gt; E' ⦃ x , ys j ⦄
+          := <span class="k">λ</span> <span class="nv">j</span>, _ ,, is_monotone_depfunction_poset_pr _ _ _.
+
+      <span class="kn">Definition</span> <span class="nf">poset_to_underlying_prod_map</span>
+                 (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+        : x --&gt; underlying_Product E' ys (pr2 (EP ys))
+        := pr1 (ProductArrow
+                  J
+                  category_of_posets
+                  (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                  prod_pr)
+             fs.
+
+      <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_prod_map_pr</span>
+                  (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+                  (<span class="nv">j</span> : J)
+        : poset_to_underlying_prod_map fs
+          · enriched_prod_cone_pr E' ys (pr1 (EP ys)) j
+          =
+          fs j.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (eqtohomot
+                 (maponpaths
+                    pr1
+                    (ProductPrCommutes
+                       J category_of_posets _
+                       (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                       _
+                       prod_pr
+                       j))
+                 fs).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_prod_map_monotone</span>
+                  {<span class="nv">φ</span> <span class="nv">ψ</span> : ∏ (j : J), x --&gt; ys j}
+                  (<span class="nv">p</span> : ∏ (j : J), E x (ys j) (φ j) (ψ j))
+        : E _ _ (poset_to_underlying_prod_map φ)
+                (poset_to_underlying_prod_map ψ).
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (pr2 (@ProductArrow
+                      _ _ _
+                      (is_prod_enriched_to_Product E' _ (pr2 (EP ys)) x)
+                      prod
+                      prod_pr)
+                 φ
+                 ψ
+                 p).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">poset_to_underlying_prod_map_eq</span>
+                  (<span class="nv">fs</span> : ∏ (j : J), x --&gt; ys j)
+        : ProductArrow _ C (underlying_Product E' ys (pr2 (EP ys))) fs
+          =
+          poset_to_underlying_prod_map fs.
+      <span class="kn">Proof</span>.
+        use is_prod_enriched_arrow_eq.
+        - <span class="bp">exact</span> (pr2 (EP ys)).
+        - <span class="nb">intro</span> j.
+          <span class="nb">refine</span> (_ @ !(poset_to_underlying_prod_map_pr fs j)).
+          <span class="nb">apply</span> (ProductPrCommutes
+                   _ C
+                   _
+                   (underlying_Product E' ys (pr2 (EP ys)))
+                   _
+                   fs).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">ToPosetProduct</span>.
+
+    <span class="kn">Definition</span> <span class="nf">to_poset_enrichment_prod</span>
+               (<span class="nv">EP</span> : enrichment_prod E' J)
+      : poset_enrichment_prod.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ys</span>, underlying_Product E' ys (pr2 (EP ys))).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x ys fs₁ fs₂ p ;
+           <span class="nb">rewrite</span> !poset_to_underlying_prod_map_eq ;
+           <span class="nb">apply</span> (poset_to_underlying_prod_map_monotone EP _ p)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">poset_enrichment_prod_weq</span>
+               (<span class="nv">HC</span> : is_univalent C)
+      : enrichment_prod E' J ≃ poset_enrichment_prod.
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> to_poset_enrichment_prod.
+      - <span class="nb">apply</span> make_poset_enrichment_prod.
+      - <span class="nb">apply</span> (isaprop_enrichment_prod HC).
+      - <span class="nb">apply</span> (isaprop_poset_enrichment_prod HC).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TypeIndexedProducts</span>.
+<span class="kn">End</span> <span class="nf">PosetEnrichmentLimits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Limits/Examples/PosetEnrichedLimits.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Type indexed products
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

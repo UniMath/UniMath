@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaTheoryCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Properties of the category of λ-theories</span>
+
+<span class="sd">  The displayed category structure is leveraged to show that the category is univalent and has all</span>
+<span class="sd">  limits.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. A characterization of iso's of λ-theories [make_lambda_theory_z_iso]</span>
+<span class="sd">  2. Univalence [is_univalent_lambda_theory_cat]</span>
+<span class="sd">  3. Limits [limits_lambda_theory_cat]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Export</span> UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryMorphisms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="sd">(** * 1. A characterization of iso's of λ-theories *)</span>
+
+<span class="kn">Section</span> <span class="nf">Iso</span>.
+
+  <span class="kn">Context</span> (<span class="nv">a</span> <span class="nv">b</span> : lambda_theory).
+  <span class="kn">Context</span> (<span class="nv">F</span> : z_iso (C := algebraic_theory_cat) (a : algebraic_theory) (b : algebraic_theory)).
+  <span class="kn">Context</span> (<span class="nv">Happ</span> : ∏ n f, mor_app_ax (z_iso_mor F) n f).
+  <span class="kn">Context</span> (<span class="nv">Habs</span> : ∏ n f, mor_abs_ax (z_iso_mor F) n f).
+
+  <span class="kn">Definition</span> <span class="nf">iso_mor</span>
+    : lambda_theory_cat⟦a, b⟧
+    := (morphism_from_z_iso _ _ F ,, Happ ,, Habs) ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inv_data</span>
+    : algebraic_theory_morphism b a
+    := inv_from_z_iso F.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_inv_app_ax</span>
+    : ∏ n f, mor_app_ax iso_inv_data n f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f.
+    <span class="nb">refine</span> (!_ @ maponpaths
+      (<span class="k">λ</span> <span class="nv">x</span>, (x : algebraic_theory_morphism _ _) (S n) _)
+      (z_iso_inv_after_z_iso F)
+    ).
+    <span class="nb">apply</span> (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism _ _) (S n))).
+    <span class="nb">refine</span> (Happ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x : algebraic_theory_morphism _ _) n f) (z_iso_after_z_iso_inv F)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_inv_abs_ax</span>
+    : ∏ n f, mor_abs_ax iso_inv_data n f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f.
+    <span class="nb">refine</span> (!_ @ maponpaths
+      (<span class="k">λ</span> <span class="nv">x</span>, (x : algebraic_theory_morphism _ _) _ _)
+      (z_iso_inv_after_z_iso F)
+    ).
+    <span class="nb">apply</span> (maponpaths ((inv_from_z_iso F : algebraic_theory_morphism _ _) n)).
+    <span class="nb">refine</span> (Habs _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x : algebraic_theory_morphism _ _) _ f) (z_iso_after_z_iso_inv F)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inv</span>
+    : lambda_theory_cat⟦b, a⟧
+    := (iso_inv_data ,,
+        iso_inv_app_ax ,,
+        iso_inv_abs_ax
+      ) ,, tt.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_is_inverse</span>
+    : is_inverse_in_precat (C := lambda_theory_cat) iso_mor iso_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      <span class="nb">apply</span> lambda_theory_morphism_eq.
+    - <span class="nb">apply</span> (z_iso_inv_after_z_iso F).
+    - <span class="nb">apply</span> (z_iso_after_z_iso_inv F).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_lambda_theory_z_iso</span>
+    : z_iso (a : lambda_theory_cat) (b : lambda_theory_cat).
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> iso_mor.
+    - <span class="bp">exact</span> iso_inv.
+    - <span class="bp">exact</span> iso_is_inverse.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Iso</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_β_lambda_theory_z_iso</span>
+  {<span class="nv">L</span> <span class="nv">L'</span> : β_lambda_theory}
+  (<span class="nv">f</span> : z_iso (L : lambda_theory) (L' : lambda_theory))
+  : z_iso L L'.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (make_β_lambda_theory_morphism (f : _ --&gt; _)).
+  - <span class="bp">exact</span> (make_β_lambda_theory_morphism (z_iso_inv f : _ --&gt; _)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">apply</span> make_is_inverse_in_precat;
+      <span class="nb">apply</span> β_lambda_theory_morphism_eq;
+      [ <span class="nb">apply</span> z_iso_inv_after_z_iso
+      | <span class="nb">apply</span> z_iso_after_z_iso_inv ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Univalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_lambda_theory_data_disp_cat</span>
+  : is_univalent_disp lambda_theory_data_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">T</span> : algebraic_theory) <span class="nv">_</span> <span class="nv">_</span>, _).
+  use isweq_iso.
+  - <span class="nb">intro</span> f.
+    use pathsdirprod;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>);
+      <span class="nb">apply</span> f.
+  - <span class="nb">intro</span> e.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) _ @ maponpaths _ _ @ !(pathsdirprod_eta e));
+    <span class="nb">refine</span> (pr1 ((_ : isaset _) _ _ _ _));
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">refine</span> (pr1 ((_ : isaprop _) _ _)).
+    <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_lambda_theory_data_cat</span>
+  : is_univalent lambda_theory_data_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="bp">exact</span> is_univalent_algebraic_theory_cat.
+  - <span class="bp">exact</span> is_univalent_disp_lambda_theory_data_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_lambda_theory_disp_cat</span>
+  : is_univalent_disp lambda_theory_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="bp">exact</span> isaprop_is_lambda_theory.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_lambda_theory_cat</span>
+  : is_univalent lambda_theory_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="bp">exact</span> is_univalent_lambda_theory_data_cat.
+  - <span class="bp">exact</span> is_univalent_disp_lambda_theory_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_β_lambda_theory_cat</span>
+  : is_univalent β_lambda_theory_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_full_subcat.
+  - <span class="bp">exact</span> is_univalent_lambda_theory_cat.
+  - <span class="bp">exact</span> isaprop_has_β.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Limits *)</span>
+
+<span class="kn">Section</span> <span class="nf">Limits</span>.
+
+  <span class="kn">Context</span> (<span class="nv">D</span> := lambda_theory_data_disp_cat).
+  <span class="kn">Context</span> {<span class="nv">J</span> : graph}.
+  <span class="kn">Context</span> (<span class="nv">d</span> : diagram J (total_category D)).
+  <span class="kn">Context</span> (<span class="nv">L</span> := limits_algebraic_theory_cat J (mapdiagram (pr1_category _) d)).
+
+  <span class="kn">Definition</span> <span class="nf">tip_lambda_theory_data_disp_cat</span>
+    : D (lim L).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> n f.
+      use tpair.
+      + <span class="nb">intro</span> u.
+        <span class="bp">exact</span> (pr12 (dob d u) _ (pr1 f u)).
+      + <span class="kp">abstract</span> <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, pr12 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+    - <span class="nb">intros</span> n f.
+      use tpair.
+      + <span class="nb">intro</span> u.
+        <span class="bp">exact</span> (pr22 (dob d u) _ (pr1 f u)).
+      + <span class="kp">abstract</span> <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, pr22 (dmor d e) _ _ @ maponpaths _ (pr2 f _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cone_lambda_theory_data_disp_cat</span>
+    (<span class="nv">j</span> : vertex J)
+    : tip_lambda_theory_data_disp_cat --&gt;[limOut L j] pr2 (dob d j).
+  <span class="kn">Proof</span>.
+    <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_limit_lambda_theory_data_disp_cat</span>
+    (<span class="nv">d'</span> : total_category D)
+    (<span class="nv">cone_out</span> : ∏ u, d' --&gt; (dob d u))
+    (<span class="nv">is_cone</span> : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    (<span class="nv">algebraic_theory_arrow</span> := limArrow L _
+      (make_cone (d := (mapdiagram (pr1_category D) d)) _
+      (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, (maponpaths pr1 (is_cone u v e)))))
+    : pr2 d' --&gt;[algebraic_theory_arrow] tip_lambda_theory_data_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      <span class="nb">intros</span> n f;
+      (<span class="nb">apply</span> subtypePath;
+        [ <span class="nb">intro</span>;
+          <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+          <span class="nb">apply</span> setproperty | ]);
+      <span class="nb">apply</span> funextsec;
+      <span class="nb">intro</span> i.
+    - <span class="bp">exact</span> (pr12 (cone_out i) n f).
+    - <span class="bp">exact</span> (pr22 (cone_out i) n f).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Limits</span>.
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_lambda_theory_data_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category lambda_theory_data_disp_cat))
+  : creates_limit d (limits_algebraic_theory_cat _ _)
+  := creates_limit_disp_struct _
+    (tip_lambda_theory_data_disp_cat _)
+    (cone_lambda_theory_data_disp_cat _)
+    (is_limit_lambda_theory_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">limits_lambda_theory_data_cat</span>
+  : Lims lambda_theory_data_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit _ (creates_limits_lambda_theory_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_lambda_theory_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category lambda_theory_disp_cat))
+  : creates_limit d (limits_lambda_theory_data_cat _ _).
+<span class="kn">Proof</span>.
+  use creates_limit_disp_full_sub.
+  - <span class="nb">intro</span>.
+    <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+    <span class="nb">apply</span> setproperty.
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>;
+      <span class="nb">intros</span> m n f g;
+      (use subtypePath;
+        [ <span class="nb">intro</span>;
+          <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+          <span class="nb">apply</span> setproperty
+        | ];
+        <span class="nb">apply</span> funextsec;
+        <span class="nb">intro</span> u);
+      [ <span class="nb">refine</span> (app_subst _ _ _ @ _);
+        <span class="nb">apply</span> (maponpaths (<span class="nb">subst</span> (_ (pr1 f u))));
+        <span class="nb">apply</span> extend_tuple_eq;
+        [ <span class="nb">intro</span> i;
+          <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inl
+        | <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inr ]
+      | <span class="nb">refine</span> (!_ @ abs_subst _ _ _);
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (<span class="nb">subst</span> (pr1 f u) x)));
+        <span class="nb">apply</span> extend_tuple_eq;
+        [ <span class="nb">intro</span> i;
+          <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inl
+        | <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inr ] ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">limits_lambda_theory_cat</span>
+  : Lims lambda_theory_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit _ (creates_limits_lambda_theory_disp_cat _).
+
+<span class="kn">Lemma</span> <span class="nf">limits_β_lambda_theory_cat</span>
+  : Lims β_lambda_theory_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> J d.
+  use total_limit.
+  - <span class="nb">apply</span> limits_lambda_theory_cat.
+  - <span class="nb">apply</span> creates_limit_disp_full_sub.
+    + <span class="bp">exact</span> isaprop_has_β.
+    + <span class="kp">abstract</span> (
+        <span class="nb">intros</span> n l;
+        use subtypePath;
+        [ <span class="nb">intro</span>;
+          <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+          <span class="nb">apply</span> setproperty
+        | <span class="nb">apply</span> funextsec;
+          <span class="nb">intro</span> u;
+          <span class="nb">apply</span> (pr2 (dob d u) n) ]
+      ).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/LambdaTheoryCategory.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/AlgebraicTheories/LambdaTheoryCategoryCore.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. Limits [limits_lambda_theory_cat]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Export UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullyFaithful.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* In this file, we have formalized the result that a fully faithful functor into a dagger category induces a unique dagger on the domain such that the functor is dagger preserving.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_on_fully_faithful_inv_hom</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D} (<span class="nv">ff</span> : fully_faithful F)
+    : ∏ (x y : C) (f : D⟦F x, F y⟧),
+      # F (fully_faithful_inv_hom ff x y f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+
+  <span class="nb">set</span> (fandf := fully_faithful_implies_full_and_faithful _ _ _ ff).
+  <span class="nb">set</span> (fu := pr1 fandf).
+  <span class="nb">set</span>(f_f := fu x y f).
+
+  transparent <span class="nb">assert</span> (pp : hProp).
+  {
+    <span class="k">exists</span> (# F (fully_faithful_inv_hom ff x y f) = f).
+    <span class="nb">apply</span> homset_property.
+  }
+
+  use (factor_through_squash_hProp pp _ f_f).
+  <span class="nb">clear</span> f_f ; <span class="nb">intro</span> f_f.
+  <span class="nb">refine</span> (_ @ pr2 f_f).
+  <span class="nb">apply</span> (maponpaths (# F)).
+  <span class="nb">refine</span> (_ @ homotinvweqweq (weq_from_fully_faithful ff x y) (pr1 f_f)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> (! (pr2 f_f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fully_faithful_reflects_is_unitary</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+      {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+      {<span class="nv">F</span> : functor C D}
+      (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+      (<span class="nv">ff</span> : fully_faithful F)
+  : ∏ c c' : C, ∏ f : C⟦c,c'⟧, is_unitary dagD (#F f) -&gt; is_unitary dagC f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f u.
+  <span class="nb">set</span> (i := pr2 (fully_faithful_reflects_iso_proof _ _ _ ff c c' (Isos.make_z_iso _ _ u))).
+  <span class="nb">cbn</span> <span class="k">in</span> i.
+  <span class="nb">split</span>.
+  - <span class="nb">refine</span> (_ @ pr1 i).
+    use maponpaths_compose.
+    + <span class="nb">apply</span> pathsinv0, homotinvweqweq.
+    + <span class="nb">refine</span> (! homotinvweqweq  (weq_from_fully_faithful ff c' c) (dagC _ _ f) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dagF.
+  - <span class="nb">refine</span> (_ @ pr2 i).
+    use maponpaths_compose.
+    + <span class="nb">refine</span> (! homotinvweqweq  (weq_from_fully_faithful ff c' c) (dagC _ _ f) @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> dagF.
+    + <span class="nb">apply</span> pathsinv0, homotinvweqweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fully_faithful_reflects_unitary</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+      {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+      {<span class="nv">F</span> : functor C D}
+      (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+      (<span class="nv">ff</span> : fully_faithful F)
+  : ∏ c c' : C, unitary dagD (F c) (F c') -&gt; unitary dagC c c'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' u.
+  <span class="k">exists</span> (<span class="nv">fully_faithful_inv_hom</span> <span class="nv">ff</span> <span class="nv">c</span> <span class="nv">c'</span> (pr1 u)).
+  <span class="nb">apply</span> (fully_faithful_reflects_is_unitary dagF ff c c' (fully_faithful_inv_hom ff c c' (pr1 u))).
+  <span class="nb">set</span> (p := ! maponpaths (is_unitary dagD) (functor_on_fully_faithful_inv_hom ff _ _ (pr1 u))).
+  <span class="bp">exact</span> (path_to_fun p (pr2 u)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">FullyFaithful</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_reflect_dagger_structure</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> : functor C D} (<span class="nv">dagD</span> : dagger D)
+             (<span class="nv">ff</span> : fully_faithful F)
+    : dagger_structure C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">apply</span> (fully_faithful_inv_hom ff y x).
+    <span class="bp">exact</span> (pr1 dagD _ _ (#F f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_reflect_dagger_laws</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> : functor C D} (<span class="nv">dagD</span> : dagger D)
+             (<span class="nv">ff</span> : fully_faithful F)
+    : dagger_laws (fully_faithful_reflect_dagger_structure dagD ff).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use invmap_eq.
+    - etrans.
+      { <span class="nb">apply</span> maponpaths, functor_id. }
+      etrans.
+      { <span class="nb">apply</span> dagger_to_law_id. }
+      <span class="nb">apply</span> pathsinv0, functor_id.
+    - etrans.
+      { <span class="nb">apply</span> maponpaths, functor_comp. }
+      etrans.
+      { <span class="nb">apply</span> dagger_to_law_comp. }
+      etrans.
+      { <span class="nb">apply</span> maponpaths, pathsinv0, (functor_on_fully_faithful_inv_hom ff). }
+      <span class="nb">refine</span> (_ @ ! functor_comp _ _ _).
+      <span class="nb">apply</span> maponpaths_2, pathsinv0, functor_on_fully_faithful_inv_hom.
+    - etrans.
+      { <span class="nb">apply</span> maponpaths, functor_on_fully_faithful_inv_hom. }
+      <span class="nb">apply</span> dagger_to_law_idemp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_reflect_dagger</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> : functor C D} (<span class="nv">dagD</span> : dagger D)
+             (<span class="nv">ff</span> : fully_faithful F)
+    : dagger C
+    := _ ,, fully_faithful_reflect_dagger_laws dagD ff.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_is_dagger_functor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> : functor C D} (<span class="nv">dagD</span> : dagger D)
+             (<span class="nv">ff</span> : fully_faithful F)
+    : is_dagger_functor (fully_faithful_reflect_dagger dagD ff) dagD F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_reflect_dagger_uniquely</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        {<span class="nv">F</span> : functor C D} (<span class="nv">dagD</span> : dagger D)
+        (<span class="nv">ff</span> : fully_faithful F)
+    : <span class="k">∃</span>! dagC : dagger C, is_dagger_functor dagC dagD F.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">fully_faithful_reflect_dagger</span> <span class="nv">dagD</span> <span class="nv">ff</span> ,, <span class="nv">fully_faithful_is_dagger_functor</span> <span class="nv">dagD</span> <span class="nv">ff</span>).
+    <span class="nb">intro</span> dag.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_dagger_functor. }
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_dagger_laws. }
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> pathsweq1.
+    <span class="nb">apply</span> (pr2 dag).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FullyFaithful</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Functors/FullyFaithful.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* In this file, we have formalized the result that a fully faithful functor into a dagger category induces a unique dagger on the domain such that the functor is dagger preserving.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

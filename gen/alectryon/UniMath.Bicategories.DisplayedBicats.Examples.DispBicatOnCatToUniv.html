@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispBicatOnCatToUniv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************</span>
+
+<span class="sd"> Reindexing displayed bicategories over the bicategory of categories</span>
+
+<span class="sd"> We prove that every displayed bicategory on the bicategory of</span>
+<span class="sd"> (not necessarily univalent) categories gives rise to a displayed</span>
+<span class="sd"> bicategory on the bicategory of univalent categories. This construction</span>
+<span class="sd"> keeps the displayed objects/1-cells/2-cells to be the same, and thus</span>
+<span class="sd"> the composition/identities are inherited as well.</span>
+
+<span class="sd"> For displayed categories, we have a reindexing operator: if we have a</span>
+<span class="sd"> displayed category `D` over `C₂` and a functor `F : C₁ ⟶ C₂`, then we</span>
+<span class="sd"> get a displayed category `F^* D` over `C₁` and a displayed functor</span>
+<span class="sd"> `FF : F^* D ⟶ D` over `F`. The construction we discuss in this file, is</span>
+<span class="sd"> a special case of the bicategorical analogue of this operation where we</span>
+<span class="sd"> use the inclusion.</span>
+
+<span class="sd"> Hence, we look at two constructions:</span>
+<span class="sd"> 1. The reindexed displayed bicategory [disp_bicat_on_cat_to_univ_cat]</span>
+<span class="sd"> 2. The displayed pseudofunctor [disp_psfunctor_on_cat_to_univ_cat]</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The reindexed displayed bicategory</span>
+<span class="sd"> 2. Properties of the reindexed displayed bicategory</span>
+<span class="sd"> 3. The displayed pseudofunctor over the inclusion</span>
+
+<span class="sd"> ***********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DispBicatOnCats</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> : disp_bicat bicat_of_cats).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The reindexed displayed bicategory</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_on_cat_to_univ_cat</span>
+    : disp_cat_ob_mor bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, D (pr1 C)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">CC₁</span> <span class="nv">CC₂</span> <span class="nv">F</span>, CC₁ --&gt;[ F ] CC₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_on_cat_to_univ_cat</span>
+    : disp_cat_id_comp
+        bicat_of_univ_cats
+        disp_cat_ob_mor_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">CC</span>, id_disp _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">CC₁</span> <span class="nv">CC₂</span> <span class="nv">CC₃</span> <span class="nv">FF</span> <span class="nv">GG</span>, FF ;; GG)%mor_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_data_on_cat_to_univ_cat</span>
+    : disp_cat_data bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_ob_mor_on_cat_to_univ_cat.
+    - <span class="bp">exact</span> disp_cat_id_comp_on_cat_to_univ_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_on_cat_to_univ_cat</span>
+    : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_data_on_cat_to_univ_cat.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category)
+               (<span class="nv">F</span> <span class="nv">G</span> : bicat_of_cats ⟦ pr1 C₁ , pr1 C₂ ⟧)
+               (<span class="nv">τ</span> : F ==&gt; G)
+               (<span class="nv">CC₁</span> : D (pr1 C₁))
+               (<span class="nv">CC₂</span> : D (pr1 C₂))
+               (<span class="nv">FF</span> : CC₁ --&gt;[ F ] CC₂)
+               (<span class="nv">GG</span> : CC₁ --&gt;[ G ] CC₂),
+             FF ==&gt;[ τ ] GG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_ops_on_cat_to_univ_cat</span>
+    : disp_prebicat_ops disp_prebicat_1_id_comp_cells_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF.
+      <span class="bp">exact</span> (@disp_id2 _ D _ _ _ _ _ FF).
+    - <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF.
+      <span class="bp">exact</span> (@disp_lunitor _ D _ _ _ _ _ FF).
+    - <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF.
+      <span class="bp">exact</span> (@disp_runitor _ D _ _ _ _ _ FF).
+    - <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF.
+      <span class="bp">exact</span> (@disp_linvunitor _ D _ _ _ _ _ FF).
+    - <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF.
+      <span class="bp">exact</span> (@disp_rinvunitor _ D _ _ _ _ _ FF).
+    - <span class="nb">intros</span> C₁ C₂ C₃ C₄ F G H CC₁ CC₂ CC₃ CC₄ FF GG HH.
+      <span class="bp">exact</span> (@disp_rassociator _ D _ _ _ _ _ _ _ _ _ _ _ FF GG HH).
+    - <span class="nb">intros</span> C₁ C₂ C₃ C₄ F G H CC₁ CC₂ CC₃ CC₄ FF GG HH.
+      <span class="bp">exact</span> (@disp_lassociator _ D _ _ _ _ _ _ _ _ _ _ _ FF GG HH).
+    - <span class="nb">intros</span> C₁ C₂ F G H τ θ CC₁ CC₂ FF GG HH ττ θθ.
+      <span class="bp">exact</span> (@disp_vcomp2 _ D _ _ _ _ _ _ _ _ _ _ _ _ ττ θθ).
+    - <span class="nb">intros</span> C₁ C₂ C₃ F G₁ G₂ τ CC₁ CC₂ CC₃ FF GG₁ GG₂ ττ.
+      <span class="bp">exact</span> (@disp_lwhisker _ D _ _ _ _ _ _ _ _ _ _ FF _ _ ττ).
+    - <span class="nb">intros</span> C₁ C₂ C₃ F₁ F₂ G τ CC₁ CC₂ CC₃ FF₁ FF₂ GG ττ.
+      <span class="bp">exact</span> (@disp_rwhisker _ D _ _ _ _ _ _ _ _ _ _ _ _ GG ττ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_data_on_cat_to_univ_cat</span>
+    : disp_prebicat_data bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_on_cat_to_univ_cat.
+    - <span class="bp">exact</span> disp_prebicat_ops_on_cat_to_univ_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_prebicat_laws_on_cat_to_univ_cat</span>
+    : disp_prebicat_laws disp_prebicat_data_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (disp_id2_left _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_id2_right _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_id2 _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_id2_rwhisker _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_vcomp _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_vcomp _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_lunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_runitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lwhisker_lwhisker _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_lwhisker _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rwhisker_rwhisker _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_vcomp_whisker _ _ _ _ _ _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lunitor_linvunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_linvunitor_lunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_runitor_rinvunitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rinvunitor_runitor _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lassociator_rassociator _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_rassociator_lassociator _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_runitor_rwhisker _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+    - <span class="nb">refine</span> (disp_lassociator_lassociator _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_prebicat_on_cat_to_univ_cat</span>
+    : disp_prebicat bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_data_on_cat_to_univ_cat.
+    - <span class="bp">exact</span> disp_prebicat_laws_on_cat_to_univ_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_on_cat_to_univ_cat</span>
+    : disp_bicat bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_prebicat_on_cat_to_univ_cat.
+    - <span class="nb">intros</span> C₁ C₂ F G τ CC₁ CC₂ FF GG.
+      <span class="nb">apply</span> (pr2 D).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Properties of the reindexed displayed bicategory</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">disp_2cells_isaprop_disp_bicat_on_cat_to_univ_cat</span>
+              (<span class="nv">HD</span> : disp_2cells_isaprop D)
+    : disp_2cells_isaprop disp_bicat_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₁ C₂ F G τ CC₁ CC₂ FF GG.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_2cells_iscontr_disp_bicat_on_cat_to_univ_cat</span>
+              (<span class="nv">HD</span> : disp_2cells_iscontr D)
+    : disp_2cells_iscontr disp_bicat_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₁ C₂ F G τ CC₁ CC₂ FF GG.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_locally_groupoid_bicat_on_cat_to_univ_cat</span>
+              (<span class="nv">HD</span> : disp_locally_groupoid D)
+    : disp_locally_groupoid disp_bicat_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C₁ C₂ F G τ CC₁ CC₂ FF GG ττ.
+    <span class="bp">exact</span> (HD (pr1 C₁) (pr1 C₂) F G τ CC₁ CC₂ FF GG ττ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_on_cat_to_univ_cat</span>
+              (<span class="nv">HD</span> : disp_univalent_2_1 D)
+    : disp_univalent_2_1 disp_bicat_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    use fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> C₁ C₂ F CC₁ CC₂ FF GG.
+    use weqhomot.
+    - <span class="nb">refine</span> (weqfibtototal
+                _ _
+                (<span class="k">λ</span> <span class="nv">τ</span>,
+                 weqfibtototal
+                   _ _
+                   (<span class="k">λ</span> <span class="nv">θ</span>,
+                    weqdirprodf
+                      (weqimplimpl _ _ _ _)
+                      (weqimplimpl _ _ _ _)))
+              ∘ make_weq _ (HD (pr1 C₁) (pr1 C₂) F F (idpath F) CC₁ CC₂ FF GG))%weq.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">refine</span> (p @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">refine</span> (p @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (pr2 D)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (pr2 D)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">refine</span> (p @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> p ;
+           <span class="nb">refine</span> (p @ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> cellset_property).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (pr2 D)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> (pr2 D)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The displayed pseudofunctor over the inclusion</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_data_on_cat_to_univ_cat</span>
+    : disp_psfunctor_data
+        disp_bicat_on_cat_to_univ_cat
+        D
+        univ_cats_to_cats.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">CC</span>, CC).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">CC₁</span> <span class="nv">CC₂</span> <span class="nv">FF</span>, FF).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span> <span class="nv">CC₁</span> <span class="nv">CC₂</span> <span class="nv">FF</span> <span class="nv">GG</span> <span class="nv">ττ</span>, ττ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">CC</span>, disp_id2_invertible_2cell (id_disp CC)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">CC₁</span> <span class="nv">CC₂</span> <span class="nv">CC₃</span> <span class="nv">FF</span> <span class="nv">GG</span>, disp_id2_invertible_2cell (FF ;; GG)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_disp_psfunctor_data_on_cat_to_univ_cat</span>
+              (<span class="nv">HD</span> : disp_2cells_isaprop D)
+    : is_disp_psfunctor
+        disp_bicat_on_cat_to_univ_cat
+        D univ_cats_to_cats
+        disp_psfunctor_data_on_cat_to_univ_cat.
+  <span class="kn">Proof</span>.
+    split7 ;
+      <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+      <span class="nb">apply</span> (disp_2cells_isaprop_disp_bicat_on_cat_to_univ_cat HD).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_psfunctor_on_cat_to_univ_cat</span>
+             (<span class="nv">HD</span> : disp_2cells_isaprop D)
+    : disp_psfunctor
+        disp_bicat_on_cat_to_univ_cat
+        D
+        univ_cats_to_cats
+    := disp_psfunctor_data_on_cat_to_univ_cat
+       ,,
+       is_disp_psfunctor_data_on_cat_to_univ_cat HD.
+<span class="kn">End</span> <span class="nf">DispBicatOnCats</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/DispBicatOnCatToUniv.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The displayed pseudofunctor over the inclusion
+  &gt;
+  &gt;  ***********************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,721 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivalenceBetweenCartesians.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Cartesian 1-cells</span>
+
+<span class="sd"> In this file, we show that if we have 2 cartesian 1-cells over some</span>
+<span class="sd"> 1-cell, then we have an adjoint equivalence between their domains.</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.StrictPseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.StrictPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.StrictToPseudo.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">AdjEquivBetweenCartesian</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">HB_2_1</span> : is_univalent_2_1 B).
+
+  <span class="kn">Section</span> <span class="nf">MapAndCellFromCartesians</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : D x}
+            {<span class="nv">yy</span> : D y}
+            (<span class="nv">ff₁</span> : xx₁ --&gt;[ f ] yy)
+            {<span class="nv">ff₂</span> : xx₂ --&gt;[ f ] yy}
+            (<span class="nv">Hff₂</span> : cartesian_1cell D ff₂).
+
+    <span class="kn">Let</span> <span class="nf">ff'</span> : xx₁ --&gt;[ id₁ x · f ] yy
+      := transport_along_inv_2cell
+           HB_2_1
+           (linvunitor_invertible_2cell f)
+           ff₁.
+    <span class="kn">Let</span> <span class="nf">ℓ</span> : lift_1cell_factor D ff₂ ff'
+      := pr1 Hff₂ x xx₁ (id₁ _) ff'.
+
+    <span class="kn">Definition</span> <span class="nf">map_between_cartesian_1cell</span>
+      : xx₁ --&gt;[ id₁ _ ] xx₂
+      := ℓ.
+
+    <span class="kn">Definition</span> <span class="nf">map_between_cartesian_1cell_commute</span>
+      : disp_invertible_2cell
+          (lunitor_invertible_2cell _)
+          (map_between_cartesian_1cell ;; ff₂)
+          ff₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+                _
+                (vcomp_disp_invertible
+                   (pr2 ℓ)
+                   (transport_along_inv_2cell_disp_invertible_2cell _ _ _))).
+      <span class="kp">abstract</span>
+        (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> id2_left).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MapAndCellFromCartesians</span>.
+
+  <span class="kn">Section</span> <span class="nf">InverseOfCartesians</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : D x}
+            {<span class="nv">yy</span> : D y}
+            {<span class="nv">ff₁</span> : xx₁ --&gt;[ f ] yy}
+            (<span class="nv">Hff₁</span> : cartesian_1cell D ff₁)
+            {<span class="nv">ff₂</span> : xx₂ --&gt;[ f ] yy}
+            (<span class="nv">Hff₂</span> : cartesian_1cell D ff₂).
+
+    <span class="kn">Let</span> <span class="nf">l</span> : xx₁ --&gt;[ id₁ x] xx₂
+      := map_between_cartesian_1cell ff₁ Hff₂.
+
+    <span class="kn">Let</span> <span class="nf">δl</span> : disp_invertible_2cell
+               (lunitor_invertible_2cell f)
+               (l ;; ff₂)
+               ff₁
+      := map_between_cartesian_1cell_commute ff₁ Hff₂.
+
+    <span class="kn">Let</span> <span class="nf">r</span> : xx₂ --&gt;[ id₁ x] xx₁
+      := map_between_cartesian_1cell ff₂ Hff₁.
+
+    <span class="kn">Let</span> <span class="nf">δr</span> : disp_invertible_2cell
+               (lunitor_invertible_2cell f)
+               (r ;; ff₁)
+               ff₂
+      := map_between_cartesian_1cell_commute ff₂ Hff₁.
+
+    <span class="kn">Let</span> <span class="nf">gg₁</span> : xx₂ --&gt;[ id₁ x · f ] yy
+      := transport_along_inv_2cell
+           HB_2_1
+           (linvunitor_invertible_2cell f)
+           ff₂.
+
+    <span class="kn">Let</span> <span class="nf">γ₁</span> : disp_invertible_2cell
+               (inv_of_invertible_2cell (linvunitor_invertible_2cell f))
+               gg₁
+               ff₂
+      := transport_along_inv_2cell_disp_invertible_2cell
+           HB_2_1
+           (linvunitor_invertible_2cell f)
+           ff₂.
+
+    <span class="kn">Let</span> <span class="nf">gg₂</span> : xx₂ --&gt;[ id₁ x · id₁ x · f ] yy
+      := transport_along_inv_2cell
+           HB_2_1
+           (comp_of_invertible_2cell
+              (comp_of_invertible_2cell
+                 (linvunitor_invertible_2cell _)
+                 (linvunitor_invertible_2cell _))
+              (lassociator_invertible_2cell _ _ _))
+           ff₂.
+
+    <span class="kn">Let</span> <span class="nf">γ₂</span> : disp_invertible_2cell _ gg₂ ff₂
+      := transport_along_inv_2cell_disp_invertible_2cell
+           HB_2_1
+           (comp_of_invertible_2cell
+              (comp_of_invertible_2cell
+                 (linvunitor_invertible_2cell _)
+                 (linvunitor_invertible_2cell _))
+              (lassociator_invertible_2cell _ _ _))
+           ff₂.
+
+    <span class="kn">Local Lemma</span> <span class="nf">first_lift_path</span>
+      : comp_of_invertible_2cell
+          (lunitor_invertible_2cell f)
+          (inv_of_invertible_2cell
+             (inv_of_invertible_2cell
+                (linvunitor_invertible_2cell f)))
+        =
+        id2_invertible_2cell (id₁ x · f).
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> lunitor_linvunitor.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">first_lift</span>
+      : lift_1cell_factor D ff₂ gg₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (id_disp _ ,, _).
+      <span class="bp">exact</span> (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+               first_lift_path
+               (vcomp_disp_invertible
+                  (disp_invertible_2cell_lunitor _)
+                  (inverse_of_disp_invertible_2cell γ₁))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">second_lift_path</span>
+      : comp_of_invertible_2cell
+          (rassociator_invertible_2cell _ _ _)
+          (comp_of_invertible_2cell
+             (lwhisker_of_invertible_2cell _ (lunitor_invertible_2cell _))
+             (comp_of_invertible_2cell
+                (lunitor_invertible_2cell f)
+                (inv_of_invertible_2cell
+                   (inv_of_invertible_2cell
+                      (comp_of_invertible_2cell
+                         (comp_of_invertible_2cell
+                            (linvunitor_invertible_2cell _)
+                            (linvunitor_invertible_2cell _))
+                         (lassociator_invertible_2cell (id₁ x) (id₁ x) f))))))
+        =
+        id2_invertible_2cell (id₁ x · id₁ x · f).
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lunitor_linvunitor.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lunitor_lwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rassociator_lassociator.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> runitor_lunitor_identity.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> lunitor_linvunitor.
+      <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">second_lift</span>
+      : lift_1cell_factor D ff₂ gg₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (r ;; l ,, _).
+      <span class="bp">exact</span> (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+               second_lift_path
+               (vcomp_disp_invertible
+                  (disp_invertible_2cell_rassociator _ _ _)
+                  (vcomp_disp_invertible
+                     (disp_invertible_2cell_lwhisker r δl)
+                     (vcomp_disp_invertible
+                        δr
+                        (inverse_of_disp_invertible_2cell γ₂))))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">help_cell₁</span>
+      : gg₂ ==&gt;[ lunitor (id₁ x) ▹ f] gg₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                (γ₂ •• disp_inv_cell γ₁)).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> lunitor_linvunitor ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">rewrite</span> &lt;- lunitor_triangle ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> rassociator_lassociator ;
+         <span class="nb">apply</span> id2_left).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">w₁</span> : lift_2cell_factor D ff₂ help_cell₁ second_lift first_lift
+      := pr2 Hff₂ x xx₂ _ _ _ gg₁ (lunitor (id₁ x)) help_cell₁ second_lift first_lift.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_inv</span>
+      : r ;; l ==&gt;[ lunitor _ ] id_disp _
+      := w₁.
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> : r ;; l ==&gt;[ lunitor _ ] id_disp _
+      := disp_adj_equiv_between_cartesian_1cell_inv.
+
+    <span class="kn">Local Definition</span> <span class="nf">help_cell₂</span>
+      : gg₁ ==&gt;[ linvunitor (id₁ x) ▹ f] gg₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                _
+                (γ₁ •• disp_inv_cell γ₂)).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> lunitor_linvunitor ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">rewrite</span> rwhisker_hcomp ;
+         <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id ;
+         <span class="nb">rewrite</span> &lt;- triangle_l_inv ;
+         <span class="nb">rewrite</span> &lt;- lwhisker_hcomp ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> linvunitor_assoc ;
+         <span class="nb">rewrite</span> lwhisker_hcomp ;
+         <span class="nb">rewrite</span> triangle_r_inv ;
+         <span class="nb">rewrite</span> &lt;- rwhisker_hcomp ;
+         <span class="nb">rewrite</span> lunitor_V_id_is_left_unit_V_id ;
+         <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">w₂</span> : lift_2cell_factor D ff₂ help_cell₂ first_lift second_lift
+      := pr2 Hff₂ x xx₂ _ _ _ gg₂ (linvunitor (id₁ x)) help_cell₂ first_lift second_lift.
+
+    <span class="kn">Definition</span> <span class="nf">inv_of_disp_adj_equiv_between_cartesian_1cell_inv</span>
+      : id_disp _ ==&gt;[ linvunitor _ ] r ;; l
+      := w₂.
+
+    <span class="kn">Let</span> <span class="nf">ξ</span> : id_disp _ ==&gt;[ linvunitor _ ] r ;; l
+      := inv_of_disp_adj_equiv_between_cartesian_1cell_inv.
+
+    <span class="kn">Local Definition</span> <span class="nf">help_inv_cell₁</span>
+      : gg₂ ==&gt;[ id₂ _ ▹ f ] gg₂
+      := transportb
+           (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+           (id2_rwhisker _ _)
+           (disp_id2 _).
+
+    <span class="kn">Local Lemma</span> <span class="nf">disp_adj_equiv_between_cartesian_inv₁</span>
+      : ζ •• ξ
+        =
+        transportb
+          (<span class="k">λ</span> <span class="nv">z</span>, r ;; l ==&gt;[ z ] r ;; l)
+          (vcomp_rinv (is_invertible_2cell_lunitor (id₁ x)))
+          (disp_id2 (r ;; l)).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) (lunitor_linvunitor _) _) @ _).
+      <span class="nb">refine</span> (_ @ transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) (lunitor_linvunitor _) _).
+      <span class="nb">apply</span> maponpaths.
+      use (isaprop_lift_of_lift_2cell
+             _ _
+             (pr2 Hff₂ _ _ _ _ _ _ _ help_inv_cell₁ second_lift second_lift)).
+      - <span class="nb">rewrite</span> disp_rwhisker_transport_left_new.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> disp_rwhisker_vcomp_alt.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> disp_vassocl.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (eq_lift_2cell_alt _ _ w₂).
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">unfold</span> help_cell₂.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (eq_lift_2cell_alt _ _ w₁).
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">unfold</span> help_cell₁.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> !disp_vassocl.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> disp_vcomp_linv.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+          <span class="nb">rewrite</span> disp_id2_left.
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_vcomp_rinv.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_id2_right.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">unfold</span> help_inv_cell₁.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_id2_right.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cellset_property.
+      - <span class="nb">unfold</span> help_inv_cell₁, transportb.
+        <span class="nb">rewrite</span> !disp_rwhisker_transport_left_new.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">rewrite</span> disp_id2_rwhisker.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">rewrite</span> disp_id2_left, disp_id2_right.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cellset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">help_inv_cell₂</span>
+      : gg₁ ==&gt;[ id₂ (id₁ x) ▹ f ] gg₁
+      := transportb
+           (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+           (id2_rwhisker _ _)
+           (disp_id2 _).
+
+    <span class="kn">Local Lemma</span> <span class="nf">disp_adj_equiv_between_cartesian_inv₂</span>
+      : ξ •• ζ
+        =
+        transportb
+          (<span class="k">λ</span> <span class="nv">z</span>, id_disp xx₂ ==&gt;[ z ] id_disp xx₂)
+          (vcomp_linv (is_invertible_2cell_lunitor (id₁ x)))
+          (disp_id2 (id_disp xx₂)).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) (linvunitor_lunitor _) _) @ _).
+      <span class="nb">refine</span> (_ @ transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) (linvunitor_lunitor _) _).
+      <span class="nb">apply</span> maponpaths.
+      use (isaprop_lift_of_lift_2cell
+             _ _
+             (pr2 Hff₂ x _ _ _ _ _ _ help_inv_cell₂ first_lift first_lift)).
+      - <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (transportf_disp_invertible_2cell first_lift_path _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> disp_rwhisker_transport_left_new.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">rewrite</span> disp_rwhisker_vcomp_alt.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (transportf_disp_invertible_2cell first_lift_path _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">pose</span> (maponpaths
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ •• z)
+                  (!(transportf_disp_invertible_2cell first_lift_path _))
+                @ eq_lift_2cell_alt _ _ w₁) <span class="k">as</span> p.
+          <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> disp_mor_transportf_prewhisker <span class="k">in</span> p.
+          <span class="nb">pose</span> (p' := @transportb_transpose_right
+                        _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                        _ _ _ _ _
+                        p).
+          <span class="bp">exact</span> p'.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (transportf_disp_invertible_2cell second_lift_path _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">pose</span> (maponpaths
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ •• z)
+                  (!(transportf_disp_invertible_2cell second_lift_path _))
+                @ eq_lift_2cell_alt _ _ w₂) <span class="k">as</span> p.
+          <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> disp_mor_transportf_prewhisker <span class="k">in</span> p.
+          <span class="nb">pose</span> (p' := @transportb_transpose_right
+                        _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+                        _ _ _ _ _
+                        p).
+          <span class="bp">exact</span> p'.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (transportf_disp_invertible_2cell first_lift_path _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">unfold</span> help_cell₂, help_cell₁.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> !disp_vassocl.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (disp_vassocr _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (disp_vcomp_linv γ₁).
+          }
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+          <span class="nb">rewrite</span> transport_f_f.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> disp_id2_left.
+          }
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+          <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _) ; <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (disp_vcomp_linv γ₂).
+          }
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_id2_left.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">unfold</span> help_inv_cell₂.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_id2_right.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cellset_property.
+      - <span class="nb">unfold</span> help_inv_cell₂.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !disp_rwhisker_transport_left_new.
+        <span class="nb">rewrite</span> !disp_mor_transportf_prewhisker.
+        <span class="nb">rewrite</span> !disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">rewrite</span> disp_id2_rwhisker.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> disp_mor_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> disp_id2_left, disp_id2_right.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cellset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_inv_is_invertible</span>
+      : is_disp_invertible_2cell (is_invertible_2cell_lunitor _) ζ
+      := ξ
+         ,,
+         disp_adj_equiv_between_cartesian_inv₁
+         ,,
+         disp_adj_equiv_between_cartesian_inv₂.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_inv_2cell</span>
+      : disp_invertible_2cell (lunitor_invertible_2cell _) (r ;; l) (id_disp _).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (ζ ,, _).
+      <span class="nb">apply</span> disp_adj_equiv_between_cartesian_1cell_inv_is_invertible.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InverseOfCartesians</span>.
+
+  <span class="kn">Section</span> <span class="nf">DispAdjEquivBetweenCartesians</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : D x}
+            {<span class="nv">yy</span> : D y}
+            {<span class="nv">ff₁</span> : xx₁ --&gt;[ f ] yy}
+            (<span class="nv">Hff₁</span> : cartesian_1cell D ff₁)
+            {<span class="nv">ff₂</span> : xx₂ --&gt;[ f ] yy}
+            (<span class="nv">Hff₂</span> : cartesian_1cell D ff₂).
+
+    <span class="kn">Let</span> <span class="nf">l</span> : xx₁ --&gt;[ id₁ x] xx₂
+      := map_between_cartesian_1cell ff₁ Hff₂.
+    <span class="kn">Let</span> <span class="nf">r</span> : xx₂ --&gt;[ id₁ x] xx₁
+      := map_between_cartesian_1cell ff₂ Hff₁.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_unit</span>
+      : id_disp _ ==&gt;[ linvunitor _ ] l ;; r.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr1 (inverse_of_disp_invertible_2cell
+                    (disp_adj_equiv_between_cartesian_1cell_inv_2cell Hff₂ Hff₁))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">η</span> : id_disp _ ==&gt;[ linvunitor _ ] l ;; r
+      := disp_adj_equiv_between_cartesian_1cell_unit.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_unit_invertible</span>
+      : is_disp_invertible_2cell (is_invertible_2cell_linvunitor _) η.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (transportf
+                (<span class="k">λ</span> <span class="nv">z</span>, is_disp_invertible_2cell z _)
+                _
+                (pr2 (inverse_of_disp_invertible_2cell
+                        (disp_adj_equiv_between_cartesian_1cell_inv_2cell
+                           Hff₂ Hff₁)))).
+      <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_counit</span>
+      : r ;; l ==&gt;[ lunitor _ ] id_disp _
+      := disp_adj_equiv_between_cartesian_1cell_inv Hff₁ Hff₂.
+
+    <span class="kn">Let</span> <span class="nf">ε</span> : r ;; l ==&gt;[ lunitor _ ] id_disp _
+      := disp_adj_equiv_between_cartesian_1cell_counit.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell_counit_invertible</span>
+      : is_disp_invertible_2cell (is_invertible_2cell_lunitor (id₁ x)) ε
+      := disp_adj_equiv_between_cartesian_1cell_inv_is_invertible Hff₁ Hff₂.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_between_cartesian_1cell</span>
+      : ∑ (e : left_adjoint_equivalence (id₁ x)),
+        disp_left_adjoint_equivalence e l.
+    <span class="kn">Proof</span>.
+      use disp_left_equivalence_to_left_adjoint_equivalence.
+      - <span class="bp">exact</span> (left_equivalence_of_left_adjoint_equivalence
+                 (internal_adjoint_equivalence_identity x)).
+      - <span class="nb">refine</span> ((r ,, η ,, ε) ,, _ ,, _).
+        + <span class="bp">exact</span> disp_adj_equiv_between_cartesian_1cell_unit_invertible.
+        + <span class="bp">exact</span> disp_adj_equiv_between_cartesian_1cell_counit_invertible.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">DispAdjEquivBetweenCartesians</span>.
+<span class="kn">End</span> <span class="nf">AdjEquivBetweenCartesian</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/EquivalenceBetweenCartesians.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1-cell, then we have an adjoint equivalence between their domains.
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

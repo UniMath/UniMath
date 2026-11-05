@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullyFaithful.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Fully faithful functors and equivalences</span>
+
+<span class="sd">Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)</span>
+<span class="sd">Revised by: Marco Maggesi (November 2017), Langston Barrett (April 2018)</span>
+
+<span class="sd">*)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd"> - Fully faithful functor from an equivalence</span>
+<span class="sd"> - Functor from an equivalence is essentially surjective</span>
+<span class="sd"> - Fully faithful essentially surjective functors preserve all [hProp]s on</span>
+<span class="sd">   hom-types</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Fully faithful functor from an equivalence *)</span>
+
+<span class="kn">Section</span> <span class="nf">from_equiv_to_fully_faithful</span>.
+
+<span class="kn">Variables</span> <span class="nv">A</span> <span class="nv">B</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : A ⟶ B.
+<span class="kn">Variable</span> <span class="nv">H</span> : adj_equivalence_of_cats F.
+
+<span class="kn">Local Definition</span> <span class="nf">G</span> : B ⟶ A := adj_equivalence_inv H.
+
+<span class="kn">Local Definition</span> <span class="nf">eta</span> : ∏ a : A, z_iso a (G (F a))
+  := unit_pointwise_z_iso_from_adj_equivalence H.
+
+<span class="kn">Local Definition</span> <span class="nf">eps</span> : ∏ b : B, z_iso (F (G b)) b
+  := counit_pointwise_z_iso_from_adj_equivalence H.
+
+<span class="kn">Definition</span> <span class="nf">inverse</span> {<span class="nv">a</span> <span class="nv">b</span>} (<span class="nv">g</span> : B⟦F a, F b⟧) : A⟦a, b⟧
+  := eta a · #G g · inv_from_z_iso (eta b).
+
+<span class="kn">Lemma</span> <span class="nf">inverse_is_inverse_1</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">f</span> : a --&gt; b) : inverse (#F f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> inverse.
+  <span class="nb">set</span> (H' := nat_trans_ax  (adjunit (pr1 H))).
+  <span class="nb">simpl</span> <span class="k">in</span> H'; <span class="nb">rewrite</span> &lt;- H'; <span class="nb">clear</span> H'; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  intermediate_path (f · identity _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">set</span> (H' := z_iso_inv_after_z_iso (eta b)).
+  <span class="nb">apply</span> H'.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">triangle_id_inverse</span> (<span class="nv">a</span> : A)
+  : z_iso_inv_from_z_iso (functor_on_z_iso F (eta a)) = eps (F a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq. <span class="nb">simpl</span>.
+  <span class="k">match goal with</span> | [ |- <span class="nl">?x</span> = <span class="nl">?y</span> ] =&gt; <span class="nb">transitivity</span> (x · identity _) <span class="k">end</span>.
+  <span class="nb">apply</span> pathsinv0, id_right.
+  <span class="nb">apply</span> z_iso_inv_on_right.
+  <span class="nb">set</span> (H' := triangle_id_left_ad (pr2 (pr1 H)) a).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> H'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">triangle_id_inverse'</span> (<span class="nv">a</span> : A)
+  : inv_from_z_iso (functor_on_z_iso F (eta a)) = eps (F a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (base_paths _ _ (triangle_id_inverse a)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inverse_is_inverse_2</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">g</span> : F a --&gt; F b) : #F (inverse g) = g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> inverse.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> functor_comp.
+  <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> triangle_id_inverse'.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">set</span> (H' := nat_trans_ax (adjcounit (pr1 H))).
+  <span class="nb">simpl</span> <span class="k">in</span> H'; <span class="nb">rewrite</span> H'; <span class="nb">clear</span> H'.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">set</span> (H' := pathsinv0 (triangle_id_left_ad (pr2 (pr1 H)) a)).
+  <span class="k">match goal with</span> [|- <span class="nl">?f</span> · <span class="nl">?g</span> = <span class="nl">?h</span>] =&gt; <span class="nb">assert</span> (H'' : identity _ = f) <span class="k">end</span>.
+  - <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> H'.
+  - <span class="nb">rewrite</span> &lt;- H''. <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fully_faithful_from_equivalence</span> : fully_faithful F.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> fully_faithful. <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (isweq_iso _ (@inverse a b)).
+  - <span class="nb">apply</span> inverse_is_inverse_1.
+  - <span class="nb">apply</span> inverse_is_inverse_2.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Functor from an equivalence is essentially surjective *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">functor_from_equivalence_is_essentially_surjective</span> :
+  essentially_surjective F.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> essentially_surjective.
+  <span class="nb">intros</span> b; <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">G</span> <span class="nv">b</span>).
+  <span class="nb">apply</span> counit_pointwise_z_iso_from_adj_equivalence.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">from_equiv_to_fully_faithful</span>.
+
+<span class="sd">(** ** Fully faithful essentially surjective functors preserve all [hProp]s on hom-types *)</span>
+
+<span class="kn">Section</span> <span class="nf">HomtypeProperties</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D).
+
+  <span class="sd">(** For every hom-type in D, there merely exists a hom-type in C to which</span>
+<span class="sd">      it is equivalent. For split essentially surjective functors, this</span>
+<span class="sd">      could be strengthened to an untruncated version. *)</span>
+  <span class="c">(* TODO: better name? *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ff_es_homtype_weq</span> (<span class="nv">FFF</span> : fully_faithful F) (<span class="nv">FES</span> : essentially_surjective F) :
+    (∏ d d' : ob D, ∥ ∑ c c' : ob C,  C⟦c, c'⟧ ≃ D⟦d, d'⟧ ∥).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d d'.
+
+    <span class="sd">(** Obtain the c, c' for which F c ≅ d and F c' ≅ d'. *)</span>
+    <span class="nb">apply</span> (squash_to_prop (FES d)); [<span class="nb">apply</span> isapropishinh|]; <span class="nb">intros</span> c.
+    <span class="nb">apply</span> (squash_to_prop (FES d')); [<span class="nb">apply</span> isapropishinh|]; <span class="nb">intros</span> c'.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">c</span>), (pr1 c').
+
+    <span class="sd">(** Homsets between isomorphic objects are equivalent. *)</span>
+    intermediate_weq (D ⟦ F (pr1 c), F (pr1 c') ⟧).
+    - <span class="nb">apply</span> weq_from_fully_faithful; <span class="bp">assumption</span>.
+    - intermediate_weq (D ⟦ F (pr1 c), d' ⟧).
+      + <span class="nb">eapply</span> make_weq.
+        <span class="nb">apply</span> z_iso_comp_left_isweq.
+        <span class="kn">Unshelve</span>.
+        <span class="bp">exact</span> (pr2 c').
+      + <span class="nb">eapply</span> make_weq.
+        <span class="nb">apply</span> z_iso_comp_right_weq.
+        <span class="kn">Unshelve</span>.
+        <span class="bp">exact</span> (z_iso_inv_from_is_z_iso (pr1 (pr2 c)) (pr2 (pr2 c))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ff_es_homtype_property</span> (<span class="nv">FFF</span> : fully_faithful F)
+        (<span class="nv">FES</span> : essentially_surjective F) (<span class="nv">P</span> : UU → hProp)
+        (<span class="nv">prop</span> : ∏ a b : ob C, P (C⟦a, b⟧)) : (∏ a b : ob D, P (D⟦a, b⟧)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> (squash_to_prop (ff_es_homtype_weq FFF FES a b));
+      [<span class="nb">apply</span> propproperty|]; <span class="nb">intros</span> H.
+    use transportf.
+    - <span class="bp">exact</span> (P (C⟦(pr1 H), (pr1 (pr2 H))⟧)).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> weqtopaths.
+      <span class="bp">exact</span> (pr2 (pr2 H)).
+    - <span class="nb">apply</span> prop.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Corollary: Equivalences preserve [hProp]s on hom-types. *)</span>
+  <span class="kn">Corollary</span> <span class="nf">equivalence_homtype_property</span> (<span class="nv">E</span> : adj_equivalence_of_cats F)
+            (<span class="nv">P</span> : UU → hProp) (<span class="nv">prop</span> : ∏ a b : ob C, P (C⟦a, b⟧)) :
+    (∏ a b : ob D, P (D⟦a, b⟧)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ff_es_homtype_property.
+    - <span class="nb">apply</span> fully_faithful_from_equivalence; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> functor_from_equivalence_is_essentially_surjective; <span class="bp">assumption</span>.
+    - <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Corollary: Fully faithful essentially surjective functors preserve the</span>
+<span class="sd">      property of having hom-sets. *)</span>
+  <span class="kn">Corollary</span> <span class="nf">ff_es_preserves_homsets</span> (<span class="nv">FFF</span> : fully_faithful F)
+            (<span class="nv">FES</span> : essentially_surjective F) (<span class="nv">hsC</span> : has_homsets C) : has_homsets D.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (ff_es_homtype_property FFF FES
+              (<span class="k">λ</span> <span class="nv">t</span>, make_hProp _ (isapropisaset t)) _).
+    <span class="nb">apply</span> hsC.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Other applications: ff/es functors preserve univalence, being a groupoid,</span>
+<span class="sd">      merely having any type of (co)limits, etc. *)</span>
+
+<span class="kn">End</span> <span class="nf">HomtypeProperties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Equivalences/FullyFaithful.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

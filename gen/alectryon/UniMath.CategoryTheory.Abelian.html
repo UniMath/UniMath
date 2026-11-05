@@ -1,0 +1,1529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Abelian.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Abelian categories *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of Abelian categories</span>
+<span class="sd">- isMonic f -&gt; isEpi f -&gt; is_z_isomorphism f</span>
+<span class="sd">- Pushouts of monics and pullbacks of epis</span>
+<span class="sd"> - Pushouts of monics</span>
+<span class="sd"> - Pullbacks of epis</span>
+<span class="sd">- Equalizers and Coequalizers</span>
+<span class="sd"> - Equalizers</span>
+<span class="sd"> - Coequalizers</span>
+<span class="sd">- Pullbacks and Pushouts</span>
+<span class="sd">- Results on Monics and Epis</span>
+<span class="sd"> - Monic implies Zero kernel</span>
+<span class="sd"> - Epi implies Zero cokernel</span>
+<span class="sd"> - Zero kernel implies Monic</span>
+<span class="sd"> - Zero cokernel implies Epi</span>
+<span class="sd">- Factorization of morphisms</span>
+<span class="sd"> - CoIm to Im factorization</span>
+<span class="sd"> - Epi ;; Monic factorization</span>
+<span class="sd">- Monic is kernel of any cokernel of it, Epi is cokernel of any kernel of it</span>
+<span class="sd">- A Abelian -&gt; A^op Abelian</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of Abelian categories</span>
+<span class="sd">   Abelian category is a [precategory] which has</span>
+<span class="sd">   - A zero object</span>
+<span class="sd">   - Binary products and binary coproducts</span>
+<span class="sd">   - Kernels and cokernels</span>
+<span class="sd">   - Every monic is kernel of its cokernel and every epi is cokernel of its kernel</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">def_abelian</span>.
+
+  <span class="sd">(** ** Data1</span>
+<span class="sd">     - Zero</span>
+<span class="sd">     - Binary direct products</span>
+<span class="sd">     - Binary direct coproducts</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Data1</span> (<span class="nv">C</span> : category) : UU := Zero C × (BinProducts C) × (BinCoproducts C).
+
+  <span class="kn">Definition</span> <span class="nf">make_Data1</span> {<span class="nv">C</span> : category} (<span class="nv">H1</span> : Zero C) (<span class="nv">H2</span> : BinProducts C) (<span class="nv">H3</span> : BinCoproducts C) :
+    Data1 C := (H1,,(H2,,H3)).
+
+  <span class="kn">Definition</span> <span class="nf">to_Zero</span> {<span class="nv">C</span> : category} (<span class="nv">D</span> : Data1 C) : Zero C := dirprod_pr1 D.
+
+  <span class="kn">Definition</span> <span class="nf">to_BinProducts</span> {<span class="nv">C</span> : category} (<span class="nv">D</span> : Data1 C) : BinProducts C :=
+    dirprod_pr1 (dirprod_pr2 D).
+
+  <span class="kn">Definition</span> <span class="nf">to_BinCoproducts</span> {<span class="nv">C</span> : category} (<span class="nv">D</span> : Data1 C) : BinCoproducts C :=
+    dirprod_pr2 (dirprod_pr2 D).
+
+  <span class="sd">(** ** Data2</span>
+<span class="sd">     - Kernels</span>
+<span class="sd">     - Cokernels</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Data2</span> (<span class="nv">C</span> : category) (<span class="nv">D1</span> : Data1 C) : UU :=
+    (Kernels (to_Zero D1)) × (Cokernels (to_Zero D1)).
+
+  <span class="kn">Definition</span> <span class="nf">make_Data2</span> {<span class="nv">C</span> : category} (<span class="nv">D1</span> : Data1 C) (<span class="nv">H1</span> : Kernels (to_Zero D1))
+             (<span class="nv">H2</span> : Cokernels (to_Zero D1)) : Data2 C D1 := make_dirprod H1 H2.
+
+  <span class="kn">Definition</span> <span class="nf">to_Kernels</span> {<span class="nv">C</span> : category} {<span class="nv">D1</span> : Data1 C} (<span class="nv">D2</span> : Data2 C D1) :
+    Kernels (to_Zero D1) := dirprod_pr1 D2.
+
+  <span class="kn">Definition</span> <span class="nf">to_Cokernels</span> {<span class="nv">C</span> : category} {<span class="nv">D1</span> : Data1 C} (<span class="nv">D2</span> : Data2 C D1) :
+    Cokernels (to_Zero D1) := dirprod_pr2 D2.
+
+  <span class="sd">(** ** Every monic is kernel of its cokernel *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">MonicsAreKernels</span> (<span class="nv">C</span> : category) (<span class="nv">D1</span> : Data1 C) (<span class="nv">D2</span> : Data2 C D1) : UU :=
+    ∏ (x y : C) (M : Monic C x y),
+    isKernel (pr1 D1) M (CokernelArrow (to_Cokernels D2 x y M))
+             (CokernelCompZero (to_Zero D1) (to_Cokernels D2 x y M)).
+
+  <span class="kn">Definition</span> <span class="nf">make_MonicsAreKernels</span> {<span class="nv">C</span> : category} (<span class="nv">D1</span> : Data1 C) (<span class="nv">D2</span> : Data2 C D1)
+             (<span class="nv">H</span> : ∏ (x y : C) (M : Monic C x y),
+                  isKernel (pr1 D1) M (CokernelArrow (to_Cokernels D2 x y M))
+                           (CokernelCompZero (to_Zero D1) (to_Cokernels D2 x y M))) :
+    MonicsAreKernels C D1 D2 := H.
+
+  <span class="sd">(** ** Every epi is a cokernel of its kernel *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">EpisAreCokernels</span> (<span class="nv">C</span> : category) (<span class="nv">D1</span> : Data1 C) (<span class="nv">D2</span> : Data2 C D1) : UU :=
+    ∏ (x y : C) (E : Epi C x y),
+    isCokernel (pr1 D1) (KernelArrow (to_Kernels D2 x y E)) E
+               (KernelCompZero (to_Zero D1) (to_Kernels D2 x y E)).
+
+  <span class="kn">Definition</span> <span class="nf">make_EpisAreCokernels</span> {<span class="nv">C</span> : category} (<span class="nv">D1</span> : Data1 C) (<span class="nv">D2</span> : Data2 C D1)
+             (<span class="nv">H</span> : ∏ (x y : C) (E : Epi C x y),
+                  isCokernel (pr1 D1) (KernelArrow (to_Kernels D2 x y E)) E
+                             (KernelCompZero (to_Zero D1) (to_Kernels D2 x y E))) :
+    EpisAreCokernels C D1 D2 := H.
+
+  <span class="sd">(** ** AbelianData</span>
+<span class="sd">     - Data2</span>
+<span class="sd">     - MonicsAreKernels</span>
+<span class="sd">     - EpisAreCokernels</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">AbelianData</span> (<span class="nv">C</span> : category) (<span class="nv">D1</span> : Data1 C) : UU :=
+    ∑ D2 : Data2 C D1, (MonicsAreKernels C D1 D2) × (EpisAreCokernels C D1 D2).
+
+  <span class="kn">Definition</span> <span class="nf">make_AbelianData</span> {<span class="nv">C</span> : category} {<span class="nv">D1</span> : Data1 C} (<span class="nv">D2</span> : Data2 C D1)
+             (<span class="nv">H1</span> : MonicsAreKernels C D1 D2) (<span class="nv">H2</span> : EpisAreCokernels C D1 D2) :
+    AbelianData C D1 := tpair _ D2 (make_dirprod H1 H2).
+
+  <span class="sd">(** ** Abelian categories *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">AbelianPreCat</span> : UU := ∑ A : (∑ C : category, Data1 C), AbelianData (pr1 A) (pr2 A).
+
+  <span class="kn">Definition</span> <span class="nf">precategory_of_AbelianPreCat</span> (<span class="nv">A</span> : AbelianPreCat) : category := pr1 (pr1 A).
+  <span class="kn">Coercion</span> <span class="nf">precategory_of_AbelianPreCat</span> : AbelianPreCat &gt;-&gt; category.
+
+  <span class="kn">Definition</span> <span class="nf">make_Abelian</span> (<span class="nv">C</span> : category) (<span class="nv">AD1</span> : Data1 C) (<span class="nv">AD</span> : AbelianData C AD1) :
+    AbelianPreCat := tpair _ (tpair _ C AD1) AD.
+
+  <span class="kn">Definition</span> <span class="nf">to_Data1</span> (<span class="nv">A</span> : AbelianPreCat) : Data1 A := pr2 (pr1 A).
+  <span class="kn">Coercion</span> <span class="nf">to_Data1</span> : AbelianPreCat &gt;-&gt; Data1.
+
+  <span class="kn">Definition</span> <span class="nf">to_Data2</span> (<span class="nv">A</span> : AbelianPreCat) : Data2 A (to_Data1 A) := pr1 (pr2 A).
+  <span class="kn">Coercion</span> <span class="nf">to_Data2</span> : AbelianPreCat &gt;-&gt; Data2.
+
+  <span class="kn">Definition</span> <span class="nf">to_MonicsAreKernels</span> (<span class="nv">A</span> : AbelianPreCat) :
+    MonicsAreKernels A (to_Data1 A) (to_Data2 A) := dirprod_pr1 (pr2 (pr2 A)).
+
+  <span class="kn">Definition</span> <span class="nf">to_EpisAreCokernels</span> (<span class="nv">A</span> : AbelianPreCat) :
+    EpisAreCokernels A (to_Data1 A) (to_Data2 A) := dirprod_pr2 (pr2 (pr2 A)).
+
+  <span class="kn">Definition</span> <span class="nf">MonicToKernel</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">M</span> : Monic A x y) :
+    Kernel (to_Zero A) (CokernelArrow (to_Cokernels A x y M)) :=
+    make_Kernel (to_Zero A) _ _ _ (to_MonicsAreKernels A x y M).
+
+  <span class="kn">Definition</span> <span class="nf">EpiToCokernel</span> {<span class="nv">A</span> : AbelianPreCat} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">E</span> : Epi A x y) :
+    Cokernel (to_Zero A) (KernelArrow (to_Kernels A x y E)) :=
+    make_Cokernel (to_Zero A) _ _ _ (to_EpisAreCokernels A x y E).
+
+<span class="kn">End</span> <span class="nf">def_abelian</span>.
+<span class="kn">Arguments</span> to_Zero [C].
+
+<span class="kn">Declare Scope</span> abelian_precat_scope.
+<span class="kn">Bind Scope</span> abelian_precat_scope <span class="k">with</span> precategory.
+<span class="kn">Declare Scope</span> abelian_precat.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := Zero : abelian_precat.
+<span class="kn">Delimit Scope</span> abelian_precat_scope <span class="k">with</span> precategory.
+
+<span class="sd">(** * isMonic f -&gt; isEpi f -&gt; is_z_isomorphism f</span>
+<span class="sd">  In abelian categories morphisms which are both monic and epi are isomorphisms [monic_epi_is_iso].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_monic_epi_iso</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets A := homset_property A.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monic_epi_is_iso_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">iM</span> : isMonic f) (<span class="nv">iE</span> : isEpi f) :
+    identity y · (CokernelArrow (to_Cokernels A x y (make_Monic _ _ iM))) =
+    ZeroArrow (to_Zero A) y (to_Cokernels A x y (make_Monic _ _ iM)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> iE.
+    <span class="nb">set</span> (p0 := KernelCompZero _ (MonicToKernel (make_Monic _ _ iM))).
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ f) <span class="k">in</span> p0.
+    <span class="bp">exact</span> p0.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monic_epi_is_iso_inverses</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">iM</span> : isMonic f) (<span class="nv">iE</span> : isEpi f) :
+    is_inverse_in_precat
+      f (KernelIn (to_Zero A) (MonicToKernel (make_Monic A f iM)) y (identity y)
+                  (monic_epi_is_iso_eq iM iE)).
+  <span class="kn">Proof</span>.
+    use make_is_inverse_in_precat.
+    - <span class="nb">apply</span> iM. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> (KernelCommutes (to_Zero A) (MonicToKernel (make_Monic A f iM))).
+      <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (KernelCommutes (to_Zero A) (MonicToKernel (make_Monic A f iM)) _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monic_epi_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f</span> : x --&gt; y} : isMonic f -&gt; isEpi f -&gt; is_z_isomorphism f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> iM iE.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (KernelIn (to_Zero A) (MonicToKernel (make_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - <span class="bp">exact</span> (monic_epi_is_iso_inverses iM iE).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monic_epi_z_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f</span> : x --&gt; y} : isMonic f -&gt; isEpi f -&gt; z_iso x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> iM iE.
+    use make_z_iso.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> (KernelIn (to_Zero A) (MonicToKernel (make_Monic _ _ iM)) y (identity y)
+                      (monic_epi_is_iso_eq iM iE)).
+    - <span class="bp">exact</span> (monic_epi_is_iso_inverses iM iE).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_monic_epi_iso</span>.
+
+
+<span class="sd">(** * Pullbacks of monics and pushouts of epis</span>
+<span class="sd">  In the following section we prove that an abelian category has pullbacks of monics and pushouts of</span>
+<span class="sd">  epis.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_monic_pullbacks</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets A := homset_property A.
+
+  <span class="sd">(** ** Pullbacks of monics *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">monics_Pullback_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">M1</span> : Monic A x z) (<span class="nv">M2</span> : Monic A y z)
+             (<span class="nv">BinProd</span> : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (<span class="nv">ker</span> : Kernel (to_Zero A)
+                           (BinProductArrow A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                                            (CokernelArrow (to_Cokernels A y z M2)))) :
+    KernelArrow ker · (CokernelArrow (to_Cokernels A x z M1)) = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := BinProductPr1Commutes
+                  A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
+                  (CokernelArrow (to_Cokernels A y z M2))).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, KernelArrow ker · h)) <span class="k">in</span> tmp.
+    <span class="nb">apply</span> (pathscomp0 (!tmp)). <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (KernelCompZero (to_Zero A) ker).
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monics_Pullback_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">M1</span> : Monic A x z) (<span class="nv">M2</span> : Monic A y z)
+             (<span class="nv">BinProd</span> : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (<span class="nv">ker</span> : Kernel (to_Zero A) (BinProductArrow
+                                      A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                                      (CokernelArrow (to_Cokernels A y z M2)))) :
+    KernelArrow ker · (CokernelArrow (to_Cokernels A y z M2)) = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := BinProductPr2Commutes
+                  A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
+                  (CokernelArrow (to_Cokernels A y z M2))).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, KernelArrow ker · h)) <span class="k">in</span> tmp.
+    <span class="nb">apply</span> (pathscomp0 (!tmp)). <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (KernelCompZero (to_Zero A) ker).
+    <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monics_Pullback_eq3</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">M1</span> : Monic A x z) (<span class="nv">M2</span> : Monic A y z)
+        (<span class="nv">BinProd</span> : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+        (<span class="nv">ker</span> : Kernel (to_Zero A)
+                      (BinProductArrow
+                         A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                         (CokernelArrow (to_Cokernels A y z M2)))) :
+    KernelIn (to_Zero A) (MonicToKernel M1) ker (KernelArrow ker)
+             (monics_Pullback_eq1 M1 M2 BinProd ker) · M1 =
+    KernelIn (to_Zero A) (MonicToKernel M2) ker (KernelArrow ker)
+             (monics_Pullback_eq2 M1 M2 BinProd ker) · M2.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (KernelCommutes (to_Zero A) (MonicToKernel M1) _ (KernelArrow ker)).
+    <span class="nb">rewrite</span> (KernelCommutes (to_Zero A) (MonicToKernel M2) _ (KernelArrow ker)).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monics_Pullback_isPullback</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">M1</span> : Monic A x z) (<span class="nv">M2</span> : Monic A y z)
+             (<span class="nv">BinProd</span> : BinProduct A (to_Cokernels A x z M1) (to_Cokernels A y z M2))
+             (<span class="nv">ker</span> : Kernel (to_Zero A) (BinProductArrow
+                                          A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                                          (CokernelArrow (to_Cokernels A y z M2)))) :
+    @isPullback _ _ _ _ _ M1 M2 (KernelIn (to_Zero A) (MonicToKernel M1) ker (KernelArrow ker)
+                               (monics_Pullback_eq1 M1 M2 BinProd ker))
+               (KernelIn (to_Zero A) (MonicToKernel M2) ker (KernelArrow ker)
+                         (monics_Pullback_eq2 M1 M2 BinProd ker))
+               (monics_Pullback_eq3 M1 M2 BinProd ker).
+  <span class="kn">Proof</span>.
+    <span class="c">(* variables *)</span>
+    <span class="nb">set</span> (ker1 := MonicToKernel M1).
+    <span class="nb">set</span> (ker2 := MonicToKernel M2).
+    <span class="nb">set</span> (ar := BinProductArrow A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                               (CokernelArrow (to_Cokernels A y z M2))).
+    <span class="nb">assert</span> (com1 : KernelIn (to_Zero A) ker1 ker (KernelArrow ker)
+                            (monics_Pullback_eq1 M1 M2 BinProd ker) · M1 = KernelArrow ker).
+    {
+      <span class="nb">apply</span> (KernelCommutes (to_Zero A) ker1 _ (KernelArrow ker)).
+    }
+    <span class="nb">assert</span> (com2 : KernelIn (to_Zero A) ker2 ker (KernelArrow ker)
+                            (monics_Pullback_eq2 M1 M2 BinProd ker) · M2 = KernelArrow ker).
+    {
+      <span class="nb">apply</span> (KernelCommutes (to_Zero A) ker2 _ (KernelArrow ker)).
+    }
+    <span class="c">(* isPullback *)</span>
+    use make_isPullback.
+    <span class="nb">intros</span> e h k H.
+    <span class="c">(* First we show that h · M1 · ar = ZeroArrow by uniqueness of the morphism to product. *)</span>
+    <span class="nb">assert</span> (e1 : h · (KernelArrow ker1) · (CokernelArrow (to_Cokernels A x z M1)) =
+                 ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">set</span> (ee1 := KernelCompZero (to_Zero A) ker1). <span class="nb">cbn</span> <span class="k">in</span> ee1. <span class="nb">cbn</span>. <span class="nb">rewrite</span> ee1.
+      <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">assert</span> (e2 : k · (KernelArrow ker2) · (CokernelArrow (to_Cokernels A y z M2)) =
+                 ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">set</span> (ee2 := KernelCompZero (to_Zero A) ker2). <span class="nb">cbn</span> <span class="k">in</span> ee2. <span class="nb">cbn</span>. <span class="nb">rewrite</span> ee2.
+      <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> e1, e2.
+    <span class="nb">assert</span> (e'1 : h · M1 · (CokernelArrow (to_Cokernels A y z M2)) = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> H. <span class="nb">apply</span> e2.
+    }
+    <span class="nb">assert</span> (e''1 : h · M1 · ar = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> (BinProductArrowEta A _ _ BinProd e (h · M1 · ar)).
+      use BinProductArrowZero.
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (tmp1 := BinProductPr1Commutes
+                       A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
+                       (CokernelArrow (to_Cokernels A y z M2))).
+        <span class="nb">fold</span> ar <span class="k">in</span> tmp1. <span class="nb">rewrite</span> tmp1. <span class="nb">apply</span> e1.
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (tmp1 := BinProductPr2Commutes
+                       A _ _ BinProd _ (CokernelArrow (to_Cokernels A x z M1))
+                       (CokernelArrow (to_Cokernels A y z M2))).
+        <span class="nb">fold</span> ar <span class="k">in</span> tmp1. <span class="nb">rewrite</span> tmp1. <span class="nb">apply</span> e'1.
+    }
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - use (KernelIn (to_Zero A) ker e (h · M1)). <span class="nb">apply</span> e''1.
+    <span class="c">(* commutativity *)</span>
+    - <span class="nb">split</span>.
+      + use (KernelInsEq (to_Zero A) ker1).  <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com'1 := maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com1).
+        <span class="nb">cbn</span> <span class="k">in</span> com'1. use (pathscomp0 com'1). use KernelCommutes.
+      + use (KernelInsEq (to_Zero A) ker2). <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com'2 := maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, KernelIn (to_Zero A) ker e (h · M1) e''1 · f) com2).
+        <span class="nb">cbn</span> <span class="k">in</span> com'2. use (pathscomp0 com'2). <span class="nb">rewrite</span> &lt;- H. use KernelCommutes.
+    <span class="c">(* Equality of equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> hs.
+      + <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 t. <span class="nb">cbn</span> <span class="k">in</span> t. <span class="nb">induction</span> t <span class="k">as</span> [t p].
+      <span class="nb">apply</span> (KernelArrowisMonic (to_Zero A) ker).
+      <span class="nb">rewrite</span> (KernelCommutes (to_Zero A) ker).
+      <span class="nb">rewrite</span> &lt;- (KernelCommutes (to_Zero A) ker1 ker _ (monics_Pullback_eq1 M1 M2 BinProd ker)).
+      <span class="nb">rewrite</span> assoc. use (pathscomp0 (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, f · KernelArrow ker1) t)).
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Construction of the Pullback of monics. *)</span>
+  <span class="kn">Definition</span> <span class="nf">monics_Pullback</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">M1</span> : Monic A x z) (<span class="nv">M2</span> : Monic A y z) : Pullback M1 M2.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (ker1 := MonicToKernel M1).
+    <span class="nb">set</span> (ker2 := MonicToKernel M2).
+    <span class="nb">set</span> (BinProd := to_BinProducts A (to_Cokernels A x z M1) (to_Cokernels A y z M2)).
+    <span class="nb">set</span> (ar := BinProductArrow A BinProd (CokernelArrow (to_Cokernels A x z M1))
+                               (CokernelArrow (to_Cokernels A y z M2))).
+    <span class="nb">set</span> (ker := to_Kernels A _ _ ar).
+    use (@make_Pullback _ _ _ _ M1 M2 ker
+           (KernelIn (to_Zero A) ker1 ker (KernelArrow ker) (monics_Pullback_eq1 M1 M2 BinProd ker))
+           (KernelIn (to_Zero A) ker2 ker (KernelArrow ker) (monics_Pullback_eq2 M1 M2 BinProd ker))
+           (monics_Pullback_eq3 M1 M2 BinProd ker) (monics_Pullback_isPullback M1 M2 BinProd ker)).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Pushouts of epis *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">epis_Pushout_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E1</span> : Epi A x y) (<span class="nv">E2</span> : Epi A x z)
+             (<span class="nv">BinCoprod</span> : BinCoproduct
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
+             (<span class="nv">coker</span> : Cokernel (to_Zero A) (BinCoproductArrow
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (KernelArrow (to_Kernels A x z E2))))  :
+    (KernelArrow (to_Kernels A x y E1)) · CokernelArrow coker =
+    ZeroArrow (to_Zero A) (to_Kernels A x y E1) coker.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := BinCoproductIn1Commutes
+                  A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
+                  (KernelArrow (to_Kernels A x z E2))).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · CokernelArrow coker)) <span class="k">in</span> tmp.
+    <span class="nb">apply</span> (pathscomp0 (!tmp)).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (CokernelCompZero (to_Zero A) coker).
+    <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">epis_Pushout_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E1</span> : Epi A x y) (<span class="nv">E2</span> : Epi A x z)
+             (<span class="nv">BinCoprod</span> : BinCoproduct
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
+             (<span class="nv">coker</span> : Cokernel (to_Zero A) (BinCoproductArrow
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (KernelArrow (to_Kernels A x z E2)))) :
+    (KernelArrow (to_Kernels A x z E2)) · CokernelArrow coker =
+    ZeroArrow (to_Zero A) (to_Kernels A x z E2) coker.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := BinCoproductIn2Commutes
+                  A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
+                  (KernelArrow (to_Kernels A x z E2))).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · CokernelArrow coker)) <span class="k">in</span> tmp.
+    <span class="nb">apply</span> (pathscomp0 (!tmp)).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (CokernelCompZero (to_Zero A) coker).
+    <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">epis_Pushout_eq3</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E1</span> : Epi A x y) (<span class="nv">E2</span> : Epi A x z)
+             (<span class="nv">BinCoprod</span> : BinCoproduct
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
+             (<span class="nv">coker</span> : Cokernel (to_Zero A) (BinCoproductArrow
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (KernelArrow (to_Kernels A x z E2)))) :
+    E1 · (CokernelOut (to_Zero A) (EpiToCokernel E1) coker (CokernelArrow coker)
+                       (epis_Pushout_eq1 E1 E2 BinCoprod coker)) =
+    E2 · (CokernelOut (to_Zero A) (EpiToCokernel E2) coker (CokernelArrow coker)
+                       (epis_Pushout_eq2 E1 E2 BinCoprod coker)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (CokernelCommutes (to_Zero A) (EpiToCokernel E1) _ (CokernelArrow coker)).
+    <span class="nb">rewrite</span> (CokernelCommutes (to_Zero A) (EpiToCokernel E2) _ (CokernelArrow coker)).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">epis_Pushout_isPushout</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E1</span> : Epi A x y) (<span class="nv">E2</span> : Epi A x z)
+             (<span class="nv">BinCoprod</span> : BinCoproduct
+                            (*A*) (to_Kernels A x y E1) (to_Kernels A x z E2))
+             (<span class="nv">coker</span> : Cokernel (to_Zero A) (BinCoproductArrow
+                                          (*A*) BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                          (KernelArrow (to_Kernels A x z E2)))) :
+    isPushout E1 E2 (CokernelOut (to_Zero A) (EpiToCokernel E1) coker (CokernelArrow coker)
+                                 (epis_Pushout_eq1 E1 E2 BinCoprod coker))
+              (CokernelOut (to_Zero A) (EpiToCokernel E2) coker (CokernelArrow coker)
+                           (epis_Pushout_eq2 E1 E2 BinCoprod coker))
+              (epis_Pushout_eq3 E1 E2 BinCoprod coker).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (coker1 := EpiToCokernel E1).
+    <span class="nb">set</span> (coker2 := EpiToCokernel E2).
+    <span class="nb">set</span> (ar := BinCoproductArrow
+                 <span class="c">(*A*)</span> BinCoprod (KernelArrow (to_Kernels A x y E1))
+                 (KernelArrow (to_Kernels A x z E2))).
+    <span class="nb">assert</span> (com1 : E1 · (CokernelOut (to_Zero A) coker1 coker (CokernelArrow coker)
+                                      (epis_Pushout_eq1 E1 E2 BinCoprod coker)) =
+                   CokernelArrow coker).
+    {
+      <span class="nb">apply</span> (CokernelCommutes (to_Zero A) coker1 _ (CokernelArrow coker)).
+    }
+    <span class="nb">assert</span> (com2 : E2 · (CokernelOut (to_Zero A) coker2 coker (CokernelArrow coker)
+                                      (epis_Pushout_eq2 E1 E2 BinCoprod coker)) =
+                   CokernelArrow coker).
+    {
+      <span class="nb">apply</span> (CokernelCommutes (to_Zero A) coker2 _ (CokernelArrow coker)).
+    }
+    <span class="c">(* isPushout *)</span>
+    use make_isPushout.
+    <span class="nb">intros</span> e h k H.
+    <span class="c">(* First we show that h · M1 · ar = ZeroArrow by uniqueness of the morphism to product. *)</span>
+    <span class="nb">assert</span> (e1 : (KernelArrow (to_Kernels A x y E1)) · (CokernelArrow coker1) · h =
+                 ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">set</span> (ee1 := CokernelCompZero (to_Zero A) coker1). <span class="nb">cbn</span> <span class="k">in</span> ee1. <span class="nb">cbn</span>. <span class="nb">rewrite</span> ee1.
+      <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    <span class="nb">assert</span> (e2 : (KernelArrow (to_Kernels A x z E2)) · (CokernelArrow coker2) · k =
+                 ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">set</span> (ee2 := CokernelCompZero (to_Zero A) coker2). <span class="nb">cbn</span> <span class="k">in</span> ee2. <span class="nb">cbn</span>. <span class="nb">rewrite</span> ee2.
+      <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> e1, e2.
+    <span class="nb">assert</span> (e'1 : (KernelArrow (to_Kernels A x z E2)) · E1 · h = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> e2.
+    }
+    <span class="nb">assert</span> (e'2 : (KernelArrow (to_Kernels A x y E1)) · E2 · k = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- H. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> e1.
+    }
+    <span class="nb">assert</span> (e''1 : ar · (E1 · h) = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (BinCoproductArrowEta A _ _ BinCoprod e (ar · E1 · h)).
+      use BinCoproductArrowZero.
+      - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (tmp1 := BinCoproductIn1Commutes
+                       A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
+                       (KernelArrow (to_Kernels A x z E2))).
+        <span class="nb">fold</span> ar <span class="k">in</span> tmp1. <span class="nb">rewrite</span> tmp1. <span class="nb">apply</span> e1.
+      - <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (tmp1 := BinCoproductIn2Commutes
+                       A _ _ BinCoprod _ (KernelArrow (to_Kernels A x y E1))
+                       (KernelArrow (to_Kernels A x z E2))).
+        <span class="nb">fold</span> ar <span class="k">in</span> tmp1. <span class="nb">rewrite</span> tmp1. <span class="nb">apply</span> e'1.
+    }
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - use (CokernelOut (to_Zero A) coker e (E1 · h)). <span class="nb">apply</span> e''1.
+    <span class="c">(* Commutativity *)</span>
+    - <span class="nb">split</span>.
+      + use (CokernelOutsEq (to_Zero A) coker1). <span class="nb">cbn</span>.
+        <span class="nb">set</span> (com'1 := maponpaths
+                        (<span class="k">λ</span> <span class="nv">f</span> : _, f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com1).
+        <span class="nb">cbn</span> <span class="k">in</span> com'1. <span class="nb">rewrite</span> assoc. use (pathscomp0 com'1).
+        use CokernelCommutes.
+      + use (CokernelOutsEq (to_Zero A) coker2). <span class="nb">cbn</span>.
+        <span class="nb">set</span> (com'2 := maponpaths
+                        (<span class="k">λ</span> <span class="nv">f</span> : _, f · CokernelOut (to_Zero A) coker e (E1 · h) e''1) com2).
+        <span class="nb">cbn</span> <span class="k">in</span> com'2. <span class="nb">rewrite</span> assoc. use (pathscomp0 com'2). <span class="nb">rewrite</span> &lt;- H.
+        use CokernelCommutes.
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> hs.
+      + <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 t. <span class="nb">cbn</span> <span class="k">in</span> t. <span class="nb">induction</span> t <span class="k">as</span> [t p].
+      <span class="nb">apply</span> (CokernelArrowisEpi (to_Zero A) coker).
+      <span class="nb">rewrite</span> (CokernelCommutes (to_Zero A) coker).
+      <span class="nb">rewrite</span> &lt;- (CokernelCommutes
+                   (to_Zero A) coker1 coker _ (epis_Pushout_eq1 E1 E2 BinCoprod coker)).
+      <span class="nb">rewrite</span> &lt;- assoc. use (pathscomp0 (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, CokernelArrow coker1 · f) t)).
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">epis_Pushout</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>: A} (<span class="nv">E1</span> : Epi A x y) (<span class="nv">E2</span> : Epi A x z) : Pushout E1 E2.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (coker1 := EpiToCokernel E1).
+    <span class="nb">set</span> (coker2 := EpiToCokernel E2).
+    <span class="nb">set</span> (BinCoprod := to_BinCoproducts A (to_Kernels A x y E1) (to_Kernels A x z E2)).
+    <span class="nb">set</span> (ar := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (KernelArrow (to_Kernels A x y E1))
+                                 (KernelArrow (to_Kernels A x z E2))).
+    <span class="nb">set</span> (coker := to_Cokernels A _ _ ar).
+    use (make_Pushout E1 E2 coker
+                    (CokernelOut (to_Zero A) coker1 coker (CokernelArrow coker)
+                                 (epis_Pushout_eq1 E1 E2 BinCoprod coker))
+                    (CokernelOut (to_Zero A) coker2 coker (CokernelArrow coker)
+                                 (epis_Pushout_eq2 E1 E2 BinCoprod coker))
+                    (epis_Pushout_eq3 E1 E2 BinCoprod coker)
+                    (epis_Pushout_isPushout E1 E2 BinCoprod coker)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_monic_pullbacks</span>.
+
+<span class="sd">(** * Equalizers and Coequalizers</span>
+<span class="sd">  In the following section we show that equalizers and coequalizers exist in abelian categories.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_equalizers</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets A := homset_property A.
+
+  <span class="sd">(** ** Equalizers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_isMonic</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    isMonic (BinProductArrow A (to_BinProducts A x y) (identity x) f).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinProd := to_BinProducts A x y).
+    <span class="nb">intros</span> z h1 h2 H.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · (BinProductPr1 A BinProd))) <span class="k">in</span> H.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+    <span class="nb">set</span> (com1 := BinProductPr1Commutes A _ _ BinProd x (identity x) f).
+    <span class="nb">rewrite</span> com1 <span class="k">in</span> H.
+    <span class="nb">rewrite</span> (id_right h1) <span class="k">in</span> H. <span class="nb">rewrite</span> (id_right h2) <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_Pullback</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) :
+    Pullback (BinProductArrow A (to_BinProducts A x y) (identity x) f1)
+             (BinProductArrow A (to_BinProducts A x y) (identity x) f2) :=
+    monics_Pullback A (make_Monic A _ (Equalizer_isMonic f1))
+                    (make_Monic A _ (Equalizer_isMonic f2)).
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) :
+    PullbackPr1 (Equalizer_Pullback f1 f2) = PullbackPr2 (Equalizer_Pullback f1 f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinProd := to_BinProducts A x y).
+    <span class="nb">set</span> (ar1 := BinProductArrow A BinProd (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinProductArrow A BinProd (identity x) f2).
+    <span class="nb">set</span> (Pb := Equalizer_Pullback f1 f2).
+    <span class="nb">assert</span> (H1 : ar1 · (BinProductPr1 A BinProd) = identity x) <span class="bp">by</span> <span class="nb">apply</span> BinProductPr1Commutes.
+    <span class="nb">assert</span> (H2 : ar2 · (BinProductPr1 A BinProd) = identity x) <span class="bp">by</span> <span class="nb">apply</span> BinProductPr1Commutes.
+    use (pathscomp0 (! (id_right (PullbackPr1 Pb)))).
+    use (pathscomp0 (! (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, PullbackPr1 Pb · h) H1))).
+    use (pathscomp0 _ ((id_right (PullbackPr2 Pb)))).
+    use (pathscomp0 _ (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, PullbackPr2 Pb · h) H2)).
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> PullbackSqrCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) :
+    PullbackPr1 (Equalizer_Pullback f1 f2) · f1 = PullbackPr1 (Equalizer_Pullback f1 f2) · f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinProd := to_BinProducts A x y).
+    <span class="nb">set</span> (ar1 := BinProductArrow A BinProd (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinProductArrow A BinProd (identity x) f2).
+    <span class="nb">set</span> (H := Equalizer_eq1 f1 f2).
+    <span class="nb">set</span> (Pb := Equalizer_Pullback f1 f2).
+    <span class="nb">assert</span> (H1 : BinProductArrow A BinProd (identity x) f1 · (BinProductPr2 A BinProd) = f1) <span class="bp">by</span>
+        <span class="nb">apply</span> BinProductPr2Commutes.
+    <span class="nb">assert</span> (H2 : BinProductArrow A BinProd (identity x) f2 · (BinProductPr2 A BinProd) = f2) <span class="bp">by</span>
+        <span class="nb">apply</span> BinProductPr2Commutes.
+    <span class="nb">rewrite</span> &lt;- H1. <span class="nb">rewrite</span> &lt;- H2. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition. <span class="nb">unfold</span> BinProd.
+    <span class="nb">set</span> (X := PullbackSqrCommutes (Equalizer_Pullback f1 f2)).
+    <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> X. <span class="nb">apply</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) :
+    isEqualizer f1 f2 (PullbackPr1 (Equalizer_Pullback f1 f2)) (Equalizer_eq2 f1 f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinProd := to_BinProducts A x y).
+    <span class="nb">set</span> (ar1 := BinProductArrow A BinProd (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinProductArrow A BinProd (identity x) f2).
+    <span class="nb">set</span> (H := Equalizer_eq1 f1 f2).
+    use make_isEqualizer.
+    <span class="nb">intros</span> w h HH.
+    <span class="nb">assert</span> (HH' : h · ar1 = BinProductArrow A BinProd h (h · f1)).
+    {
+      <span class="nb">apply</span> (BinProductArrowUnique A _ _ BinProd).
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com1 := BinProductPr1Commutes A _ _ BinProd x (identity x) f1).
+        <span class="nb">fold</span> ar1 <span class="k">in</span> com1. <span class="nb">rewrite</span> com1. <span class="nb">apply</span> id_right.
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com2 := BinProductPr2Commutes A _ _ BinProd x (identity x) f1).
+        <span class="nb">fold</span> ar1 <span class="k">in</span> com2. <span class="nb">rewrite</span> com2. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (HH'' : h · ar2 = BinProductArrow A BinProd h (h · f1)).
+    {
+      <span class="nb">apply</span> (BinProductArrowUnique A _ _ BinProd).
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com1 := BinProductPr1Commutes A _ _ BinProd x (identity x) f2).
+        <span class="nb">fold</span> ar2 <span class="k">in</span> com1. <span class="nb">rewrite</span> com1. <span class="nb">apply</span> id_right.
+      - <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">set</span> (com2 := BinProductPr2Commutes A _ _ BinProd x (identity x) f2).
+        <span class="nb">fold</span> ar2 <span class="k">in</span> com2. <span class="nb">rewrite</span> com2. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> HH.
+    }
+    <span class="nb">assert</span> (HH''' : h · ar1 = h · ar2).
+    {
+      <span class="nb">rewrite</span> HH'. <span class="nb">rewrite</span> HH''. <span class="nb">apply</span> idpath.
+    }
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - <span class="bp">exact</span> (PullbackArrow (Equalizer_Pullback f1 f2) w h h HH''').
+    <span class="c">(* Commutativity *)</span>
+    - <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (Equalizer_Pullback f1 f2) w h h HH''').
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 t. <span class="nb">apply</span> PullbackArrowUnique.
+      + <span class="nb">apply</span> t.
+      + <span class="nb">rewrite</span> &lt;- H. <span class="nb">apply</span> t.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) : Equalizer f1 f2 :=
+    make_Equalizer f1 f2 (PullbackPr1 (Equalizer_Pullback f1 f2)) (Equalizer_eq2 f1 f2)
+                 (isEqualizer f1 f2).
+
+  <span class="kn">Corollary</span> <span class="nf">Equalizers</span> : @Equalizers A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f g.
+    <span class="nb">apply</span> Equalizer.
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Coequalizers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : y --&gt; x) :
+    isEpi (BinCoproductArrow <span class="c">(*A*)</span> (to_BinCoproducts A x y) (identity x) f).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinCoprod := to_BinCoproducts A x y).
+    <span class="nb">intros</span> z h1 h2 H.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, (BinCoproductIn1 <span class="c">(*A*)</span> BinCoprod) · f)) <span class="k">in</span> H.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> H. <span class="nb">rewrite</span> assoc <span class="k">in</span> H.
+    <span class="nb">set</span> (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f).
+    <span class="nb">rewrite</span> com1 <span class="k">in</span> H. <span class="nb">clear</span> com1.
+    <span class="nb">rewrite</span> (id_left h1) <span class="k">in</span> H. <span class="nb">rewrite</span> (id_left h2) <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer_Pushout</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : y --&gt; x) :
+    Pushout (BinCoproductArrow <span class="c">(*A*)</span> (to_BinCoproducts A x y) (identity x) f1)
+            (BinCoproductArrow <span class="c">(*A*)</span> (to_BinCoproducts A x y) (identity x) f2) :=
+    epis_Pushout A (make_Epi A _ (Coequalizer_isEpi f1)) (make_Epi A _ (Coequalizer_isEpi f2)).
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : y --&gt; x) :
+    PushoutIn1 (Coequalizer_Pushout f1 f2) = PushoutIn2 (Coequalizer_Pushout f1 f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinCoprod := to_BinCoproducts A x y).
+    <span class="nb">set</span> (ar1 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f2).
+    <span class="nb">set</span> (Po := Coequalizer_Pushout f1 f2).
+    <span class="nb">assert</span> (H1 : (BinCoproductIn1 <span class="c">(*A*)</span> BinCoprod) · ar1 = identity x) <span class="bp">by</span>
+        <span class="nb">apply</span> BinCoproductIn1Commutes.
+    <span class="nb">assert</span> (H2 : (BinCoproductIn1 <span class="c">(*A*)</span> BinCoprod) · ar2 = identity x) <span class="bp">by</span>
+        <span class="nb">apply</span> BinCoproductIn1Commutes.
+    use (pathscomp0 (!(id_left (PushoutIn1 Po)))).
+    use (pathscomp0 (!(maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · PushoutIn1 Po) H1))).
+    use (pathscomp0 _ ((id_left (PushoutIn2 Po)))).
+    use (pathscomp0 _ (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, h · PushoutIn2 Po) H2)).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> PushoutSqrCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : y --&gt; x) :
+    f1 · PushoutIn1 (Coequalizer_Pushout f1 f2) = f2 · PushoutIn1 (Coequalizer_Pushout f1 f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinCoprod := to_BinCoproducts A x y).
+    <span class="nb">set</span> (ar1 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f2).
+    <span class="nb">set</span> (H := Coequalizer_eq1 f1 f2).
+    <span class="nb">set</span> (Pb := Coequalizer_Pushout f1 f2).
+    <span class="nb">rewrite</span> &lt;- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f1).
+    <span class="nb">rewrite</span> &lt;- (BinCoproductIn2Commutes A _ _ BinCoprod _ (identity x) f2).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">set</span> (X := PushoutSqrCommutes (Coequalizer_Pushout f1 f2)).
+    <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> X. <span class="nb">apply</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : y --&gt; x) :
+    isCoequalizer f1 f2 (PushoutIn1 (Coequalizer_Pushout f1 f2)) (Coequalizer_eq2 f1 f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (BinCoprod := to_BinCoproducts A x y).
+    <span class="nb">set</span> (ar1 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f1).
+    <span class="nb">set</span> (ar2 := BinCoproductArrow <span class="c">(*A*)</span> BinCoprod (identity x) f2).
+    <span class="nb">set</span> (H := Coequalizer_eq1 f1 f2).
+    use make_isCoequalizer.
+    <span class="nb">intros</span> w h HH.
+    <span class="nb">assert</span> (HH' : ar1 · h = BinCoproductArrow <span class="c">(*A*)</span> BinCoprod h (f1 · h)).
+    {
+      use (BinCoproductArrowUnique A _ _ BinCoprod).
+      - <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f1).
+        <span class="nb">fold</span> ar1 <span class="k">in</span> com1. <span class="nb">rewrite</span> com1. <span class="nb">apply</span> id_left.
+      - <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (com2 := BinCoproductIn2Commutes A _ _ BinCoprod x (identity x) f1).
+        <span class="nb">fold</span> ar1 <span class="k">in</span> com2. <span class="nb">rewrite</span> com2. <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (HH'' : ar2 · h = BinCoproductArrow BinCoprod h (f1 · h)).
+    {
+      <span class="nb">apply</span> (BinCoproductArrowUnique A _ _ BinCoprod).
+      - <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (com1 := BinCoproductIn1Commutes A _ _ BinCoprod x (identity x) f2).
+        <span class="nb">fold</span> ar2 <span class="k">in</span> com1. <span class="nb">rewrite</span> com1. <span class="nb">apply</span> id_left.
+      - <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (com2 := BinCoproductIn2Commutes A _ _ BinCoprod x (identity x) f2).
+        <span class="nb">fold</span> ar2 <span class="k">in</span> com2. <span class="nb">rewrite</span> com2. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> HH.
+    }
+    <span class="nb">assert</span> (HH''' : ar1 · h = ar2 · h).
+    {
+      <span class="nb">rewrite</span> HH'. <span class="nb">rewrite</span> HH''. <span class="nb">apply</span> idpath.
+    }
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - <span class="bp">exact</span> (PushoutArrow (Coequalizer_Pushout f1 f2) w h h HH''').
+    <span class="c">(* commutativity *)</span>
+    - <span class="nb">apply</span> (PushoutArrow_PushoutIn1 (Coequalizer_Pushout f1 f2) w h h HH''').
+    <span class="c">(* Equality of equality of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 t. <span class="nb">apply</span> PushoutArrowUnique.
+      + <span class="nb">apply</span> t.
+      + <span class="nb">rewrite</span> &lt;- H. <span class="nb">apply</span> t.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Coequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f1</span> <span class="nv">f2</span> : y --&gt; x) :
+    Coequalizer f1 f2 := make_Coequalizer f1 f2 (PushoutIn1 (Coequalizer_Pushout f1 f2))
+                                        (Coequalizer_eq2 f1 f2) (isCoequalizer f1 f2).
+
+  <span class="kn">Corollary</span> <span class="nf">Coequalizers</span> : @Coequalizers A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f g.
+    <span class="nb">apply</span> Coequalizer.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_equalizers</span>.
+
+
+<span class="sd">(** * Pushouts and pullbacks</span>
+<span class="sd">  Abelian categories have pullbacks and pushouts.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_pushouts</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets A := homset_property A.
+
+  <span class="kn">Definition</span> <span class="nf">Pullbacks</span> : @Pullbacks A.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@Pullbacks_from_Equalizers_BinProducts A).
+    <span class="nb">apply</span> (to_BinProducts A).
+    <span class="nb">apply</span> (Equalizers A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushouts</span> : @Pushouts A.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@Pushouts_from_Coequalizers_BinCoproducts A).
+    <span class="nb">apply</span> (to_BinCoproducts A).
+    <span class="nb">apply</span> (Coequalizers A).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_pushouts</span>.
+
+
+<span class="sd">(** * Monic kernels and Epi cokernels</span>
+<span class="sd">  In this section we prove that kernels of monomorphisms are given by the arrows from zero and</span>
+<span class="sd">  cokernels of epimorphisms are given by the arrows to zero.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_MonicToKernels</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+
+
+  <span class="sd">(** ** KernelArrow of Monic x --&gt; y = (to_Zero A) --&gt; x *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">MonicKernelZero_isKernel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">M</span> : Monic A x y) :
+  isKernel (to_Zero A) (ZeroArrowFrom x) M
+           (ArrowsFromZero A (to_Zero A) y (ZeroArrowFrom x · M) (ZeroArrow (to_Zero A) _ _)).
+  <span class="kn">Proof</span>.
+    use (make_isKernel).
+    <span class="nb">intros</span> w h X. <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ M) <span class="k">in</span> X.
+    <span class="nb">apply</span> (MonicisMonic _ M) <span class="k">in</span> X.
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> X. <span class="nb">apply</span> ZeroArrow_comp_left.
+    <span class="c">(* Equality of equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> (homset_property A).
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 Y. <span class="nb">apply</span> ArrowsToZero.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* A kernel of a monic is the arrow from zero. *)</span>
+  <span class="kn">Definition</span> <span class="nf">MonicKernelZero</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">M</span> : Monic A x y) : Kernel (to_Zero A) M :=
+    make_Kernel (to_Zero A) (ZeroArrowFrom _) M _ (MonicKernelZero_isKernel M).
+
+
+  <span class="sd">(** ** CokernelArrow of Epi x --&gt; y = y --&gt; (to_Zero A) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">EpiCokernelZero_isCokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E</span> : Epi A y z) :
+    isCokernel (to_Zero A) E (ZeroArrowTo z)
+               (ArrowsToZero A (to_Zero A) y (E · ZeroArrowTo z)
+                             (ZeroArrow (to_Zero A) y (to_Zero A))).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    <span class="nb">intros</span> w h X. <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right A (to_Zero A) y z w E) <span class="k">in</span> X.
+    <span class="nb">apply</span> (EpiisEpi _ E) <span class="k">in</span> X.
+    use unique_exists.
+    <span class="c">(* The arrow *)</span>
+    - <span class="bp">exact</span> (ZeroArrow (to_Zero A) _ _).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> X. <span class="nb">apply</span> ZeroArrow_comp_right.
+    <span class="c">(* Equality of equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> (homset_property A).
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y0 Y. <span class="nb">apply</span> ArrowsFromZero.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* A cokernel of an epi is the arrow to zero. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EpiCokernelZero</span> {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">E</span> : Epi A y z) : Cokernel (to_Zero A) E :=
+    make_Cokernel (to_Zero A) E (ZeroArrowTo z) _ (EpiCokernelZero_isCokernel E).
+
+
+  <span class="sd">(** ** KernelArrow = FromZero ⇒ isMonic *)</span>
+
+  <span class="sd">(** The following Definitions is used in the next Definition. *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">KernelZeroMonic_cokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y} (<span class="nv">e</span> : f1 = f2)
+        (<span class="nv">CK</span> : Cokernel (to_Zero A) f1) : Cokernel (to_Zero A) f2.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> CokernelCompZero.
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> (CokernelisCokernel _ CK).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The morphism f is monic if its kernel is zero. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">KernelZeroisMonic</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">H</span> : ZeroArrow (to_Zero A) x y · f = ZeroArrow (to_Zero A) x z )
+        (<span class="nv">isK</span> : isKernel (to_Zero A) (ZeroArrow (to_Zero A) _ _) f H) : isMonic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w u v H'.
+    <span class="nb">set</span> (Coeq := Coequalizer A u v).
+    <span class="nb">set</span> (Coeqar := CoequalizerOut Coeq z f H').
+    <span class="nb">set</span> (Coeqar_epi := CoequalizerArrowEpi Coeq).
+    <span class="nb">set</span> (Coeq_coker := EpiToCokernel Coeqar_epi).
+    <span class="nb">set</span> (ker := @make_Kernel A (to_Zero A) _ _ _ (ZeroArrow (to_Zero A) x y) f H isK).
+    <span class="nb">assert</span> (e0 : CokernelArrow Coeq_coker = CoequalizerArrow Coeq).
+    {
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (e1 : f = (CokernelArrow Coeq_coker) · Coeqar).
+    {
+      <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> e0.
+      <span class="nb">set</span> (XX := CoequalizerCommutes Coeq z f H').
+      <span class="nb">fold</span> Coeqar <span class="k">in</span> XX.
+      <span class="nb">apply</span> XX.
+    }
+    <span class="nb">assert</span> (e2 : (KernelArrow (to_Kernels A _ _ Coeqar_epi)) · f = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> CokernelCompZero.
+      <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    <span class="nb">set</span> (ar := KernelIn (to_Zero A) ker (to_Kernels A _ _ Coeqar_epi)
+                        (KernelArrow (to_Kernels A _ _ Coeqar_epi))).
+    <span class="nb">set</span> (com1 := KernelCommutes (to_Zero A) ker (to_Kernels A _ _ Coeqar_epi)
+                                (KernelArrow (to_Kernels A _ _ Coeqar_epi)) e2).
+    <span class="nb">assert</span> (e3 : KernelArrow ker = ZeroArrow (to_Zero A) _ _ ).
+    {
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (e4 : (KernelArrow (to_Kernels A _ _ Coeqar_epi)) = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- com1. <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">assert</span> (e5 : is_iso (CoequalizerArrow Coeq)).
+    {
+      <span class="nb">set</span> (coker2 := KernelZeroMonic_cokernel e4 Coeq_coker).
+      <span class="nb">apply</span> (is_iso_qinv _ _ (CokernelofZeroArrow_is_iso (to_Zero A) coker2)).
+    }
+    <span class="nb">set</span> (isoar := make_iso (CoequalizerArrow Coeq) e5).
+    <span class="nb">set</span> (coeq_eq := CoequalizerEqAr Coeq).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, f · inv_from_iso isoar)) <span class="k">in</span> coeq_eq.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> coeq_eq. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> coeq_eq.
+    <span class="nb">assert</span>(areq : CoequalizerArrow Coeq = isoar). <span class="nb">apply</span> idpath.
+    <span class="nb">rewrite</span> areq <span class="k">in</span> coeq_eq.
+    <span class="nb">rewrite</span> (iso_inv_after_iso isoar) <span class="k">in</span> coeq_eq.
+    <span class="nb">rewrite</span> &lt;- id_right. <span class="nb">rewrite</span> &lt;- coeq_eq. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">KernelZeroMonic</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : y --&gt; z)
+             (<span class="nv">H</span> : ZeroArrow (to_Zero A) x y · f = ZeroArrow (to_Zero A) x z )
+             (<span class="nv">isK</span> : isKernel (to_Zero A) (ZeroArrow (to_Zero A) _ _) f H) : Monic A y z.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_Monic A f (KernelZeroisMonic f H isK)).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** CokernelArrow = ToZero ⇒ isEpi *)</span>
+
+  <span class="sd">(** The following Definition is used in the next Definition. *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">CokernelZeroEpi_kernel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} {<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y} (<span class="nv">e</span> : f1 = f2)
+        (<span class="nv">K</span> : Kernel (to_Zero A) f1) : Kernel (to_Zero A) f2.
+  <span class="kn">Proof</span>.
+    use make_Kernel.
+    - <span class="bp">exact</span> K.
+    - <span class="bp">exact</span> (KernelArrow K).
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> KernelCompZero.
+    - <span class="nb">induction</span> e. <span class="nb">apply</span> (KernelisKernel (to_Zero A) K).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The morphism f is epic if its cokernel is zero. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CokernelZeroisEpi</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">H</span> : f · ZeroArrow (to_Zero A) y z = ZeroArrow (to_Zero A) x z )
+             (<span class="nv">isCK</span> : isCokernel (to_Zero A) f (ZeroArrow (to_Zero A) _ _) H) : isEpi f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w u v H'.
+    <span class="nb">set</span> (Eq := Equalizer A u v).
+    <span class="nb">set</span> (Eqar := EqualizerIn Eq x f H').
+    <span class="nb">set</span> (Eqar_monic := EqualizerArrowMonic Eq).
+    <span class="nb">set</span> (Eq_ker := MonicToKernel Eqar_monic).
+    <span class="nb">set</span> (coker := @make_Cokernel A (to_Zero A) _ _ _ f (ZeroArrow (to_Zero A) y z) H isCK).
+    <span class="nb">assert</span> (e0 : KernelArrow Eq_ker = EqualizerArrow Eq).
+    {
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (e1 : f = Eqar · (KernelArrow Eq_ker)).
+    {
+      <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> e0.
+      <span class="nb">set</span> (XX := EqualizerCommutes Eq x f H').
+      <span class="nb">fold</span> Eqar <span class="k">in</span> XX.
+      <span class="nb">apply</span> XX.
+    }
+    <span class="nb">assert</span> (e2 : f · (CokernelArrow (to_Cokernels A _ _ Eqar_monic)) = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">set</span> (tmp := maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, Eqar · f) (KernelCompZero (to_Zero A) Eq_ker)).
+      use (pathscomp0 tmp).
+      <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">set</span> (ar := CokernelOut (to_Zero A) coker (to_Cokernels A _ _ Eqar_monic)
+                           (CokernelArrow (to_Cokernels A _ _ Eqar_monic)) e2).
+    <span class="nb">set</span> (com1 := CokernelCommutes (to_Zero A) coker (to_Cokernels A _ _ Eqar_monic)
+                                  (CokernelArrow (to_Cokernels A _ _ Eqar_monic)) e2).
+    <span class="nb">assert</span> (e3 : CokernelArrow coker = ZeroArrow (to_Zero A) _ _ ).
+    {
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">assert</span> (e4 : (CokernelArrow (to_Cokernels A _ _ Eqar_monic)) = ZeroArrow (to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- com1. <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    <span class="nb">assert</span> (e5 : is_iso (EqualizerArrow Eq)).
+    {
+      <span class="nb">set</span> (ker2 := CokernelZeroEpi_kernel e4 Eq_ker).
+      <span class="nb">apply</span> (is_iso_qinv _ _ (KernelofZeroArrow_is_iso (to_Zero A) ker2)).
+    }
+    <span class="nb">set</span> (isoar := make_iso (EqualizerArrow Eq) e5).
+    <span class="nb">set</span> (Eq_eq := EqualizerEqAr Eq).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, inv_from_iso isoar · f)) <span class="k">in</span> Eq_eq.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> Eq_eq. <span class="nb">rewrite</span> assoc <span class="k">in</span> Eq_eq.
+    <span class="nb">assert</span>(areq : EqualizerArrow Eq = isoar). <span class="nb">apply</span> idpath.
+    <span class="nb">rewrite</span> areq <span class="k">in</span> Eq_eq.
+    <span class="nb">rewrite</span> (iso_after_iso_inv isoar) <span class="k">in</span> Eq_eq.
+    <span class="nb">rewrite</span> &lt;- id_left. <span class="nb">rewrite</span> &lt;- Eq_eq. <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelZeroEpi</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">H</span> : f · ZeroArrow (to_Zero A) y z = ZeroArrow (to_Zero A) x z)
+             (<span class="nv">isCK</span> : isCokernel (to_Zero A) f (ZeroArrow (to_Zero A) _ _) H) : Epi A x y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_Epi A f (CokernelZeroisEpi f H isCK)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_MonicToKernels</span>.
+
+
+<span class="sd">(** * Factorization of morphisms</span>
+<span class="sd">  In this section we prove that every morphism factors as Epi · Monic in 2 canonical ways. To do</span>
+<span class="sd">  this we need to prove that the canonical morphism CoIm f --&gt; Im f is an isomorphism.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">abelian_factorization</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+
+  <span class="sd">(** ** Kernels, Cokernels, CoImage, and Image *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Kernel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Kernels.Kernel (to_Zero A) f := to_Kernels A x y f.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Cokernel (to_Zero A) f := to_Cokernels A x y f.
+
+  <span class="kn">Definition</span> <span class="nf">CoImage</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    Cokernels.Cokernel (to_Zero A) (KernelArrow (Kernel f)) :=
+    to_Cokernels A _ _ (KernelArrow (Kernel f)).
+
+  <span class="kn">Definition</span> <span class="nf">Image</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    Kernels.Kernel (to_Zero A) (CokernelArrow (Cokernel f)) :=
+    to_Kernels A _ _ (CokernelArrow (Cokernel f)).
+
+  <span class="sd">(** ** Construction of the morphism CoIm f --&gt; Im f *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">CoIm_ar_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    KernelArrow (Kernel f) · f  = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CoIm_ar</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : A⟦CoImage f, y⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (CokernelOut (to_Zero A) (CoImage f) y f (CoIm_ar_eq f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CoIm_to_Im_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    CokernelArrow (CoImage f) · CoIm_ar f · CokernelArrow (Cokernel f) = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := CokernelCommutes (to_Zero A) (CoImage f) y f (CoIm_ar_eq f)).
+    <span class="nb">fold</span> (CoIm_ar f) <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp.
+    <span class="nb">apply</span> CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CoIm_to_Im_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    CoIm_ar f · CokernelArrow (Cokernel f) = ZeroArrow (to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isE := CokernelArrowisEpi (to_Zero A) (CoImage f)).
+    <span class="nb">set</span> (e1 := CoIm_to_Im_eq1 f).
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> e1.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right A (to_Zero A) _ _ _ (CokernelArrow (CoImage f))) <span class="k">in</span> e1.
+    <span class="nb">apply</span> isE <span class="k">in</span> e1. <span class="bp">exact</span> e1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CoIm_to_Im</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    A⟦CoImage f, Image f⟧ :=
+    KernelIn (to_Zero A) (Image f) (CoImage f) (CoIm_ar f) (CoIm_to_Im_eq2 f).
+
+  <span class="sd">(** ** f = (x --&gt; CoIm f) · (CoIm f --&gt; Im f) · (Im f --&gt; y) *)</span>
+  <span class="kn">Definition</span> <span class="nf">CoIm_to_Im_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    f = (CokernelArrow (CoImage f)) · (CoIm_to_Im f) · (KernelArrow (Image f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> CoIm_to_Im.
+    <span class="c">(* Commutativity of cokernel *)</span>
+    <span class="nb">set</span> (com0 := CokernelCommutes (to_Zero A) (CoImage f) y f (CoIm_ar_eq f)).
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> com0. use (pathscomp0 com0).
+    <span class="c">(* Cancel precomposition *)</span>
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="c">(* Commutativity of kernel *)</span>
+    <span class="nb">set</span> (com1 := KernelCommutes (to_Zero A) (Image f) (CoImage f) (CoIm_ar f) (CoIm_to_Im_eq2 f)).
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> com1. use (pathscomp0 com1).
+    <span class="c">(* idpath *)</span>
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** CoIm f --&gt; Im f is an isomorphism. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CoIm_to_Im_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : is_z_isomorphism (CoIm_to_Im f).
+  <span class="kn">Proof</span>.
+    <span class="c">(* It suffices to show that this morphism is monic and epi. *)</span>
+    use monic_epi_is_iso.
+    <span class="c">(* isMonic *)</span>
+    - use (isMonic_postcomp A _ (KernelArrow (Image f))).
+      <span class="nb">intros</span> z g1 g2 H.
+      <span class="nb">set</span> (q := Coequalizer A g1 g2).
+      <span class="nb">set</span> (ar := CoIm_to_Im f · KernelArrow (Image f)).
+      <span class="nb">set</span> (ar1 := CoequalizerOut q _ ar).
+      <span class="nb">set</span> (com1 := CoequalizerCommutes q _ _ H).
+      <span class="nb">assert</span> (isE : isEpi ((CokernelArrow (CoImage f)) · (CoequalizerArrow q))).
+      {
+        <span class="nb">apply</span> isEpi_comp.
+        <span class="nb">apply</span> CokernelArrowisEpi.
+        <span class="nb">apply</span> CoequalizerArrowisEpi.
+      }
+      <span class="nb">set</span> (E := make_Epi A ((CokernelArrow (CoImage f)) · (CoequalizerArrow q)) isE).
+      <span class="nb">set</span> (coker := EpiToCokernel E).
+      <span class="nb">assert</span> (e0 : (KernelArrow (to_Kernels A _ _ E))
+                     · ((CokernelArrow (CoImage f)) · (CoequalizerArrow q)) =
+                   ZeroArrow (to_Zero A) _ (EpiToCokernel E)).
+      {
+        <span class="nb">set</span> (tmp := CokernelCompZero (to_Zero A) (EpiToCokernel E)).
+        <span class="nb">rewrite</span> &lt;- tmp.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">unfold</span> E. <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> (e : (KernelArrow (to_Kernels A _ _ E)) · f = ZeroArrow (to_Zero A) _ _).
+      {
+        <span class="c">(* Use CoImage Image equation *)</span>
+        <span class="nb">set</span> (tmp := CoIm_to_Im_eq f).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, (KernelArrow (to_Kernels A _ _ E)) · f)) <span class="k">in</span> tmp.
+        use (pathscomp0 tmp).
+        <span class="c">(* rewrite com1 *)</span>
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- com1.
+        <span class="c">(* cancel postcompostion and use e0 *)</span>
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+        <span class="nb">set</span> (tmpar1 := CoIm_to_Im f · KernelArrow (Image f)).
+        <span class="nb">set</span> (tmpar2 := CoequalizerOut q y tmpar1 H).
+        <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left A (to_Zero A) _ _ _ tmpar2).
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">rewrite</span> e0. <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">set</span> (l := KernelIn (to_Zero A) (Kernel f) _ _ e).
+      <span class="nb">assert</span> (e1 : (KernelArrow (to_Kernels A _ _ E)) · (CokernelArrow (CoImage f)) =
+                   ZeroArrow (to_Zero A) _ _).
+      {
+        <span class="nb">set</span> (tmp := KernelCommutes (to_Zero A) (Kernel f) _ _ e).
+        <span class="nb">rewrite</span> &lt;- tmp.
+        <span class="nb">fold</span> l.
+        <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right A (to_Zero A) _ _ _ l).
+        <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">unfold</span> CoImage.
+        <span class="nb">apply</span> CokernelCompZero.
+      }
+      <span class="nb">set</span> (ar2 := CokernelOut (to_Zero A) coker _ _ e1).
+      <span class="nb">set</span> (com2 := CokernelCommutes (to_Zero A) coker _ _ e1).
+      <span class="nb">assert</span> (e2 : CokernelArrow (CoImage f) · (CoequalizerArrow q) ·
+                                 (CokernelOut (to_Zero A) coker _ _ e1) =
+                   CokernelArrow (CoImage f)).
+      {
+        <span class="nb">apply</span> com2.
+      }
+      <span class="nb">assert</span> (e3 : (CoequalizerArrow q) · (CokernelOut (to_Zero A) coker (CoImage f) _ e1) =
+                   identity _).
+      {
+        <span class="nb">set</span> (isE1 := CokernelArrowisEpi (to_Zero A) (CoImage f)).
+        <span class="nb">unfold</span> isEpi <span class="k">in</span> isE1.
+        <span class="nb">apply</span> isE1. <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> e2.
+      }
+      <span class="nb">assert</span> (e4 : isMonic (CoequalizerArrow q)).
+      {
+        <span class="nb">apply</span> (isMonic_postcomp A _ (CokernelOut (to_Zero A) coker (CoImage f) _ e1)).
+        <span class="nb">set</span> (tmp := @identity_isMonic A (CoImage f)).
+        <span class="nb">rewrite</span> &lt;- e3 <span class="k">in</span> tmp.
+        <span class="nb">apply</span> tmp.
+      }
+      <span class="nb">set</span> (coeqeq := CoequalizerEqAr q).
+      <span class="nb">apply</span> e4 <span class="k">in</span> coeqeq.
+      <span class="nb">apply</span> coeqeq.
+    <span class="c">(* isEpi *)</span>
+    - use (isEpi_precomp A (CokernelArrow (CoImage f)) _).
+      <span class="nb">intros</span> z g1 g2 H.
+      <span class="nb">set</span> (q := Equalizer A g1 g2).
+      <span class="nb">set</span> (ar := CokernelArrow (CoImage f) · CoIm_to_Im f).
+      <span class="nb">set</span> (ar1 := EqualizerIn q _ ar).
+      <span class="nb">set</span> (com1 := EqualizerCommutes q _ _ H).
+      <span class="nb">assert</span> (isE : isMonic ((EqualizerArrow q) · (KernelArrow (Image f)))).
+      {
+        <span class="nb">apply</span> isMonic_comp.
+        <span class="nb">apply</span> EqualizerArrowisMonic.
+        <span class="nb">apply</span> KernelArrowisMonic.
+      }
+      <span class="nb">set</span> (M := make_Monic A ((EqualizerArrow q) · (KernelArrow (Image f))) isE).
+      <span class="nb">set</span> (ker := MonicToKernel M).
+      <span class="nb">assert</span> (e0 : (EqualizerArrow q)
+                     · (KernelArrow (Image f)) · (CokernelArrow (to_Cokernels A _ _ M)) =
+                   ZeroArrow (to_Zero A) (MonicToKernel M) _).
+      {
+        use (pathscomp0 _ (KernelCompZero (to_Zero A) (MonicToKernel M))).
+        <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> (e : f · (CokernelArrow (to_Cokernels A _ _ M)) = ZeroArrow (to_Zero A) _ _).
+      {
+        <span class="c">(* Use CoImage Image equation *)</span>
+        <span class="nb">set</span> (tmp := CoIm_to_Im_eq f).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span> : _, f · (CokernelArrow (to_Cokernels A _ _ M)))) <span class="k">in</span> tmp.
+        use (pathscomp0 tmp).
+        <span class="c">(* rewrite com1 *)</span>
+        <span class="nb">rewrite</span> &lt;- com1.
+        <span class="c">(* cancel precomposition and rewrite e0 *)</span>
+        <span class="nb">set</span> (tmpar1 := CokernelArrow (CoImage f) · CoIm_to_Im f).
+        <span class="nb">set</span> (tmpar2 := EqualizerIn q x tmpar1 H).
+        <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right A (to_Zero A) _ _ _ tmpar2).
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> e0. <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">set</span> (l := CokernelOut (to_Zero A) (Cokernel f) _ _ e).
+      <span class="nb">assert</span> (e1 : (KernelArrow (Image f)) · (CokernelArrow (to_Cokernels A _ _ M)) =
+                   ZeroArrow (to_Zero A) _ _).
+      {
+        <span class="nb">set</span> (tmp := CokernelCommutes (to_Zero A) (Cokernel f) _ _ e).
+        <span class="nb">rewrite</span> &lt;- tmp.
+        <span class="nb">fold</span> l.
+        <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left A (to_Zero A) _ _ _ l).
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">unfold</span> Image.
+        <span class="nb">apply</span> KernelCompZero.
+      }
+      <span class="nb">set</span> (ar2 := KernelIn (to_Zero A) ker _ _ e1).
+      <span class="nb">set</span> (com2 := KernelCommutes (to_Zero A) ker _ _ e1).
+      <span class="nb">assert</span> (e2 : (KernelIn (to_Zero A) ker _ _ e1) · (EqualizerArrow q) · KernelArrow (Image f) =
+                   KernelArrow (Image f)).
+      {
+        <span class="nb">rewrite</span> &lt;- com2. <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> cancel_precomposition. <span class="nb">unfold</span> ker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> (e3 : (KernelIn (to_Zero A) ker (Image f) _ e1) · (EqualizerArrow q)  = identity _).
+      {
+        <span class="nb">set</span> (isM1 := KernelArrowisMonic (to_Zero A) (Image f)).
+        <span class="nb">unfold</span> isMonic <span class="k">in</span> isM1.
+        <span class="nb">apply</span> isM1.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> e2.
+      }
+      <span class="nb">assert</span> (e4 : isEpi (EqualizerArrow q)).
+      {
+        <span class="nb">apply</span> (isEpi_precomp A (KernelIn (to_Zero A) ker (Image f) _ e1)).
+        <span class="nb">set</span> (tmp := @identity_isEpi A (Image f)).
+        <span class="nb">rewrite</span> &lt;- e3 <span class="k">in</span> tmp.
+        <span class="nb">apply</span> tmp.
+      }
+      <span class="nb">set</span> (eqeq := EqualizerEqAr q).
+      <span class="nb">apply</span> e4 <span class="k">in</span> eqeq.
+      <span class="nb">apply</span> eqeq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** f = Epi ((x --&gt; CoIm f) · (CoIm f --&gt; Im f)) · Monic (Im f --&gt; y) *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">factorization1_is_epi</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    isEpi (CokernelArrow (CoImage f) · CoIm_to_Im f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isEpi_comp.
+    <span class="nb">apply</span> CokernelArrowisEpi.
+    <span class="nb">apply</span> (is_iso_isEpi A _ (CoIm_to_Im_is_iso f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization1_epi</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Epi A x (Image f).
+  <span class="kn">Proof</span>.
+    use make_Epi.
+    <span class="bp">exact</span> (CokernelArrow (CoImage f) · CoIm_to_Im f).
+    <span class="nb">apply</span> factorization1_is_epi.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization1_monic</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Monic A (Image f) y.
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    <span class="bp">exact</span> (KernelArrow (Image f)).
+    <span class="nb">apply</span> KernelArrowisMonic.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">factorization1</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    f = (factorization1_epi f) · (factorization1_monic f).
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (CoIm_to_Im_eq f)).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** f = Epi ((x --&gt; CoIm f)) · Monic ((CoIm f --&gt; Im f) · (Im f --&gt; y)) *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">factorization2_is_monic</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    isMonic (CoIm_to_Im f · (KernelArrow (Image f))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isMonic_comp.
+    <span class="nb">apply</span> (is_iso_isMonic A _ (CoIm_to_Im_is_iso f)).
+    <span class="nb">apply</span> KernelArrowisMonic.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization2_monic</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Monic A (CoImage f) y.
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    <span class="bp">exact</span> (CoIm_to_Im f · (KernelArrow (Image f))).
+    <span class="nb">apply</span> factorization2_is_monic.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization2_epi</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) : Epi A x (CoImage f).
+  <span class="kn">Proof</span>.
+    use make_Epi.
+    <span class="bp">exact</span> (CokernelArrow (CoImage f)).
+    <span class="nb">apply</span> CokernelArrowisEpi.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">factorization2</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : x --&gt; y) :
+    f = (factorization2_epi f) · (factorization2_monic f).
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (CoIm_to_Im_eq f)).
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">abelian_factorization</span>.
+<span class="kn">Arguments</span> factorization1 [A] [x] [y] _.
+<span class="kn">Arguments</span> factorization1_is_epi [A] [x] [y] _ _ _ _ _.
+<span class="kn">Arguments</span> factorization2 [A] [x] [y] _.
+<span class="kn">Arguments</span> factorization2_is_monic [A] [x] [y] _ _ _ _ _.
+<span class="kn">Arguments</span> CoIm_to_Im [A] [x] [y] _.
+<span class="kn">Arguments</span> Kernel [A] [x] [y] _.
+<span class="kn">Arguments</span> Cokernel [A] [x] [y] _.
+<span class="kn">Arguments</span> Image [A] [x] [y] _.
+<span class="kn">Arguments</span> CoImage [A] [x] [y] _.
+
+
+<span class="kn">Section</span> <span class="nf">abelian_kernel_cokernel</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+
+  <span class="kn">Definition</span> <span class="nf">MonicToKernel'</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">M</span> : Monic A x y) (<span class="nv">CK</span> : Cokernels.Cokernel (to_Zero A) M) :
+    Kernels.Kernel (to_Zero A) (CokernelArrow CK) :=
+    @Kernel_up_to_iso2 A (to_Zero A) _ _ _ (CokernelArrow (Cokernel M)) (CokernelArrow CK)
+                       (iso_from_Cokernel_to_Cokernel (to_Zero A) (Cokernel M) CK)
+                       (CokernelCommutes _ _ _ _ _) (MonicToKernel M).
+
+  <span class="kn">Definition</span> <span class="nf">EpiToCokernel'</span> {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">E</span> : Epi A x y) (<span class="nv">K</span> : Kernels.Kernel (to_Zero A) E) :
+    Cokernels.Cokernel (to_Zero A) (KernelArrow K) :=
+    Cokernel_up_to_iso2 A (to_Zero A) (KernelArrow (Kernel E)) (KernelArrow K)
+                        (iso_from_Kernel_to_Kernel (to_Zero A) K (Kernel E))
+                        (KernelCommutes _ _ _ _ _) (EpiToCokernel E).
+
+<span class="kn">End</span> <span class="nf">abelian_kernel_cokernel</span>.
+
+
+<span class="sd">(** * A Abelian -&gt; A^op Abelian, [Abelian_opp] *)</span>
+<span class="kn">Section</span> <span class="nf">opp_abelian</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+
+  <span class="kn">Definition</span> <span class="nf">AbelianData1_opp</span> (<span class="nv">AD1</span> : Data1 C) : @Data1 (op_category C).
+  <span class="kn">Proof</span>.
+    use make_Data1.
+    - <span class="bp">exact</span> (Zero_opp C (pr1 AD1)).
+    - <span class="bp">exact</span> (BinCoproducts_opp C (pr2 (pr2 AD1))).
+    - <span class="bp">exact</span> (BinProducts_opp C (pr1 (pr2 AD1))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AbelianData2_opp</span> {<span class="nv">AD1</span> : Data1 C} (<span class="nv">AD2</span> : Data2 C AD1) :
+    @Data2 (op_category C) (AbelianData1_opp AD1).
+  <span class="kn">Proof</span>.
+    use make_Data2.
+    - <span class="bp">exact</span> (Cokernels_opp C (pr1 AD1) (pr2 AD2)).
+    - <span class="bp">exact</span> (Kernels_opp C (pr1 AD1) (pr1 AD2)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+
+  <span class="kn">Lemma</span> <span class="nf">MonicsAreKernels_opp_eq</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+        (<span class="nv">AMKD</span> : MonicsAreKernels C D1 D2) (<span class="nv">y</span> <span class="nv">z</span> : C^op) (<span class="nv">E</span> : Epi (op_category C) y z) :
+    @compose C _ _ _ E (CokernelArrow ((to_Cokernels D2) z y (opp_Epi C E)))
+    = @ZeroArrow (op_category C) (Zero_opp C (to_Zero D1)) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- ZeroArrow_opp.
+    <span class="nb">set</span> (tmp := KernelCompZero (to_Zero D1) (make_Kernel _ _ _ _ (AMKD z y (opp_Epi C E)))).
+    <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">apply</span> ZerosArrowEq.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">MonicsAreKernels_opp_isCokernel</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+        (<span class="nv">AMKD</span> : MonicsAreKernels C D1 D2) (<span class="nv">y</span> <span class="nv">z</span> : C^op) (<span class="nv">E</span> : Epi (op_category C) y z) :
+    isCokernel (Zero_opp C (pr1 D1)) (CokernelArrow (pr2 D2 z y (opp_Epi C E))) E
+               (MonicsAreKernels_opp_eq AMKD y z E).
+  <span class="kn">Proof</span>.
+    use (isCokernel_opp _ ).
+    - <span class="bp">exact</span> (to_Zero D1).
+    - <span class="bp">exact</span> (CokernelCompZero _ (to_Cokernels D2 z y (opp_Epi C E))).
+    - <span class="bp">exact</span> (AMKD _ _ (opp_Epi C E)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">MonicsAreKernels_opp</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+             (<span class="nv">AMKD</span> : MonicsAreKernels C D1 D2) :
+    EpisAreCokernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
+  <span class="kn">Proof</span>.
+    use make_EpisAreCokernels.
+    <span class="nb">intros</span> y z E.
+    <span class="bp">exact</span> (MonicsAreKernels_opp_isCokernel AMKD y z E).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">EpisAreCokernels_opp_eq</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+        (<span class="nv">AECD</span> : EpisAreCokernels C D1 D2) (<span class="nv">y</span> <span class="nv">z</span> : C^op)
+        (<span class="nv">M</span> : Monic (op_category C) y z) :
+    (KernelArrow (pr1 D2 z y (opp_Monic C M))) · M =
+    ZeroArrow (Zero_opp C (to_Zero D1)) y (to_Kernels D2 z y (opp_Monic C M)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- ZeroArrow_opp.
+    <span class="nb">apply</span> (KernelCompZero (to_Zero D1) (to_Kernels D2 z y (opp_Monic C M))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EpisAreCokernels_opp_isKernel</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+        (<span class="nv">AECD</span> : EpisAreCokernels C D1 D2) (<span class="nv">y</span> <span class="nv">z</span> : C^op) (<span class="nv">M</span> : Monic (op_category C) y z) :
+    isKernel (Zero_opp C (to_Zero D1)) M (KernelArrow (to_Kernels D2 z y (opp_Monic C M)))
+             (EpisAreCokernels_opp_eq AECD y z M).
+  <span class="kn">Proof</span>.
+    use (isKernel_opp _).
+    - <span class="bp">exact</span> (to_Zero D1).
+    - <span class="bp">exact</span> (KernelCompZero _ (to_Kernels D2 z y (opp_Monic C M))).
+    - <span class="bp">exact</span> (AECD _ _ (opp_Monic C M)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">EpisAreCokernels_opp</span> {<span class="nv">D1</span> : Data1 C} {<span class="nv">D2</span> : Data2 C D1}
+             (<span class="nv">AECD</span> : EpisAreCokernels C D1 D2) :
+    MonicsAreKernels (op_category C) (AbelianData1_opp D1) (AbelianData2_opp D2).
+  <span class="kn">Proof</span>.
+    use make_MonicsAreKernels.
+    <span class="nb">intros</span> y z M.
+    <span class="bp">exact</span> (EpisAreCokernels_opp_isKernel AECD y z M).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">AbelianData_opp</span> {<span class="nv">AD1</span> : Data1 C} (<span class="nv">AD</span> : AbelianData C AD1) :
+    AbelianData (op_category C) (AbelianData1_opp AD1).
+  <span class="kn">Proof</span>.
+    use make_AbelianData.
+    - <span class="bp">exact</span> (AbelianData2_opp (pr1 AD)).
+    - <span class="bp">exact</span> (EpisAreCokernels_opp (pr2 (pr2 AD))).
+    - <span class="bp">exact</span> (MonicsAreKernels_opp (pr1 (pr2 AD))).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Need to remove C from context *)</span>
+<span class="kn">End</span> <span class="nf">opp_abelian</span>.
+<span class="kn">Section</span> <span class="nf">opp_abelian'</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Abelian_opp</span> (<span class="nv">A</span> : AbelianPreCat) : AbelianPreCat.
+  <span class="kn">Proof</span>.
+    use make_Abelian.
+    - <span class="bp">exact</span> (op_category (pr1 (pr1 A))).
+    - <span class="bp">exact</span> (AbelianData1_opp _ (pr2 (pr1 A))).
+    - <span class="bp">exact</span> (AbelianData_opp _  (pr2 A)).
+  <span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">  Lemma has_homsets_Abelian_opp {A : AbelianPreCat} (hs : has_homsets A) :</span>
+<span class="c">    has_homsets (Abelian_opp A hs).</span>
+<span class="c">  Proof.</span>
+<span class="c">    exact (has_homsets_opp hs).</span>
+<span class="c">  Qed.</span>
+<span class="c">*)</span>
+<span class="kn">End</span> <span class="nf">opp_abelian'</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Abelian.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - A Abelian -&gt; A^op Abelian
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

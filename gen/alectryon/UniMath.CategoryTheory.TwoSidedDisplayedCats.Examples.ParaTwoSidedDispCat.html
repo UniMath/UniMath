@@ -1,0 +1,623 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ParaTwoSidedDispCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************************</span>
+
+<span class="sd"> The 2-sided displayed category of parametrized morphisms</span>
+
+<span class="sd"> We define a 2-sided displayed of parametrized morphisms. A parametrized morphisms from an</span>
+<span class="sd"> object `a` to `b` in a monoidal category `M` consists of an object `x` (representing the</span>
+<span class="sd"> parameters) and a morphism `x ⊗ a --&gt; b`. We also give the necessary operations to show that</span>
+<span class="sd"> this is a double category.</span>
+
+<span class="sd"> Reference</span>
+<span class="sd"> - "Effectful semantics in bicategories: strong, commutative, and concurrent pseudomonads" by</span>
+<span class="sd">   Paquet and Saville</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The 2-sided displayed category of parametrized morphisms</span>
+<span class="sd"> 2. Univalence</span>
+<span class="sd"> 3. Builders and accessors</span>
+<span class="sd"> 4. Isomorphisms of parametrized morphisms</span>
+<span class="sd"> 5. The identity parametrized morphism</span>
+<span class="sd"> 6. The composition of parametrized morphisms</span>
+<span class="sd"> 7. The left unitor of parametrized morphisms</span>
+<span class="sd"> 8. The right unitor of parametrized morphisms</span>
+<span class="sd"> 9. The associator of parametrized morphisms</span>
+<span class="sd"> 10. Companions and conjoints</span>
+
+<span class="sd"> *************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Constant.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.DispCatOnTwoSidedDispCat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">Para</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoidal_cat).
+
+  <span class="sd">(** * 1. The 2-sided displayed category of parametrized morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">para_ob</span>
+    : twosided_disp_cat M M
+    := constant_twosided_disp_cat M M M.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_para_mor_ob_mor</span>
+    : disp_cat_ob_mor (total_twosided_disp_category para_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr22 x ⊗ pr1 x --&gt; pr12 x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">fgh</span>, (pr22 fgh #⊗ pr1 fgh) · ψ = φ · pr12 fgh).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_para_mor_id_comp</span>
+    : disp_cat_id_comp
+        (total_twosided_disp_category para_ob)
+        disp_cat_para_mor_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span>.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g φ ψ χ p q.
+      <span class="nb">rewrite</span> tensor_comp_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_para_mor_data</span>
+    : disp_cat_data (total_twosided_disp_category para_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_para_mor_ob_mor.
+    - <span class="bp">exact</span> disp_cat_para_mor_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_cat_para_mor_axioms</span>
+    : disp_cat_axioms
+        (total_twosided_disp_category para_ob)
+        disp_cat_para_mor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_para_mor</span>
+    : disp_cat (total_twosided_disp_category para_ob).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_para_mor_data.
+    - <span class="bp">exact</span> disp_cat_para_mor_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">para_twosided_disp_cat</span>
+    : twosided_disp_cat M M
+    := sigma_twosided_disp_cat _ disp_cat_para_mor.
+
+  <span class="sd">(** * 2. Univalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_para_mor</span>
+    : is_univalent_disp disp_cat_para_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p f g.
+    <span class="nb">induction</span> p.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (pr1 p) <span class="k">as</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> tensor_id_id <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> q.
+      <span class="bp">exact</span> (!q).
+    - <span class="nb">apply</span> homset_property.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_para_twosided_disp_cat</span>
+             (<span class="nv">HM</span> : is_univalent M)
+    : is_univalent_twosided_disp_cat para_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use is_univalent_sigma_of_twosided_disp_cat.
+    - use is_univalent_constant_twosided_disp_cat.
+      <span class="bp">exact</span> HM.
+    - <span class="bp">exact</span> is_univalent_para_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_strict_para_twosided_disp_cat</span>
+             (<span class="nv">HM</span> : is_setcategory M)
+    : is_strict_twosided_disp_cat para_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> HM.
+    - <span class="nb">intro</span> z.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Builders and accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">para_mor</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : M)
+    : UU
+    := para_twosided_disp_cat a b.
+
+  <span class="kn">Definition</span> <span class="nf">make_para_mor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> : M}
+             (<span class="nv">f</span> : x ⊗ a --&gt; b)
+    : para_mor a b
+    := x ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">ob_of_para_mor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : M}
+             (<span class="nv">f</span> : para_mor a b)
+    : M
+    := pr1 f.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_para_mor</span>
+           {a b : M}
+           (f : para_mor a b)
+    : ob_of_para_mor f ⊗ a --&gt; b.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">para_sqr</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+             (<span class="nv">v</span> : a₁ --&gt; a₂)
+             (<span class="nv">w</span> : b₁ --&gt; b₂)
+             (<span class="nv">f</span> : para_mor a₁ b₁)
+             (<span class="nv">g</span> : para_mor a₂ b₂)
+    : UU
+    := f --&gt;[ v ][ w ] g.
+
+  <span class="kn">Definition</span> <span class="nf">para_sqr_laws</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+             (<span class="nv">v</span> : a₁ --&gt; a₂)
+             (<span class="nv">w</span> : b₁ --&gt; b₂)
+             (<span class="nv">f</span> : para_mor a₁ b₁)
+             (<span class="nv">g</span> : para_mor a₂ b₂)
+             (<span class="nv">φ</span> : ob_of_para_mor f --&gt; ob_of_para_mor g)
+    : UU
+    := φ #⊗ v · g = f · w.
+
+  <span class="kn">Definition</span> <span class="nf">make_para_sqr</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+             (<span class="nv">v</span> : a₁ --&gt; a₂)
+             (<span class="nv">w</span> : b₁ --&gt; b₂)
+             (<span class="nv">f</span> : para_mor a₁ b₁)
+             (<span class="nv">g</span> : para_mor a₂ b₂)
+             (<span class="nv">φ</span> : ob_of_para_mor f --&gt; ob_of_para_mor g)
+             (<span class="nv">H</span> : para_sqr_laws v w f g φ)
+    : para_sqr v w f g
+    := φ ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">mor_of_para_sqr</span>
+           {a₁ a₂ b₁ b₂ : M}
+           {v : a₁ --&gt; a₂}
+           {w : b₁ --&gt; b₂}
+           {f : para_mor a₁ b₁}
+           {g : para_mor a₂ b₂}
+           (φ : para_sqr v w f g)
+    : ob_of_para_mor f --&gt; ob_of_para_mor g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 φ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eq_of_para_sqr</span>
+             {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+             {<span class="nv">v</span> : a₁ --&gt; a₂}
+             {<span class="nv">w</span> : b₁ --&gt; b₂}
+             {<span class="nv">f</span> : para_mor a₁ b₁}
+             {<span class="nv">g</span> : para_mor a₂ b₂}
+             (<span class="nv">φ</span> : para_sqr v w f g)
+    : φ #⊗ v · g = f · w.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 φ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">path_para_sqr</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+              {<span class="nv">v</span> : a₁ --&gt; a₂}
+              {<span class="nv">w</span> : b₁ --&gt; b₂}
+              {<span class="nv">f</span> : para_mor a₁ b₁}
+              {<span class="nv">g</span> : para_mor a₂ b₂}
+              {<span class="nv">φ</span> <span class="nv">ψ</span> : para_sqr v w f g}
+              (<span class="nv">p</span> : mor_of_para_sqr φ = mor_of_para_sqr ψ)
+    : φ = ψ.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. Isomorphisms of parametrized morphisms *)</span>
+  <span class="kn">Proposition</span> <span class="nf">transportf_disp_mor2_para</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+              {<span class="nv">v</span> <span class="nv">v'</span> : a₁ --&gt; a₂}
+              (<span class="nv">p</span> : v = v')
+              {<span class="nv">w</span> <span class="nv">w'</span> : b₁ --&gt; b₂}
+              (<span class="nv">q</span> : w = w')
+              {<span class="nv">f</span> : para_mor a₁ b₁}
+              {<span class="nv">g</span> : para_mor a₂ b₂}
+              (<span class="nv">φ</span> : para_sqr v w f g)
+    : mor_of_para_sqr (transportf_disp_mor2 p q φ) = φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_disp_mor2_para</span>
+              {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">b₁</span> <span class="nv">b₂</span> : M}
+              {<span class="nv">v</span> <span class="nv">v'</span> : a₁ --&gt; a₂}
+              (<span class="nv">p</span> : v' = v)
+              {<span class="nv">w</span> <span class="nv">w'</span> : b₁ --&gt; b₂}
+              (<span class="nv">q</span> : w' = w)
+              {<span class="nv">f</span> : para_mor a₁ b₁}
+              {<span class="nv">g</span> : para_mor a₂ b₂}
+              (<span class="nv">φ</span> : para_sqr v w f g)
+    : mor_of_para_sqr (transportb_disp_mor2 p q φ) = φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p, q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">IsoSquare</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : M}
+            {<span class="nv">f</span> : para_mor a b}
+            {<span class="nv">g</span> : para_mor a b}
+            (<span class="nv">φ</span> : para_sqr (identity _) (identity _) f g)
+            (<span class="nv">Hφ</span> : is_z_isomorphism (mor_of_para_sqr φ)).
+
+    <span class="kn">Let</span> <span class="nf">i</span> : z_iso (ob_of_para_mor f) (ob_of_para_mor g)
+      := make_z_iso _ _ Hφ.
+
+    <span class="kn">Definition</span> <span class="nf">para_sqr_inv</span>
+      : para_sqr (identity _) (identity _) g f.
+    <span class="kn">Proof</span>.
+      use make_para_sqr.
+      - <span class="bp">exact</span> (inv_from_z_iso i).
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> para_sqr_laws ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">pose</span> (eq_of_para_sqr φ) <span class="k">as</span> p ;
+           <span class="nb">rewrite</span> id_right <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> &lt;- p ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> &lt;- tensor_comp_mor ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">refine</span> (_ @ id_left _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">refine</span> (_ @ tensor_id_id _ _) ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv i)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_iso_twosided_para_sqr</span>
+      : is_iso_twosided_disp
+          (identity_is_z_iso _)
+          (identity_is_z_iso _)
+          φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> para_sqr_inv.
+      - <span class="kp">abstract</span>
+          (use path_para_sqr ;
+           <span class="nb">rewrite</span> transportb_disp_mor2_para ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (z_iso_inv_after_z_iso i)).
+      - <span class="kp">abstract</span>
+          (use path_para_sqr ;
+           <span class="nb">rewrite</span> transportb_disp_mor2_para ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv i)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">IsoSquare</span>.
+
+  <span class="sd">(** * 5. The identity parametrized morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">id_para_mor</span>
+             (<span class="nv">a</span> : M)
+    : para_mor a a.
+  <span class="kn">Proof</span>.
+    use make_para_mor.
+    - <span class="bp">exact</span> (I_{M}).
+    - <span class="nb">apply</span> mon_lunitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">id_para_sqr</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : M}
+             (<span class="nv">f</span> : x --&gt; y)
+    : para_sqr f f (id_para_mor x) (id_para_mor y).
+  <span class="kn">Proof</span>.
+    use make_para_sqr.
+    - <span class="nb">apply</span> identity.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> tensor_lunitor ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 6. The composition of parametrized morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">comp_para_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : M}
+             (<span class="nv">s</span> : para_mor x y)
+             (<span class="nv">t</span> : para_mor y z)
+    : para_mor x z.
+  <span class="kn">Proof</span>.
+    use make_para_mor.
+    - <span class="bp">exact</span> (ob_of_para_mor t ⊗ ob_of_para_mor s).
+    - <span class="bp">exact</span> (mon_lassociator _ _ _ · (identity _ #⊗ s) · t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_para_sqr</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : M}
+             {<span class="nv">v₁</span> : x₁ --&gt; x₂} {<span class="nv">v₂</span> : y₁ --&gt; y₂} {<span class="nv">v₃</span> : z₁ --&gt; z₂}
+             {<span class="nv">f₁</span> : para_mor x₁ y₁}
+             {<span class="nv">f₂</span> : para_mor y₁ z₁}
+             {<span class="nv">g₁</span> : para_mor x₂ y₂}
+             {<span class="nv">g₂</span> : para_mor y₂ z₂}
+             (<span class="nv">φ</span> : para_sqr v₁ v₂ f₁ g₁)
+             (<span class="nv">ψ</span> : para_sqr v₂ v₃ f₂ g₂)
+    : para_sqr
+        v₁ v₃
+        (comp_para_mor f₁ f₂) (comp_para_mor g₁ g₂).
+  <span class="kn">Proof</span>.
+    use make_para_sqr.
+    - <span class="bp">exact</span> (ψ #⊗ φ).
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> tensor_lassociator ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> &lt;- tensor_comp_mor ;
+         <span class="nb">rewrite</span> eq_of_para_sqr ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">rewrite</span> tensor_comp_l_id_l ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> eq_of_para_sqr ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. The left unitor of parametrized morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">para_mor_lunitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : M}
+             (<span class="nv">f</span> : para_mor x y)
+    : para_sqr
+        (identity _) (identity _)
+        (comp_para_mor (id_para_mor _) f)
+        f.
+  <span class="kn">Proof</span>.
+    use make_para_sqr.
+    - <span class="nb">apply</span> mon_runitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">rewrite</span> mon_triangle ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_para_mor_lunitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : M}
+             (<span class="nv">f</span> : para_mor x y)
+    : is_z_isomorphism (para_mor_lunitor f).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="nb">apply</span> mon_rinvunitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> mon_runitor_rinvunitor | <span class="nb">apply</span> mon_rinvunitor_runitor ]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 8. The right unitor of parametrized morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">para_mor_runitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : M}
+             (<span class="nv">f</span> : para_mor x y)
+    : para_sqr
+        (identity _) (identity _)
+        (comp_para_mor f (id_para_mor _))
+        f.
+  <span class="kn">Proof</span>.
+    use make_para_sqr.
+    - <span class="nb">apply</span> mon_lunitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> tensor_lunitor ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> mon_lunitor_triangle ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_para_mor_runitor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : M}
+             (<span class="nv">f</span> : para_mor x y)
+    : is_z_isomorphism (para_mor_runitor f).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="nb">apply</span> mon_linvunitor.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> mon_lunitor_linvunitor | <span class="nb">apply</span> mon_linvunitor_lunitor ]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 9. The associator of parametrized morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">para_mor_associator</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : M}
+             (<span class="nv">f</span> : para_mor w x)
+             (<span class="nv">g</span> : para_mor x y)
+             (<span class="nv">h</span> : para_mor y z)
+    : para_sqr
+        (identity _) (identity _)
+        (comp_para_mor f (comp_para_mor g h))
+        (comp_para_mor (comp_para_mor f g) h).
+  <span class="kn">Proof</span>.
+    use make_para_sqr.
+    - <span class="nb">apply</span> mon_lassociator.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">rewrite</span> !tensor_comp_l_id_l ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> &lt;- mon_lassociator_lassociator ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> &lt;- tensor_lassociator ;
+         <span class="nb">rewrite</span> tensor_id_id ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_para_mor_associator</span>
+             {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : M}
+             (<span class="nv">f</span> : para_mor w x)
+             (<span class="nv">g</span> : para_mor x y)
+             (<span class="nv">h</span> : para_mor y z)
+    : is_z_isomorphism (para_mor_associator f g h).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="nb">apply</span> mon_rassociator.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; [ <span class="nb">apply</span> mon_lassociator_rassociator | <span class="nb">apply</span> mon_rassociator_lassociator ]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 10. Companions and conjoints *)</span>
+  <span class="kn">Section</span> <span class="nf">Companions</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : M}
+            (<span class="nv">f</span> : x --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">para_companion</span>
+      : para_mor x y.
+    <span class="kn">Proof</span>.
+      use make_para_mor.
+      - <span class="bp">exact</span> (I_{M}).
+      - <span class="bp">exact</span> (mon_lunitor _ · f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">para_companion_unit</span>
+      : para_sqr f (identity y) para_companion (id_para_mor y).
+    <span class="kn">Proof</span>.
+      use make_para_sqr.
+      - <span class="nb">apply</span> identity.
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">rewrite</span> tensor_lunitor ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">para_companion_counit</span>
+      : para_sqr (identity x) f (id_para_mor x) para_companion.
+    <span class="kn">Proof</span>.
+      use make_para_sqr.
+      - <span class="nb">apply</span> identity.
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> tensor_id_id ;
+           <span class="nb">apply</span> id_left).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Companions</span>.
+
+  <span class="kn">Section</span> <span class="nf">Conjoints</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : M}
+            (<span class="nv">f</span> : z_iso y x).
+
+    <span class="kn">Definition</span> <span class="nf">para_conjoint</span>
+      : para_mor x y.
+    <span class="kn">Proof</span>.
+      use make_para_mor.
+      - <span class="bp">exact</span> (I_{M}).
+      - <span class="bp">exact</span> (mon_lunitor _ · inv_from_z_iso f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">para_conjoint_unit</span>
+      : para_sqr f (identity _) (id_para_mor _) para_conjoint.
+    <span class="kn">Proof</span>.
+      use make_para_sqr.
+      - <span class="nb">apply</span> identity.
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> tensor_lunitor ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+           <span class="nb">apply</span> id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">para_conjoint_counit</span>
+      : para_sqr (identity _) f para_conjoint (id_para_mor _).
+    <span class="kn">Proof</span>.
+      use make_para_sqr.
+      - <span class="nb">apply</span> identity.
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> para_sqr_laws ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> tensor_lunitor ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Conjoints</span>.
+<span class="kn">End</span> <span class="nf">Para</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/ParaTwoSidedDispCat.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  10. Companions and conjoints
+  &gt;
+  &gt;  *************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Ideals.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Ideals</span>
+
+<span class="sd">Author: Langston Barrett (@siddharthist)</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">- Definitions</span>
+<span class="sd">  - Left ideals ([lideal])</span>
+<span class="sd">  - Right ideals ([rideal])</span>
+<span class="sd">  - Two-sided ideals ([ideal])</span>
+<span class="sd">  - The above notions coincide for commutative rigs</span>
+<span class="sd">- Kernel ideal</span>
+<span class="sd">- Unit ideal</span>
+<span class="sd">- Prime ideal</span>
+<span class="sd">- Localization at a prime ideal</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="bp">ring</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rig.
+
+<span class="kn">Section</span> <span class="nf">Definitions</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : rig}.
+
+  <span class="sd">(** *** Left ideals ([lideal]) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_lideal</span> (<span class="nv">S</span> : subabmonoid (rigaddabmonoid R)) : hProp :=
+    <span class="k">∀</span> <span class="nv">r</span> <span class="nv">s</span> : R, S s ⇒ S (r * s).
+
+  <span class="kn">Definition</span> <span class="nf">lideal</span> : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_lideal S.
+
+  <span class="kn">Definition</span> <span class="nf">make_lideal</span> :
+    ∏ (S : subabmonoid (rigaddabmonoid R)), is_lideal S → lideal := tpair _.
+
+  <span class="sd">(** *** Right ideals ([rideal]) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_rideal</span> (<span class="nv">S</span> : subabmonoid (rigaddabmonoid R)) : hProp :=
+    <span class="k">∀</span> <span class="nv">r</span> <span class="nv">s</span> : R, S s ⇒ S (s * r).
+
+  <span class="kn">Definition</span> <span class="nf">rideal</span> : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_rideal S.
+
+  <span class="kn">Definition</span> <span class="nf">make_rideal</span> :
+    ∏ (S : subabmonoid (rigaddabmonoid R)), is_rideal S → rideal := tpair _.
+
+  <span class="sd">(** *** Two-sided ideals ([ideal]) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_ideal</span> (<span class="nv">S</span> : subabmonoid (rigaddabmonoid R)) : hProp :=
+    hconj (is_lideal S) (is_rideal S).
+
+  <span class="kn">Definition</span> <span class="nf">ideal</span> : UU := ∑ S : subabmonoid (rigaddabmonoid R), is_ideal S.
+
+  <span class="kn">Definition</span> <span class="nf">make_ideal</span> (<span class="nv">S</span> : subabmonoid (rigaddabmonoid R))
+             (<span class="nv">isl</span> : is_lideal S) (<span class="nv">isr</span> : is_rideal S) : ideal :=
+    tpair _ S (make_dirprod isl isr).
+
+  <span class="kn">Definition</span> <span class="nf">ideal_subabmonoid</span> (<span class="nv">I</span> : ideal) : subabmonoid (rigaddabmonoid R) :=
+    pr1 I.
+  <span class="kn">Coercion</span> <span class="nf">ideal_subabmonoid</span> : ideal &gt;-&gt; subabmonoid.
+
+  <span class="kn">Definition</span> <span class="nf">ideal_isl</span> (<span class="nv">I</span> : ideal) : is_lideal I := pr12 I.
+
+  <span class="kn">Definition</span> <span class="nf">ideal_isr</span> (<span class="nv">I</span> : ideal) : is_rideal I := pr22 I.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_ideal</span> : isaset ideal.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isaset_submonoid.
+    - <span class="nb">intro</span> S. <span class="nb">apply</span> isasetaprop, propproperty.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Definitions</span>.
+
+<span class="kn">Arguments</span> lideal _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> rideal _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> ideal _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> isaset_ideal _ : <span class="kn">clear implicits</span>.
+
+<span class="sd">(** *** The above notions for commutative rigs *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">commrig_ideals</span> (<span class="nv">R</span> : commrig) (<span class="nv">S</span> : subabmonoid (rigaddabmonoid  R)) :
+  is_lideal S ≃ is_rideal S.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="nb">intros</span> islid r s ss.
+    use transportf.
+    + <span class="bp">exact</span> (S (r * s)).
+    + <span class="bp">exact</span> (maponpaths S (rigcomm2 _ _ _)).
+    + <span class="nb">apply</span> (islid r s ss).
+  - <span class="nb">intros</span> isrid r s ss.
+    use transportf.
+    + <span class="bp">exact</span> (S (s * r)).
+    + <span class="bp">exact</span> (maponpaths S (rigcomm2 _ _ _)).
+    + <span class="nb">apply</span> (isrid r s ss).
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">commrig_ideals'</span> (<span class="nv">R</span> : commrig) : lideal R ≃ rideal R.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>; <span class="nb">apply</span> commrig_ideals.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Kernel ideal *)</span>
+
+<span class="sd">(** The kernel of a rig homomorphism is a two-sided ideal. *)</span>
+<span class="kn">Definition</span> <span class="nf">kernel_ideal</span> {<span class="nv">R</span> <span class="nv">S</span> : rig} (<span class="nv">f</span> : rigfun R S) : @ideal R.
+<span class="kn">Proof</span>.
+  use make_ideal.
+  - use make_submonoid.
+    + <span class="bp">exact</span> (@monoid_kernel_hsubtype (rigaddabmonoid R) (rigaddabmonoid S)
+                                      (rigaddfun f)).
+    + <span class="sd">(** This does, in fact, describe a submonoid *)</span>
+      <span class="nb">apply</span> kernel_issubmonoid.
+  - <span class="sd">(** It's closed under × from the left *)</span>
+    <span class="nb">intros</span> r s ss; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (monoidfunmul (rigmultfun f) _ _ @ _); <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (maponpaths _ ss @ _).
+    <span class="nb">refine</span> (rigmultx0 _ (pr1 f r) @ _).
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> r s ss; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">refine</span> (monoidfunmul (rigmultfun f) _ _ @ _); <span class="nb">cbn</span>.
+    <span class="kp">abstract</span> (<span class="nb">rewrite</span> ss; <span class="nb">refine</span> (rigmult0x _ (pr1 f r) @ _); <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Unit ideal *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">ideal_rigunel2</span> {<span class="nv">R</span> : rig} (<span class="nv">I</span> : ideal R) : I <span class="mi">1</span> -&gt; <span class="k">forall</span> <span class="nv">x</span>, I x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H x.
+  <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, I x) (rigrunax2 _ x)).
+  <span class="bp">exact</span> (ideal_isl _ _ _ H).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Prime ideal *)</span>
+
+<span class="kn">Section</span> <span class="nf">prime</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring}.
+
+  <span class="kn">Definition</span> <span class="nf">is_prime</span> (<span class="nv">I</span> : ideal R) : hProp :=
+    (<span class="k">∀</span> <span class="nv">a</span> <span class="nv">b</span>, I (a * b) ⇒ I a ∨ I b) ∧ (¬ I <span class="mi">1</span>).
+
+  <span class="kn">Definition</span> <span class="nf">prime_ideal</span> : UU := ∑ p : ideal R, is_prime p.
+
+  <span class="kn">Definition</span> <span class="nf">make_prime_ideal</span> (<span class="nv">p</span> : ideal R) (<span class="nv">H1</span> : <span class="k">∀</span> <span class="nv">a</span> <span class="nv">b</span>, p (a * b) ⇒ p a ∨ p b) (<span class="nv">H2</span> : ¬ p <span class="mi">1</span>) :
+    prime_ideal := p ,, H1 ,, H2.
+
+  <span class="kn">Definition</span> <span class="nf">prime_ideal_ideal</span> (<span class="nv">p</span> : prime_ideal) : ideal R := pr1 p.
+  <span class="kn">Coercion</span> <span class="nf">prime_ideal_ideal</span> : prime_ideal &gt;-&gt; ideal.
+
+  <span class="kn">Definition</span> <span class="nf">prime_ideal_ax1</span> (<span class="nv">p</span> : prime_ideal) : <span class="k">∀</span> <span class="nv">a</span> <span class="nv">b</span>, p (a * b) ⇒ p a ∨ p b := pr12 p.
+
+  <span class="kn">Definition</span> <span class="nf">prime_ideal_ax2</span> (<span class="nv">p</span> : prime_ideal) : ¬ p <span class="mi">1</span> := pr22 p.
+<span class="kn">End</span> <span class="nf">prime</span>.
+
+<span class="kn">Arguments</span> prime_ideal _ : <span class="kn">clear implicits</span>.
+
+<span class="kn">Section</span> <span class="nf">prime_facts</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring} (<span class="nv">p</span> : prime_ideal R).
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_prime_ideal</span> : isaset (prime_ideal R).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isaset_ideal.
+    - <span class="nb">intro</span> I. <span class="nb">apply</span> isasetaprop, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prime_ideal_ax1_contraposition</span> :
+    <span class="k">∀</span> <span class="nv">a</span> <span class="nv">b</span> : R, ¬ p a ⇒ ¬ p b ⇒ ¬ p (a * b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b Ha Hb.
+    <span class="nb">apply</span> (negf (prime_ideal_ax1 p a b)), toneghdisj.
+    <span class="bp">exact</span> (make_dirprod Ha Hb).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">prime_facts</span>.
+
+<span class="sd">(** ** Localization at a prime ideal *)</span>
+
+<span class="kn">Section</span> <span class="nf">localization</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring}.
+
+  <span class="kn">Definition</span> <span class="nf">prime_ideal_complement</span> (<span class="nv">p</span> : prime_ideal R) :
+    subabmonoid (ringmultabmonoid R).
+  <span class="kn">Proof</span>.
+    use make_submonoid.
+    - <span class="nb">intro</span> x. <span class="bp">exact</span> (¬ p x).
+    - use make_issubmonoid.
+      + <span class="nb">intros</span> a b.
+        <span class="bp">exact</span> (prime_ideal_ax1_contraposition _ _ _ (pr2 a) (pr2 b)).
+      + <span class="bp">exact</span> (prime_ideal_ax2 p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">localization_at</span> (<span class="nv">p</span> : prime_ideal R) : commring :=
+    commringfrac _ (prime_ideal_complement p).
+
+  <span class="kn">Definition</span> <span class="nf">quotient</span> {<span class="nv">p</span> : prime_ideal R} (<span class="nv">a</span> : R) (<span class="nv">b</span> : prime_ideal_complement p) :
+    localization_at p := prcommringfrac _ _ a b.
+<span class="kn">End</span> <span class="nf">localization</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/RigsAndRings/Ideals.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Algebra/RigsAndRings.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Localization at a prime ideal
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Algebra.RigsAndRings.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

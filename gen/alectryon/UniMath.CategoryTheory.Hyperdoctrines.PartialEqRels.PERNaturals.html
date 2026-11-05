@@ -1,0 +1,1522 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PERNaturals.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Natural numbers in the tripos to topos construction</span>
+
+<span class="sd"> We construct a natural numbers object in toposes associated to a (weak) tripos. To</span>
+<span class="sd"> do so, we assume that the tripos comes with a type `N` together with terms representing</span>
+<span class="sd"> zero and successor, such that zero isn't the successor of any inhabitant of `N` and</span>
+<span class="sd"> such that taking the successor is an injective map. We construct the natural numbers</span>
+<span class="sd"> object in `N` by restricting `N` to the inductively generated natural numbers. Note</span>
+<span class="sd"> that this construction essentially uses impredicativity, since we define the inductively</span>
+<span class="sd"> generated natural numbers by taking the intersection of all subsets that contain `0`</span>
+<span class="sd"> and that are closed under taking the successor.</span>
+
+<span class="sd"> In this file, we show the necessary statements to conclude that we get a natural numbers</span>
+<span class="sd"> object. Most of the work lies in constructing the partial setoid morphism arising from</span>
+<span class="sd"> the universal property and in establishing uniqueness. The universal morphism is defined</span>
+<span class="sd"> as a functional relation, which requires, among others, establishing well-definedness and</span>
+<span class="sd"> that every point in the domain has an image. Both proofs require induction. The other</span>
+<span class="sd"> required properties of this partial setoid morphism can be established rather directly.</span>
+<span class="sd"> Uniqueness also is established using induction.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The zero partial setoid morphism</span>
+<span class="sd"> 2. The successor partial setoid morphism</span>
+<span class="sd"> 3. The recursion principle</span>
+<span class="sd"> 4. The β-rules</span>
+<span class="sd"> 5. Uniqueness</span>
+<span class="sd"> 6. The natural numbers object</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERCategory.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERTerminal.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.InductivePER.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.NNORecursiveMap.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> weak_tripos.
+
+<span class="kn">Section</span> <span class="nf">PERNats</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : weak_tripos}
+          (<span class="nv">N</span> : first_order_hyperdoctrine_nats H).
+
+  <span class="sd">(** * 1. The zero partial setoid morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_per_Z_form</span>
+    : form (eq_partial_setoid <span class="mi">𝟙</span> ×h nat_partial_setoid N)
+    := π₂ (tm_var _) ≡ hd_nats_z N _.
+
+  <span class="kn">Arguments</span> nat_per_Z_form /.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_Z_laws</span>
+    : partial_setoid_morphism_laws nat_per_Z_form.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_z.
+      use eq_in_eq_partial_setoid.
+      <span class="nb">apply</span> hyperdoctrine_unit_tm_eq.
+    - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_z.
+     <span class="nb">pose</span> (n := π₂ (tm_var ((<span class="mi">𝟙</span> ×h <span class="mi">𝟙</span>) ×h N))).
+      <span class="nb">fold</span> n.
+      use eq_in_nat_partial_setoid.
+      + <span class="nb">apply</span> hyperdoctrine_refl.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_transportb _ _ _).
+        * <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="nb">apply</span> is_inductive_zero.
+    - <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_z.
+      <span class="nb">pose</span> (Γ := (((<span class="mi">𝟙</span> ×h <span class="mi">𝟙</span>) ×h <span class="mi">𝟙</span>) ×h N) ×h N).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (m := π₂ (tm_var Γ)).
+      <span class="nb">pose</span> (z₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+      <span class="nb">pose</span> (z₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
+      <span class="nb">fold</span> n m z₁ z₂.
+      <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+      {
+        use weaken_left.
+        use weaken_right.
+        use hyperdoctrine_eq_sym.
+        use eq_nat_partial_setoid_to_eq.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_z.
+      <span class="nb">pose</span> (Γ := ((<span class="mi">𝟙</span> ×h <span class="mi">𝟙</span>) ×h N) ×h N).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (m := π₂ (tm_var Γ)).
+      <span class="nb">fold</span> n m.
+      use eq_in_nat_partial_setoid.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        {
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_right.
+        use hyperdoctrine_eq_sym.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_left.
+        <span class="nb">refine</span> (hyperdoctrine_eq_transportb _ _ _).
+        * <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="nb">apply</span> is_inductive_zero.
+    - use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_z.
+      use exists_intro.
+      {
+        <span class="bp">exact</span> (hd_nats_z _ _).
+      }
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_z.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_per_Z</span>
+    : partial_setoid_morphism
+        (eq_partial_setoid <span class="mi">𝟙</span>)
+        (nat_partial_setoid N).
+  <span class="kn">Proof</span>.
+    use make_partial_setoid_morphism.
+    - <span class="bp">exact</span> nat_per_Z_form.
+    - <span class="bp">exact</span> nat_per_Z_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The successor partial setoid morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_per_S_form</span>
+    : form (nat_partial_setoid N ×h nat_partial_setoid N)
+    := <span class="k">let</span> <span class="nv">n</span> := π₁ (tm_var (nat_partial_setoid N ×h N)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">m</span> := π₂ (tm_var (N ×h N)) <span class="k">in</span>
+       (n ~ n) ∧ hd_nats_s N n ≡ m.
+
+  <span class="kn">Arguments</span> nat_per_S_form /.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_S_laws</span>
+    : partial_setoid_morphism_laws nat_per_S_form.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_s.
+      hypersimplify.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N)))).
+      <span class="nb">pose</span> (m := π₂ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N))).
+      <span class="nb">fold</span> n m.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N)))).
+      <span class="nb">pose</span> (m := π₂ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N))).
+      <span class="nb">fold</span> n m.
+      use eq_in_nat_partial_setoid.
+      + <span class="nb">apply</span> hyperdoctrine_refl.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_transportf _ _ _).
+        {
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_left.
+        use is_inductive_suc.
+        <span class="nb">refine</span> (eq_nat_partial_setoid_to_inductive _ _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">pose</span> (Γ := (((<span class="mi">𝟙</span> ×h N) ×h N) ×h N) ×h N).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+      <span class="nb">pose</span> (n₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
+      <span class="nb">pose</span> (m₁ := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (m₂ := π₂ (tm_var Γ)).
+      <span class="nb">fold</span> n₁ n₂ m₁ m₂.
+      use conj_intro.
+      + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+        <span class="nb">refine</span> (partial_setoid_refl_r _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        {
+          <span class="nb">refine</span> (app_hd_nat_s _ _).
+          use hyperdoctrine_eq_sym.
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+          <span class="nb">apply</span> eq_nat_partial_setoid_to_eq.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        {
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_left.
+        use weaken_right.
+        <span class="nb">apply</span> eq_nat_partial_setoid_to_eq.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      use impl_intro.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">pose</span> (Γ := ((<span class="mi">𝟙</span> ×h N) ×h N) ×h N).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n := π₂ (π₁ (π₁ (tm_var Γ)))).
+      <span class="nb">pose</span> (m₁ := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (m₂ := π₂ (tm_var Γ)).
+      <span class="nb">fold</span> m₁ m₂ n.
+      use eq_in_nat_partial_setoid.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        {
+          use weaken_left.
+          use weaken_right.
+          use hyperdoctrine_eq_sym.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_transportf _ _ _).
+        {
+          use weaken_left.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use is_inductive_suc.
+        <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+        <span class="nb">refine</span> (eq_nat_partial_setoid_to_inductive _ _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">pose</span> (n := π₂ (tm_var (<span class="mi">𝟙</span> ×h N))).
+      use exists_intro.
+      {
+        <span class="bp">exact</span> (hd_nats_s _ n).
+      }
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">cbn</span>.
+      <span class="nb">fold</span> n.
+      use conj_intro.
+      + <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">apply</span> hyperdoctrine_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_per_S</span>
+    : partial_setoid_morphism
+        (nat_partial_setoid N)
+        (nat_partial_setoid N).
+  <span class="kn">Proof</span>.
+    use make_partial_setoid_morphism.
+    - <span class="bp">exact</span> nat_per_S_form.
+    - <span class="bp">exact</span> nat_per_S_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The recursion principle *)</span>
+  <span class="kn">Section</span> <span class="nf">Mapping</span>.
+    <span class="kn">Context</span> {<span class="nv">X</span> : partial_setoid H}
+            (<span class="nv">zX</span> : partial_setoid_morphism (eq_partial_setoid <span class="mi">𝟙</span>) X)
+            (<span class="nv">sX</span> : partial_setoid_morphism X X).
+
+    <span class="kn">Let</span> <span class="nf">φ</span> : form (nat_partial_setoid N ×h X)
+      := nat_per_rec_form N zX sX.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_dom_defined</span>
+      : partial_setoid_mor_dom_defined_law φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> φ.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (Γ := (<span class="mi">𝟙</span> ×h N) ×h X).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (x := π₂ (tm_var Γ)).
+      <span class="nb">fold</span> n x.
+      <span class="nb">unfold</span> nat_per_rec_form.
+      hypersimplify.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_cod_defined</span>
+      : partial_setoid_mor_cod_defined_law φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> φ.
+      <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (Γ := (<span class="mi">𝟙</span> ×h N) ×h X).
+      <span class="nb">fold</span> Γ.
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var Γ))).
+      <span class="nb">pose</span> (x := π₂ (tm_var Γ)).
+      <span class="nb">fold</span> n x.
+      <span class="nb">unfold</span> nat_per_rec_form.
+      hypersimplify.
+      use weaken_right.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_eq_defined</span>
+      : partial_setoid_mor_eq_defined_law φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> φ.
+      <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+      use impl_intro.
+      use weaken_right.
+      <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> nat_per_rec_form.
+      hypersimplify.
+      <span class="kp">repeat</span> use conj_intro.
+      - <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+        <span class="nb">refine</span> (partial_setoid_refl_r _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      - use weaken_left.
+        use weaken_right.
+        <span class="nb">refine</span> (partial_setoid_refl_r _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="kp">do</span> <span class="mi">2</span> use hyp_rtrans.
+        use hyp_sym.
+        <span class="nb">unfold</span> nat_per_rec_form_def.
+        hypersimplify.
+        use forall_intro.
+        <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+        hypersimplify.
+        <span class="nb">pose</span> (Γ := ((((<span class="mi">𝟙</span> ×h N) ×h N) ×h X) ×h X) ×h ℙ (N ×h X)).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (p := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (x₂ := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (n₂ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">pose</span> (n₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> x₁ x₂ n₁ n₂ p.
+        <span class="kp">do</span> <span class="mi">2</span> use hyp_ltrans.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> p.
+        }
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        use impl_intro.
+        <span class="nb">fold</span> n₁ x₁ p.
+        <span class="nb">refine</span> (exp_partial_setoid_extensional (nat_partial_setoid N) _ _ _ _ _).
+        + use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="kp">do</span> <span class="mi">6</span> use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="kp">do</span> <span class="mi">5</span> use weaken_left.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="nb">refine</span> (impl_elim _ _).
+          {
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">refine</span> (impl_elim _ _).
+          {
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">refine</span> (impl_elim _ _).
+          {
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_left.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nat_per_rec_eq_unique_im_ind_form</span>
+               (<span class="nv">Γ</span> : ty H)
+      : form (((N ×h Γ) ×h X) ×h X)
+      := <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var _) <span class="k">in</span>
+         <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (tm_var _)) <span class="k">in</span>
+         <span class="k">let</span> <span class="nv">n</span> := π₁ (π₁ (π₁ (tm_var _))) <span class="k">in</span>
+         (nat_per_rec_form N zX sX) [ ⟨ n , x ⟩ ]
+         ⇒ (nat_per_rec_form N zX sX) [ ⟨ n , y ⟩ ]
+         ⇒ x ~ y.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_eq_unique_im_ind</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">n</span> : tm Γ (nat_partial_setoid N))
+                (<span class="nv">p</span> : Δ ⊢ n ~ n)
+      : Δ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">nat_per_rec_eq_unique_im_ind_form</span> <span class="nv">Γ</span>)) [ ⟨ n , tm_var _ ⟩ ].
+    <span class="kn">Proof</span>.
+      use is_inductive_nat_induction.
+      - hypersimplify.
+        <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+        <span class="nb">unfold</span> nat_per_rec_eq_unique_im_ind_form.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        use impl_intro.
+        use weaken_right.
+        use impl_intro.
+        <span class="nb">pose</span> (Γ' := (Γ ×h X) ×h X).
+        <span class="nb">fold</span> Γ'.
+        <span class="nb">pose</span> (y := π₂ (tm_var Γ')).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var Γ'))).
+        <span class="nb">fold</span> x y.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (conj_intro _ _).
+          {
+            use weaken_left.
+            <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+            <span class="nb">apply</span> to_nat_per_rec_spec.
+          }
+          use weaken_right.
+          <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+          <span class="nb">apply</span> to_nat_per_rec_spec.
+        }
+        <span class="nb">unfold</span> nat_per_rec_spec.
+        <span class="nb">cbn</span>.
+        hypersimplify.
+        <span class="nb">rewrite</span> !subst_hd_nats_z.
+        <span class="nb">refine</span> (disj_elim _ _ _).
+        + use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use hyp_ltrans.
+          use weaken_right.
+          <span class="nb">refine</span> (disj_elim _ _ _).
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use hyp_ltrans.
+            use weaken_right.
+            use (partial_setoid_mor_unique_im zX _ _).
+            ** <span class="bp">exact</span> !!.
+            ** use weaken_left.
+               use weaken_right.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            <span class="nb">unfold</span> nat_per_rec_spec_suc.
+            hypersimplify.
+            <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all N _ _).
+            <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+            ** use weaken_right.
+               use weaken_left.
+               use hyperdoctrine_eq_sym.
+               <span class="nb">rewrite</span> subst_hd_nats_s.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+               <span class="nb">rewrite</span> subst_hd_nats_z.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use hyp_ltrans.
+          use weaken_right.
+          use hyp_sym.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          use hyp_sym.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">refine</span> (disj_elim _ _ _).
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use hyp_ltrans.
+            use weaken_right.
+            <span class="nb">unfold</span> nat_per_rec_spec_suc.
+            hypersimplify.
+            <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all N _ _).
+            <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+            ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+               <span class="nb">rewrite</span> subst_hd_nats_s.
+               use hyperdoctrine_eq_sym.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_right.
+               use weaken_left.
+               <span class="nb">rewrite</span> subst_hd_nats_z.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            hypersimplify.
+            <span class="nb">unfold</span> nat_per_rec_spec_suc.
+            <span class="nb">unfold</span> Γ', x, y.
+            hypersimplify.
+            <span class="nb">clear</span> Γ' x y.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            <span class="nb">rewrite</span> subst_hd_nats_z.
+            <span class="nb">rewrite</span> subst_hd_nats_s.
+            <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all N _ _).
+            use hyperdoctrine_eq_sym.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+      - hypersimplify.
+        use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        <span class="kp">do</span> <span class="mi">2</span> use forall_intro.
+        hypersimplify.
+        <span class="k">match goal with</span>
+        | |- <span class="nl">?H</span> ⊢ _ =&gt; <span class="nb">pose</span> (IH := H) ; <span class="nb">fold</span> IH
+        <span class="k">end</span>.
+        <span class="nb">unfold</span> nat_per_rec_eq_unique_im_ind_form.
+        hypersimplify.
+        <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+        <span class="nb">pose</span> (Γ' := ((Γ ×h N) ×h X) ×h X).
+        <span class="nb">pose</span> (y := π₂ (tm_var Γ')).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var Γ'))).
+        <span class="nb">pose</span> (m := π₂ (π₁ (π₁ (tm_var Γ')))).
+        <span class="nb">fold</span> Γ' x y m.
+        use hyp_ltrans.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">fold</span> m.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (conj_intro (weaken_left (hyperdoctrine_hyp _) _) _).
+          use weaken_right.
+          <span class="nb">refine</span> (conj_intro _ _).
+          + use weaken_left.
+            <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+            <span class="nb">apply</span> to_nat_per_rec_spec.
+          + use weaken_right.
+            <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+            <span class="nb">apply</span> to_nat_per_rec_spec.
+        }
+        use hyp_sym.
+        use hyp_ltrans.
+        <span class="nb">refine</span> (disj_elim _ _ _).
+        + use weaken_left.
+          <span class="nb">unfold</span> nat_per_rec_spec.
+          hypersimplify.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_right.
+          use weaken_left.
+          <span class="nb">rewrite</span> subst_hd_nats_z.
+          <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all N _ _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use hyp_ltrans.
+          use weaken_right.
+          use hyp_sym.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          use hyp_sym.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          use hyp_ltrans.
+          <span class="nb">refine</span> (disj_elim _ _ _).
+          * use weaken_left.
+            <span class="nb">unfold</span> nat_per_rec_spec.
+            hypersimplify.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_right.
+            use weaken_left.
+            <span class="nb">rewrite</span> subst_hd_nats_z, subst_hd_nats_s.
+            <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all N _ _).
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            use hyp_sym.
+            <span class="nb">refine</span> (exists_elim _ _).
+            {
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">rewrite</span> conj_subst.
+            use hyp_ltrans.
+            use weaken_right.
+            hypersimplify.
+            use hyp_ltrans.
+            <span class="nb">unfold</span> x, y, m, Γ'.
+            <span class="nb">clear</span> Γ' x y m.
+            <span class="nb">pose</span> (Γ' := ((((((Γ ×h N) ×h X) ×h X) ×h N) ×h X) ×h N) ×h X).
+            <span class="nb">fold</span> Γ'.
+            <span class="nb">pose</span> (y := π₂ (tm_var Γ')).
+            <span class="nb">pose</span> (m₁ := π₂ (π₁ (tm_var Γ'))).
+            <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var Γ')))).
+            <span class="nb">pose</span> (m₂ := π₂ (π₁ (π₁ (π₁ (tm_var Γ'))))).
+            <span class="nb">pose</span> (sy := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))).
+            <span class="nb">pose</span> (sx := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ'))))))).
+            <span class="nb">pose</span> (m₃ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))))).
+            <span class="nb">pose</span> (γ := π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ')))))))).
+            <span class="nb">rewrite</span> subst_hd_nats_s.
+            <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+            <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+            <span class="nb">rewrite</span> !var_tm_subst.
+            <span class="nb">fold</span> x m₁ y m₂ sx sy m₃.
+            <span class="nb">unfold</span> nat_per_rec_spec_suc.
+            hypersimplify.
+            <span class="nb">rewrite</span> !subst_hd_nats_s.
+            <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+            <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+            <span class="nb">rewrite</span> !var_tm_subst.
+            <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+            <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+            <span class="nb">refine</span> (weaken_cut _ _).
+            {
+              use weaken_left.
+              <span class="nb">unfold</span> IH.
+              <span class="nb">rewrite</span> forall_subst.
+              <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+              <span class="bp">exact</span> x.
+            }
+            use hyp_ltrans.
+            use weaken_right.
+            hypersimplify.
+            use hyp_sym.
+            <span class="nb">refine</span> (weaken_cut _ _).
+            {
+              use weaken_left.
+              <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+              <span class="bp">exact</span> y.
+            }
+            use hyp_ltrans.
+            use weaken_right.
+            hypersimplify.
+            <span class="nb">fold</span> m₃ γ.
+            <span class="nb">unfold</span> nat_per_rec_eq_unique_im_ind_form.
+            hypersimplify.
+            <span class="nb">refine</span> (partial_setoid_mor_unique_im sX _ _).
+            {
+              <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+              use weaken_right.
+              use weaken_left.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">refine</span> (partial_setoid_mor_eq_defined sX _ _ _).
+            ** use partial_setoid_sym.
+               <span class="nb">refine</span> (impl_elim _ (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _))).
+               *** use weaken_left.
+                   use weaken_right.
+                   use hyp_sym.
+                   use hyp_ltrans.
+                   use weaken_right.
+                   <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                             _
+                             _
+                             (weaken_left (hyperdoctrine_hyp _) _)).
+                   use weaken_right.
+                   use hyperdoctrine_eq_prod_eq.
+                   **** hypersimplify.
+                        use first_order_hyperdoctrine_nats_s_mono.
+                        <span class="nb">apply</span> hyperdoctrine_hyp.
+                   **** hypersimplify.
+                        <span class="nb">apply</span> hyperdoctrine_refl.
+               *** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+                   use hyp_sym.
+                   use hyp_ltrans.
+                   use weaken_right.
+                   <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                             _
+                             _
+                             (weaken_left (hyperdoctrine_hyp _) _)).
+                   use weaken_right.
+                   use hyperdoctrine_eq_prod_eq.
+                   **** hypersimplify.
+                        use first_order_hyperdoctrine_nats_s_mono.
+                        <span class="nb">apply</span> hyperdoctrine_hyp.
+                   **** hypersimplify.
+                        <span class="nb">apply</span> hyperdoctrine_refl.
+            ** use weaken_left.
+               <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+               use weaken_left.
+               <span class="nb">refine</span> (partial_setoid_mor_cod_defined _ _ _ _).
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** use weaken_left.
+               <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+               use weaken_left.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="nb">refine</span> (hyperdoctrine_cut p _).
+        <span class="nb">refine</span> (eq_nat_partial_setoid_to_inductive _ _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_eq_unique_im</span>
+      : partial_setoid_mor_unique_im_law φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> φ.
+      <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+      <span class="nb">cbn</span>.
+      use impl_intro.
+      use weaken_right.
+      <span class="nb">refine</span> (weaken_cut _ _).
+      {
+        <span class="nb">refine</span> (hyperdoctrine_cut (truth_intro _) _).
+        <span class="nb">refine</span> (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! nat_per_rec_dom_defined)).
+        <span class="nb">rewrite</span> truth_subst.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      hypersimplify.
+      use hyp_sym.
+      <span class="nb">refine</span> (weaken_cut _ _).
+      {
+        use weaken_left.
+        <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+        <span class="bp">exact</span> (π₂ (π₁ (π₁ (tm_var _)))).
+      }
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify.
+      use hyp_sym.
+      <span class="nb">refine</span> (weaken_cut _ _).
+      {
+        use weaken_left.
+        <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+        <span class="bp">exact</span> (π₂ (π₁ (tm_var _))).
+      }
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify.
+      use hyp_sym.
+      <span class="nb">refine</span> (weaken_cut _ _).
+      {
+        <span class="nb">refine</span> (impl_elim _ _).
+        {
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      use hyp_ltrans.
+      use weaken_right.
+      <span class="nb">refine</span> (impl_elim _ _).
+      {
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      use weaken_right.
+      <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+      {
+        <span class="bp">exact</span> (nat_per_rec_eq_unique_im_ind _ (hyperdoctrine_hyp _)).
+      }
+      hypersimplify.
+      <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+      {
+        <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+        <span class="bp">exact</span> (π₂ (π₁ (tm_var _))).
+      }
+      hypersimplify.
+      <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+      {
+        <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+        <span class="bp">exact</span> (π₂ (tm_var _)).
+      }
+      <span class="nb">unfold</span> nat_per_rec_eq_unique_im_ind_form.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nat_per_rec_hom_exists_form</span>
+                (<span class="nv">Γ</span> : ty H)
+      : form (nat_partial_setoid N ×h Γ)
+      := (<span class="k">∃</span><span class="nv">h</span> ((nat_per_rec_form N zX sX) [ ⟨ π₁ (π₁ (tm_var _)) , π₂ (tm_var _) ⟩ ])).
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_hom_exists_ind</span>
+                {<span class="nv">Γ</span> : ty H}
+                {<span class="nv">Δ</span> : form Γ}
+                (<span class="nv">n</span> : tm Γ (nat_partial_setoid N))
+                (<span class="nv">p</span> : Δ ⊢ n ~ n)
+      : Δ ⊢ (nat_per_rec_hom_exists_form Γ) [ ⟨ n , tm_var _ ⟩ ].
+    <span class="kn">Proof</span>.
+      use is_inductive_nat_induction.
+      - <span class="nb">unfold</span> nat_per_rec_hom_exists_form.
+        hypersimplify.
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          use (partial_setoid_mor_hom_exists zX).
+          {
+            <span class="bp">exact</span> !!.
+          }
+          use eq_in_eq_partial_setoid.
+          <span class="nb">apply</span> hyperdoctrine_refl.
+        }
+        use weaken_right.
+        hypersimplify.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> (π₂ (tm_var (Γ ×h X))).
+        }
+        <span class="nb">unfold</span> nat_per_rec_form.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        <span class="kp">repeat</span> use conj_intro.
+        + use nat_partial_setoid_refl.
+          <span class="nb">apply</span> is_inductive_zero.
+        + <span class="nb">refine</span> (partial_setoid_mor_cod_defined zX _ _ _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="nb">unfold</span> nat_per_rec_form_def.
+          hypersimplify.
+          use forall_intro.
+          hypersimplify.
+          <span class="nb">rewrite</span> subst_hd_nats_z.
+          <span class="nb">pose</span> (f := π₂ (tm_var ((Γ ×h X) ×h ℙ (N ×h X)))).
+          <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((Γ ×h X) ×h ℙ (N ×h X))))).
+          <span class="nb">pose</span> (γ := π₁ (π₁ (tm_var ((Γ ×h X) ×h ℙ (N ×h X))))).
+          <span class="nb">fold</span> γ x f.
+          use impl_intro.
+          <span class="kp">do</span> <span class="mi">2</span> (use impl_intro ; use weaken_left).
+          <span class="nb">unfold</span> map_contains_z.
+          hypersimplify.
+          use hyp_sym.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            use weaken_left.
+            <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+            <span class="bp">exact</span> x.
+          }
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">refine</span> (impl_elim _ _).
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_right.
+            <span class="nb">rewrite</span> subst_hd_nats_z.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="nb">refine</span> (hyperdoctrine_cut p _).
+        use forall_intro.
+        use impl_intro.
+        use hyp_sym.
+        <span class="nb">unfold</span> nat_per_rec_hom_exists_form.
+        hypersimplify.
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">rewrite</span> conj_subst.
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          <span class="nb">refine</span> (partial_setoid_mor_hom_exists sX _).
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            <span class="nb">refine</span> (hyperdoctrine_cut
+                      _
+                      (hyperdoctrine_proof_subst !! (nat_per_rec_cod_defined))).
+            hypersimplify.
+            <span class="nb">apply</span> truth_intro.
+          }
+          use hyp_sym.
+          hypersimplify.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            use weaken_left.
+            <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+            <span class="bp">exact</span> (π₂ (π₁ (tm_var _))).
+          }
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          use hyp_sym.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            use weaken_left.
+            <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+            <span class="bp">exact</span> (π₂ (tm_var _)).
+          }
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">refine</span> (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
+          use weaken_left.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> (π₂ (tm_var _)).
+        }
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        use hyp_ltrans.
+        use weaken_right.
+        <span class="nb">refine</span> (hyperdoctrine_cut
+                  _
+                  (hyperdoctrine_proof_subst
+                     _
+                     (from_nat_per_rec_spec N zX sX))).
+        <span class="nb">unfold</span> nat_per_rec_spec.
+        hypersimplify.
+        use disj_intro_right.
+        hypersimplify.
+        <span class="nb">clear</span> n p.
+        <span class="nb">pose</span> (y := π₂ (tm_var (((Γ ×h N) ×h X) ×h X))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var (((Γ ×h N) ×h X) ×h X)))).
+        <span class="nb">pose</span> (n := π₂ (π₁ (π₁ (tm_var (((Γ ×h N) ×h X) ×h X))))).
+        <span class="nb">fold</span> n x y.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> n.
+        }
+        hypersimplify.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> x.
+        }
+        <span class="nb">cbn</span>.
+        hypersimplify.
+        <span class="nb">fold</span> y.
+        <span class="nb">unfold</span> nat_per_rec_spec_suc.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+        <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+        <span class="kp">repeat</span> use conj_intro.
+        + <span class="nb">apply</span> hyperdoctrine_refl.
+        + use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="nb">refine</span> (eq_nat_partial_setoid_to_inductive _ _).
+        <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_hom_exists</span>
+      : partial_setoid_mor_hom_exists_law φ.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> φ.
+      use forall_intro.
+      use impl_intro.
+      <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+      {
+        use (nat_per_rec_hom_exists_ind (π₂ (tm_var _))).
+        use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">unfold</span> nat_per_rec_hom_exists_form.
+      hypersimplify.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_laws</span>
+      : partial_setoid_morphism_laws φ.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="bp">exact</span> nat_per_rec_dom_defined.
+      - <span class="bp">exact</span> nat_per_rec_cod_defined.
+      - <span class="bp">exact</span> nat_per_rec_eq_defined.
+      - <span class="bp">exact</span> nat_per_rec_eq_unique_im.
+      - <span class="bp">exact</span> nat_per_rec_hom_exists.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nat_per_rec</span>
+      : partial_setoid_morphism (nat_partial_setoid N) X.
+    <span class="kn">Proof</span>.
+      use make_partial_setoid_morphism.
+      - <span class="bp">exact</span> (nat_per_rec_form N zX sX).
+      - <span class="bp">exact</span> nat_per_rec_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 4. The β-rules *)</span>
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_Z</span>
+      : partial_setoid_comp_morphism nat_per_Z nat_per_rec = zX.
+    <span class="kn">Proof</span>.
+      use eq_partial_setoid_morphism.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (exists_elim _ _).
+        {
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        <span class="nb">rewrite</span> (hyperdoctrine_pair_eta (π₁ (tm_var _))).
+        hypersimplify.
+        <span class="nb">rewrite</span> (hyperdoctrine_unit_eta (π₁ (π₁ (tm_var _)))).
+        use (nat_per_rec_form_z_inv N zX sX).
+        hypersimplify.
+        <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                  _
+                  _
+                  (weaken_right (hyperdoctrine_hyp _) _)).
+        use weaken_left.
+        use hyperdoctrine_eq_prod_eq.
+        + hypersimplify.
+          use hyperdoctrine_eq_sym.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + hypersimplify.
+          <span class="nb">apply</span> hyperdoctrine_refl.
+      - <span class="nb">rewrite</span> &lt;- (hyperdoctrine_id_subst zX).
+        <span class="nb">rewrite</span> (hyperdoctrine_pair_eta (tm_var _)).
+        <span class="nb">rewrite</span> (hyperdoctrine_unit_eta (π₁ (tm_var (eq_partial_setoid <span class="mi">𝟙</span> ×h X)))).
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (nat_per_rec_form_z N zX sX _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">cbn</span>.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> (hd_nats_z N _).
+        }
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        use conj_intro.
+        + <span class="nb">apply</span> hyperdoctrine_refl.
+        + <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_S</span>
+      : partial_setoid_comp_morphism nat_per_S nat_per_rec
+        =
+        partial_setoid_comp_morphism nat_per_rec sX.
+    <span class="kn">Proof</span>.
+      use eq_partial_setoid_morphism.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+        <span class="nb">pose</span> (n := π₁ (π₁ (tm_var ((N ×h X) ×h N)))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((N ×h X) ×h N)))).
+        <span class="nb">pose</span> (sn := π₂ (tm_var ((N ×h X) ×h N))).
+        <span class="nb">fold</span> n sn x.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">simple refine</span> (nat_per_rec_form_s_inv N zX sX _).
+          + <span class="bp">exact</span> n.
+          + <span class="bp">exact</span> x.
+          + <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                      _
+                      _
+                      (weaken_right (hyperdoctrine_hyp _) _)).
+            use weaken_left.
+            use hyperdoctrine_eq_prod_eq.
+            * hypersimplify.
+              use weaken_right.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            * hypersimplify.
+              <span class="nb">apply</span> hyperdoctrine_refl.
+        }
+        <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+        use weaken_right.
+        hypersimplify.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> (π₂ (tm_var _)).
+        }
+        <span class="nb">unfold</span> n, x.
+        hypersimplify.
+        use conj_intro.
+        + use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">pose</span> (n := π₁ (π₁ (tm_var ((N ×h X) ×h X)))).
+        <span class="nb">pose</span> (sx := π₂ (π₁ (tm_var ((N ×h X) ×h X)))).
+        <span class="nb">pose</span> (x := π₂ (tm_var ((N ×h X) ×h X))).
+        <span class="nb">fold</span> n x sx.
+        use exists_intro.
+        {
+          <span class="bp">exact</span> (hd_nats_s N n).
+        }
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> n x sx.
+        <span class="kp">repeat</span> use conj_intro.
+        + use weaken_left.
+          <span class="nb">refine</span> (partial_setoid_mor_dom_defined nat_per_rec _ _ _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="nb">apply</span> hyperdoctrine_refl.
+        + use nat_per_rec_form_s.
+          * <span class="bp">exact</span> x.
+          * use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 5. Uniqueness *)</span>
+    <span class="kn">Proposition</span> <span class="nf">nat_per_rec_unique</span>
+                (<span class="nv">ψ</span> : partial_setoid_morphism (nat_partial_setoid N) X)
+                (<span class="nv">p₁</span> : partial_setoid_comp_morphism nat_per_Z ψ = zX)
+                (<span class="nv">p₂</span> : partial_setoid_comp_morphism nat_per_S ψ
+                      =
+                      partial_setoid_comp_morphism ψ sX)
+      : ψ = nat_per_rec.
+    <span class="kn">Proof</span>.
+      use eq_partial_setoid_morphism.
+      - use eq_nat_partial_setoid_morphism.
+        + <span class="nb">clear</span> p₂.
+          <span class="nb">unfold</span> partial_setoid_mor_contains_Z.
+          use impl_intro.
+          use weaken_right.
+          use nat_per_rec_form_z.
+          use (from_eq_partial_setoid_morphism_f p₁).
+          <span class="nb">cbn</span>.
+          hypersimplify.
+          use exists_intro.
+          {
+            <span class="bp">exact</span> (hd_nats_z N _).
+          }
+          hypersimplify.
+          <span class="nb">rewrite</span> subst_hd_nats_z.
+          use conj_intro.
+          * <span class="nb">apply</span> hyperdoctrine_refl.
+          * <span class="nb">apply</span> hyperdoctrine_hyp.
+        + <span class="nb">clear</span> p₁.
+          <span class="nb">unfold</span> partial_setoid_mor_contains_S.
+          use impl_intro.
+          use weaken_right.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_right.
+          hypersimplify.
+          use impl_intro.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            <span class="nb">simple refine</span> (from_eq_partial_setoid_morphism_f p₂ _).
+            * <span class="bp">exact</span> (π₁ (π₁ (tm_var _))).
+            * <span class="bp">exact</span> (π₂ (π₁ (tm_var _))).
+            * <span class="nb">cbn</span>.
+              hypersimplify.
+              use exists_intro.
+              {
+                <span class="bp">exact</span> (hd_nats_s N (π₁ (π₁ (tm_var _)))).
+              }
+              hypersimplify.
+              <span class="nb">rewrite</span> !subst_hd_nats_s.
+              <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+              <span class="nb">rewrite</span> !var_tm_subst.
+              <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+              <span class="kp">repeat</span> use conj_intro.
+              ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+                 <span class="nb">refine</span> (partial_setoid_mor_dom_defined ψ _ _ _).
+                 <span class="nb">apply</span> hyperdoctrine_hyp.
+              ** <span class="nb">apply</span> hyperdoctrine_refl.
+              ** use weaken_right.
+                 <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use hyp_sym.
+          <span class="nb">cbn</span>.
+          hypersimplify.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> subst_hd_nats_s.
+          <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+          <span class="nb">rewrite</span> !var_tm_subst.
+          use nat_per_rec_form_s.
+          * <span class="bp">exact</span> (π₂ (tm_var _)).
+          * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * <span class="nb">refine</span> (partial_setoid_mor_eq_defined nat_per_rec _ _ _).
+            ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+               use weaken_right.
+               <span class="nb">refine</span> (partial_setoid_mor_dom_defined nat_per_rec _ _ _).
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** <span class="nb">refine</span> (partial_setoid_mor_unique_im ψ _ _).
+               *** <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+                   <span class="nb">apply</span> hyperdoctrine_hyp.
+               *** use weaken_right.
+                   use weaken_left.
+                   <span class="nb">apply</span> hyperdoctrine_hyp.
+            ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+               use weaken_right.
+               <span class="nb">apply</span> hyperdoctrine_hyp.
+      - use eq_nat_partial_setoid_morphism.
+        + <span class="nb">clear</span> p₂.
+          <span class="nb">unfold</span> partial_setoid_mor_contains_Z.
+          use impl_intro.
+          use weaken_right.
+          <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+          {
+            <span class="nb">refine</span> (from_eq_partial_setoid_morphism_b p₁ _).
+            <span class="nb">apply</span> (nat_per_rec_form_z_inv N zX sX).
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">cbn</span>.
+          hypersimplify.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !subst_hd_nats_z.
+          <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                    _
+                    _
+                    (weaken_right (hyperdoctrine_hyp _) _)).
+          use hyperdoctrine_eq_prod_eq.
+          * hypersimplify.
+            use hyperdoctrine_eq_sym.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * hypersimplify.
+            <span class="nb">apply</span> hyperdoctrine_refl.
+        + <span class="nb">clear</span> p₁.
+          <span class="nb">unfold</span> partial_setoid_mor_contains_S.
+          use impl_intro.
+          use weaken_right.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> subst_hd_nats_s.
+          <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+          <span class="nb">rewrite</span> !var_tm_subst.
+          use impl_intro.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            use weaken_right.
+            <span class="nb">apply</span> nat_per_rec_form_s_inv.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use hyp_sym.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">refine</span> (weaken_cut _ _).
+          {
+            <span class="nb">simple refine</span> (from_eq_partial_setoid_morphism_b p₂ _).
+            + <span class="bp">exact</span> (π₁ (π₁ (π₁ (tm_var _)))).
+            + <span class="bp">exact</span> (π₂ (π₁ (π₁ (tm_var _)))).
+            + <span class="nb">cbn</span>.
+              hypersimplify.
+              use exists_intro.
+              {
+                <span class="bp">exact</span> (π₂ (tm_var _)).
+              }
+              hypersimplify.
+              <span class="nb">rewrite</span> !subst_hd_nats_s.
+              <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+              <span class="nb">rewrite</span> !var_tm_subst.
+              use conj_intro.
+              * <span class="nb">refine</span> (partial_setoid_mor_eq_defined ψ _ _ _).
+                ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+                   use weaken_right.
+                   <span class="nb">refine</span> (partial_setoid_mor_dom_defined ψ _ _ _).
+                   <span class="nb">apply</span> hyperdoctrine_hyp.
+                ** <span class="nb">refine</span> (partial_setoid_mor_unique_im nat_per_rec _ _).
+                   *** <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+                       <span class="nb">apply</span> hyperdoctrine_hyp.
+                   *** <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+                       <span class="nb">apply</span> hyperdoctrine_hyp.
+                ** <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+                   use weaken_right.
+                   <span class="nb">apply</span> hyperdoctrine_hyp.
+              * use weaken_right.
+                use weaken_left.
+                <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">cbn</span>.
+          use hyp_sym.
+          hypersimplify.
+          <span class="nb">refine</span> (exists_elim _ _).
+          {
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">rewrite</span> conj_subst.
+          use hyp_ltrans.
+          use weaken_right.
+          hypersimplify.
+          <span class="nb">rewrite</span> !subst_hd_nats_s.
+          <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+          <span class="nb">rewrite</span> !var_tm_subst.
+          <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+          use weaken_right.
+          use hyp_ltrans.
+          use weaken_right.
+          <span class="nb">refine</span> (hyperdoctrine_eq_transportf
+                    _
+                    _
+                    (weaken_right (hyperdoctrine_hyp _) _)).
+          use weaken_left.
+          use hyperdoctrine_eq_prod_eq.
+          * hypersimplify.
+            use hyperdoctrine_eq_sym.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          * hypersimplify.
+            <span class="nb">apply</span> hyperdoctrine_refl.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Mapping</span>.
+
+  <span class="sd">(** * 6. The natural numbers object *)</span>
+  <span class="kn">Definition</span> <span class="nf">category_of_partial_setoids_NNO</span>
+    : NNO (terminal_partial_setoid H).
+  <span class="kn">Proof</span>.
+    use make_NNO.
+    - <span class="bp">exact</span> (nat_partial_setoid N).
+    - <span class="bp">exact</span> nat_per_Z.
+    - <span class="bp">exact</span> nat_per_S.
+    - <span class="nb">intros</span> X zX sX.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (nat_per_rec zX sX).
+        * <span class="bp">exact</span> (nat_per_rec_Z zX sX).
+        * <span class="bp">exact</span> (nat_per_rec_S zX sX).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> ψ ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (nat_per_rec_unique zX sX (pr1 ψ) (pr12 ψ) (pr22 ψ))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PERNats</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/PERNaturals.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The natural numbers object
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

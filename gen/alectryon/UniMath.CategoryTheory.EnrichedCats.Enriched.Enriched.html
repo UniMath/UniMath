@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Enriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Enriched categories *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd"> - Definition</span>
+<span class="sd"> - Enriched functors</span>
+<span class="sd">  - Composition of enriched functors</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+<span class="kn">Notation</span> <span class="s2">"( c , d )"</span> := (make_catbinprod c d).
+<span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+
+
+<span class="kn">Section</span> <span class="nf">aux</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bifunctor_on_morphisms_comm</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : A ⊠ B ⟶ C) {<span class="nv">a</span> <span class="nv">a'</span> : A} {<span class="nv">b</span> <span class="nv">b'</span> : B} (<span class="nv">f</span> : a --&gt; a') (<span class="nv">g</span> : b --&gt; b') : #F (f #, identity _) · #F (identity _ #, g) = #F (identity _ #, g) · #F (f #, identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- !functor_comp.
+  <span class="nb">change</span> ((<span class="nl">?x</span> #, <span class="nl">?y</span>) · (<span class="nl">?z</span> #, <span class="nl">?w</span>)) <span class="k">with</span> (x · z #, y · w).
+  <span class="nb">rewrite</span> !id_left, !id_right.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bifunctor_comp_left</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : A ⊠ B ⟶ C) {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span> : A} {<span class="nv">b</span> : B} (<span class="nv">f</span> : a --&gt; a') (<span class="nv">g</span> : a' --&gt; a'') : #F (f · g #, identity b) = #F (f #, identity _) · #F (g #, identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- (functor_comp F).
+  <span class="nb">change</span> ((<span class="nl">?x</span> #, <span class="nl">?y</span>) · (<span class="nl">?z</span> #, <span class="nl">?w</span>)) <span class="k">with</span> (x · z #, y · w).
+  <span class="nb">rewrite</span> id_left.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bifunctor_comp_right</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : A ⊠ B ⟶ C) {<span class="nv">a</span> : A} {<span class="nv">b</span> <span class="nv">b'</span> <span class="nv">b''</span> : B} (<span class="nv">f</span> : b --&gt; b') (<span class="nv">g</span> : b' --&gt; b'') : #F (identity a #, f · g) = #F (identity _ #, f) · #F (identity _ #, g).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- (functor_comp F).
+  <span class="nb">change</span> ((<span class="nl">?x</span> #, <span class="nl">?y</span>) · (<span class="nl">?z</span> #, <span class="nl">?w</span>)) <span class="k">with</span> (x · z #, y · w).
+  <span class="nb">rewrite</span> id_left.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">aux</span>.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="sd">(** For the whole file, fix a monoidal category. *)</span>
+<span class="kn">Context</span> {<span class="nv">Mon_V</span> : monoidal_cat}.
+
+<span class="kn">Let</span> <span class="nf">I</span>        := I_{Mon_V}.
+
+<span class="sd">(** ** Definition *)</span>
+
+<span class="sd">(** This definition is based on that on the nLab *)</span>
+<span class="kn">Section</span> <span class="nf">Def</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_precat_data</span> : UU :=
+    ∑ C : UU,                                     <span class="c">(* Type of objects *)</span>
+    ∑ mor : C -&gt; C -&gt; ob Mon_V,                     <span class="c">(* Object of morphisms *)</span>
+    dirprod
+      (∏ x : C, I --&gt; mor x x)                      <span class="c">(* Identities *)</span>
+      (∏ x y z : C, mor y z ⊗ mor x y --&gt; mor x z). <span class="c">(* Composition morphism *)</span>
+
+  <span class="sd">(** Accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_cat_ob</span>    (<span class="nv">d</span> : enriched_precat_data) : UU := pr1 d.
+  <span class="kn">Definition</span> <span class="nf">enriched_cat_mor</span>   {<span class="nv">d</span> : enriched_precat_data} :
+    enriched_cat_ob d -&gt; enriched_cat_ob d -&gt; ob Mon_V := pr1 (pr2 d).
+  <span class="kn">Definition</span> <span class="nf">enriched_cat_identity</span>    {<span class="nv">d</span> : enriched_precat_data} :
+    ∏ x : enriched_cat_ob d, I --&gt; enriched_cat_mor x x := pr1 (pr2 (pr2 d)).
+  <span class="kn">Definition</span> <span class="nf">enriched_cat_comp</span> {<span class="nv">d</span> : enriched_precat_data} (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : enriched_cat_ob d) :
+    enriched_cat_mor y z ⊗ enriched_cat_mor x y --&gt; enriched_cat_mor x z :=
+    pr2 (pr2 (pr2 d)) x y z.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_cat_ob</span> : enriched_precat_data &gt;-&gt; UU.
+
+  <span class="sd">(** Constructor. Use like so: [use make_enriched_cat_data] *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_enriched_precat_data</span> (<span class="nv">C</span> : UU) (<span class="nv">mor</span> : ∏ x y : C, ob Mon_V)
+             (<span class="nv">ids</span> : ∏ x : C, I --&gt; mor x x)
+             (<span class="nv">assoc</span> : ∏ x y z : C, mor y z ⊗ mor x y --&gt; mor x z) :
+    enriched_precat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> enriched_precat_data.
+    use tpair; [|use tpair; [|use make_dirprod]].
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> mor.
+    - <span class="bp">exact</span> ids.
+    - <span class="bp">exact</span> assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Axioms</span>.
+    <span class="kn">Context</span> (<span class="nv">e</span> : enriched_precat_data).
+
+    <span class="sd">(** Associativity axiom for enriched categories:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          (C(c, d) ⊗ C(b, c)) ⊗ C(a, b) --------&gt; C(c, d) ⊗ (C(b, c) ⊗ C(a, b))</span>
+<span class="sd">                        |                                        |</span>
+<span class="sd">                ∘ ⊗ identity  |                                identity ⊗ ∘  |</span>
+<span class="sd">                        V                                        V</span>
+<span class="sd">                C(b, d) ⊗ C(a, b) -----&gt; C(a, d) &lt;------ C(c, d) ⊗ C(a, c)</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">    *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">enriched_assoc_ax</span> : UU :=
+      ∏ a b c d : enriched_cat_ob e,
+      (enriched_cat_comp b c d #⊗ (identity _))
+        · enriched_cat_comp a _ _ =
+      mon_lassociator _ _ _
+        · ((identity _ #⊗ enriched_cat_comp _ _ _)
+          · enriched_cat_comp _ _ _).
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_enriched_assoc_ax</span> :
+      has_homsets Mon_V -&gt; isaprop (enriched_assoc_ax).
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> hsV; <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hsV.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** Identity axiom(s) for enriched categories:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          I ⊗ C(a, b) ---&gt; C(b, b) ⊗ C(a, b)</span>
+<span class="sd">                      \         |</span>
+<span class="sd">                       \        V</span>
+<span class="sd">                           C(a, b)</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">        (And the symmetrized version.)</span>
+<span class="sd">    *)</span>
+    <span class="kn">Definition</span> <span class="nf">enriched_id_ax</span> : UU :=
+      ∏ a b : enriched_cat_ob e,
+        dirprod
+          (enriched_cat_identity b #⊗ (identity _) · enriched_cat_comp a b b = mon_lunitor _)
+          ((identity _ #⊗ enriched_cat_identity a) · enriched_cat_comp a a b = mon_runitor _).
+
+
+  <span class="kn">End</span> <span class="nf">Axioms</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_precat</span> : UU :=
+    ∑ d : enriched_precat_data, (enriched_id_ax d) × (enriched_assoc_ax d).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_precat_to_enriched_precat_data</span> :
+    enriched_precat -&gt; enriched_precat_data := pr1.
+  <span class="kn">Coercion</span> <span class="nf">enriched_precat_to_enriched_precat_data</span> :
+    enriched_precat &gt;-&gt; enriched_precat_data.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_precat</span> (<span class="nv">d</span> : enriched_precat_data) (<span class="nv">idax</span> : enriched_id_ax d)
+             (<span class="nv">assocax</span> : enriched_assoc_ax d) : enriched_precat :=
+    tpair _ d (make_dirprod idax assocax).
+
+  <span class="sd">(** Accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_id_left</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> <span class="nv">b</span> : A) : enriched_cat_identity b #⊗ (identity _) · enriched_cat_comp a b b = mon_lunitor _ := pr1 (pr1 (pr2 A) _ _).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_id_right</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> <span class="nv">b</span> : A) : (identity _ #⊗ enriched_cat_identity a) · enriched_cat_comp a a b = mon_runitor _ := pr2 (pr1 (pr2 A) _ _).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_assoc</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : A) : (enriched_cat_comp b c d #⊗ (identity _)) · enriched_cat_comp a _ _ = mon_lassociator _ _ _ · ((identity _ #⊗ enriched_cat_comp _ _ _) · enriched_cat_comp _ _ _) := pr2 (pr2 A) a b c d.
+
+<span class="kn">End</span> <span class="nf">Def</span>.
+
+<span class="sd">(** *** Enriched functors *)</span>
+
+<span class="kn">Section</span> <span class="nf">Functors</span>.
+  <span class="kn">Context</span> {<span class="nv">D</span> <span class="nv">E</span> : enriched_precat}.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_data</span> : UU :=
+    ∑ F : enriched_cat_ob D -&gt; enriched_cat_ob E,
+      ∏ x y : enriched_cat_ob D,
+        Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_functor_data</span>
+    (<span class="nv">F</span> : enriched_cat_ob D -&gt; enriched_cat_ob E)
+    (<span class="nv">mor</span> : ∏ x y : enriched_cat_ob D,
+       Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧)
+    : enriched_functor_data :=
+    tpair _ F mor.
+
+  <span class="sd">(** Accessors *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_on_objects</span> (<span class="nv">F</span> : enriched_functor_data) :
+    enriched_cat_ob D -&gt; enriched_cat_ob E := pr1 F.
+  <span class="kn">Coercion</span> <span class="nf">enriched_functor_on_objects</span> : enriched_functor_data &gt;-&gt; <span class="kt">Funclass</span>.
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_on_morphisms</span> (<span class="nv">F</span> : enriched_functor_data) :
+    ∏ x y : enriched_cat_ob D,
+      Mon_V⟦enriched_cat_mor x y, enriched_cat_mor (F x) (F y)⟧ := pr2 F.
+
+  <span class="kn">Section</span> <span class="nf">Axioms</span>.
+    <span class="kn">Context</span> (<span class="nv">F</span> : enriched_functor_data).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_unit_ax</span> : UU :=
+      ∏ a : enriched_cat_ob D,
+      enriched_cat_identity a · enriched_functor_on_morphisms F a a
+      =
+      enriched_cat_identity (F a).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_functor_comp_ax</span> : UU :=
+      ∏ a b c : enriched_cat_ob D,
+      enriched_cat_comp a b c · enriched_functor_on_morphisms F a c
+      =
+      (enriched_functor_on_morphisms F b c) #⊗  (enriched_functor_on_morphisms F a b)
+      · enriched_cat_comp _ _ _.
+  <span class="kn">End</span> <span class="nf">Axioms</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor</span> : UU :=
+    ∑ d : enriched_functor_data,
+      enriched_functor_unit_ax d × enriched_functor_comp_ax d.
+
+  <span class="sd">(** Constructor *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_functor</span> (<span class="nv">d</span> : enriched_functor_data)
+    (<span class="nv">uax</span> : enriched_functor_unit_ax d) (<span class="nv">cax</span> : enriched_functor_comp_ax d) :
+    enriched_functor :=
+    tpair _ d (make_dirprod uax cax).
+
+  <span class="sd">(** Coercion to *_data *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_to_enriched_functor_data</span> (<span class="nv">F</span> : enriched_functor) :
+    enriched_functor_data := pr1 F.
+  <span class="kn">Coercion</span> <span class="nf">enriched_functor_to_enriched_functor_data</span> :
+    enriched_functor &gt;-&gt; enriched_functor_data.
+
+  <span class="sd">(** Accessors for axioms*)</span>
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_on_identity</span> (<span class="nv">F</span> : enriched_functor) :
+    enriched_functor_unit_ax F := (pr1 (pr2 F)).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_functor_on_comp</span> (<span class="nv">F</span> : enriched_functor) :
+    enriched_functor_comp_ax F := (pr2 (pr2 F)).
+<span class="kn">End</span> <span class="nf">Functors</span>.
+
+<span class="kn">Arguments</span> enriched_functor_data _ _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> enriched_functor _ _ : <span class="kn">clear implicits</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_identity</span> (<span class="nv">A</span> : enriched_precat) : enriched_functor A A.
+<span class="kn">Proof</span>.
+  use make_enriched_functor.
+  - use make_enriched_functor_data.
+    + <span class="nb">intro</span> a.
+      <span class="bp">exact</span> a.
+    + <span class="nb">intros</span> x y.
+      <span class="bp">exact</span> (identity _).
+  - <span class="nb">intro</span> a.
+    <span class="nb">apply</span> id_right.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> a b c;
+       <span class="nb">simpl</span> ;
+       <span class="nb">rewrite</span> tensor_id_id ;
+       <span class="nb">rewrite</span> id_left, id_right;
+       <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Composition of enriched functors *)</span>
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_comp_data</span>
+           {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : enriched_precat}
+           (<span class="nv">F</span> : enriched_functor_data P Q) (<span class="nv">G</span> : enriched_functor_data Q R) :
+  enriched_functor_data P R.
+<span class="kn">Proof</span>.
+  use make_enriched_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, G (F x)).
+  - <span class="nb">intros</span> x y; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ · (enriched_functor_on_morphisms G (F x) (F y))).
+    <span class="nb">apply</span> (enriched_functor_on_morphisms F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_comp</span>
+           {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">R</span> : enriched_precat}
+           (<span class="nv">F</span> : enriched_functor P Q) (<span class="nv">G</span> : enriched_functor Q R) :
+  enriched_functor P R.
+<span class="kn">Proof</span>.
+  use make_enriched_functor.
+  - <span class="nb">apply</span> (enriched_functor_comp_data F G).
+  - <span class="sd">(** Unit axioms *)</span>
+    <span class="nb">intros</span> a.
+    <span class="nb">unfold</span> enriched_functor_comp_data; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; f · _) (pr1 (pr2 F) a) @ _).
+    <span class="nb">apply</span> enriched_functor_on_identity.
+  - <span class="sd">(** Composition axioms *)</span>
+    <span class="nb">intros</span> a b c; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; f · _) (enriched_functor_on_comp F _ _ _) @ _).
+    <span class="nb">rewrite</span> tensor_comp_mor.
+    <span class="c">(* Get rid of the common prefix *)</span>
+    <span class="nb">refine</span> (_ @ assoc _ _ _).
+    <span class="nb">refine</span> (!assoc _ _ _ @ _).
+    <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; _ · f)).
+
+    <span class="nb">apply</span> enriched_functor_on_comp.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">  TODO</span>
+<span class="c">  Definition enriched_functor_data_eq {A B : enriched_precat Mon_V} {F G : enriched_functor_data _ A B} : (∏ a : A, F a = G a) -&gt; (∏ (a a' : A), enriched_functor_on_morphisms F a a' = enriched_functor_on_morphisms G a a') -&gt; F = G.</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_eq</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} : (enriched_functor_to_enriched_functor_data F = enriched_functor_to_enriched_functor_data G) -&gt; F = G.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  use total2_paths_b.
+  - <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    + <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop;<span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">UnderlyingMorphisms</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlying_morphism</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">x</span> <span class="nv">y</span> : A) := I --&gt; enriched_cat_mor x y.
+
+<span class="kn">Definition</span> <span class="nf">precompose_underlying_morphism</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">z</span> : A) (<span class="nv">f</span> : underlying_morphism x y) : enriched_cat_mor y z --&gt; enriched_cat_mor x z := (mon_rinvunitor _ · (identity _ #⊗ f) · enriched_cat_comp _ _ _).
+
+<span class="kn">Definition</span> <span class="nf">postcompose_underlying_morphism</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">x</span> : A) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism y z) : enriched_cat_mor x y --&gt; enriched_cat_mor x z := (mon_linvunitor _ · (f #⊗ identity _) · enriched_cat_comp _ _ _).
+
+<span class="kn">Definition</span> <span class="nf">precompose_identity</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">x</span> <span class="nv">y</span> : A} : precompose_underlying_morphism y (enriched_cat_identity x) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">f</span>, _ · f = _) (enriched_id_right _ _)).
+  <span class="nb">apply</span> mon_rinvunitor_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">postcompose_identity</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">x</span> <span class="nv">y</span> : A} : postcompose_underlying_morphism x (enriched_cat_identity y) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">h</span>, _ · h = _) (enriched_id_left _ _)).
+  <span class="nb">apply</span> mon_linvunitor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precompose_underlying_morphism_enriched_cat_comp</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism w x) : ((identity _ #⊗ precompose_underlying_morphism y f) · enriched_cat_comp w y z = enriched_cat_comp x y z · precompose_underlying_morphism z f)%cat.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split'.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> (assoc' _ _ (enriched_cat_comp w x z)).
+  <span class="nb">rewrite</span> (@enriched_assoc A).
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> !tensor_comp_id_l.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_id_id.
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  {
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> tensor_lassociator.
+  }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- mon_rinvunitor_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (_ @ id_right _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> mon_rassociator_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">enriched_cat_comp_underlying_morphism_middle</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism x y) : ((identity _ #⊗ postcompose_underlying_morphism w f) · enriched_cat_comp w y z = (precompose_underlying_morphism z f #⊗ identity _) · enriched_cat_comp w x z).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precompose_underlying_morphism, postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !tensor_comp_id_r, !tensor_comp_id_l.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> (@enriched_assoc A).
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> tensor_lassociator.
+  }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> mon_inv_triangle.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcompose_underlying_morphism_enriched_cat_comp</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism y z) : ((postcompose_underlying_morphism x f #⊗ identity _) · enriched_cat_comp w x z = enriched_cat_comp w x y · postcompose_underlying_morphism w f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> (@enriched_assoc A).
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> tensor_lassociator.
+  }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> tensor_id_id.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> mon_linvunitor_triangle.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">postcompose_underlying_morphism_composite</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">w</span> : A) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism x y) (<span class="nv">g</span> : underlying_morphism y z) : postcompose_underlying_morphism w (f · postcompose_underlying_morphism _ g) = postcompose_underlying_morphism _ f · postcompose_underlying_morphism _ g.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !tensor_comp_id_r.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">rewrite</span> enriched_assoc.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_lassociator.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> tensor_id_id.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> mon_linvunitor_triangle.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">rewrite</span> tensor_split.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> tensor_linvunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precompose_underlying_morphism_composite</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">w</span> : A) {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism x y) (<span class="nv">g</span> : underlying_morphism y z) : precompose_underlying_morphism w (f · postcompose_underlying_morphism _ g) = precompose_underlying_morphism _ g · precompose_underlying_morphism _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism, precompose_underlying_morphism.
+  <span class="nb">rewrite</span> !tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> (assoc' _ (enriched_cat_comp y z w)).
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split'.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> (assoc' _ _ (enriched_cat_comp x y w)).
+  <span class="nb">rewrite</span> enriched_assoc.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- tensor_id_id.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> tensor_lassociator.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- mon_rinvunitor_triangle.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> mon_rinvunitor_I_mon_linvunitor_I.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- tensor_split, &lt;- tensor_split'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlying_morphism_compose_swap</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism x y) (<span class="nv">g</span> : underlying_morphism y z) : f · postcompose_underlying_morphism _ g = g · precompose_underlying_morphism _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_split'.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+  <span class="nb">apply</span> mon_linvunitor_I_mon_rinvunitor_I.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_post_compose_commute</span> {<span class="nv">A</span> : enriched_precat} {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism w x) (<span class="nv">g</span> : underlying_morphism y z) : precompose_underlying_morphism _ f · postcompose_underlying_morphism _ g = postcompose_underlying_morphism _ g · precompose_underlying_morphism _ f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split.
+    <span class="nb">rewrite</span> tensor_split'.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_split'.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> (enriched_assoc w).
+  <span class="nb">rewrite</span> !assoc.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">rewrite</span> &lt;- tensor_id_id.
+  <span class="nb">rewrite</span> tensor_lassociator.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- mon_rinvunitor_triangle.
+  etrans.
+  {
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) _).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="nb">apply</span> id_right.
+  }
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_on_postcompose</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> : enriched_functor A B) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism y z) (<span class="nv">x</span> : A) : postcompose_underlying_morphism x f · enriched_functor_on_morphisms F _ _ = enriched_functor_on_morphisms F _ _ · postcompose_underlying_morphism _ (f · enriched_functor_on_morphisms F _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_linvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">rewrite</span> enriched_functor_on_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_on_precompose</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> : enriched_functor A B) {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">f</span> : underlying_morphism x y) (<span class="nv">z</span> : A) : precompose_underlying_morphism z f · enriched_functor_on_morphisms F _ _ = enriched_functor_on_morphisms F _ _ · precompose_underlying_morphism _ (f · enriched_functor_on_morphisms F _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> tensor_rinvunitor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">rewrite</span> enriched_functor_on_comp.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UnderlyingMorphisms</span>.
+
+<span class="kn">Section</span> <span class="nf">NatTrans</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_data</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B) := ∏ a : A, underlying_morphism (F a) (G a).
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_law</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans_data F G) := ∏ (x y : A), enriched_functor_on_morphisms F x y · postcompose_underlying_morphism _ (a y) = enriched_functor_on_morphisms G x y · precompose_underlying_morphism _ (a x).
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B) := ∑ a : enriched_nat_trans_data F G, enriched_nat_trans_law a.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_data_from_enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans F G) : ∏ a : A, I --&gt; enriched_cat_mor (F a) (G a) := pr1 a.
+<span class="kn">Coercion</span> <span class="nf">enriched_nat_trans_data_from_enriched_nat_trans</span> : enriched_nat_trans &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_ax</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans F G) :enriched_nat_trans_law a := pr2 a.
+
+<span class="kn">Definition</span> <span class="nf">make_enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} <span class="nv">a</span> <span class="nv">l</span> : enriched_nat_trans F G := (a,, l).
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_eq</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} {<span class="nv">a</span> <span class="nv">a'</span> : enriched_nat_trans F G} : (∏ x : A, a x = a' x) -&gt; a = a'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  use total2_paths_b.
+  - <span class="nb">apply</span> funextsec.
+    <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> proofirrelevance.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_identity</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> : enriched_functor A B) : enriched_nat_trans F F.
+<span class="kn">Proof</span>.
+  use make_enriched_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> enriched_cat_identity.
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x y;
+    <span class="nb">rewrite</span> precompose_identity, postcompose_identity;
+    <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_comp</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans F G) (<span class="nv">b</span> : enriched_nat_trans G H) : enriched_nat_trans F H.
+<span class="kn">Proof</span>.
+  use make_enriched_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (a x · postcompose_underlying_morphism _ (b x)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x y;
+    <span class="nb">rewrite</span> postcompose_underlying_morphism_composite;
+    <span class="nb">rewrite</span> assoc;
+    <span class="nb">rewrite</span> enriched_nat_trans_ax;
+    <span class="nb">rewrite</span> assoc';
+    <span class="nb">rewrite</span> pre_post_compose_commute;
+    <span class="nb">rewrite</span> assoc;
+    <span class="nb">rewrite</span> enriched_nat_trans_ax;
+    <span class="nb">rewrite</span> precompose_underlying_morphism_composite;
+    <span class="nb">apply</span> assoc').
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">NatTrans</span>.
+
+<span class="kn">Section</span> <span class="nf">EnrichedFunctorCategory</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} (<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B) : isaset (enriched_nat_trans F G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_total2.
+  - <span class="nb">apply</span> impred_isaset.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">enriched_nat_trans_assoc</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">K</span> : enriched_functor A B} (<span class="nv">f</span> : enriched_nat_trans F G) (<span class="nv">g</span> : enriched_nat_trans G H) (<span class="nv">h</span> : enriched_nat_trans H K) : enriched_nat_trans_comp f (enriched_nat_trans_comp g h) = enriched_nat_trans_comp (enriched_nat_trans_comp f g) h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> enriched_nat_trans_eq.
+  <span class="nb">intro</span> x.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> postcompose_underlying_morphism_composite.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_precategory_data</span> (<span class="nv">A</span> <span class="nv">B</span> : enriched_precat) : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
+    + <span class="bp">exact</span> (enriched_functor A B).
+    + <span class="nb">intros</span> F G.
+      <span class="bp">exact</span> (enriched_nat_trans F G).
+  - <span class="nb">intros</span> c.
+    <span class="nb">apply</span> enriched_nat_trans_identity.
+  - <span class="nb">intros</span> a b c f g.
+    <span class="bp">exact</span> (enriched_nat_trans_comp f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_functor_category</span> (<span class="nv">A</span> <span class="nv">B</span> : enriched_precat) : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - use make_precategory.
+    + <span class="bp">exact</span> (enriched_functor_precategory_data A B).
+    + <span class="kp">repeat</span> <span class="nb">split</span>;<span class="nb">simpl</span>.
+      * <span class="kp">abstract</span> (<span class="nb">intros</span>;
+        <span class="nb">apply</span> enriched_nat_trans_eq;
+        <span class="nb">intro</span>;
+        <span class="nb">cbn</span>;
+        <span class="nb">rewrite</span> underlying_morphism_compose_swap;
+        <span class="nb">rewrite</span> precompose_identity;
+        <span class="nb">apply</span> id_right).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span>;
+        <span class="nb">apply</span> enriched_nat_trans_eq;
+        <span class="nb">intro</span>;
+        <span class="nb">cbn</span>;
+        <span class="nb">rewrite</span> postcompose_identity;
+        <span class="nb">apply</span> id_right).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span>;
+        <span class="nb">apply</span> enriched_nat_trans_assoc).
+      * <span class="kp">abstract</span> (<span class="nb">intros</span>;
+        <span class="nb">apply</span> pathsinv0;
+        <span class="nb">apply</span> enriched_nat_trans_assoc).
+  - <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> isaset_enriched_nat_trans.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">EnrichedFunctorCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">Whisker</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_whisker</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : enriched_precat} (<span class="nv">F</span> : enriched_functor A B) {<span class="nv">G</span> <span class="nv">H</span> : enriched_functor B C} (<span class="nv">a</span> : enriched_nat_trans G H) : enriched_nat_trans (enriched_functor_comp F G) (enriched_functor_comp F H).
+<span class="kn">Proof</span>.
+  use make_enriched_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (a (F x)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x y;
+    <span class="nb">simpl</span>;
+    <span class="nb">rewrite</span> !assoc';
+    <span class="nb">apply</span> cancel_precomposition;
+    <span class="nb">apply</span> enriched_nat_trans_ax).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">post_whisker</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : enriched_precat} {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans F G) (<span class="nv">H</span> : enriched_functor B C) : enriched_nat_trans (enriched_functor_comp F H) (enriched_functor_comp G H).
+<span class="kn">Proof</span>.
+  use make_enriched_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (a x · enriched_functor_on_morphisms H _ _).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x y;
+    <span class="nb">simpl</span>;
+    <span class="nb">rewrite</span> !assoc';
+    <span class="nb">rewrite</span> &lt;- enriched_functor_on_precompose, &lt;- enriched_functor_on_postcompose;
+    <span class="nb">rewrite</span> !assoc;
+    <span class="nb">apply</span> cancel_postcomposition;
+    <span class="nb">apply</span> enriched_nat_trans_ax).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Whisker</span>.
+
+<span class="kn">Section</span> <span class="nf">Unit</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_enriched_precat_data</span> : enriched_precat_data.
+<span class="kn">Proof</span>.
+  use make_enriched_precat_data.
+  - <span class="bp">exact</span> unit.
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> (I_{Mon_V}).
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> (identity _).
+  - <span class="nb">intros</span>.
+    <span class="bp">exact</span> (mon_lunitor _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_enriched_precat</span> : enriched_precat.
+<span class="kn">Proof</span>.
+  use make_enriched_precat.
+  - <span class="bp">exact</span> unit_enriched_precat_data.
+  - <span class="nb">split</span>; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> tensor_id_id ;
+         <span class="nb">apply</span> id_left).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> tensor_id_id ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> mon_lunitor_I_mon_runitor_I).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> a b c d ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">apply</span> cancel_postcomposition ;
+       <span class="nb">rewrite</span> mon_lunitor_I_mon_runitor_I ;
+       <span class="nb">rewrite</span> mon_triangle ;
+       <span class="nb">rewrite</span> mon_runitor_I_mon_lunitor_I ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">element_functor_data</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> : A) : enriched_functor_data unit_enriched_precat A.
+<span class="kn">Proof</span>.
+  use make_enriched_functor_data.
+  - <span class="nb">intro</span>.
+    <span class="bp">exact</span> a.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">induction</span> x, y.
+    <span class="nb">apply</span> enriched_cat_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">element_functor_unit_ax</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> : A) : enriched_functor_unit_ax (element_functor_data a).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> t.
+  <span class="nb">induction</span> t.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">element_functor_comp_ax</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> : A) : enriched_functor_comp_ax (element_functor_data a).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> t t' t''.
+  <span class="nb">induction</span> t, t', t''.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> tensor_split.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">rewrite</span> enriched_id_left.
+  <span class="nb">rewrite</span> tensor_lunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">element_functor</span> {<span class="nv">A</span> : enriched_precat} (<span class="nv">a</span> : A) : enriched_functor unit_enriched_precat A.
+<span class="kn">Proof</span>.
+  use make_enriched_functor.
+  - <span class="bp">exact</span> (element_functor_data a).
+  - <span class="bp">exact</span> (element_functor_unit_ax a).
+  - <span class="bp">exact</span> (element_functor_comp_ax a).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Unit</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="kn">Arguments</span> enriched_precat_data _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> enriched_precat _ : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> enriched_functor_data {_} _ _.
+<span class="kn">Arguments</span> enriched_functor {_} _ _.
+<span class="kn">Arguments</span> unit_enriched_precat _ : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Enriched/Enriched.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - Composition of enriched functors
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

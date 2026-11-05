@@ -1,0 +1,1639 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SymmetricDiagonal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">This file contains certain (coherence) properties involving the braiding, of a fixed symmetric monoidal category.</span>
+<span class="c">.</span>
+
+<span class="c">Remark: There are numerous proofs that could profit from an implementation of coherence theorems</span>
+<span class="c">        for monoidal categories. However, the basic situation of pure monoidal categories where</span>
+<span class="c">        equality of morphisms (built only from identities and the monoidal isos) can be seen from</span>
+<span class="c">        their types would only help to a small extent. Some of those situations are marked in the</span>
+<span class="c">        proofs below. Symmetric monoidal categories do not have such a simple coherence theorem.</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">Swapping</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat).
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (mon_lassociator _ _ _ · _).
+    <span class="nb">refine</span> (_ · mon_rassociator _ _ _).
+    <span class="nb">refine</span> (x ⊗^{V}_{l} _).
+    <span class="nb">refine</span> (mon_rassociator _ _ _ · _).
+    <span class="nb">refine</span> (_ · mon_lassociator _ _ _).
+    <span class="bp">exact</span> (sym_mon_braiding V y z ⊗^{V}_{r} w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap'</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (mon_lassociator _ _ _ · _).
+    <span class="nb">refine</span> (_ · mon_rassociator _ _ _).
+    <span class="nb">refine</span> (x ⊗^{V}_{l} _).
+    <span class="bp">exact</span> (sym_mon_braiding _ _ _ · mon_lassociator _ _ _ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap''</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (mon_lassociator _ _ _ · _).
+    <span class="nb">refine</span> (x ⊗^{V}_{l} _ · _).
+    - <span class="bp">exact</span> (sym_mon_braiding _ _ _ · mon_lassociator _ _ _).
+    - <span class="bp">exact</span> (mon_rassociator x z (w ⊗ y) · (x ⊗ z) ⊗^{V}_{l} sym_mon_braiding _ w y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap'''</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : V⟦(x ⊗ y) ⊗ (z ⊗ w), (x ⊗ z) ⊗ (y ⊗ w)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (sym_mon_braiding _ _ _ ⊗^{V}_{r} _  · mon_lassociator _ _ _ · sym_mon_braiding _ _ (_ ⊗ _) · _).
+    <span class="nb">refine</span> (_ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _).
+    <span class="nb">refine</span> (_ · mon_rassociator _ _ _).
+    <span class="nb">refine</span> (_ · x ⊗^{V}_{l} mon_lassociator _ _ _).
+    <span class="nb">apply</span> mon_lassociator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sym_monoidal_braiding_hexagon1_variant</span> (<span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : mon_rassociator y z w · (sym_mon_braiding _ y z ⊗^{V}_{r} w · mon_lassociator z y w)
+      = sym_mon_braiding _ _ _ · mon_lassociator _ _ _ · _ ⊗^{V}_{l} sym_mon_braiding _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
+    {
+      use (is_z_iso_leftwhiskering_z_iso V).
+      <span class="nb">apply</span> is_z_isomorphism_sym_mon_braiding.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">refine</span> (sym_mon_hexagon_lassociator V _ _ _ @ _).
+      <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering V).
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+    }
+    <span class="nb">rewrite</span> ! assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, monoidal_associatorisolaw.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_characterization01</span>
+    (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap x y z w = inner_swap' x y z w.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap, inner_swap'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> sym_monoidal_braiding_hexagon1_variant.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_characterization12</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap' x y z w = inner_swap'' x y z w.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap', inner_swap''.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> ! (bifunctor_leftcomp V).
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> monoidal_associatorinvnatleft.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_characterization02</span>
+    (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap x y z w = inner_swap'' x y z w.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (inner_swap_characterization01 _ _ _ _ @ _).
+    <span class="nb">apply</span> inner_swap_characterization12.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_characterization23</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap'' x y z w = inner_swap''' x y z w.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap'', inner_swap'''.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> ! (bifunctor_leftcomp V).
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> sym_mon_tensor_lassociator1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_characterization03</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap x y z w = inner_swap''' x y z w.
+  <span class="kn">Proof</span>.
+    etrans. { <span class="nb">apply</span> inner_swap_characterization02. }
+    <span class="nb">apply</span> inner_swap_characterization23.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">naturality_inner_swap</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V}
+    {<span class="nv">x'</span> <span class="nv">y'</span> <span class="nv">z'</span> <span class="nv">w'</span> : V}
+    (<span class="nv">fx</span> : V⟦x,x'⟧)
+    (<span class="nv">fy</span> : V⟦y,y'⟧)
+    (<span class="nv">fz</span> : V⟦z,z'⟧)
+    (<span class="nv">fw</span> : V⟦w,w'⟧)
+    : inner_swap x y z w · ((fx #⊗ fz) #⊗ (fy #⊗ fw))
+      = ((fx #⊗ fy) #⊗ (fz #⊗ fw)) · inner_swap _ _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+
+    etrans. {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (monoidal_associatorinv_nat2 V fx fz (fy #⊗ fw)).
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> associator_nat2.
+    }
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (sym_monoidal_braiding_hexagon1_variant y z w).
+    }
+
+    <span class="nb">rewrite</span> &lt;- ! (when_bifunctor_becomes_leftwhiskering V).
+    <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _ ).
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> maponpaths.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (! sym_monoidal_braiding_hexagon1_variant y' z' w').
+    }
+
+    <span class="nb">rewrite</span> ! assoc.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_sym_mon_braiding.
+    }
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! assoc.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> associator_nat2.
+    }
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, tensor_sym_mon_braiding.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+    <span class="nb">refine</span> (_ @ tensor_comp_mor _ _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_along_unit</span> (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : inner_swap x I_{V} I_{V} y = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">rewrite</span> sym_mon_braiding_id.
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">rewrite</span> (bifunctor_leftid V).
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> monoidal_associatorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_inv</span>
+    (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : inner_swap x y z w · inner_swap x z y w = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> ! assoc'.
+    use (z_iso_inv_to_left _ _ _ (_ ,, _)).
+    {
+      <span class="nb">apply</span> (_ ,, monoidal_associatorisolaw V _ _ _).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! assoc.
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    {
+      <span class="nb">apply</span> (_ ,, monoidal_associatorisolaw _ _ _ _).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">cbn</span>.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">refine</span> (! bifunctor_leftcomp V _ _ _ _ _ _ @ _).
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">rewrite</span> id_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (monoidal_braiding_inverses V).
+    }
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> id_right.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">apply</span> (bifunctor_leftid V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_is_z_isomorphism</span>
+    (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : is_z_isomorphism (inner_swap x y z w).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    - <span class="nb">apply</span> inner_swap.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> inner_swap_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_composite_second_arg</span> (<span class="nv">x</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : mon_lassociator _ _ _ #⊗ (identity _) ·
+        inner_swap x (y1 ⊗ y2) z w ·
+        (identity _) #⊗ mon_lassociator _ _ _
+      = inner_swap (x ⊗ y1) y2 z w ·
+        mon_lassociator _ _ _ ·
+        inner_swap x y1 z (y2 ⊗ w).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">rewrite</span> sym_mon_tensor_rassociator. <span class="sd">(** uses the hexagon law *)</span>
+    <span class="nb">rewrite</span> !tensor_mor_left.
+    <span class="nb">rewrite</span> !tensor_comp_id_l.
+    <span class="nb">rewrite</span> !tensor_mor_right.
+    <span class="nb">rewrite</span> !tensor_comp_id_r.
+    <span class="nb">rewrite</span> !tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">rewrite</span> !assoc'.
+         <span class="kp">do</span> <span class="mi">9</span> <span class="nb">apply</span> maponpaths.
+         <span class="nb">rewrite</span> &lt;- tensor_id_id.
+         <span class="nb">assert</span> (aux := tensor_lassociator (sym_mon_braiding V y1 z) (identity y2) (identity w)).
+         <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso V _ _ _)) <span class="k">in</span> aux.
+         <span class="nb">cbn</span> <span class="k">in</span> aux.
+         <span class="bp">exact</span> aux.
+    }
+    <span class="nb">rewrite</span> !tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">assert</span> (cohe1 : identity x #⊗ (mon_lassociator z y1 y2 #⊗ identity w) ·
+                      identity x #⊗ mon_lassociator z (y1 ⊗ y2) w ·
+                      mon_rassociator x z (y1 ⊗ y2 ⊗ w) ·
+                      identity (x ⊗ z) #⊗ mon_lassociator y1 y2 w
+                    = identity x #⊗ mon_lassociator (z ⊗ y1) y2 w ·
+                      identity x #⊗ mon_lassociator z y1 (y2 ⊗ w) ·
+                      mon_rassociator x z (y1 ⊗ (y2 ⊗ w))).
+    { <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> mon_lassociator_lassociator.
+        <span class="nb">rewrite</span> !tensor_comp_id_l.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_rassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    { <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="bp">exact</span> cohe1. }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">rewrite</span> assoc'.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+         <span class="nb">rewrite</span> &lt;- tensor_id_id.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">assert</span> (aux := tensor_lassociator (identity x) (identity y1) (sym_mon_braiding V y2 z #⊗ identity w)).
+              <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _ (z_iso_from_associator_iso V _ _ _)), pathsinv0 <span class="k">in</span> aux.
+              <span class="nb">cbn</span> <span class="k">in</span> aux.
+              <span class="bp">exact</span> aux.
+         }
+         <span class="nb">apply</span> maponpaths_2.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+         <span class="nb">assert</span> (aux := tensor_lassociator (identity y1) (sym_mon_braiding V y2 z) (identity w)).
+         <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ (z_iso_from_associator_iso V _ _ _)) <span class="k">in</span> aux.
+         <span class="nb">cbn</span> <span class="k">in</span> aux.
+         <span class="bp">exact</span> aux.
+    }
+    <span class="nb">rewrite</span> !tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">change</span> ((pr12 V) y2 z) <span class="k">with</span> (sym_mon_braiding V y2 z).
+    <span class="nb">assert</span> (cohe2 : mon_lassociator x y1 y2 #⊗ identity (z ⊗ w) · mon_lassociator x (y1 ⊗ y2) (z ⊗ w)
+  · identity x #⊗ mon_rassociator (y1 ⊗ y2) z w
+  · identity x #⊗ (mon_lassociator y1 y2 z #⊗ identity w) =
+        mon_lassociator (x ⊗ y1) y2 (z ⊗ w) · identity (x ⊗ y1) #⊗ mon_rassociator y2 z w
+          · mon_lassociator x y1 (y2 ⊗ z ⊗ w) · identity x #⊗ αinv^{ V }_{ y1, y2 ⊗ z, w}).
+    { <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_lassociator_lassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> ((!id_left _) @ _).
+      <span class="nb">rewrite</span> &lt;- mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> mon_lassociator_rassociator.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">apply</span> mon_lassociator_rassociator.
+    }
+    etrans.
+    { <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> cohe2. }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_comp_id_l.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> tensor_comp_id_l.
+    }
+    <span class="nb">refine</span> (!(tensor_comp_id_l _ _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_rassociator_rassociator.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> tensor_comp_id_l.
+    }
+    <span class="nb">rewrite</span> mon_lassociator_rassociator.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_lassociator_rassociator.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_composite_third_arg</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z1</span> <span class="nv">z2</span> <span class="nv">w</span> : V)
+    : (identity _) #⊗ mon_rassociator _ _ _ ·
+        inner_swap x y (z1 ⊗ z2) w ·
+        mon_rassociator _ _ _ #⊗ (identity _)
+      = inner_swap x y z1 (z2 ⊗ w) ·
+        mon_rassociator _ _ _ ·
+        inner_swap (x ⊗ z1) y z2 w.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> &lt;- inner_swap_inv.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> &lt;- inner_swap_inv.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> inner_swap_composite_second_arg.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> inner_swap_inv.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+  <span class="sd">(** the proof is essentially by turning around all morphisms in the previous lemma *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">mon_lassociator_inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : mon_lassociator _ _ _ ·
+        inner_swap x y z w ·
+        mon_lassociator _ _ _
+      = mon_lassociator _ _ _ #⊗ (identity _ ) ·
+          mon_lassociator _ _ _ ·
+          (identity _ ) #⊗ (sym_mon_braiding V y z #⊗ (identity _ ) ·
+                              mon_lassociator _ _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_lassociator_lassociator.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_rassociator_lassociator. }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_mor_left.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_lassociator_rassociator. }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span>  tensor_mor_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+ <span class="kn">Lemma</span> <span class="nf">mon_rassociator_inner_swap</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : V)
+    : mon_rassociator _ _ _ ·
+        inner_swap x y z w ·
+        mon_rassociator _ _ _
+      = (identity _ ) #⊗ mon_rassociator _ _ _ ·
+          mon_rassociator _ _ _ ·
+          ((identity _ ) #⊗ (sym_mon_braiding V y z) ·
+             mon_rassociator _ _ _) #⊗ (identity _ ).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> tensor_mor_left.
+    <span class="nb">rewrite</span> tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_rassociator_rassociator. }
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    etrans.
+    { <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_lassociator_rassociator. }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_mor_right.
+    <span class="nb">apply</span> tensor_rassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** should go upstream *)</span>
+  <span class="kn">Lemma</span> <span class="nf">mon_lunitor_triangle_transposed</span> (<span class="nv">x</span> : V)
+    : mon_lunitor (monoidal_unit V ⊗_{V} x)
+      = mon_rassociator I_{V} I_{V} x · mon_lunitor I_{V} ⊗^{V}_{r} x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering V).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths, mon_lunitor_triangle.
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">refine</span> (! id_left _ @ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> monoidal_associatorisolaw.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** should go upstream *)</span>
+  <span class="kn">Lemma</span> <span class="nf">leftwhisker_of_lunitor_with_unit</span> (<span class="nv">x</span> : V)
+    : monoidal_unit V ⊗^{V}_{l} lu^{V}_{x} = lu^{V}_{monoidal_unit V ⊗ x}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ ! mon_lunitor_triangle_transposed x).
+
+    use (z_iso_inv_to_left _ _ _ (mon_rassociator _ _ _ ,, mon_lassociator _ _ _ ,, _)).
+    {
+      <span class="nb">split</span> ; <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+
+    <span class="nb">refine</span> (monoidal_triangleidentity _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0, unitors_coincide_on_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** should go upstream *)</span>
+  <span class="kn">Lemma</span> <span class="nf">whiskering_on_both_sides_with_lunitor_left_unit</span> (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : monoidal_unit V ⊗^{V}_{l} (mon_lunitor x ⊗^{V}_{r} y)
+      = monoidal_unit V ⊗^{V}_{l} mon_lassociator _ _ _
+          · (mon_rassociator _ _ (x ⊗ y) · mon_lunitor _ ⊗^{V}_{r} (x ⊗ y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (Categories.right_whisker_with_lunitor' _ _ _ @ _).
+    <span class="nb">rewrite</span> (bifunctor_leftcomp V).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ mon_lunitor_triangle_transposed _).
+    <span class="bp">exact</span> (leftwhisker_of_lunitor_with_unit (x ⊗ y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_lunitors_on_right</span> (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : inner_swap (monoidal_unit V) x (monoidal_unit V) y
+        · mon_lunitor (monoidal_unit V) ⊗^{V}_{r} (x ⊗ y) · mon_lunitor (x ⊗ y)
+      = (mon_lunitor x #⊗ mon_lunitor y).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+
+    <span class="nb">rewrite</span> ! (bifunctor_leftcomp V).
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+
+      <span class="nb">refine</span> (_ @ idpath (monoidal_unit V ⊗^{V}_{l} (mon_runitor x ⊗^{V}_{r} y))).
+
+      <span class="nb">apply</span> pathsinv0.
+      use (z_iso_inv_to_left _ _ _ (_ ,, _)).
+      {
+        use is_z_iso_leftwhiskering_z_iso.
+        use (is_z_iso_rightwhiskering_z_iso V).
+        <span class="nb">apply</span> (_ ,, monoidal_braiding_inverses V _ _).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp V).
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> sym_mon_braiding_runitor.
+      }
+      <span class="nb">apply</span> whiskering_on_both_sides_with_lunitor_left_unit.
+    }
+
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp V).
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      etrans. {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ mon_triangle x y).
+        <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
+      }
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">cbn</span>.
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ tensor_lunitor (identity x #⊗ mon_lunitor y)).
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+    }
+
+    <span class="nb">rewrite</span> assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> mon_lunitor_triangle.
+    }
+    <span class="nb">apply</span> pathsinv0, tensor_split'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">precompose_inner_swap_with_lunitors_and_runitor</span> (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : inner_swap x (monoidal_unit V) y (monoidal_unit V)
+        · (x ⊗ y) ⊗^{V}_{l} mon_lunitor (monoidal_unit V) · mon_runitor (x ⊗ y)
+      = (mon_runitor x #⊗ mon_runitor y).
+  <span class="kn">Proof</span>.
+
+    <span class="nb">unfold</span> inner_swap.
+
+    <span class="nb">rewrite</span> ! (bifunctor_leftcomp V).
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ idpath (x ⊗^{V}_{l} (mon_lunitor y ⊗^{V}_{r} monoidal_unit V) · mon_rassociator _ _ _)).
+
+      <span class="nb">apply</span> pathsinv0.
+      use (z_iso_inv_to_left _ _ _ (_ ,, _)).
+      {
+        use is_z_iso_leftwhiskering_z_iso.
+        use (is_z_iso_rightwhiskering_z_iso V).
+        <span class="nb">apply</span> (_ ,, monoidal_braiding_inverses V _ _).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp V).
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> sym_mon_braiding_lunitor.
+      }
+
+      etrans. {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (_ @ mon_triangle _ _).
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (when_bifunctor_becomes_rightwhiskering V).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (bifunctor_leftcomp V).
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (when_bifunctor_becomes_leftwhiskering V).
+      <span class="nb">apply</span> (monoidal_associatorinvnatleft V).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    etrans. {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mon_runitor_triangle.
+    }
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">unfold</span> monoidal_cat_tensor_pt.
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp V).
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">refine</span> (! mon_triangle  _ _ @ _).
+      <span class="nb">apply</span> (when_bifunctor_becomes_rightwhiskering V).
+    }
+
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+    <span class="nb">apply</span> maponpaths.
+
+    use (z_iso_inv_on_right _ _ _ (mon_lassociator _ _ _ ,, _ ,, _)).
+    { <span class="nb">apply</span> monoidal_associatorisolaw. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering V).
+    <span class="nb">apply</span> (! mon_lunitor_triangle _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_hexagon</span> (<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">z1</span> <span class="nv">z2</span> : V)
+    : inner_swap (x1 ⊗ x2) y1 (y2 ⊗ z1) z2
+      · (inner_swap x1 x2 y2 z1 ⊗^{V}_{r} (y1 ⊗ z2)
+         · mon_lassociator _ _ _)
+      =
+      (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _)
+      · (inner_swap x1 (x2 ⊗ y1) y2 (z1 ⊗ z2)
+      · (x1 ⊗ y2) ⊗^{V}_{l} inner_swap x2 y1 z1 z2).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">set</span> (auxiso := functor_on_z_iso
+                  (leftwhiskering_functor V (x1 ⊗ x2 ⊗ y1))
+                  (z_iso_from_associator_iso V y2 z1 z2)).
+    <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ auxiso).
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> auxiso.
+    etrans.
+    { <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">assert</span> (auxH := inner_swap_composite_third_arg (x1 ⊗ x2) y1 y2 z1 z2).
+      <span class="nb">rewrite</span> &lt;- tensor_mor_right <span class="k">in</span> auxH.
+      <span class="nb">set</span> (auxiso1 := functor_on_z_iso
+                  (rightwhiskering_functor V (y1 ⊗ z2))
+                  (z_iso_from_associator_iso V (x1 ⊗ x2) y2 z1)).
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_right _ _ _ _ auxiso1), pathsinv0 <span class="k">in</span> auxH.
+      <span class="nb">rewrite</span> tensor_mor_left.
+      <span class="nb">cbn</span> <span class="k">in</span> auxH.
+      <span class="bp">exact</span> auxH.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> assoc.
+         <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">assert</span> (auxH := inner_swap_composite_second_arg x1 x2 y1 y2 (z1 ⊗ z2)).
+         <span class="nb">rewrite</span> &lt;- tensor_mor_left <span class="k">in</span> auxH.
+         <span class="nb">set</span> (auxiso1 := functor_on_z_iso
+                  (leftwhiskering_functor V (x1 ⊗ y2))
+                  (z_iso_from_associator_iso V x2 y1 (z1 ⊗ z2))).
+         <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _ auxiso1), pathsinv0 <span class="k">in</span> auxH.
+         <span class="nb">cbn</span> <span class="k">in</span> auxH.
+         <span class="nb">rewrite</span> tensor_mor_left <span class="k">in</span> auxH.
+      <span class="bp">exact</span> auxH.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> !assoc.
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">assert</span> (auxH := mon_lassociator_inner_swap x1 x2 y2 (y1 ⊗ (z1 ⊗ z2))).
+         <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _
+                   (z_iso_from_associator_iso V _ _ _)), pathsinv0 <span class="k">in</span> auxH.
+         <span class="nb">cbn</span> <span class="k">in</span> auxH.
+         <span class="bp">exact</span> auxH.
+    }
+    etrans.
+    { <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">assert</span> (auxH := mon_rassociator_inner_swap ((x1 ⊗ x2) ⊗ y2) y1 z1 z2).
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_right _ _ _ _
+                (z_iso_from_associator_iso V _ _ _)), pathsinv0 <span class="k">in</span> auxH.
+      <span class="nb">cbn</span> <span class="k">in</span> auxH.
+      <span class="bp">exact</span> auxH.
+    }
+    <span class="nb">rewrite</span> ! tensor_mor_left.
+    <span class="nb">rewrite</span> ! tensor_mor_right.
+    <span class="nb">rewrite</span> tensor_comp_id_l.
+    <span class="nb">rewrite</span> tensor_comp_id_r.
+    etrans.
+    { <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0, tensor_comp_id_r. }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">assert</span> (auxH := mon_lassociator_inner_swap x1 x2 y2 z1).
+         <span class="nb">apply</span> pathsinv0, (z_iso_inv_on_left _ _ _ _
+                   (z_iso_from_associator_iso V _ _ _)) <span class="k">in</span> auxH.
+         <span class="nb">cbn</span> <span class="k">in</span> auxH.
+         <span class="bp">exact</span> auxH.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> !assoc'.
+         <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+         etrans.
+         <span class="mi">2</span>: { <span class="nb">apply</span> tensor_comp_id_l. }
+         <span class="nb">apply</span> maponpaths.
+         <span class="nb">assert</span> (auxH := mon_rassociator_inner_swap x2 y1 z1 z2).
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_right _ _ _ _
+                (z_iso_from_associator_iso V _ _ _)) <span class="k">in</span> auxH.
+      <span class="nb">cbn</span> <span class="k">in</span> auxH.
+      <span class="bp">exact</span> auxH.
+    }
+    <span class="nb">change</span> ((pr12 V) x2 y2) <span class="k">with</span> (sym_mon_braiding V x2 y2).
+    <span class="nb">change</span> ((pr12 V) y1 z1) <span class="k">with</span> (sym_mon_braiding V y1 z1).
+    <span class="sd">(** now on each side the same uses of [sym_mon_braiding] and otherwise</span>
+<span class="sd">        only associators and whiskering *)</span>
+    etrans.
+    { <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, tensor_rassociator. }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> tensor_lassociator. }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    transparent <span class="nb">assert</span> (auxiso : (z_iso (x1 ⊗ x2 ⊗ y2 ⊗ (y1 ⊗ (z1 ⊗ z2))) (x1 ⊗ x2 ⊗ y2 ⊗ (z1 ⊗ y1 ⊗ z2)))).
+    { <span class="nb">apply</span> (functor_on_z_iso (leftwhiskering_functor V _)).
+      use z_iso_comp.
+      <span class="mi">2</span>: { <span class="nb">apply</span> z_iso_inv. <span class="bp">exact</span> (z_iso_from_associator_iso V _ _ _). }
+      <span class="nb">apply</span> (functor_on_z_iso (rightwhiskering_functor V _)).
+      <span class="nb">apply</span> sym_mon_braiding_z_iso.
+    }
+    <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+    <span class="nb">rewrite</span> &lt;- tensor_mor_right.
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ auxiso), pathsinv0.
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> auxiso.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> !assoc.
+         <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+         <span class="nb">rewrite</span> tensor_mor_left.
+         <span class="nb">apply</span> tensor_swap. }
+    <span class="nb">rewrite</span> !assoc'.
+    transparent <span class="nb">assert</span> (auxiso : (z_iso (x1 ⊗ x2 ⊗ y2 ⊗ (z1 ⊗ y1 ⊗ z2)) (x1 ⊗ y2 ⊗_{ pr1 V} x2 ⊗ (z1 ⊗ y1 ⊗ z2)))).
+    { <span class="nb">apply</span> (functor_on_z_iso (rightwhiskering_functor V _)).
+      use z_iso_comp.
+      <span class="mi">2</span>: { <span class="bp">exact</span> (z_iso_from_associator_iso V _ _ _). }
+      <span class="nb">apply</span> (functor_on_z_iso (leftwhiskering_functor V _)).
+      <span class="nb">apply</span> sym_mon_braiding_z_iso.
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+    <span class="nb">rewrite</span> &lt;- tensor_mor_right.
+    <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ auxiso).
+    <span class="nb">cbn</span>.
+    <span class="nb">clear</span> auxiso.
+    <span class="nb">change</span> ((pr12 V) x2 y2) <span class="k">with</span> (sym_mon_braiding V x2 y2).
+    <span class="nb">change</span> ((pr12 V) y2 x2) <span class="k">with</span> (sym_mon_braiding V y2 x2).
+    <span class="nb">change</span> ((pr12 V) y1 z1) <span class="k">with</span> (sym_mon_braiding V y1 z1).
+    <span class="nb">change</span> ((pr12 V) z1 y1) <span class="k">with</span> (sym_mon_braiding V z1 y1).
+    <span class="sd">(** on each side, [sym_mon_braiding] appears as one pair of inverses,</span>
+<span class="sd">        so both sides are now independent, so they have both to be equal</span>
+<span class="sd">        to a canonical braiding-free expression *)</span>
+    <span class="nb">rewrite</span> tensor_mor_left.
+    <span class="nb">rewrite</span> !tensor_mor_right.
+    <span class="c">(* show_id_type. *)</span>
+    transparent <span class="nb">assert</span> (middle : (V ⟦ x1 ⊗ (y2 ⊗ x2) ⊗ (z1 ⊗ y1 ⊗ z2),
+                                      x1 ⊗ y2 ⊗ (x2 ⊗ z1 ⊗ (y1 ⊗ z2)) ⟧)).
+    { <span class="nb">refine</span> (_ #⊗ _ · _).
+      - <span class="nb">apply</span> mon_rassociator.
+      - <span class="nb">apply</span> mon_lassociator.
+      - <span class="nb">refine</span> (mon_lassociator _ _ _ · _).
+        <span class="nb">refine</span> ((identity (x1 ⊗ y2)) #⊗ _).
+        <span class="nb">apply</span> mon_rassociator. }
+    intermediate_path middle; [| <span class="nb">apply</span> pathsinv0].
+    - <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="k">match goal with</span> | [|- <span class="nl">?s</span> · _ = _ ] =&gt; <span class="nb">set</span> (symyx := s) <span class="k">end</span>.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> pathsinv0, tensor_lassociator. }
+        <span class="nb">rewrite</span> !tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(id_right _) @ _).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0, mon_lassociator_rassociator. }
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> tensor_lassociator. }
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">assert</span> (auxH := tensor_swap (identity x1 #⊗ sym_mon_braiding V x2 y2) (mon_lassociator z1 y1 z2)).
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- tensor_mor_left <span class="k">in</span> auxH.
+        transparent <span class="nb">assert</span> (auxiso : (z_iso ((x1 ⊗ (x2 ⊗ y2)) ⊗_{ V} (z1 ⊗ y1 ⊗ z2)) ((x1 ⊗ (x2 ⊗ y2)) ⊗_{ V} (z1 ⊗ (y1 ⊗ z2))))).
+        { <span class="nb">apply</span> (functor_on_z_iso (leftwhiskering_functor V _)).
+          <span class="bp">exact</span> (z_iso_from_associator_iso V _ _ _). }
+        <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ auxiso) <span class="k">in</span> auxH.
+        <span class="nb">cbn</span> <span class="k">in</span> auxH.
+        <span class="nb">clear</span> auxiso.
+        <span class="nb">rewrite</span> ! tensor_mor_left <span class="k">in</span> auxH.
+        <span class="nb">apply</span> (!auxH).
+      }
+      <span class="nb">change</span> ((pr12 V) x2 y2) <span class="k">with</span> (sym_mon_braiding V x2 y2).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="k">match goal with</span> | [|- _ · <span class="nl">?s</span> · _ · _ · _ · _ · _ · _  = _ ] =&gt; <span class="nb">set</span> (symxy := s) <span class="k">end</span>.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="c">(* show_id_type. *)</span>
+        intermediate_path (identity ((x1 ⊗ (x2 ⊗ y2)) ⊗ (z1 ⊗ y1 ⊗ z2))).
+        - <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> tensor_lassociator.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> mon_lassociator_lassociator.
+          }
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+            <span class="nb">rewrite</span> mon_rassociator_lassociator.
+            <span class="nb">rewrite</span> tensor_id_id.
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> mon_rassociator_lassociator.
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> tensor_id_id.
+          <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+          <span class="nb">rewrite</span> id_left, id_right.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> tensor_comp_mor.
+          }
+          <span class="nb">refine</span> (!(tensor_comp_mor _ _ _ _) @ _).
+          <span class="nb">rewrite</span> id_right, id_left.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> mon_lassociator_rassociator.
+          }
+          <span class="nb">refine</span> (_ @ tensor_id_id _ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> mon_rassociator_lassociator.
+        - <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, tensor_comp_id_r. }
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, tensor_comp_id_l. }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> sym_mon_braiding_inv.
+      }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> middle.
+      <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> tensor_split.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_rassociator_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_r.
+        <span class="nb">rewrite</span> mon_rassociator_lassociator.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> !tensor_comp_id_r.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_rassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(id_left _) @ _).
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+        <span class="nb">rewrite</span> tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> mon_rassociator_rassociator.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- tensor_id_id.
+        <span class="nb">apply</span> tensor_lassociator.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> mon_lassociator_lassociator.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">rewrite</span> &lt;- mon_rassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">rewrite</span> tensor_comp_id_r.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="k">match goal with</span> | [|- <span class="nl">?s</span> · _ = _ ] =&gt; <span class="nb">set</span> (symzy := s) <span class="k">end</span>.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> pathsinv0, tensor_rassociator. }
+        <span class="nb">rewrite</span> !tensor_comp_id_l.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!(id_right _) @ _).
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0, mon_rassociator_lassociator. }
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> tensor_rassociator. }
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">assert</span> (auxH := tensor_swap (mon_lassociator x1 y2 x2) (sym_mon_braiding V y1 z1 #⊗ identity z2) ).
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- tensor_mor_right <span class="k">in</span> auxH.
+        transparent <span class="nb">assert</span> (auxiso : (z_iso ((x1 ⊗ y2 ⊗ x2) ⊗_{ V} (z1 ⊗ y1 ⊗ z2)) ((x1 ⊗ (y2 ⊗ x2)) ⊗_{ V} (z1 ⊗ y1 ⊗ z2)))).
+        { <span class="nb">apply</span> (functor_on_z_iso (rightwhiskering_functor V _)).
+          <span class="bp">exact</span> (z_iso_from_associator_iso V _ _ _). }
+        <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ auxiso) <span class="k">in</span> auxH.
+        <span class="nb">cbn</span> <span class="k">in</span> auxH.
+        <span class="nb">clear</span> auxiso.
+        <span class="nb">rewrite</span> tensor_mor_right <span class="k">in</span> auxH.
+        <span class="bp">exact</span> auxH.
+      }
+      <span class="nb">change</span> ((pr12 V) y1 z1) <span class="k">with</span> (sym_mon_braiding V y1 z1).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="k">match goal with</span> | [|- _ · <span class="nl">?s</span> · _ · _ · _ · _ · _  = _ ] =&gt; <span class="nb">set</span> (symyz := s) <span class="k">end</span>.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="c">(* show_id_type. *)</span>
+        intermediate_path (identity (x1 ⊗ (y2 ⊗ x2) ⊗ (y1 ⊗ z1 ⊗ z2))).
+        - <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            etrans.
+            {
+              <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="bp">exact</span> (!(tensor_id_id _ _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> tensor_rassociator.
+            }
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> mon_rassociator_rassociator.
+            }
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> tensor_mor_right.
+            <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+            <span class="nb">rewrite</span> mon_rassociator_lassociator.
+            <span class="nb">rewrite</span> tensor_id_id.
+            <span class="nb">rewrite</span> id_right.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">refine</span> (_ @ mon_lassociator_rassociator _ _ _).
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> &lt;- tensor_id_id.
+            <span class="nb">rewrite</span> tensor_lassociator.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+          <span class="nb">refine</span> (_ @ tensor_id_id _ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (_ @ mon_lassociator_rassociator _ _ _).
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- tensor_id_id.
+          <span class="nb">rewrite</span> tensor_lassociator.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- !tensor_id_id.
+          <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !tensor_id_id.
+          <span class="nb">apply</span> mon_lassociator_rassociator.
+        - <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      { <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, tensor_comp_id_l. }
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        { <span class="nb">apply</span> pathsinv0, tensor_comp_id_r. }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> sym_mon_braiding_inv.
+      }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> tensor_id_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> middle.
+      <span class="sd">(** the goal is an instance of coherence for monoidal categories *)</span>
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> tensor_split'.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> tensor_mor_right.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> &lt;- mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> mon_lassociator_lassociator.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ mon_rassociator_lassociator _ _ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_hexagon_2</span> (<span class="nv">x</span> <span class="nv">y</span> : V)
+    : inner_swap (x ⊗ x) x (y ⊗ y) y
+         · (inner_swap x x y y ⊗^{V}_{r} (x ⊗ y)
+              · mon_lassociator _ _ _)
+       = mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+           · (inner_swap x (x ⊗ x) y (y ⊗ y)
+                · (x ⊗ y) ⊗^{V}_{l} inner_swap x x y y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> inner_swap_hexagon.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_hexagon'</span> (<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> <span class="nv">z1</span> <span class="nv">z2</span> : V)
+    : inner_swap x1 x2 y1 y2 #⊗ identity (z1 ⊗ z2)
+        · inner_swap (x1 ⊗ y1) (x2 ⊗ y2) z1 z2
+        · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+      = mon_lassociator _ _ _
+            · identity (x1 ⊗ x2) #⊗ inner_swap y1 y2 z1 z2
+            · inner_swap x1 x2 (y1 ⊗ z1) (y2 ⊗ z2).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">rewrite</span> &lt;- inner_swap_inv.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      <span class="nb">rewrite</span> &lt;- inner_swap_inv.
+      <span class="nb">rewrite</span> tensor_comp_id_l.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_mor_left.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> inner_swap_hexagon.
+    }
+    <span class="nb">rewrite</span> tensor_mor_right.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> inner_swap_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> tensor_comp_id_r.
+    }
+    <span class="nb">rewrite</span> inner_swap_inv.
+    <span class="nb">rewrite</span> tensor_id_id.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_hexagon'_3</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : inner_swap x x y y #⊗ identity (z ⊗ z)
+        · inner_swap (x ⊗ y) (x ⊗ y) z z
+        · mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _
+      = mon_lassociator _ _ _
+            · identity (x ⊗_ x) #⊗ inner_swap y y z z
+            · inner_swap x x (y ⊗ z) (y ⊗ z).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> inner_swap_hexagon'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_hexagoninv'</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : V)
+    : identity (x ⊗ x) #⊗ inner_swap y y z z
+  · inner_swap x x (y ⊗ z) (y ⊗ z)
+  · mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ =
+  mon_rassociator _ _ _
+  · inner_swap x x y y #⊗ identity (z ⊗ z)
+  · inner_swap (x ⊗ y) (x ⊗ y) z z.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (t := inner_swap_hexagon' x x y y z z).
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ #⊗ mon_lassociator _ _ _,,
+                                      mon_rassociator _ _ _ #⊗ mon_rassociator _ _ _ ,, _)).
+    {
+      <span class="nb">apply</span> (pr2 (is_z_iso_bifunctor_z_iso V
+                    (mon_lassociator _ _ _) (mon_lassociator _ _ _)
+                    (_ ,, monoidal_associatorisolaw V _ _ _)
+                    (_ ,, monoidal_associatorisolaw V _ _ _))).
+    }
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> (! t).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> mon_rassociator_lassociator.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">inner_swap_commute_with_swap</span> (<span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : V)
+    : inner_swap x1 x2 y1 y2 · sym_mon_braiding _ x1 y1 #⊗ sym_mon_braiding _ x2 y2
+      = sym_mon_braiding _ (x1 ⊗ x2) (y1 ⊗ y2) · inner_swap y1 y2 x1 x2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap.
+    <span class="nb">rewrite</span> ! assoc.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, sym_mon_tensor_lassociator0.
+    }
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor, mon_lassociator, mon_rassociator.
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> (when_bifunctor_becomes_leftwhiskering V).
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> (bifunctor_leftcomp V y1).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> sym_mon_hexagon_rassociator0.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> ! assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (! sym_mon_hexagon_lassociator1 _ _ _ _ _ @ _).
+      <span class="bp">now</span> <span class="nb">rewrite</span> ! assoc'.
+    }
+
+    <span class="nb">unfold</span> functoronmorphisms1.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">unfold</span> monoidal_cat_tensor_pt.
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_on_right _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    { <span class="nb">apply</span> monoidal_associatorisolaw. }
+    <span class="nb">cbn</span>.
+
+    <span class="nb">rewrite</span> (bifunctor_leftcomp V).
+    <span class="nb">rewrite</span> ! assoc.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> mon_lassociator_lassociator'.
+    }
+    <span class="nb">rewrite</span> (bifunctor_leftid V).
+    <span class="nb">rewrite</span> id_right.
+
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_to_right _ _ _ _ (_ ,, _)).
+    {
+      use (is_z_iso_rightwhiskering_z_iso V).
+      <span class="nb">refine</span> (_ ,, _).
+      <span class="nb">apply</span> (_ ,, monoidal_braiding_inverses V).
+    }
+    <span class="nb">cbn</span>.
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, monoidal_associatornatright.
+    }
+
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- ! (bifunctor_rightcomp V).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, sym_mon_hexagon_rassociator1.
+    }
+
+    <span class="nb">rewrite</span> ! (bifunctor_rightcomp V).
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">rewrite</span> (bifunctor_leftcomp V).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">unfold</span> sym_mon_braiding, mon_lassociator, monoidal_cat_tensor_pt.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (monoidal_associatornatleftright V).
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    use (z_iso_inv_on_left _ _ _ _ (mon_lassociator _ _ _ ,, mon_rassociator _ _ _ ,, _)).
+    {
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, mon_lassociator_lassociator.
+    }
+    <span class="nb">unfold</span> monoidal_cat_tensor_mor.
+    <span class="nb">unfold</span> mon_lassociator.
+    <span class="nb">unfold</span> mon_rassociator.
+    <span class="nb">unfold</span> monoidal_cat_tensor_pt.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! assoc.
+    <span class="nb">rewrite</span> (when_bifunctor_becomes_rightwhiskering V).
+    <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp V).
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0, (monoidal_associatorisolaw V).
+    }
+    <span class="nb">rewrite</span> (bifunctor_rightid V).
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">now</span> <span class="nb">rewrite</span> (when_bifunctor_becomes_leftwhiskering V).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Swapping</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Structure/SymmetricDiagonal.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

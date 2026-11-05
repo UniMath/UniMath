@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+In this file, we show how the Rezk completion for categories with binary products lifts to those equipped with exponentials.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.WeakEquivalences.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Exponentials</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispPseudofunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.UniversalArrow.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.UniversalArrow</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#Notations"><span class="id" title="module">PseudoFunctor.Notations</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sigma</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.html#"><span class="id" title="library">UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.BinProducts.html#"><span class="id" title="library">UniMath.Bicategories.RezkCompletions.StructuredCats.BinProducts</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CategoriesExponentialsAdmitRezkCompletions" class="idref" href="#CategoriesExponentialsAdmitRezkCompletions"><span class="id" title="section">CategoriesExponentialsAdmitRezkCompletions</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="CategoriesExponentialsAdmitRezkCompletions.LUR" class="idref" href="#CategoriesExponentialsAdmitRezkCompletions.LUR"><span class="id" title="variable">LUR</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.UniversalArrow.html#left_universal_arrow"><span class="id" title="definition">left_universal_arrow</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.html#univ_cats_to_cats"><span class="id" title="definition">univ_cats_to_cats</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="8c697939306236ed83fd074d47a07fec" class="idref" href="#8c697939306236ed83fd074d47a07fec"><span class="id" title="variable">η_weak_equiv</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="C:2" class="idref" href="#C:2"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#LUR:1"><span class="id" title="variable">LUR</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">C</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_bicat_exponentials_has_RC" class="idref" href="#disp_bicat_exponentials_has_RC"><span class="id" title="lemma">disp_bicat_exponentials_has_RC</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.html#cat_with_struct_has_RC"><span class="id" title="definition">cat_with_struct_has_RC</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#8c697939306236ed83fd074d47a07fec"><span class="id" title="variable">η_weak_equiv</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.html#make_cat_with_struct_has_RC_from_sigma"><span class="id" title="lemma">make_cat_with_struct_has_RC_from_sigma</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.BinProducts.html#disp_bicat_binproducts_has_RC"><span class="id" title="lemma">disp_bicat_binproducts_has_RC</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#8c697939306236ed83fd074d47a07fec"><span class="id" title="variable">η_weak_equiv</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">simpl</span> ; <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">C₂_univ</span> <span class="id" title="var">F</span> <span class="id" title="var">F_weq</span> [<span class="id" title="var">P₁</span> ?] [<span class="id" title="var">E₁</span> ?].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials.html#weak_equiv_into_univ_creates_exponentials"><span class="id" title="lemma">weak_equiv_into_univ_creates_exponentials</span></a> <span class="id" title="var">F_weq</span> <span class="id" title="var">C₂_univ</span> <span class="id" title="var">E₁</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span> ; <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> [<span class="id" title="var">P</span> ?] [<span class="id" title="var">E</span> ?].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Preservation.Exponentials.html#weak_equiv_preserves_exponentials"><span class="id" title="lemma">weak_equiv_preserves_exponentials</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span> ; <span class="id" title="tactic">intros</span> <span class="id" title="var">C₁</span> <span class="id" title="var">C₂</span> <span class="id" title="var">C₃</span> <span class="id" title="var">F</span> <span class="id" title="var">G</span> <span class="id" title="var">H</span> <span class="id" title="var">n</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<span class="id" title="var">P₁</span> ?] [<span class="id" title="var">E₁</span> ?] [<span class="id" title="var">P₂</span> ?] [<span class="id" title="var">E₂</span> ?] [<span class="id" title="var">P₃</span> ?] [<span class="id" title="var">E₃</span> ?]<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">G_weq</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[? <span class="id" title="var">F_pP</span>] [? <span class="id" title="var">F_pE</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Exponentials.html#weak_equiv_lifts_preserves_exponentials'"><span class="id" title="lemma">weak_equiv_lifts_preserves_exponentials'</span></a> <span class="id" title="var">C₂</span> <span class="id" title="var">C₃</span> <span class="id" title="var">n</span> <span class="id" title="var">E₁</span> <span class="id" title="var">E₂</span> <span class="id" title="var">E₃</span> <span class="id" title="var">G_weq</span> <span class="id" title="var">F_pE</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Theorem</span> <a id="disp_bicat_exponential_has_RezkCompletion" class="idref" href="#disp_bicat_exponential_has_RezkCompletion"><span class="id" title="lemma">disp_bicat_exponential_has_RezkCompletion</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.html#cat_with_structure_has_RezkCompletion"><span class="id" title="definition">cat_with_structure_has_RezkCompletion</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.html#make_RezkCompletion_from_locally_contractible"><span class="id" title="lemma">make_RezkCompletion_from_locally_contractible</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#8c697939306236ed83fd074d47a07fec"><span class="id" title="variable">η_weak_equiv</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#disp_bicat_exponentials_has_RC"><span class="id" title="lemma">disp_bicat_exponentials_has_RC</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_2cells_iscontr_exponentials"><span class="id" title="lemma">disp_2cells_iscontr_exponentials</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.StructuredCats.Exponentials.html#CategoriesExponentialsAdmitRezkCompletions"><span class="id" title="section">CategoriesExponentialsAdmitRezkCompletions</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

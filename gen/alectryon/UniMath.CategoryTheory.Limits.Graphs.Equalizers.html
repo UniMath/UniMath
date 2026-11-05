@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Equalizers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Equalizers defined in terms of limits *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of equalizers</span>
+<span class="sd">- Coincides with the direct definition</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of equalizers in terms of limits *)</span>
+<span class="kn">Section</span> <span class="nf">def_equalizers</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span>: has_homsets C := homset_property C.
+
+  <span class="kn">Open Scope</span> stn.
+  <span class="kn">Definition</span> <span class="nf">One</span> : two := ● <span class="mi">0</span>.
+  <span class="kn">Definition</span> <span class="nf">Two</span> : two := ● <span class="mi">1</span>.
+  <span class="kn">Close Scope</span> stn.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_graph</span> : graph.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">two</span>.
+    use (@two_rec (two -&gt; UU)).
+    - <span class="nb">apply</span> two_rec.
+      + <span class="nb">apply</span> empty.
+      + <span class="nb">apply</span> (unit ⨿ unit).
+    - <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">_</span>, empty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_diagram</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) : diagram Equalizer_graph C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">two_rec</span> <span class="nv">a</span> <span class="nv">b</span>).
+    use two_rec_dep.
+    - use two_rec_dep; <span class="nb">simpl</span>.
+      + <span class="nb">apply</span> fromempty.
+      + <span class="nb">intro</span> x. <span class="nb">induction</span> x.
+        <span class="bp">exact</span> f. <span class="bp">exact</span> g.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> fromempty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_cone</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">d</span> : C) (<span class="nv">h</span> : C⟦d, a⟧) (<span class="nv">H</span> : h · f = h · g) :
+    cone (Equalizer_diagram f g) d.
+  <span class="kn">Proof</span>.
+    use make_cone.
+    - use two_rec_dep.
+      + <span class="bp">exact</span> h.
+      + <span class="bp">exact</span> (h · f).
+    - use two_rec_dep; use two_rec_dep.
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="nb">intro</span> e. <span class="nb">induction</span> e.
+        * <span class="nb">apply</span> idpath.
+        * <span class="nb">apply</span> (! H).
+      + <span class="bp">exact</span> (empty_rect _).
+      + <span class="bp">exact</span> (empty_rect _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">d</span> : C) (<span class="nv">h</span> : C⟦d, a⟧) (<span class="nv">H</span> : h · f = h · g) :
+    UU := isLimCone (Equalizer_diagram f g) d (Equalizer_cone f g d h H).
+
+  <span class="kn">Definition</span> <span class="nf">make_isEqualizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">d</span> : C) (<span class="nv">h</span> : C⟦d, a⟧) (<span class="nv">H</span> : h · f = h · g) :
+    (∏ e (h' : C⟦e, a⟧) (H' : h' · f = h' · g),
+     iscontr (total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦e, d⟧ =&gt; hk · h = h'))) -&gt; isEqualizer f g d h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H' x cx.
+    <span class="nb">assert</span> (H1 : coneOut cx One · f = coneOut cx One · g).
+    {
+      use (pathscomp0 (coneOutCommutes cx One Two (ii1 tt))).
+      use (pathscomp0 _ (!(coneOutCommutes cx One Two (ii2 tt)))).
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">set</span> (H2 := (H' x (coneOut cx One) H1)).
+    use tpair.
+    - use (tpair _ (pr1 (pr1 H2)) _).
+      use two_rec_dep.
+      + <span class="nb">apply</span> (pr2 (pr1 H2)).
+      + use (pathscomp0 _ (coneOutCommutes cx One Two (ii1 tt))).
+        <span class="nb">change</span> (coneOut (Equalizer_cone f g d h H) (● <span class="mi">1</span>)%stn) <span class="k">with</span> (h · f).
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition, (pr2 (pr1 H2)).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+                [ <span class="nb">intros</span> y; <span class="nb">apply</span> impred; <span class="nb">intros</span> t0; <span class="nb">apply</span> hs
+                | <span class="nb">induction</span> t <span class="k">as</span> [t p]; <span class="nb">apply</span> path_to_ctr, (p One)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) := LimCone (Equalizer_diagram f g).
+
+  <span class="kn">Definition</span> <span class="nf">make_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">d</span> : C) (<span class="nv">h</span> : C⟦d, a⟧)
+             (<span class="nv">H</span> : h · f = h · g) (<span class="nv">isEq</span> : isEqualizer f g d h H) :
+    Equalizer f g.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="bp">exact</span> d.
+      + use Equalizer_cone.
+        * <span class="bp">exact</span> h.
+        * <span class="bp">exact</span> H.
+    - <span class="bp">exact</span> isEq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizers</span> : UU := ∏ (a b : C) (f g : C⟦a, b⟧), Equalizer f g.
+
+  <span class="kn">Definition</span> <span class="nf">hasEqualizers</span> : UU := ∏ (a b : C) (f g : C⟦a, b⟧), ishinh (Equalizer f g).
+
+  <span class="kn">Definition</span> <span class="nf">EqualizerObject</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} : Equalizer f g -&gt; C := <span class="k">λ</span> <span class="nv">H</span>, lim H.
+
+  <span class="kn">Definition</span> <span class="nf">EqualizerArrow</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) :
+    C⟦lim E, a⟧ := limOut E One.
+
+  <span class="kn">Definition</span> <span class="nf">EqualizerArrowEq</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) :
+    EqualizerArrow E · f = EqualizerArrow E · g.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (limOutCommutes E One Two (ii1 tt))).
+    use (pathscomp0 _ (!(limOutCommutes E One Two (ii2 tt)))).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">EqualizerIn</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, a⟧)
+             (<span class="nv">H</span> : h · f = h · g) : C⟦e, lim E⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> use limArrow; use Equalizer_cone.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerArrowComm</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, a⟧)
+        (<span class="nv">H</span> : h · f = h · g) : EqualizerIn E e h H · EqualizerArrow E = h.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (limArrowCommutes E e _ One).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerInUnique</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, a⟧)
+        (<span class="nv">H</span> : h · f = h · g) (<span class="nv">w</span> : C⟦e, lim E⟧) (<span class="nv">H'</span> : w · EqualizerArrow E = h) :
+    w = EqualizerIn E e h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> path_to_ctr.
+    use two_rec_dep.
+    - <span class="nb">apply</span> H'.
+    - <span class="nb">set</span> (X := limOutCommutes E One Two (ii1 tt)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">h</span> : _, w · h)) <span class="k">in</span> X.
+      use (pathscomp0 (!X)); <span class="nb">rewrite</span> assoc.
+      <span class="nb">change</span> (dmor _ _) <span class="k">with</span> f.
+      <span class="nb">change</span> (coneOut _ _) <span class="k">with</span> (h · f).
+      <span class="nb">apply</span> cancel_postcomposition, H'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerInEq</span>
+    {<span class="nv">a</span> <span class="nv">b</span> : C}
+    {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧}
+    (<span class="nv">E</span> : Equalizer f g)
+    (<span class="nv">e</span> : C)
+    (<span class="nv">h</span> <span class="nv">h'</span> : C⟦e, EqualizerObject E⟧)
+    (<span class="nv">H</span> : h · EqualizerArrow E = h' · EqualizerArrow E)
+    : h = h'.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (EqualizerInUnique E e (h' · EqualizerArrow E) _ h H @ !EqualizerInUnique E e (h' · EqualizerArrow E) _ h' (idpath _)).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ !_).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> EqualizerArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEqualizer_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) :
+    isEqualizer f g (EqualizerObject E) (EqualizerArrow E) (EqualizerArrowEq E).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isEqualizer.
+    <span class="nb">intros</span> e h H.
+    use (unique_exists (EqualizerIn E e h H)).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="bp">exact</span> (EqualizerArrowComm E e h H).
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y t. <span class="nb">cbn</span> <span class="k">in</span> t.
+      use EqualizerInUnique.
+      <span class="bp">exact</span> t.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Equalizers to equalizers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">identity_is_Equalizer_input</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g) :
+    total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦lim E, lim E⟧ =&gt; hk · EqualizerArrow E = EqualizerArrow E).
+  <span class="kn">Proof</span>.
+    use tpair.
+    <span class="bp">exact</span> (identity _).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">EqualizerEndo_is_identity</span>  {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E</span> : Equalizer f g)
+        (<span class="nv">k</span> : C⟦lim E, lim E⟧) (<span class="nv">kH</span> : k · EqualizerArrow E = EqualizerArrow E) :
+    identity (lim E) = k.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> lim_endo_is_identity.
+    <span class="nb">unfold</span> limOut.
+    use two_rec_dep; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> kH.
+    + <span class="nb">set</span> (X := (coneOutCommutes (limCone E) One Two (ii1 tt))).
+      use (pathscomp0 (! (maponpaths (<span class="k">λ</span> <span class="nv">h'</span> : _, k · h') X))).
+      use (pathscomp0 _ X).
+      <span class="nb">rewrite</span> assoc; <span class="nb">change</span> (dmor _ _) <span class="k">with</span> f.
+      <span class="nb">apply</span> cancel_postcomposition, kH.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_Equalizer_to_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E1</span> <span class="nv">E2</span> : Equalizer f g) :
+    C⟦lim E1, lim E2⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (EqualizerIn E2 (lim E1) (EqualizerArrow E1)).
+    <span class="bp">exact</span> (EqualizerArrowEq E1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Equalizer_to_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E1</span> <span class="nv">E2</span> : Equalizer f g) :
+    is_inverse_in_precat (from_Equalizer_to_Equalizer E2 E1)
+                         (from_Equalizer_to_Equalizer E1 E2).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0.
+    - <span class="nb">apply</span> EqualizerEndo_is_identity.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">unfold</span> from_Equalizer_to_Equalizer.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> EqualizerArrowComm.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> EqualizerEndo_is_identity.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">unfold</span> from_Equalizer_to_Equalizer.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> EqualizerArrowComm.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isiso_from_Equalizer_to_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E1</span> <span class="nv">E2</span> : Equalizer f g) :
+    is_iso (from_Equalizer_to_Equalizer E1 E2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_qinv _ (from_Equalizer_to_Equalizer E2 E1)).
+    <span class="nb">apply</span> are_inverses_from_Equalizer_to_Equalizer.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_from_Equalizer_to_Equalizer</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">E1</span> <span class="nv">E2</span> : Equalizer f g) :
+    iso (lim E1) (lim E2) := tpair _ _ (isiso_from_Equalizer_to_Equalizer E1 E2).
+
+  <span class="kn">Lemma</span> <span class="nf">inv_from_iso_iso_from_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a , b⟧} (<span class="nv">E1</span> <span class="nv">E2</span> : Equalizer f g):
+    inv_from_iso (iso_from_Equalizer_to_Equalizer E1 E2) = from_Equalizer_to_Equalizer E2 E1.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> inv_iso_unique'.
+    <span class="nb">apply</span> (pr1 (are_inverses_from_Equalizer_to_Equalizer E2 E1)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Connections to other limits *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">Equalizers_from_Lims</span> :
+    Lims C -&gt; Equalizers.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H a b f g. <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_equalizers</span>.
+
+
+<span class="sd">(** * Definitions coincide</span>
+<span class="sd">  In this section we show that the definition of equalizer as a limit</span>
+<span class="sd">  coincides with the direct definition. *)</span>
+<span class="kn">Section</span> <span class="nf">equalizers_coincide</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span>: has_homsets C := homset_property C.
+
+
+  <span class="sd">(** ** isEqualizers *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isEqualizer1</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧} (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, a⟧) (<span class="nv">H</span> : h · f = h · g) :
+    Limits.Equalizers.isEqualizer f g h H -&gt; isEqualizer C f g e h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">set</span> (E := Limits.Equalizers.make_Equalizer f g h H X).
+    use (make_isEqualizer C).
+    <span class="nb">intros</span> e' h' H'.
+    use (unique_exists (Limits.Equalizers.EqualizerIn E e' h' H')).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="bp">exact</span> (Limits.Equalizers.EqualizerCommutes E e' h' H').
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> <span class="k">in</span> T.
+      use (Limits.Equalizers.EqualizerInsEq E).
+      use (pathscomp0 T).
+      <span class="bp">exact</span> (!(Limits.Equalizers.EqualizerCommutes E e' h' H')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isEqualizer2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, a⟧) (<span class="nv">H</span> : h · f = h · g) :
+    Limits.Equalizers.isEqualizer f g h H &lt;- isEqualizer C f g e h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">set</span> (E := make_Equalizer C f g e h H X).
+    <span class="nb">intros</span> e' h' H'.
+    use (unique_exists (EqualizerIn C E e' h' H')).
+    <span class="c">(* Commutativity *)</span>
+    - <span class="bp">exact</span> (EqualizerArrowComm C E e' h' H').
+    <span class="c">(* Equality on equalities of morphisms *)</span>
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    <span class="c">(* Uniqueness *)</span>
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> <span class="k">in</span> T.
+      use (EqualizerInUnique C E).
+      <span class="bp">exact</span> T.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Equalizers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Equalizer1</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) :
+    Limits.Equalizers.Equalizer f g -&gt; Equalizer C f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> E.
+    <span class="bp">exact</span> (make_Equalizer
+             C f g _ _ _
+             (equiv_isEqualizer1
+                (Limits.Equalizers.EqualizerObject E)
+                (Limits.Equalizers.EqualizerArrow E)
+                (Limits.Equalizers.EqualizerEqAr E)
+                (Limits.Equalizers.isEqualizer_Equalizer E))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Equalizers1</span> : @Limits.Equalizers.Equalizers C -&gt; Equalizers C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> E' a b f g.
+    <span class="nb">set</span> (E := E' a b f g).
+    <span class="bp">exact</span> (make_Equalizer
+             C f g _ _ _
+             (equiv_isEqualizer1
+                (Limits.Equalizers.EqualizerObject E)
+                (Limits.Equalizers.EqualizerArrow E)
+                (Limits.Equalizers.EqualizerEqAr E)
+                (Limits.Equalizers.isEqualizer_Equalizer E))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Equalizer2</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : C⟦a, b⟧) :
+    Limits.Equalizers.Equalizer f g &lt;- Equalizer C f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> E.
+    <span class="bp">exact</span> (@Limits.Equalizers.make_Equalizer
+             C (EqualizerObject C E) a b f g
+             (EqualizerArrow C E)
+             (EqualizerArrowEq C E)
+             (@equiv_isEqualizer2
+                a b f g (EqualizerObject C E)
+                (EqualizerArrow C E)
+                (EqualizerArrowEq C E)
+                (isEqualizer_Equalizer C E))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Equalizers2</span> : @Limits.Equalizers.Equalizers C &lt;- Equalizers C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> E' a b f g.
+    <span class="nb">set</span> (E := E' a b f g).
+    <span class="bp">exact</span> (@Limits.Equalizers.make_Equalizer
+             C (EqualizerObject C E) a b f g
+             (EqualizerArrow C E)
+             (EqualizerArrowEq C E)
+             (@equiv_isEqualizer2
+                a b f g (EqualizerObject C E)
+                (EqualizerArrow C E)
+                (EqualizerArrowEq C E)
+                (isEqualizer_Equalizer C E))).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">equalizers_coincide</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Equalizers.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Coincides with the direct definition
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

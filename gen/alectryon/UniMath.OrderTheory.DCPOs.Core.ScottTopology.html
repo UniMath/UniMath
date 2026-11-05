@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ScottTopology.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> The Scott topology</span>
+
+<span class="sd"> We define the notions of Scott open and of Scott closed subsets of DCPOs. A</span>
+<span class="sd"> Scott open set is upwards closed and inaccessible by least upperbounds, and</span>
+<span class="sd"> Scott closed sets are downwards closed and closed under suprema. Note that</span>
+<span class="sd"> to prove that the complement of a Scott closed set is Scott open, one needs</span>
+<span class="sd"> the law of excluded middle (Lemma 2.9 in https://arxiv.org/pdf/2106.05064.pdf).</span>
+<span class="sd"> We also prove some basic properties of these sets.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Section 2 in the chapter 'Domain Theory' of the Handbook for Logic in</span>
+<span class="sd">   Computer Science, Volume 3 (https://www.cs.ox.ac.uk/files/298/handbook.pdf)</span>
+<span class="sd"> - https://arxiv.org/pdf/2106.05064.pdf</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Lower and upper sets</span>
+<span class="sd"> 2. Scott open and Scott closed sets</span>
+<span class="sd"> 3. Bundled definitions of Scott open and Scott closed sets</span>
+<span class="sd"> 4. Accessors for Scott open and Scott closed sets</span>
+<span class="sd"> 5. Lower sets are Scott closed</span>
+<span class="sd"> 6. Upper sets (with respect to the way-below relation) are Scott open</span>
+<span class="sd"> 7. Empty and top sets are Scott open</span>
+<span class="sd"> 8. Complements of Scott open sets</span>
+<span class="sd"> 9. More examples of Scott open sets</span>
+<span class="sd"> 9.1. Intersection</span>
+<span class="sd"> 9.2. Type-indexed unions</span>
+<span class="sd"> 9.3. Exponentials</span>
+<span class="sd"> 9.4. Binary unions</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+<span class="kn">Section</span> <span class="nf">ScottTopology</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Lower and upper sets</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_lower_set</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X), P y ⇒ x ⊑ y ⇒ P x)%logic.
+
+  <span class="kn">Definition</span> <span class="nf">is_upper_set</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : X), P x ⇒ x ⊑ y ⇒ P y)%logic.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Scott open and Scott closed sets</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_lub_inaccessible</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">D</span> : directed_set X), P(⨆ D) ⇒ <span class="k">∃</span> (<span class="nv">i</span> : D), P(D i))%logic.
+
+  <span class="kn">Definition</span> <span class="nf">is_closed_under_lub</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := (<span class="k">∀</span> (<span class="nv">D</span> : directed_set X), (<span class="k">∀</span> (<span class="nv">i</span> : D), P (D i)) ⇒ P(⨆ D))%logic.
+
+  <span class="kn">Definition</span> <span class="nf">is_scott_closed</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := is_lower_set P ∧ is_closed_under_lub P.
+
+  <span class="kn">Definition</span> <span class="nf">is_scott_open</span>
+             (<span class="nv">P</span> : X → hProp)
+    : hProp
+    := is_upper_set P ∧ is_lub_inaccessible P.
+<span class="kn">End</span> <span class="nf">ScottTopology</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Bundled definitions of Scott open and Scott closed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">scott_open_set</span>
+           (<span class="nv">X</span> : dcpo)
+  : UU
+  := ∑ (P : X → hProp), is_scott_open P.
+
+<span class="kn">Proposition</span> <span class="nf">isaset_scott_open_set</span>
+            (<span class="nv">D</span> : dcpo)
+  : isaset (scott_open_set D).
+<span class="kn">Proof</span>.
+  use isaset_total2.
+  - use funspace_isaset.
+    <span class="bp">exact</span> isasethProp.
+  - <span class="nb">intro</span> P.
+    use isasetaprop.
+    <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_of_scott_open_set</span>
+           (<span class="nv">D</span> : dcpo)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (scott_open_set D).
+  - <span class="nb">apply</span> isaset_scott_open_set.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_scott_open_set</span>
+           {<span class="nv">D</span> : dcpo}
+           (<span class="nv">P</span> : D → hProp)
+           (<span class="nv">HP</span> : is_scott_open P)
+  : scott_open_set D
+  := P ,, HP.
+
+<span class="kn">Definition</span> <span class="nf">scott_open_set_to_pred</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">P</span> : scott_open_set X)
+           (<span class="nv">x</span> : X)
+  : hProp
+  := pr1 P x.
+
+<span class="kn">Coercion</span> <span class="nf">scott_open_set_to_pred</span> : scott_open_set &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Coercion</span> <span class="nf">is_scott_open_scott_open_set</span>
+          {X : dcpo}
+          (P : scott_open_set X)
+  : is_scott_open P
+  := pr2 P.
+
+<span class="kn">Proposition</span> <span class="nf">eq_scott_open_set</span>
+            {<span class="nv">D</span> : dcpo}
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D}
+            (<span class="nv">H₁</span> : ∏ (x : D), P₁ x → P₂ x)
+            (<span class="nv">H₂</span> : ∏ (x : D), P₂ x → P₁ x)
+  : P₁ = P₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  use funextsec.
+  <span class="nb">intro</span> x.
+  use hPropUnivalence.
+  - <span class="bp">exact</span> (H₁ x).
+  - <span class="bp">exact</span> (H₂ x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">scott_closed_set</span>
+           (<span class="nv">X</span> : dcpo)
+  : UU
+  := ∑ (P : X → hProp), is_scott_closed P.
+
+<span class="kn">Definition</span> <span class="nf">scott_closed_set_to_pred</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">P</span> : scott_closed_set X)
+           (<span class="nv">x</span> : X)
+  : hProp
+  := pr1 P x.
+
+<span class="kn">Coercion</span> <span class="nf">scott_closed_set_to_pred</span> : scott_closed_set &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Coercion</span> <span class="nf">is_scott_closed_scott_closed_set</span>
+          {X : dcpo}
+          (P : scott_closed_set X)
+  : is_scott_closed P
+  := pr2 P.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Accessors for Scott open and Scott closed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ScottClosedAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          {<span class="nv">P</span> : X → hProp}
+          (<span class="nv">HP</span> : is_scott_closed P).
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_closed_lower_set</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">Py</span> : P y)
+              (<span class="nv">p</span> : x ⊑ y)
+    : P x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 HP x y Py p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_closed_lub</span>
+              (<span class="nv">D</span> : directed_set X)
+              (<span class="nv">HD</span> : <span class="k">∀</span> (<span class="nv">i</span> : D), P (D i))
+    : P(⨆ D).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 HP D HD).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ScottClosedAccessors</span>.
+
+<span class="kn">Section</span> <span class="nf">ScottOpenAccessors</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          {<span class="nv">P</span> : X → hProp}
+          (<span class="nv">HP</span> : is_scott_open P).
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_open_upper_set</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">Py</span> : P x)
+              (<span class="nv">p</span> : x ⊑ y)
+    : P y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 HP x y Py p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_open_lub_inaccessible</span>
+              (<span class="nv">D</span> : directed_set X)
+              (<span class="nv">HD</span> : P(⨆ D))
+    : <span class="k">∃</span> (<span class="nv">i</span> : D), P (D i).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 HP D HD).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ScottOpenAccessors</span>.
+
+<span class="kn">Section</span> <span class="nf">PropertiesScottTopology</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Lower sets are Scott closed</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">lower_set_is_scott_closed</span>
+              (<span class="nv">x</span> : X)
+    : is_scott_closed (<span class="k">λ</span> <span class="nv">y</span>, y ⊑ x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y₁ y₂ p q.
+      <span class="bp">exact</span> (trans_dcpo q p).
+    - <span class="nb">intros</span> D H.
+      use dcpo_lub_is_least.
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Upper sets (with respect to the way-below relation) are Scott open</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">way_below_upper_set</span>
+             (<span class="nv">x</span> : X)
+    : X → hProp
+    := <span class="k">λ</span> <span class="nv">y</span>, x ≪ y.
+
+  <span class="kn">Proposition</span> <span class="nf">upper_set_is_scott_open</span>
+              (<span class="nv">CX</span> : continuous_dcpo_struct X)
+              (<span class="nv">x</span> : X)
+    : is_scott_open (way_below_upper_set x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y₁ y₂ p q.
+      <span class="bp">exact</span> (trans_way_below_le p q).
+    - <span class="nb">intros</span> D p.
+      <span class="nb">assert</span> (H := unary_interpolation CX p).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ z [ q₁ q₂ ]].
+      <span class="nb">assert</span> (H := q₂ D (refl_dcpo _)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i r ].
+      <span class="nb">refine</span> (hinhpr (i ,, _)).
+      <span class="bp">exact</span> (trans_way_below_le q₁ r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">way_below_upper_scott_open_set</span>
+             (<span class="nv">CX</span> : continuous_dcpo_struct X)
+             (<span class="nv">x</span> : X)
+    : scott_open_set X.
+  <span class="kn">Proof</span>.
+    use make_scott_open_set.
+    - <span class="bp">exact</span> (way_below_upper_set x).
+    - <span class="bp">exact</span> (upper_set_is_scott_open CX x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">way_below_upper_scott_open_subset</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x₂ ≪ x₁)
+              (<span class="nv">H</span> : way_below_upper_set x₁ y)
+    : way_below_upper_set x₂ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> way_below_upper_set <span class="k">in</span> *.
+    <span class="bp">exact</span> (trans_way_below p H).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 7. Empty and top sets are Scott open *)</span>
+  <span class="kn">Definition</span> <span class="nf">true_scott_open_set</span>
+             (<span class="nv">A</span> : dcpo)
+    : scott_open_set A.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, htrue).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y p q ;
+           <span class="bp">exact</span> tt).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> D x ;
+           <span class="nb">assert</span> (H := directed_set_el D) ;
+           <span class="nb">revert</span> H ;
+           use factor_through_squash_hProp ;
+           <span class="nb">intro</span> d ;
+           <span class="bp">exact</span> (hinhpr (d ,, tt))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">false_scott_open_set</span>
+             (<span class="nv">A</span> : dcpo)
+    : scott_open_set A.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, hfalse).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> x y p q; <span class="bp">exact</span> (fromempty p)).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> D p; <span class="bp">exact</span> (fromempty p)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   8. Complements of Scott open sets</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">complement_of_scott_open</span>
+              (<span class="nv">P</span> : X → hProp)
+              (<span class="nv">HP</span> : is_scott_open P)
+    : is_scott_closed (<span class="k">λ</span> <span class="nv">x</span>, ¬(P x))%logic.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> x y p q H.
+      <span class="nb">apply</span> p.
+      use (pr1 HP x).
+      + <span class="bp">exact</span> H.
+      + <span class="bp">exact</span> q.
+    - <span class="nb">cbn</span> ; <span class="nb">intros</span> D HD p.
+      <span class="nb">assert</span> (H := is_scott_open_lub_inaccessible HP D p).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> isapropempty.
+      }
+      <span class="nb">intro</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+      <span class="nb">apply</span> (HD i).
+      <span class="bp">exact</span> Hi.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesScottTopology</span>.
+
+<span class="kn">Arguments</span> way_below_upper_set {X} x y /.
+
+<span class="sd">(** * 9. More examples of Scott open sets *)</span>
+
+<span class="sd">(** ** 9.1. Intersection *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_scott_open_intersection</span>
+            {<span class="nv">D</span> : dcpo}
+            (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D)
+  : is_scott_open (P₁ ∩ P₂).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y p q.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ].
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (is_scott_open_upper_set P₁ p₁ q).
+    + <span class="bp">exact</span> (is_scott_open_upper_set P₂ p₂ q).
+  - <span class="nb">intros</span> A HA.
+    <span class="nb">induction</span> HA <span class="k">as</span> [ HA₁ HA₂ ].
+    <span class="nb">refine</span> (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₁ A HA₁)).
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+    <span class="nb">refine</span> (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₂ A HA₂)).
+    <span class="nb">intros</span> j.
+    <span class="nb">induction</span> j <span class="k">as</span> [ j Hj ].
+    <span class="nb">refine</span> (factor_through_squash_hProp _ _ (directed_set_top A i j)).
+    <span class="nb">intros</span> k.
+    <span class="nb">induction</span> k <span class="k">as</span> [ k Hk ].
+    <span class="nb">induction</span> Hk <span class="k">as</span> [ Hk₁ Hk₂ ].
+    <span class="nb">refine</span> (hinhpr (k ,, _ ,, _)).
+    + <span class="nb">refine</span> (is_scott_open_upper_set P₁ _ Hk₁).
+      <span class="bp">exact</span> Hi.
+    + <span class="nb">refine</span> (is_scott_open_upper_set P₂ _ Hk₂).
+      <span class="bp">exact</span> Hj.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">scott_open_set_intersection</span>
+           {<span class="nv">D</span> : dcpo}
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D)
+  : scott_open_set D.
+<span class="kn">Proof</span>.
+  use make_scott_open_set.
+  - <span class="bp">exact</span> (P₁ ∩ P₂).
+  - <span class="bp">exact</span> (is_scott_open_intersection P₁ P₂).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 9.2. Type-indexed unions *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_scott_open_union</span>
+            {<span class="nv">D</span> : dcpo}
+            {<span class="nv">I</span> : UU}
+            (<span class="nv">P</span> : I → scott_open_set D)
+  : is_scott_open (⋃ P).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y p q.
+    <span class="nb">revert</span> p.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+    <span class="nb">refine</span> (hinhpr  (i ,, _)).
+    <span class="bp">exact</span> (is_scott_open_upper_set (P i) Hi q).
+  - <span class="nb">intros</span> A.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+    <span class="nb">refine</span> (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible (P i) A Hi)).
+    <span class="nb">intros</span> j.
+    <span class="nb">induction</span> j <span class="k">as</span> [ a Ha ].
+    <span class="nb">refine</span> (hinhpr (a ,, _)).
+    <span class="bp">exact</span> (hinhpr (i ,, Ha)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">scott_open_set_union</span>
+           {<span class="nv">D</span> : dcpo}
+           {<span class="nv">I</span> : UU}
+           (<span class="nv">P</span> : I → scott_open_set D)
+  : scott_open_set D.
+<span class="kn">Proof</span>.
+  use make_scott_open_set.
+  - <span class="bp">exact</span> (⋃ P).
+  - <span class="bp">exact</span> (is_scott_open_union P).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 9.3. Exponentials *)</span>
+<span class="kn">Definition</span> <span class="nf">scott_open_set_exp</span>
+           {<span class="nv">D</span> : dcpo}
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D)
+  : scott_open_set D.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (scott_open_set_union _).
+  - <span class="bp">exact</span> (∑ (Q : scott_open_set D),
+           ∏ (x : D),
+           P₁ x × Q x → P₂ x).
+  - <span class="bp">exact</span> pr1.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 9.4. Binary unions *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_scott_open_bin_union</span>
+            {<span class="nv">D</span> : dcpo}
+            (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D)
+  : is_scott_open (P₁ ∪ P₂).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> p q.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p  | p ].
+    + use hdisj_in1.
+      <span class="bp">exact</span> (is_scott_open_upper_set P₁ p q).
+    + use hdisj_in2.
+      <span class="bp">exact</span> (is_scott_open_upper_set P₂ p q).
+  - <span class="nb">intros</span> A.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    + <span class="nb">refine</span> (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₁ A p)).
+      <span class="nb">intros</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+      <span class="nb">refine</span> (hinhpr (i ,, _)).
+      use hdisj_in1.
+      <span class="bp">exact</span> Hi.
+    + <span class="nb">refine</span> (factor_through_squash_hProp _ _ (is_scott_open_lub_inaccessible P₂ A p)).
+      <span class="nb">intros</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i Hi ].
+      <span class="nb">refine</span> (hinhpr (i ,, _)).
+      use hdisj_in2.
+      <span class="bp">exact</span> Hi.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">scott_open_set_bin_union</span>
+           {<span class="nv">D</span> : dcpo}
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set D)
+  : scott_open_set D.
+<span class="kn">Proof</span>.
+  use make_scott_open_set.
+  - <span class="bp">exact</span> (P₁ ∪ P₂).
+  - <span class="bp">exact</span> (is_scott_open_bin_union P₁ P₂).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/ScottTopology.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  9.4. Binary unions
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

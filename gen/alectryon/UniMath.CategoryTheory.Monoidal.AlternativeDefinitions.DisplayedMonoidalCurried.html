@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedMonoidalCurried.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* In this file we formalize the definition of a certain monoidal structure on a display category and show that the total category has the structure of a monoidal category if the base category is a monoidal category and the displayed category has this certain monoidal structure.</span>
+
+<span class="c">The data of a displayed monoidal category consists of:</span>
+<span class="c">    - A (base) category C.</span>
+<span class="c">    - A displayed category D over C.</span>
+<span class="c">    - A displayed tensor DT which consists of:</span>
+<span class="c">                  - D_x → D_y → D_{x ⊗_{T} y} : a → (b → a⊗_{{DT}} b).</span>
+<span class="c">                  - (a --&gt;[f] a') → (b --&gt;[g] b') → ( (a ⊗_{{DT}} b) --&gt;[f ⊗^{T} g] (a' ⊗_{{DT}} b') : f'→g'→ (f' ⊗^{{DT}} g').</span>
+<span class="c">    - A term i : D I, called the displayed unit.</span>
+<span class="c">    - A natural transformation dlu : (i ⊗_{{TD}} (-)) --&gt;[lu_x] (-) with naturality condition:</span>
+<span class="c">                  - (id_i ⊗^{{TD}} f') ;; dlu_b = dlu_a ;; f'</span>
+<span class="c">                  where the equality is dependent over the naturality condition of lu w.r.t. f, i.e. we have to transport.</span>
+<span class="c">    - A natural transformation dru : ((-) ⊗_{{TD}} i) --&gt;[ru_x] (-) with naturality condition:</span>
+<span class="c">                  - (f' ⊗^{{TD}} id_i) ;; dru_b = dru_a ;; f'</span>
+<span class="c">                  where the equality is dependent over the naturality condition of ru w.r.t. f, i.e. we have to transport.</span>
+<span class="c">    - A natural transformation dα : ((-)⊗(-))⊗(-) --&gt;[α_{x,y,z}] (-)⊗((-)⊗(-)) with naturality condition:</span>
+<span class="c">                  - dα_{a,b,c} ;; (f' ⊗^{{TD}} (g' ⊗^{{TD}} h')) = (f'⊗g')⊗h' ;; dα_{a',b',c'}</span>
+<span class="c">And the properties of a displayed monoidal category are given by:</span>
+<span class="c">    - Displayed triangle identity:</span>
+<span class="c">                  - dα_{a,i,b} ;; (id_a ⊗ dlu_b) = dru_a ⊗ id_b.</span>
+<span class="c">    - Displayed pentagon_identity:</span>
+<span class="c">                  -</span>
+
+<span class="c">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesCurried.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">displayedmonoidalcategories</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">D</span> : disp_cat C) (<span class="nv">T</span> : tensor_data C) (<span class="nv">I</span> : C) (<span class="nv">α</span> : associator_data T) (<span class="nv">lu</span> : leftunitor_data T I) (<span class="nv">ru</span> : rightunitor_data T I) (<span class="nv">tid</span> : tensorfunctor_id T) (<span class="nv">tcomp</span> : tensorfunctor_comp T) (<span class="nv">αnat</span> : associator_naturality α) (<span class="nv">αiso</span> : associator_is_natiso α) (<span class="nv">lunat</span> : leftunitor_naturality lu) (<span class="nv">luiso</span> : leftunitor_is_natiso lu) (<span class="nv">runat</span> : rightunitor_naturality ru) (<span class="nv">ruiso</span> : rightunitor_is_natiso ru) (<span class="nv">tri</span> : triangle_identity lu ru α) (<span class="nv">pen</span> : pentagon_identity α).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensor_data</span> : UU :=
+    ∑ (dt : ∏ (x y : C), (D x) → (D y) -&gt; (D (x ⊗_{T} y))),
+    ∏ (x x' y y' : C), ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧), ∏ (a : D x) (a' : D x') (b : D y) (b' : D y'),
+      (a --&gt;[f] a') -&gt; (b --&gt;[g] b') -&gt; ((dt x y a b)--&gt;[f ⊗^{T} g] (dt x' y' a' b')).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensoronobjects_from_displayedtensordata</span> (<span class="nv">dtd</span> : displayedtensor_data)
+    :  ∏ (x y : C), (D x) → (D y) -&gt; (D (x ⊗_{T} y)) := pr1 dtd.
+  <span class="kn">Notation</span> <span class="s2">"a ⊗_{{ dtd }} b"</span> := (displayedtensoronobjects_from_displayedtensordata dtd _ _ a b) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensoronmorphisms_from_displayedtensordata</span> (<span class="nv">dtd</span> : displayedtensor_data) :
+    ∏ (x x' y y' : C) (f : C ⟦ x, x' ⟧) (g : C ⟦ y, y' ⟧) (a : D x) (a' : D x') (b : D y) (b' : D y'),
+  (a --&gt;[ f] a') -&gt; (b --&gt;[ g] b') -&gt; ((a ⊗_{{dtd}} b) --&gt;[ f ⊗^{ T} g ] (a' ⊗_{{ dtd}} b'))
+    := pr2 dtd.
+  <span class="kn">Notation</span> <span class="s2">"f' ⊗^{{ dtd }} g'"</span> := (displayedtensoronmorphisms_from_displayedtensordata dtd _ _ _ _ _ _ _ _ _ _ f' g'  ) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+  <span class="kn">Definition</span> <span class="nf">displayedassociator_data</span> (<span class="nv">dtd</span> : displayedtensor_data) : UU :=
+    ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z),
+      ((a ⊗_{{dtd}} b) ⊗_{{dtd}} c) --&gt;[(α x y z)] (a ⊗_{{dtd}} (b ⊗_{{dtd}} c)).
+
+  <span class="kn">Definition</span> <span class="nf">displayedleftunitor_data</span> (<span class="nv">dtd</span> : displayedtensor_data) (<span class="nv">i</span> : D I) : UU
+    := ∏ (x : C), ∏ (a : D x), ((i ⊗_{{dtd}} a)--&gt;[(lu x)] a).
+
+  <span class="kn">Definition</span> <span class="nf">displayedrightunitor_data</span> (<span class="nv">dtd</span> : displayedtensor_data) (<span class="nv">i</span> : D I) : UU
+    := ∏ (x : C), ∏ (a : D x), ((a ⊗_{{dtd}} i)--&gt;[(ru x)] a).
+
+  <span class="kn">Definition</span> <span class="nf">displayedmonoidalcat_data</span> : UU :=
+    ∑ dtd : displayedtensor_data, ∑ i : D I,
+          (displayedleftunitor_data dtd i) × (displayedrightunitor_data dtd i) × (displayedassociator_data dtd).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensordata_from_dispmoncatdata</span> (<span class="nv">DMD</span> : displayedmonoidalcat_data) : displayedtensor_data := pr1 DMD.
+  <span class="kn">Coercion</span> <span class="nf">displayedtensordata_from_dispmoncatdata</span> : displayedmonoidalcat_data &gt;-&gt; displayedtensor_data.
+
+  <span class="kn">Definition</span> <span class="nf">displayedunit_from_dispmoncatdata</span> (<span class="nv">DMD</span> : displayedmonoidalcat_data) : D I := pr1 (pr2 DMD).
+  <span class="kn">Coercion</span> <span class="nf">displayedunit_from_dispmoncatdata</span> : displayedmonoidalcat_data &gt;-&gt; ob_disp.
+
+  <span class="kn">Definition</span> <span class="nf">displayedleftunitordata_from_dispmoncatdata</span> (<span class="nv">DMD</span> : displayedmonoidalcat_data) : displayedleftunitor_data DMD DMD := pr1 (pr2 (pr2 DMD)).
+  <span class="kn">Coercion</span> <span class="nf">displayedleftunitordata_from_dispmoncatdata</span> : displayedmonoidalcat_data &gt;-&gt; displayedleftunitor_data.
+
+  <span class="kn">Definition</span> <span class="nf">displayedrightunitordata_from_dispmoncatdata</span> (<span class="nv">DMD</span> : displayedmonoidalcat_data) : displayedrightunitor_data DMD DMD := pr1 (pr2 (pr2 (pr2 DMD))).
+  <span class="kn">Coercion</span> <span class="nf">displayedrightunitordata_from_dispmoncatdata</span> : displayedmonoidalcat_data &gt;-&gt; displayedrightunitor_data.
+
+  <span class="kn">Definition</span> <span class="nf">displayedassociatordata_from_dispmoncatdata</span> (<span class="nv">DMD</span> : displayedmonoidalcat_data) : displayedassociator_data DMD := pr2 (pr2 (pr2 (pr2 DMD))).
+  <span class="kn">Coercion</span> <span class="nf">displayedassociatordata_from_dispmoncatdata</span> : displayedmonoidalcat_data &gt;-&gt; displayedassociator_data.
+
+
+  <span class="sd">(** PROPERTIES **)</span>
+  <span class="kn">Definition</span> <span class="nf">displayedtensor_id</span> (<span class="nv">dtd</span> : displayedtensor_data)
+    := ∏ (x y : C), ∏ (a : D x) (b : D y),  ((id_disp a) ⊗^{{dtd}} (id_disp b))  = transportb _ (tid x y) (id_disp (a ⊗_{{dtd}} b)).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensor_comp</span> (<span class="nv">dtd</span> : displayedtensor_data)
+    := ∏ (x y x' y' x'' y'': C), ∏ (a : D x) (b : D y) (a' : D x') (b' : D y') (a'' : D x'') (b'' : D y''),
+      ∏ (f1 : C⟦x, x'⟧) (g1 : C⟦y,y'⟧) (f2 : C⟦x',x''⟧) (g2 : C⟦y',y''⟧) (f1' : a --&gt;[f1] a') (g1' : b --&gt;[g1] b') (f2' : a' --&gt;[f2] a'') (g2' : b' --&gt;[g2] b''), ((f1'⊗^{{dtd}} g1') ;; (f2'⊗^{{dtd}} g2')) = transportb _ (tcomp x y x' y' x'' y'' f1 f2 g1 g2) ((f1';;f2') ⊗^{{dtd}} (g1';;g2')).
+
+  <span class="kn">Definition</span> <span class="nf">displayedassociator_naturality</span> {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dα</span> : displayedassociator_data dtd) : UU :=
+    ∏ (x x' y y' z z' : C), ∏ (a : D x) (a' : D x') (b : D y) (b' : D y') (c : D z) (c' : D z'),
+      ∏ (f : C⟦x,x'⟧) (g : C⟦y,y'⟧) (h : C⟦z,z'⟧), ∏ (f' : a--&gt;[f] a') (g' : b --&gt;[g] b') (h' : c --&gt;[h] c'),
+      ((dα x y z a b c) ;; (f' ⊗^{{dtd}} (g' ⊗^{{dtd}} h'))) = transportb _ (αnat _ _ _ _ _ _ f g h) (((f' ⊗^{{dtd}} g') ⊗^{{dtd}} h') ;; dα _ _ _ a' b' c').
+
+  <span class="kn">Definition</span> <span class="nf">displayedassociator_is_nat_iso</span> {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dα</span> : displayedassociator_data dtd) : UU :=
+    ∏ (x y z : C), ∏ (a : D x) (b : D y) (c : D z), is_z_iso_disp ((α x y z),,(αiso x y z)) (dα x y z a b c).
+
+  <span class="kn">Definition</span> <span class="nf">displayedleftunitor_naturality</span> {<span class="nv">i</span> : D I} {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dlud</span> : displayedleftunitor_data dtd i) : UU :=
+    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a --&gt;[f] b),
+      (dlud x a) ;; f' = transportb _ (lunat x y f) (((id_disp i) ⊗^{{dtd}} f') ;; (dlud y b)).
+
+  <span class="kn">Definition</span> <span class="nf">displayedleftunitor_is_nat_iso</span> {<span class="nv">i</span> : D I} {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dlu</span> : displayedleftunitor_data dtd i) : UU :=
+    ∏ (x : C), ∏ (a : D x), is_z_iso_disp (lu x,, luiso x) (dlu x a).
+
+  <span class="kn">Definition</span> <span class="nf">displayedrightunitor_naturality</span> {<span class="nv">dtd</span> : displayedtensor_data} {<span class="nv">i</span> : D I} (<span class="nv">drud</span> : displayedrightunitor_data dtd i) : UU :=
+    ∏ (x y : C), ∏ (a : D x) (b : D y) (f : C⟦x,y⟧) (f' : a --&gt;[f] b),
+      ((drud x a) ;; f') = transportb _ (runat x y f) (( f' ⊗^{{dtd}}  (id_disp i)) ;; (drud y b)).
+
+  <span class="kn">Definition</span> <span class="nf">displayedrightunitor_is_nat_iso</span> {<span class="nv">i</span> : D I} {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dru</span> : displayedrightunitor_data dtd i) : UU :=
+    ∏ (x : C), ∏ (a : D x), is_z_iso_disp (ru x,, ruiso x) (dru x a).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtriangle_identity</span> {<span class="nv">dtd</span> : displayedtensor_data} {<span class="nv">i</span> : D I} (<span class="nv">dlud</span> : displayedleftunitor_data dtd i) (<span class="nv">drud</span> : displayedrightunitor_data dtd i) (<span class="nv">dα</span> : displayedassociator_data dtd) := ∏ (x y : C), ∏ (a : D x) (b : D y),
+      ((dα x I y a i b) ;; ((id_disp a)  ⊗^{{dtd}} dlud y b )) = transportb _ (tri x y) ((drud x a) ⊗^{{dtd}} id_disp b).
+
+  <span class="kn">Definition</span> <span class="nf">displayedpentagon_identity</span> {<span class="nv">dtd</span> : displayedtensor_data} (<span class="nv">dα</span> : displayedassociator_data dtd) : UU
+    := ∏ (w x y z: C), ∏ (e : D w) (a : D x) (b : D y) (c : D z),
+      (((dα _ _ _ e a b) ⊗^{{dtd}} (id_disp c)) ;; (dα _ _ _ e (a ⊗_{{dtd}} b) c) ;; ((id_disp e) ⊗^{{dtd}}  (dα _ _ _  a b c))) = transportb _ (pen w x y z) ((dα (w ⊗_{T} x) y z (e ⊗_{{dtd}} a) b c) ;; (dα w x (y ⊗_{T} z) e a (b ⊗_{{dtd}} c))).
+
+  <span class="kn">Definition</span> <span class="nf">displayedmonoidal_laws</span> (<span class="nv">DMD</span> :  displayedmonoidalcat_data) : UU :=
+    (displayedtensor_id DMD) × (displayedtensor_comp DMD) ×
+                             (displayedassociator_naturality DMD) × (displayedassociator_is_nat_iso DMD) ×
+                             (displayedleftunitor_naturality DMD) × (displayedleftunitor_is_nat_iso DMD) ×
+                             (displayedrightunitor_naturality DMD) × (displayedrightunitor_is_nat_iso DMD) ×
+                             (displayedtriangle_identity DMD DMD DMD) × (displayedpentagon_identity DMD).
+
+  <span class="kn">Definition</span> <span class="nf">displayedtensorid_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedtensor_id DMD := pr1 DML.
+<span class="kn">Coercion</span> <span class="nf">displayedtensorid_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedtensor_id.
+
+<span class="kn">Definition</span> <span class="nf">displayedtensorcomp_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedtensor_comp DMD := pr1 (pr2 DML).
+<span class="kn">Coercion</span> <span class="nf">displayedtensorcomp_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedtensor_comp.
+
+<span class="kn">Definition</span> <span class="nf">displayedassociatornaturality_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedassociator_naturality DMD := pr1 (pr2 (pr2 DML)).
+<span class="kn">Coercion</span> <span class="nf">displayedassociatornaturality_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedassociator_naturality.
+
+<span class="kn">Definition</span> <span class="nf">displayedassociatorisiso_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedassociator_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 DML))).
+<span class="kn">Coercion</span> <span class="nf">displayedassociatorisiso_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedassociator_is_nat_iso.
+
+<span class="kn">Definition</span> <span class="nf">displayedleftunitornaturality_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedleftunitor_naturality DMD := pr1 (pr2 (pr2 (pr2 (pr2 DML)))).
+<span class="kn">Coercion</span> <span class="nf">displayedleftunitornaturality_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedleftunitor_naturality.
+
+<span class="kn">Definition</span> <span class="nf">displayedleftunitorisiso_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedleftunitor_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 DML))))).
+<span class="kn">Coercion</span> <span class="nf">displayedleftunitorisiso_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedleftunitor_is_nat_iso.
+
+<span class="kn">Definition</span> <span class="nf">displayedrightunitornaturality_from_monoidallaws</span>{<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedrightunitor_naturality DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))).
+<span class="kn">Coercion</span> <span class="nf">displayedrightunitornaturality_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedrightunitor_naturality.
+
+<span class="kn">Definition</span> <span class="nf">displayedrightunitorisiso_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedrightunitor_is_nat_iso DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML))))))).
+<span class="kn">Coercion</span> <span class="nf">displayedrightunitorisiso_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedrightunitor_is_nat_iso.
+
+<span class="kn">Definition</span> <span class="nf">displayedtriangleidentity_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedtriangle_identity DMD DMD DMD := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))))).
+<span class="kn">Coercion</span> <span class="nf">displayedtriangleidentity_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedtriangle_identity.
+
+<span class="kn">Definition</span> <span class="nf">displayedpentagonidentity_from_monoidallaws</span> {<span class="nv">DMD</span> : displayedmonoidalcat_data} (<span class="nv">DML</span> : displayedmonoidal_laws DMD) : displayedpentagon_identity DMD := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 DML)))))))).
+<span class="kn">Coercion</span> <span class="nf">displayedpentagonidentity_from_monoidallaws</span> : displayedmonoidal_laws &gt;-&gt; displayedpentagon_identity.
+
+<span class="kn">End</span> <span class="nf">displayedmonoidalcategories</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/DisplayedMonoidalCurried.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

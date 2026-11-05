@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.GaussianElimination.Tests</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.GaussianElimination.Tests</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Elimination.html#"><span class="id" title="library">UniMath.Algebra.GaussianElimination.Elimination</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.RowOps.html#"><span class="id" title="library">UniMath.Algebra.GaussianElimination.RowOps</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Matrix.html#"><span class="id" title="library">UniMath.Algebra.Matrix</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Maybe.html#"><span class="id" title="library">UniMath.Combinatorics.Maybe</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Vectors.html#"><span class="id" title="library">UniMath.Combinatorics.Vectors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Archimedean.html#"><span class="id" title="library">UniMath.Algebra.Archimedean</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.BinaryOperations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Domains_and_Fields.html#"><span class="id" title="library">UniMath.Algebra.Domains_and_Fields</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.IteratedBinaryOperations.html#"><span class="id" title="library">UniMath.Algebra.IteratedBinaryOperations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#"><span class="id" title="library">UniMath.Algebra.RigsAndRings</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Observing/testing the extent that it is
+    possible to compute some of the Elimination material.
+
+<div class="paragraph"> </div>
+
+    Primary author: Daniel @Skantz (November 2022) 
+<div class="paragraph"> </div>
+
+ This section tests just the matrix/vector operations, avoiding use of the ring operations as far as possible. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="Tests_1" class="idref" href="#Tests_1"><span class="id" title="section">Tests_1</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Tests_1.R" class="idref" href="#Tests_1.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rig"><span class="id" title="definition">rig</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="Tests_1.F" class="idref" href="#Tests_1.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.Algebra.Domains_and_Fields.html#fld"><span class="id" title="definition">fld</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="natcommrig'" class="idref" href="#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commrig"><span class="id" title="definition">commrig</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> <span class="id" title="keyword">with</span> (<a class="idref" href="UniMath.Algebra.BinaryOperations.html#make_setwith2binop"><span class="id" title="definition">make_setwith2binop</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="n:5" class="idref" href="#n:5"><span class="id" title="binder"><span id="n:9" class="id">n</span></span></a> <a id="m:6" class="idref" href="#m:6"><span class="id" title="binder"><span id="m:10" class="id">m</span></span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#n:5"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#0dacc1786c5ba797d47dd85006231633"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#m:6"><span class="id" title="variable">m</span></a>) (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="n:3" class="idref" href="#n:3"><span class="id" title="binder"><span id="n:7" class="id">n</span></span></a> <a id="m:4" class="idref" href="#m:4"><span class="id" title="binder"><span id="m:8" class="id">m</span></span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#n:3"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#ea2ff3d561159081cea6fb2e8113cc54"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#m:4"><span class="id" title="variable">m</span></a>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">split</span> <span class="id" title="keyword">with</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natplusassoc"><span class="id" title="lemma">natplusassoc</span></a> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#make_isunital"><span class="id" title="definition">make_isunital</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> <span class="id" title="var">_</span> 0 (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natplusl0"><span class="id" title="lemma">natplusl0</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natplusr0"><span class="id" title="lemma">natplusr0</span></a>)))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natpluscomm"><span class="id" title="lemma">natpluscomm</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmultassoc"><span class="id" title="lemma">natmultassoc</span></a> (@<a class="idref" href="UniMath.Algebra.BinaryOperations.html#make_isunital"><span class="id" title="definition">make_isunital</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> <span class="id" title="var">_</span> 1 (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmultl1"><span class="id" title="lemma">natmultl1</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmultr1"><span class="id" title="lemma">natmultr1</span></a>)))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmult0n"><span class="id" title="lemma">natmult0n</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmultn0"><span class="id" title="lemma">natmultn0</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natldistr"><span class="id" title="lemma">natldistr</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natrdistr"><span class="id" title="lemma">natrdistr</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#iscomm"><span class="id" title="definition">iscomm</span></a>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natmultcomm"><span class="id" title="lemma">natmultcomm</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="nattorig'" class="idref" href="#nattorig'"><span class="id" title="definition">nattorig'</span></a> {<a id="X:11" class="idref" href="#X:11"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rig"><span class="id" title="definition">rig</span></a>} (<a id="n:12" class="idref" href="#n:12"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#X:11"><span class="id" title="variable">X</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Archimedean.html#natmult"><span class="id" title="definition">natmult</span></a> (<span class="id" title="var">X</span> := <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#X:11"><span class="id" title="variable">X</span></a>) <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#n:12"><span class="id" title="variable">n</span></a> 1%<span class="id" title="var">rig</span>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v1" class="idref" href="#Tests_1.v1"><span class="id" title="variable">v1</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> 2).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v2" class="idref" href="#Tests_1.v2"><span class="id" title="variable">v2</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> 3).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval1" class="idref" href="#Tests_1.eval1"><span class="id" title="variable">eval1</span></a> := <span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="tactic">in</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (@<a class="idref" href="UniMath.Algebra.Matrix.html#pointwise"><span class="id" title="definition">pointwise</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v1"><span class="id" title="variable">v1</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v2"><span class="id" title="variable">v2</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq1" class="idref" href="#eq1"><span class="id" title="lemma">eq1</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval1"><span class="id" title="variable">eval1</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 6. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v3" class="idref" href="#Tests_1.v3"><span class="id" title="variable">v3</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> 2) 3).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v4" class="idref" href="#Tests_1.v4"><span class="id" title="variable">v4</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> 3) 4).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval2" class="idref" href="#Tests_1.eval2"><span class="id" title="variable">eval2</span></a> := <span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="tactic">in</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (@<a class="idref" href="UniMath.Algebra.Matrix.html#pointwise"><span class="id" title="definition">pointwise</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v1"><span class="id" title="variable">v1</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v2"><span class="id" title="variable">v2</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq2" class="idref" href="#eq2"><span class="id" title="lemma">eq2</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval2"><span class="id" title="variable">eval2</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 6. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval3" class="idref" href="#Tests_1.eval3"><span class="id" title="variable">eval3</span></a> := <span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="tactic">in</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stnsum"><span class="id" title="definition">stnsum</span></a> (@<a class="idref" href="UniMath.Algebra.Matrix.html#pointwise"><span class="id" title="definition">pointwise</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#mul"><span class="id" title="definition">mul</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v3"><span class="id" title="variable">v3</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v4"><span class="id" title="variable">v4</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq3" class="idref" href="#eq3"><span class="id" title="lemma">eq3</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval3"><span class="id" title="variable">eval3</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 18. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.e1" class="idref" href="#Tests_1.e1"><span class="id" title="variable">e1</span></a> := (@<a class="idref" href="UniMath.Algebra.Archimedean.html#nattorig"><span class="id" title="definition">nattorig</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 2).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.e2" class="idref" href="#Tests_1.e2"><span class="id" title="variable">e2</span></a> := (@<a class="idref" href="UniMath.Algebra.Archimedean.html#nattorig"><span class="id" title="definition">nattorig</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 3).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v5" class="idref" href="#Tests_1.v5"><span class="id" title="variable">v5</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.e1"><span class="id" title="variable">e1</span></a>) <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.e1"><span class="id" title="variable">e1</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v6" class="idref" href="#Tests_1.v6"><span class="id" title="variable">v6</span></a> := (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> <a class="idref" href="UniMath.Combinatorics.FVectors.html#empty_vec"><span class="id" title="definition">empty_vec</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.e2"><span class="id" title="variable">e2</span></a>) <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.e2"><span class="id" title="variable">e2</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.m1" class="idref" href="#Tests_1.m1"><span class="id" title="variable">m1</span></a> := <a class="idref" href="UniMath.Combinatorics.FVectors.html#append_vec"><span class="id" title="definition">append_vec</span></a> (<a class="idref" href="UniMath.Combinatorics.FMatrices.html#row_vec"><span class="id" title="definition">row_vec</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v5"><span class="id" title="variable">v5</span></a>) <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v6"><span class="id" title="variable">v6</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval4" class="idref" href="#Tests_1.eval4"><span class="id" title="variable">eval4</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">in</span> ((<a class="idref" href="UniMath.Algebra.IteratedBinaryOperations.html#iterop_fun"><span class="id" title="definition">iterop_fun</span></a> (@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigunel2"><span class="id" title="definition">rigunel2</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a>) <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op1"><span class="id" title="definition">op1</span></a> (<a class="idref" href="UniMath.Algebra.Matrix.html#pointwise"><span class="id" title="definition">pointwise</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.BinaryOperations.html#op2"><span class="id" title="definition">op2</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v5"><span class="id" title="variable">v5</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v6"><span class="id" title="variable">v6</span></a>))).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq4" class="idref" href="#eq4"><span class="id" title="lemma">eq4</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval4"><span class="id" title="variable">eval4</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 12. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval5" class="idref" href="#Tests_1.eval5"><span class="id" title="variable">eval5</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">Eval</span> <span class="id" title="tactic">compute</span> <span class="id" title="tactic">in</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (@<a class="idref" href="UniMath.Algebra.Matrix.html#matrix_mult"><span class="id" title="definition">matrix_mult</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m1"><span class="id" title="variable">m1</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m1"><span class="id" title="variable">m1</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq5" class="idref" href="#eq5"><span class="id" title="lemma">eq5</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval5"><span class="id" title="variable">eval5</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> 10. <span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.m5" class="idref" href="#Tests_1.m5"><span class="id" title="variable">m5</span></a> := (@<a class="idref" href="UniMath.Algebra.Matrix.html#identity_matrix"><span class="id" title="lemma">identity_matrix</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 10).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval6" class="idref" href="#Tests_1.eval6"><span class="id" title="variable">eval6</span></a> := <span class="id" title="keyword">Eval</span> <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> (@<a class="idref" href="UniMath.Algebra.Matrix.html#matrix_mult"><span class="id" title="definition">matrix_mult</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m5"><span class="id" title="variable">m5</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m5"><span class="id" title="variable">m5</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq6" class="idref" href="#eq6"><span class="id" title="lemma">eq6</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval6"><span class="id" title="variable">eval6</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a>@<a class="idref" href="UniMath.Algebra.Archimedean.html#nattorig"><span class="id" title="definition">nattorig</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 1<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval7" class="idref" href="#Tests_1.eval7"><span class="id" title="variable">eval7</span></a> := @<a class="idref" href="UniMath.Algebra.GaussianElimination.RowOps.html#switch_row"><span class="id" title="definition">switch_row</span></a> <span class="id" title="var">_</span> 2 2 (0<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natgthsnn"><span class="id" title="lemma">natgthsnn</span></a> 0<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>) (1<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natgthsnn"><span class="id" title="lemma">natgthsnn</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>) (@<a class="idref" href="UniMath.Algebra.Matrix.html#identity_matrix"><span class="id" title="lemma">identity_matrix</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.R"><span class="id" title="variable">R</span></a> 2).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq7" class="idref" href="#eq7"><span class="id" title="lemma">eq7</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval7"><span class="id" title="variable">eval7</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a>@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigunel1"><span class="id" title="definition">rigunel1</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Lemma</span> <a id="eq8" class="idref" href="#eq8"><span class="id" title="lemma">eq8</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#lastValue"><span class="id" title="definition">lastValue</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval7"><span class="id" title="variable">eval7</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a>@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigunel2"><span class="id" title="definition">rigunel2</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.m9" class="idref" href="#Tests_1.m9"><span class="id" title="variable">m9</span></a> := (@<a class="idref" href="UniMath.Algebra.Matrix.html#identity_matrix"><span class="id" title="lemma">identity_matrix</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 2).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.v9" class="idref" href="#Tests_1.v9"><span class="id" title="variable">v9</span></a> := @<a class="idref" href="UniMath.Algebra.IteratedBinaryOperations.html#iterop_fun"><span class="id" title="definition">iterop_fun</span></a> (<a class="idref" href="UniMath.Combinatorics.FMatrices.html#Matrix"><span class="id" title="definition">Matrix</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 2 2) <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m9"><span class="id" title="variable">m9</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:13" class="idref" href="#X:13"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Combinatorics.FMatrices.html#Matrix"><span class="id" title="definition">Matrix</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a> 2 2<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Matrix.html#matrix_mult"><span class="id" title="definition">matrix_mult</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#X:13"><span class="id" title="variable">X</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eval9" class="idref" href="#Tests_1.eval9"><span class="id" title="variable">eval9</span></a> := <span class="id" title="keyword">Eval</span> <span class="id" title="keyword">vm_compute</span> <span class="id" title="tactic">in</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#firstValue"><span class="id" title="definition">firstValue</span></a> (<a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.v9"><span class="id" title="variable">v9</span></a> 3 (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:14" class="idref" href="#X:14"><span class="id" title="binder">X</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 3<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.m9"><span class="id" title="variable">m9</span></a>)))).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Tests_1.eq9" class="idref" href="#Tests_1.eq9"><span class="id" title="variable">eq9</span></a> : <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1.eval9"><span class="id" title="variable">eval9</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">(</span></a>@<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigunel2"><span class="id" title="definition">rigunel2</span></a> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#natcommrig'"><span class="id" title="definition">natcommrig'</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">)</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.GaussianElimination.Tests.html#Tests_1"><span class="id" title="section">Tests_1</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This section tests computation in the integers <span class="inlinecode"><a class="idref" href="UniMath.NumberSystems.Integers.html#hz"><span class="id" title="definition">hz</span></a></span> and rationals <span class="inlinecode"><a class="idref" href="UniMath.NumberSystems.RationalNumbers.html#hq"><span class="id" title="definition">hq</span></a></span>.
+    Requires importing NaturalNumberSystems.{RationalNumbers, Integers}.
+
+<div class="paragraph"> </div>
+
+Section Tests_2.
+
+<div class="paragraph"> </div>
+
+    
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+    Let v3 := (append_vec empty_vec (1 + 1)hq).
+
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+    
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+        
+<div class="paragraph"> </div>
+
+End Tests_2. 
+</div>
+<div class="code">
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

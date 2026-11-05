@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FreeTheory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The free theory</span>
+
+<span class="sd">  This file defines the free functor from sets to algebraic theories, and shows that it is left</span>
+<span class="sd">  adjoint to the forgetful functor. The free algebraic theory on set X is the theory with just</span>
+<span class="sd">  constants (taken from X) and variables. The category of algebras for the free theory on X</span>
+<span class="sd">  is equivalent to the coslice category X ↓ SET.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The free functor [free_functor]</span>
+<span class="sd">  2. The forgetful functor [forgetful_functor]</span>
+<span class="sd">  3. The adjunction [free_functor_is_free]</span>
+<span class="sd">  4. The equivalence between algebras and coslices [algebra_coslice_equivalence]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.coslicecat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Algebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> vec.
+
+<span class="sd">(** * 1. The free functor *)</span>
+
+<span class="kn">Definition</span> <span class="nf">free_theory_data</span> (<span class="nv">X</span> : hSet) : algebraic_theory_data.
+<span class="kn">Proof</span>.
+  use make_algebraic_theory_data.
+  - <span class="nb">intro</span> n.
+    <span class="bp">exact</span> (setcoprod (stnset n) X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">i</span>, inl i).
+  - <span class="nb">intros</span> m n f g.
+    <span class="nb">induction</span> f <span class="k">as</span> [f' | f'].
+    + <span class="bp">exact</span> (g f').
+    + <span class="bp">exact</span> (inr f').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_is_theory</span> {<span class="nv">X</span> : hSet} : is_algebraic_theory (free_theory_data X).
+<span class="kn">Proof</span>.
+  use make_is_algebraic_theory.
+  - <span class="nb">intros</span> l m n f_l f_m f_n.
+    <span class="bp">now</span> <span class="nb">induction</span> f_l.
+  - <span class="bp">now</span> <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>.
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+    <span class="bp">now</span> <span class="nb">induction</span> f.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_theory</span> (<span class="nv">X</span> : hSet) : algebraic_theory
+  := make_algebraic_theory _ (free_is_theory (X := X)).
+
+<span class="kn">Definition</span> <span class="nf">free_functor_morphism_data</span>
+  {<span class="nv">X</span> <span class="nv">X'</span> : hSet}
+  (<span class="nv">f</span> : X → X')
+  : algebraic_theory_morphism_data (free_theory X) (free_theory X').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n x.
+  <span class="nb">induction</span> x <span class="k">as</span> [<span class="nb">left</span> | <span class="nb">right</span>].
+  - <span class="bp">exact</span> (inl <span class="nb">left</span>).
+  - <span class="bp">exact</span> (inr (f <span class="nb">right</span>)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">free_functor_is_morphism</span>
+  {<span class="nv">X</span> <span class="nv">X'</span> : hSet}
+  (<span class="nv">f</span> : X → X')
+  : is_algebraic_theory_morphism (free_functor_morphism_data f).
+<span class="kn">Proof</span>.
+  use make_is_algebraic_theory_morphism.
+  - <span class="nb">intros</span> n t.
+    <span class="bp">now</span> <span class="nb">induction</span> t.
+  - <span class="nb">intros</span> m n s t.
+    <span class="bp">now</span> <span class="nb">induction</span> s.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_functor_data</span>
+  : functor_data SET algebraic_theory_cat
+  := make_functor_data (C := SET) (C' := algebraic_theory_cat)
+    (<span class="k">λ</span> <span class="nv">X</span>, free_theory X)
+    (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">X'</span> <span class="nv">f</span>, (make_algebraic_theory_morphism _ (free_functor_is_morphism f))).
+
+<span class="kn">Lemma</span> <span class="nf">free_functor_is_functor</span>
+  : is_functor free_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> A.
+    use (algebraic_theory_morphism_eq (T := free_theory A) (T' := free_theory A)).
+    <span class="nb">intros</span> n f.
+    <span class="bp">now</span> <span class="nb">induction</span> f.
+  - <span class="nb">intros</span> a b c d e.
+    use (algebraic_theory_morphism_eq (T := free_theory a) (T' := free_theory c)).
+    <span class="nb">intros</span> n f.
+    <span class="bp">now</span> <span class="nb">induction</span> f.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_functor</span> : HSET ⟶ algebraic_theory_cat
+  := make_functor _ free_functor_is_functor.
+
+<span class="sd">(** * 2. The forgetful functor *)</span>
+
+<span class="kn">Definition</span> <span class="nf">forgetful_functor_data</span> : functor_data algebraic_theory_cat HSET.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> T.
+    <span class="bp">exact</span> ((T : algebraic_theory) <span class="mi">0</span>).
+  - <span class="nb">intros</span> T T' F.
+    <span class="bp">exact</span> ((F : algebraic_theory_morphism T T') <span class="mi">0</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">forgetful_is_functor</span> : is_functor forgetful_functor_data.
+<span class="kn">Proof</span>.
+  use tpair;
+    <span class="bp">easy</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">forgetful_functor</span> : algebraic_theory_cat ⟶ HSET
+  := make_functor _ forgetful_is_functor.
+
+<span class="sd">(** * 3. The adjunction *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">lift_constant_eq</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">f</span> <span class="nv">f'</span> : T <span class="mi">0</span>)
+  (<span class="nv">g</span> : stn <span class="mi">0</span> → T n)
+  (<span class="nv">H</span> : f = f')
+  : lift_constant n f = f' • g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H.
+  <span class="nb">refine</span> (maponpaths (<span class="nb">subst</span> f) _).
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> fromempty.
+  <span class="bp">exact</span> (negnatlthn0 _ (stnlt x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Adjunction</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> : hSet).
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+  <span class="kn">Definition</span> <span class="nf">theory_morphism_to_function</span>
+    (<span class="nv">F</span> : algebraic_theory_morphism (free_theory A) T)
+    : A → (forgetful_functor T : hSet)
+    := <span class="k">λ</span> <span class="nv">a</span>, F <span class="mi">0</span> (inr a).
+
+  <span class="kn">Definition</span> <span class="nf">function_to_theory_morphism_data</span>
+    (<span class="nv">F</span> : A → (forgetful_functor T : hSet))
+    : algebraic_theory_morphism_data (free_theory A) T.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f.
+    <span class="nb">induction</span> f <span class="k">as</span> [i | a].
+    - <span class="bp">exact</span> (var i).
+    - <span class="bp">exact</span> (lift_constant _ (F a)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">function_to_is_theory_morphism</span>
+    (<span class="nv">F</span> : A → (forgetful_functor T : hSet))
+    : is_algebraic_theory_morphism (function_to_theory_morphism_data F).
+  <span class="kn">Proof</span>.
+    use make_is_algebraic_theory_morphism.
+    - <span class="bp">easy</span>.
+    - <span class="nb">intros</span> ? ? f ?.
+      <span class="nb">induction</span> f.
+      + <span class="bp">exact</span> (!var_subst _ _ _).
+      + <span class="nb">refine</span> (lift_constant_eq _ _ _ _ (idpath _) @ !_).
+        <span class="nb">apply</span> subst_subst.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">function_to_theory_morphism</span>
+    (<span class="nv">F</span> : A → (forgetful_functor T : hSet))
+    : algebraic_theory_morphism (free_theory A) T
+    := make_algebraic_theory_morphism _ (function_to_is_theory_morphism F).
+
+  <span class="kn">Lemma</span> <span class="nf">invweqweq</span>
+    (<span class="nv">F</span> : algebraic_theory_morphism (free_theory A) T)
+    : function_to_theory_morphism (theory_morphism_to_function F) = F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> algebraic_theory_morphism_eq.
+    <span class="nb">intros</span> ? f.
+    <span class="nb">induction</span> f.
+    - <span class="bp">exact</span> (!mor_var _ _).
+    - <span class="nb">refine</span> (lift_constant_eq _ _ _ _ (idpath _) @ _).
+      <span class="bp">exact</span> (!mor_subst F _ _ : _ = F _ (lift_constant _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weqinvweq</span>
+    (<span class="nv">F</span> : A → (forgetful_functor T : hSet))
+    : theory_morphism_to_function (function_to_theory_morphism F) = F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span>.
+    <span class="nb">refine</span> (lift_constant_eq _ _ _ _ (idpath _) @ _).
+    <span class="bp">exact</span> (subst_var _ _).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Adjunction</span>.
+
+<span class="kn">Definition</span> <span class="nf">free_functor_is_free</span>
+  : are_adjoints free_functor forgetful_functor.
+<span class="kn">Proof</span>.
+  use adj_from_nathomweq.
+  use tpair.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">A</span> (<span class="nv">T</span> : algebraic_theory), _).
+    use weq_iso.
+    + <span class="bp">exact</span> (theory_morphism_to_function A T).
+    + <span class="bp">exact</span> (function_to_theory_morphism A T).
+    + <span class="bp">exact</span> (invweqweq A T).
+    + <span class="bp">exact</span> (weqinvweq A T).
+  - <span class="kp">abstract</span> (
+      use tpair;
+      <span class="bp">easy</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The equivalence between algebras and coslices *)</span>
+
+<span class="kn">Section</span> <span class="nf">CosliceCatEquivalence</span>.
+
+  <span class="kn">Context</span> (<span class="nv">S</span> : hSet).
+
+  <span class="kn">Definition</span> <span class="nf">coslice_functor_base_functor</span> : algebra_cat (free_theory S) ⟶ SET.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">intro</span> A. <span class="bp">exact</span> ((A : algebra _) : hSet).
+      + <span class="nb">intros</span> A B F.
+        <span class="bp">exact</span> (F : algebra_morphism _ _).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span> (<span class="nb">intro</span> A;
+                  <span class="bp">easy</span>).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> A B C F G;
+                  <span class="nb">apply</span> algebra_mor_comp).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">    We define the coslice functor as a lift of the base functor. Note that by from_lifted_functor,</span>
+<span class="sd">    postcomposing this lift with the forgetful functor (f: A → B) ↦ B gives</span>
+<span class="sd">    coslice_functor_base_functor again.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">coslice_functor</span>
+    : algebra_cat (free_theory S) ⟶ coslice_cat_total SET S.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (lifted_functor (F:=coslice_functor_base_functor)).
+    use tpair.
+    - use tpair.
+      + <span class="nb">intros</span> A s.
+        <span class="bp">exact</span> (action (T := free_theory S) (n := <span class="mi">0</span>) (inr s) (weqvecfun <span class="mi">0</span> [()])).
+      + <span class="kp">abstract</span> (<span class="nb">intros</span> A B F;
+        <span class="nb">apply</span> funextfun;
+        <span class="nb">intro</span> s;
+        <span class="nb">refine</span> (mor_action _ _ _ @ _);
+        <span class="nb">apply</span> (maponpaths (action _));
+        <span class="nb">apply</span> funextfun;
+        <span class="nb">intro</span> i; <span class="nb">apply</span> (fromstn0 i)).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> funspace_isaset; <span class="nb">apply</span> setproperty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_morphism_data</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : algebra (free_theory S)}
+    (<span class="nv">F</span> : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : A → B
+    := coslicecat_mor_morphism _ _ F.
+
+  <span class="kn">Lemma</span> <span class="nf">coslice_to_is_algebra_morphism</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : algebra (free_theory S)}
+    (<span class="nv">F</span> : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : ∏ n f a, mor_action_ax (identity _) (coslice_to_algebra_morphism_data F) (@action _ A) (@action _ B) n f a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n f a.
+    <span class="nb">induction</span> f <span class="k">as</span> [i | s].
+    - <span class="nb">refine</span> (maponpaths _ (var_action _ _ _) @ !_).
+      <span class="bp">exact</span> (var_action _ _ _).
+    - <span class="nb">refine</span> (maponpaths _ (subst_action A (inr s) (weqvecfun _ [()]) a) @ !_).
+      <span class="nb">refine</span> (subst_action B (inr s) (weqvecfun _ [()]) (<span class="k">λ</span> <span class="nv">i</span>, coslicecat_mor_morphism _ _ F (a i)) @ !_).
+      <span class="nb">refine</span> (_ @ eqtohomot (coslicecat_mor_comm _ _ F) s @ _).
+      + <span class="nb">apply</span> (maponpaths (coslicecat_mor_morphism _ _ F)).
+        <span class="nb">apply</span> (maponpaths (action (A := A) _)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> (fromstn0 i).
+      + <span class="nb">apply</span> (maponpaths (action (A := B) _)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> i.
+        <span class="nb">apply</span> (fromstn0 i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_morphism</span>
+    {<span class="nv">A</span> <span class="nv">B</span> : algebra (free_theory S)}
+    (<span class="nv">F</span> : coslice_cat_total SET S ⟦ coslice_functor A, coslice_functor B ⟧)
+    : algebra_morphism A B
+    := make_algebra_morphism _ (coslice_to_is_algebra_morphism F).
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_coslice_functor</span>
+    : fully_faithful coslice_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A B.
+    use isweq_iso.
+    - <span class="bp">exact</span> coslice_to_algebra_morphism.
+    - <span class="kp">abstract</span> <span class="bp">now</span> (
+        <span class="nb">intro</span> F;
+        <span class="nb">apply</span> algebra_morphism_eq
+      ).
+    - <span class="kp">abstract</span> <span class="bp">now</span> (
+        <span class="nb">intro</span> F;
+        <span class="nb">apply</span> subtypePath;
+        [ <span class="nb">intro</span>;
+          <span class="nb">apply</span> homset_property
+        | <span class="nb">apply</span> idpath ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coslice_to_algebra_data</span>
+    (<span class="nv">T</span> : coslice_cat_total SET S)
+    : algebra_data (free_theory S).
+  <span class="kn">Proof</span>.
+    use make_algebra_data.
+    - <span class="bp">exact</span> (coslicecat_ob_object _ _ T).
+    - <span class="nb">intros</span> n f a.
+      <span class="nb">induction</span> f <span class="k">as</span> [i | s].
+      + <span class="bp">exact</span> (a i).
+      + <span class="bp">exact</span> (coslicecat_ob_morphism _ _ T s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coslice_to_is_algebra</span>
+    (<span class="nv">T</span> : coslice_cat_total SET S)
+    : is_algebra (coslice_to_algebra_data T).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> m n f g a.
+      <span class="bp">now</span> <span class="nb">induction</span> f.
+    - <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coslice_to_algebra</span>
+    (<span class="nv">T</span> : coslice_cat_total SET S)
+    : algebra (free_theory S)
+    := make_algebra _ (coslice_to_is_algebra T).
+
+  <span class="kn">Definition</span> <span class="nf">algebra_coslice_equivalence</span>
+    : adj_equivalence_of_cats coslice_functor.
+  <span class="kn">Proof</span>.
+    use rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univalent_algebra_cat.
+    - <span class="bp">exact</span> fully_faithful_coslice_functor.
+    - <span class="nb">intro</span> T.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> (<span class="nv">coslice_to_algebra</span> <span class="nv">T</span>).
+      <span class="nb">apply</span> identity_z_iso.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CosliceCatEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/Examples/FreeTheory.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   4. The equivalence between algebras and coslices [algebra_coslice_equivalence]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

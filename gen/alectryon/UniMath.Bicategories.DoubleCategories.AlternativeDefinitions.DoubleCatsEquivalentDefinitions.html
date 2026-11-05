@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleCatsEquivalentDefinitions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Double Categories</span>
+
+<span class="sd">  Authors: Benedikt Ahrens, Paige North, Nima Rasekh, Niels van der Weide</span>
+<span class="sd">  June 2023</span>
+
+<span class="sd">  We construct an equivalence between the unfolded definition and the folded</span>
+<span class="sd">  definition of double categories. The proof is a matter of reorganizing the</span>
+<span class="sd">  sigma type.</span>
+
+<span class="sd">  Contents:</span>
+<span class="sd">  1. The map from unfolded double categories to double categories</span>
+<span class="sd">  2. The inverse</span>
+<span class="sd">  3. It forms an equivalences</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.AlternativeDefinitions.DoubleCatsUnfolded.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. The map from unfolded double categories to double categories *)</span>
+<span class="kn">Section</span> <span class="nf">DoubleCatsUnfolded_to_DoubleCats</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : univalent_doublecategory).
+
+  <span class="kn">Definition</span> <span class="nf">doublecategory_to_cat</span> : category :=
+    (und_ob_hor_cat C).
+
+  <span class="kn">Let</span> <span class="nf">D</span> : twosided_disp_cat doublecategory_to_cat doublecategory_to_cat
+      := doublecategory_to_twosided_disp_cat C.
+
+  <span class="kn">Definition</span> <span class="nf">doublecategory_to_horid</span> : hor_id D.
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - use make_hor_id_data.
+      + <span class="nb">intro</span> x.
+        <span class="bp">exact</span> (ver_identity x).
+      + <span class="nb">intros</span> x y f.
+        <span class="bp">exact</span> (ver_sq_identity f).
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> x.
+        <span class="bp">exact</span> (get_predoublecategory_interchange_id_obj x).
+      + <span class="nb">intros</span> x y z f g.
+        <span class="bp">exact</span> ( get_predoublecategory_interchange_id_hor f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">I</span> : hor_id D := doublecategory_to_horid.
+
+  <span class="kn">Definition</span> <span class="nf">doublecategory_to_horcomp</span> : hor_comp D.
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - use make_hor_comp_data.
+      + <span class="nb">intros</span> x y z f g.
+        <span class="bp">exact</span> (ver_compose f g).
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">intros</span> x1 x2 y1 y2 z1 z2 v1 v2 v3 h1 h2 k1 k2 α β.
+        <span class="bp">exact</span> (ver_sq_compose α β).
+    - <span class="nb">split</span>.
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">intros</span> x y z f g.
+        <span class="bp">exact</span> (get_predoublecategory_interchange_id_ver f g).
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">intros</span> a0 a1 a2 b0 b1 b2 c0 c1 c2 fa ga fb gb fc gc h0 k0 h1 k1 h2 k2 α β γ δ.
+        <span class="bp">exact</span> (get_predoublecategory_interchange_comp α β γ δ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">Cm</span> : hor_comp D := doublecategory_to_horcomp.
+
+  <span class="kn">Definition</span>  <span class="nf">doublecategory_to_lunitor</span> : double_cat_lunitor I Cm.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="nb">intros</span> x y h.
+      use make_iso_twosided_disp.
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="bp">exact</span> (pr1 (get_ver_left_unitor h)).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (pr12 (get_ver_left_unitor h)).
+        * <span class="nb">cbn</span> <span class="k">in</span> *. <span class="bp">exact</span> (pr122 (get_ver_left_unitor h)).
+        * <span class="bp">exact</span> (pr222 (get_ver_left_unitor h)).
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">intros</span> a b c d f g h k α.
+      <span class="bp">exact</span> (! get_predoublecategory_ver_left_unitor_naturality α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">l</span> : double_cat_lunitor I Cm := doublecategory_to_lunitor.
+
+  <span class="kn">Definition</span> <span class="nf">doublecategory_to_runitor</span> : double_cat_runitor I Cm.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="nb">intros</span> x y h.
+      use make_iso_twosided_disp.
+      + <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="bp">exact</span> (pr1 (get_ver_right_unitor h)).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (pr12 (get_ver_right_unitor h)).
+        * <span class="nb">cbn</span> <span class="k">in</span> *. <span class="bp">exact</span> (pr122 (get_ver_right_unitor h)).
+        * <span class="bp">exact</span> (pr222 (get_ver_right_unitor h)).
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">intros</span> a b c d f g h k α.
+      <span class="bp">exact</span> (! get_predoublecategory_ver_right_unitor_naturality α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">r</span> : double_cat_runitor I Cm := doublecategory_to_runitor.
+
+  <span class="kn">Definition</span> <span class="nf">doublecategory_to_associator</span> : double_cat_associator Cm.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="nb">intros</span> w x y z f g h.
+      use make_iso_twosided_disp.
+      + <span class="bp">exact</span> (pr1 (get_ver_associator f g h)).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (pr12 (get_ver_associator f g h)).
+        * <span class="bp">exact</span> (pr122 (get_ver_associator f g h)).
+        * <span class="bp">exact</span> (pr222 (get_ver_associator f g h)).
+    - <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">intros</span> a0 a1 a2 a3 b0 b1 b2 b3 fa fb ha hb ka kb g0 g1 g2 g3 α β γ.
+      <span class="bp">exact</span> (! get_predoublecategory_ver_assoc_naturality α β γ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">a</span> : double_cat_associator Cm := doublecategory_to_associator.
+
+  <span class="kn">Proposition</span> <span class="nf">doublecategory_to_triangle</span> : triangle_law l r a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z h k.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (get_predoublecategory_ver_unitor_coherence h k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">tr</span> : triangle_law l r a := doublecategory_to_triangle.
+
+  <span class="kn">Proposition</span> <span class="nf">doublecategory_to_pentagon</span> : pentagon_law a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i b c d e f g h k.
+    <span class="bp">exact</span> (get_predoublecategory_ver_assoc_coherence f g h k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">pe</span> : pentagon_law a := doublecategory_to_pentagon.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_und_ob_hor_cat</span> : is_univalent (und_ob_hor_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> C.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">HC</span> : is_univalent (und_ob_hor_cat C) := is_univalent_und_ob_hor_cat.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_doublecategory_to_twosided_disp_cat</span>
+    : is_univalent_twosided_disp_cat D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> C.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : is_univalent_twosided_disp_cat D
+      := is_univalent_doublecategory_to_twosided_disp_cat.
+
+  <span class="kn">Definition</span>  <span class="nf">doublecategory_to_double_cat</span> : double_cat :=
+    make_double_cat (und_ob_hor_cat C) D I Cm l r a tr pe.
+
+  <span class="kn">Definition</span>  <span class="nf">doublecategory_to_univalent_double_cat</span> : univalent_double_cat :=
+    make_univalent_double_cat doublecategory_to_double_cat (HC ,, HD).
+<span class="kn">End</span> <span class="nf">DoubleCatsUnfolded_to_DoubleCats</span>.
+
+<span class="sd">(** * 2. The inverse *)</span>
+<span class="kn">Section</span> <span class="nf">DoubleCats_to_DoubleCatsUnfolded</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : univalent_double_cat).
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_ob_mor_hor</span>
+    : predoublecategory_ob_mor_hor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt;v y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_ob_mor_data</span>
+    : predoublecategory_ob_mor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ob_mor_hor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C), x --&gt;h y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_hor_id_comp</span>
+    : predoublecategory_hor_id_comp double_cat_to_predoublecategory_ob_mor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_hor_precat_data</span>
+    : predoublecategory_hor_precat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ob_mor_data.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_hor_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_is_predoublecategory_hor</span>
+    : is_predoublecategory_hor double_cat_to_predoublecategory_hor_precat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> assoc.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> assoc'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_hor</span>
+    : predoublecategory_hor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_hor_precat_data.
+    - <span class="bp">exact</span> double_cat_to_is_predoublecategory_hor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_ver_id_comp</span>
+    : predoublecategory_ver_id_comp double_cat_to_predoublecategory_hor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_h (C := C) x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f ·h g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_hor_cat_ver_precat_data</span>
+    : predoublecategory_hor_cat_ver_precat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_hor.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_ob_mor_sq_data</span>
+    : predoublecategory_ob_mor_sq_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_hor_cat_ver_precat_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">v₁</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">v₂</span>, square (C := C) v₁ v₂ h₁ h₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_sq_hor_id_comp</span>
+    : predoublecategory_sq_hor_id_comp double_cat_to_predoublecategory_ob_mor_sq_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_v_square f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">_</span> <span class="nv">_</span> : C) <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆v s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_sq_hor_data</span>
+    : predoublecategory_sq_hor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ob_mor_sq_data.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_sq_hor_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_is_predoublecategory_hor_sq</span>
+    : is_predoublecategory_hor_sq double_cat_to_predoublecategory_sq_hor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (square_id_left_v (C := C)).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (square_id_right_v (C := C)).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (square_assoc_v (C := C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_hor_sq</span>
+    : predoublecategory_hor_sq.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_sq_hor_data.
+    - <span class="bp">exact</span> double_cat_to_is_predoublecategory_hor_sq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_sq_ver_id_comp</span>
+    : predoublecategory_sq_ver_id_comp double_cat_to_predoublecategory_hor_sq.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_h_square (C := C) f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">_</span> <span class="nv">_</span> : C) <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆h s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_sq_hor_ver_data</span>
+    : predoublecategory_sq_hor_ver_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_hor_sq.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_sq_ver_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_has_predoublecategory_sq_hor_ver_unit_assoc</span>
+    : has_predoublecategory_sq_hor_ver_unit_assoc
+        double_cat_to_predoublecategory_sq_hor_ver_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (lunitor_h f).
+      + <span class="bp">exact</span> (linvunitor_h f).
+      + <span class="bp">exact</span> (lunitor_linvunitor_h f).
+      + <span class="bp">exact</span> (linvunitor_lunitor_h f).
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (runitor_h f).
+      + <span class="bp">exact</span> (rinvunitor_h f).
+      + <span class="bp">exact</span> (runitor_rinvunitor_h f).
+      + <span class="bp">exact</span> (rinvunitor_runitor_h f).
+    - <span class="nb">intros</span> w x y z f g h.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (lassociator_h f g h).
+      + <span class="bp">exact</span> (rassociator_h f g h).
+      + <span class="bp">exact</span> (lassociator_rassociator_h f g h).
+      + <span class="bp">exact</span> (rassociator_lassociator_h f g h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data</span>
+    : predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_sq_hor_ver_data.
+    - <span class="bp">exact</span> double_cat_to_has_predoublecategory_sq_hor_ver_unit_assoc.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_ver_left_unitor_naturality</span>
+    : predoublecategory_ver_left_unitor_naturality
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z v₁ h₁ h₂ v₂ α.
+    <span class="bp">exact</span> (lunitor_square (C := C) α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_ver_right_unitor_naturality</span>
+    : predoublecategory_ver_right_unitor_naturality
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z v₁ h₁ h₂ v₂ α.
+    <span class="bp">exact</span> (runitor_square (C := C) α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_ver_assoc_naturality</span>
+    : predoublecategory_ver_assoc_naturality
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> (lassociator_square (C := C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_ver_unitor_coherence</span>
+    : predoublecategory_ver_unitor_coherence
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (double_triangle (C := C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_ver_assoc_coherence</span>
+    : predoublecategory_ver_assoc_coherence
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (double_pentagon (C := C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_to_predoublecategory_interchange</span>
+    : predoublecategory_interchange
+        double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> (id_h_square_id (C := C)).
+    - <span class="nb">apply</span> (id_h_square_comp (C := C)).
+    - <span class="nb">apply</span> (comp_h_square_id (C := C)).
+    - <span class="nb">apply</span> (comp_h_square_comp (C := C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_predoublecategory</span>
+    : predoublecategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_sq_hor_ver_unit_assoc_data.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_left_unitor_naturality.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_right_unitor_naturality.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_assoc_naturality.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_unitor_coherence.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_ver_assoc_coherence.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory_interchange.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_doublecategory</span>
+    : doublecategory.
+  <span class="kn">Proof</span>.
+    use make_doublecategory.
+    - <span class="bp">exact</span> double_cat_to_predoublecategory.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_to_univalent_doublecategory</span>
+    : univalent_doublecategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (double_cat_to_doublecategory ,, _ ,, _).
+    - <span class="bp">exact</span> (pr21 (pr111 C)).
+    - <span class="bp">exact</span> (pr22 (pr111 C)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DoubleCats_to_DoubleCatsUnfolded</span>.
+
+<span class="sd">(** * 3. It forms an equivalence *)</span>
+<span class="kn">Proposition</span> <span class="nf">double_cat_weq_univalent_doublecategory_inv₁</span>
+            (<span class="nv">C</span> : univalent_double_cat)
+  : doublecategory_to_univalent_double_cat (double_cat_to_univalent_doublecategory C) = C.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> C <span class="k">as</span> [ C1 H ].
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> isaset_disp_mor.
+  }
+  use total2_paths_f ; [ <span class="nb">apply</span> idpath | ].
+  use pathsdirprod.
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_lunitor_laws.
+    }
+    <span class="nb">apply</span> idpath.
+  - use pathsdirprod.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_runitor_laws.
+      }
+      <span class="nb">apply</span> idpath.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_associator_laws.
+      }
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_cat_weq_univalent_doublecategory_inv₂</span>
+            (<span class="nv">C</span> : univalent_doublecategory)
+  : double_cat_to_univalent_doublecategory (doublecategory_to_univalent_double_cat C) = C.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_is_univalent.
+    - <span class="nb">apply</span> isaprop_is_univalent_twosided_disp_cat.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ;
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ;
+    <span class="nb">apply</span> isapropiscontr.
+  }
+  use total2_paths_f ; [ <span class="nb">apply</span> idpath | ].
+  <span class="kp">repeat</span> (use pathsdirprod) ;
+  <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+  <span class="nb">apply</span> get_has_sq_hor_homsets.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_double_cat_weq_univalent_doublecategory</span>
+  : univalent_double_cat ≃ univalent_doublecategory.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> double_cat_to_univalent_doublecategory.
+  - <span class="bp">exact</span> doublecategory_to_univalent_double_cat.
+  - <span class="bp">exact</span> double_cat_weq_univalent_doublecategory_inv₁.
+  - <span class="bp">exact</span> double_cat_weq_univalent_doublecategory_inv₂.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/AlternativeDefinitions/DoubleCatsEquivalentDefinitions.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. It forms an equivalences
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

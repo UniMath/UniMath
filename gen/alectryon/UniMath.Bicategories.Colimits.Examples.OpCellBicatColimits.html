@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpCellBicatColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Colimits in op2 bicat</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Biinitial object</span>
+<span class="sd"> 2. Coproducts</span>
+<span class="sd"> 3. Extensive</span>
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Examples.MorphismsInOp2Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Coproducts.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Extensive.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.CommaObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Biinitial object</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OpCellBiinitial</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">b</span> : B)
+          (<span class="nv">H</span> : is_biinitial b).
+
+  <span class="kn">Definition</span> <span class="nf">op_cell_is_biinitial</span>
+    : @is_biinitial (op2_bicat B) b.
+  <span class="kn">Proof</span>.
+    use make_is_biinitial.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, is_biinitial_1cell_property H y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, is_biinitial_2cell_property H _ g f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">β</span>, is_biinitial_eq_property H _ _ _ α β).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OpCellBiinitial</span>.
+
+<span class="kn">Definition</span> <span class="nf">op_cell_biinitial</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">I</span> : biinitial_obj B)
+  : biinitial_obj (op2_bicat B)
+  := pr1 I ,, op_cell_is_biinitial _ (pr2 I).
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">OpCellCoproduct</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">s</span> : B}
+          (<span class="nv">ι₁</span> : b₁ --&gt; s)
+          (<span class="nv">ι₂</span> : b₂ --&gt; s)
+          (<span class="nv">cocone</span> := make_bincoprod_cocone s ι₁ ι₂)
+          (<span class="nv">ump</span> : has_bincoprod_ump cocone).
+
+  <span class="kn">Definition</span> <span class="nf">op_cell_cocone</span>
+    : @bincoprod_cocone (op2_bicat B) b₁ b₂
+    := make_bincoprod_cocone s ι₁ ι₂.
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_1_op_cell</span>
+             (<span class="nv">q</span> : @bincoprod_cocone (op2_bicat B) b₁ b₂)
+    : bincoprod_1cell op_cell_cocone q.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (k₁ := bincoprod_cocone_inl q).
+    <span class="nb">pose</span> (k₂ := bincoprod_cocone_inr q).
+    use make_bincoprod_1cell.
+    - <span class="bp">exact</span> (bincoprod_ump_1cell ump k₁ k₂).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (bincoprod_ump_1cell_inl ump _ k₁ k₂)).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (bincoprod_ump_1cell_inr ump _ k₁ k₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_2_op_cell</span>
+    : bincoprod_ump_2 op_cell_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q φ ψ α β.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="bp">exact</span> (bincoprod_ump_2cell_unique_alt
+                  ump
+                  _ _
+                  (pr12 φ₁ @ !(pr12 φ₂))
+                  (pr22 φ₁ @ !(pr22 φ₂)))).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (bincoprod_ump_2cell ump α β).
+      + <span class="bp">exact</span> (bincoprod_ump_2cell_inl ump α β).
+      + <span class="bp">exact</span> (bincoprod_ump_2cell_inr ump α β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_bincoprod_ump_op_cell</span>
+    : has_bincoprod_ump op_cell_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> has_bincoprod_ump_1_op_cell.
+    - <span class="bp">exact</span> has_bincoprod_ump_2_op_cell.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OpCellCoproduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">op2_bicat_has_bincoprod</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : has_bincoprod B)
+  : has_bincoprod (op2_bicat B)
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, _ ,, has_bincoprod_ump_op_cell _ _ (pr2 (HB x y)).
+
+<span class="kn">Definition</span> <span class="nf">op2_bicat_biinitial_coproduct</span>
+           (<span class="nv">B</span> : bicat_with_biinitial_bincoprod)
+  : bicat_with_biinitial_bincoprod
+  := op2_bicat B ,, op_cell_biinitial (pr12 B) ,, op2_bicat_has_bincoprod (pr22 B).
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Extensive</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">op2_bicat_is_extensive</span>
+           (<span class="nv">B</span> : bicat_with_biinitial_bincoprod)
+           (<span class="nv">HB</span> : is_extensive B)
+  : is_extensive (op2_bicat_biinitial_coproduct B).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">split</span>.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    + <span class="nb">apply</span> fully_faithful_op2_bicat.
+      <span class="bp">exact</span> (pr1 (pr1 (HB x y))).
+    + <span class="nb">apply</span> fully_faithful_op2_bicat.
+      <span class="bp">exact</span> (pr12 (pr1 (HB x y))).
+    + <span class="bp">exact</span> (op2_comma_has_comma_ump (pr222 (pr1 (HB x y)))).
+    + <span class="bp">exact</span> (op2_comma_has_comma_ump (pr122 (pr1 (HB x y)))).
+  - <span class="nb">intros</span> z h.
+    <span class="nb">pose</span> (H := pr2 (HB x y) z h).
+    <span class="nb">refine</span> (pr1 H ,, pr12 H ,, pr122 H ,, _).
+    <span class="nb">refine</span> (pr1 (pr222 H) ,, pr12 (pr222 H) ,, pr122 (pr222 H) ,, _).
+    <span class="nb">refine</span> (weq_op2_invertible_2cell
+              _ _
+              (inv_of_invertible_2cell (pr1 (pr222 (pr222 H))))
+            ,,
+            _).
+    <span class="nb">refine</span> (weq_op2_invertible_2cell
+              _ _
+              (inv_of_invertible_2cell (pr12 (pr222 (pr222 H))))
+            ,,
+            _).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (to_op2_has_pb_ump _ (pr122 (pr222 (pr222 H)))).
+    + <span class="bp">exact</span> (to_op2_has_pb_ump _ (pr1 (pr222 (pr222 (pr222 H))))).
+    + <span class="bp">exact</span> (has_bincoprod_ump_op_cell _ _ (pr2 (pr222 (pr222 (pr222 H))))).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Colimits/Examples/OpCellBicatColimits.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Coproducts
+  &gt;  3. Extensive
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

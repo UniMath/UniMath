@@ -1,0 +1,997 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Envelope.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> The (Single-Sorted) Duploid arising from an Adjunction</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> January–October 2026</span>
+
+<span class="sd"> This file defines the envelope duploid and proves some theorems about it.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of the envelope duploid</span>
+<span class="sd"> 1.1. Polarity choices and their universal properties</span>
+<span class="sd"> 1.2. Envelope unital magmoid</span>
+<span class="sd"> 1.3. Envelope preduploid</span>
+<span class="sd"> 1.4. Envelope duploid</span>
+<span class="sd"> 2. Lemmas about the envelope duploid</span>
+<span class="sd"> 2.1. Characterization of polarities</span>
+<span class="sd"> 2.2. Functors into the envelope duploid</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.ObliqueMor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> unital_magmoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> oblique_mor.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> duploid.
+
+<span class="kn">Section</span> <span class="nf">envelope_defs</span>.
+  <span class="sd">(** ** Definition of the envelope duploid *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">N</span> <span class="nv">P</span> : category} (<span class="nv">θ</span> : adjunction P N).
+  <span class="kn">Let</span> <span class="nf">L</span> : P ⟶ N := left_functor θ.
+  <span class="kn">Let</span> <span class="nf">R</span> : N ⟶ P := right_functor θ.
+  <span class="kn">Let</span> <span class="nf">η</span> : functor_identity P ⟹ L ∙ R := adjunit θ.
+  <span class="kn">Let</span> <span class="nf">ε</span> : R ∙ L ⟹ functor_identity N := adjcounit θ.
+
+  <span class="sd">(** A pre-object of the envelope. *)</span>
+  <span class="kn">Definition</span> <span class="nf">envelope_preob</span> := ∑ (pn : P × N), oblique_mor θ (pr1 pn) (pr2 pn).
+  <span class="kn">Definition</span> <span class="nf">make_envelope_preob</span>
+    (<span class="nv">p</span> : P) (<span class="nv">n</span> : N) (<span class="nv">cross</span> : oblique_mor θ p n)
+    : envelope_preob := (p,,n),,cross.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_negative_ob</span> (<span class="nv">a</span> : envelope_preob) : N := pr21 a.
+  <span class="kn">Definition</span> <span class="nf">envelope_positive_ob</span> (<span class="nv">a</span> : envelope_preob) : P := pr11 a.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'π⊖'"</span> := envelope_negative_ob (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'π⊕'"</span> := envelope_positive_ob (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_mor</span> (<span class="nv">a</span> <span class="nv">b</span> : envelope_preob) : UU := oblique_mor θ (π⊕ a) (π⊖ b).
+  <span class="kn">Definition</span> <span class="nf">envelope_cross_mor</span> (<span class="nv">a</span> : envelope_preob) : envelope_mor a a := pr2 a.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'cross(' a ')'"</span> :=
+    (envelope_cross_mor a)
+      (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">"cross( a )"</span>) : duploid.
+
+  <span class="kn">Arguments</span> envelope_mor / _ _.
+
+  <span class="sd">(** *** Polarity choices and their universal properties *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">envelope_chosen_negative</span> (<span class="nv">a</span> : envelope_preob) : UU := is_z_isomorphism cross(a)♯.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_envelope_chosen_negative</span> : envelope_chosen_negative &gt;-&gt; is_z_isomorphism.
+  <span class="kn">Definition</span> <span class="nf">envelope_chosen_positive</span> (<span class="nv">a</span> : envelope_preob) : UU := is_z_isomorphism cross(a)♭.
+  <span class="kn">Identity Coercion</span> <span class="nf">Id_envelope_chosen_positive</span> : envelope_chosen_positive &gt;-&gt; is_z_isomorphism.
+  <span class="kn">Definition</span> <span class="nf">envelope_polarization_choice</span> (<span class="nv">a</span> : envelope_preob) : UU
+    := envelope_chosen_negative a ⨿ envelope_chosen_positive a.
+
+  <span class="kn">Arguments</span> envelope_chosen_negative / _.
+  <span class="kn">Arguments</span> envelope_chosen_positive / _.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_envelope_chosen_negative</span> (<span class="nv">a</span> : envelope_preob)
+    : isaprop (envelope_chosen_negative a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_z_isomorphism. <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">isaprop_envelope_chosen_positive</span> (<span class="nv">a</span> : envelope_preob)
+    : isaprop (envelope_chosen_positive a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> isaprop_is_z_isomorphism. <span class="kn">Qed</span>.
+
+  <span class="sd">(** Factoring around negative objects *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">envelope_factor_negative</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">negative</span> : envelope_chosen_negative b) (<span class="nv">f</span> : envelope_mor a b)
+    : π⊕ a --&gt; π⊕ b := f♯ · is_z_isomorphism_mor negative.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '◅[' H ']'"</span> := (envelope_factor_negative H f) (<span class="kn">format</span> <span class="s2">"f ◅[ H ]"</span>, <span class="kn">at level</span> <span class="mi">10</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '◅'"</span> := (envelope_factor_negative _ f) (<span class="kn">format</span> <span class="s2">"f ◅"</span>, <span class="kn">only printing</span>, <span class="kn">at level</span> <span class="mi">1</span>).
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_negative_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">negative</span> : envelope_chosen_negative b) (<span class="nv">f</span> : envelope_mor a b)
+    : f◅[negative] ◅· cross(b) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> oblique_mor_positive_path.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _ @ id_right _).
+    <span class="nb">apply</span> cancel_precomposition, (is_inverse_in_precat2 negative).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_negative_unique</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">negative</span> : envelope_chosen_negative b) (<span class="nv">f</span> : envelope_mor a b)
+    (<span class="nv">f'</span> : π⊕ a --&gt; π⊕ b) (<span class="nv">H</span> : f' ◅· cross(b) = f)
+    : f' = f◅[negative].
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x◅[negative])) <span class="k">in</span> H.
+    <span class="nb">refine</span> (_ @ H).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> envelope_factor_negative; <span class="nb">cbn</span>.
+    etrans; [<span class="nb">apply</span> assoc'|].
+    <span class="nb">apply</span> remove_id_right; [|<span class="bp">reflexivity</span>].
+    <span class="nb">apply</span> (is_inverse_in_precat1 negative).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_negative_weq</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">negative</span> : envelope_chosen_negative b)
+    : (π⊕ a --&gt; π⊕ b) ≃ (envelope_mor a b).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">intro</span> f'; <span class="bp">exact</span> (f' ◅· cross(b)).
+    - <span class="nb">intro</span> f.
+      use unique_exists.
+      + <span class="bp">exact</span> (envelope_factor_negative negative f).
+      + <span class="nb">apply</span> envelope_factor_negative_eq.
+      + <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+      + <span class="nb">apply</span> envelope_factor_negative_unique.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Factoring around positive objects *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">envelope_factor_positive</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">positive</span> : envelope_chosen_positive a) (<span class="nv">f</span> : envelope_mor a b)
+    : π⊖ a --&gt; π⊖ b := is_z_isomorphism_mor positive · f♭.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '▻[' H ']'"</span> := (envelope_factor_positive H f) (<span class="kn">format</span> <span class="s2">"f ▻[ H ]"</span>, <span class="kn">at level</span> <span class="mi">10</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '▻'"</span> := (envelope_factor_positive _ f) (<span class="kn">format</span> <span class="s2">"f ▻"</span>, <span class="kn">only printing</span>, <span class="kn">at level</span> <span class="mi">1</span>).
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_positive_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">positive</span> : envelope_chosen_positive a) (<span class="nv">f</span> : envelope_mor a b)
+    : f▻[positive] ▻∘ cross(a) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> oblique_mor_negative_path.
+    <span class="nb">refine</span> (assoc _ _ _ @ _ @ id_left _).
+    <span class="nb">apply</span> cancel_postcomposition, (is_inverse_in_precat1 positive).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_positive_unique</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">positive</span> : envelope_chosen_positive a) (<span class="nv">f</span> : envelope_mor a b)
+    (<span class="nv">f'</span> : π⊖ a --&gt; π⊖ b) (<span class="nv">H</span> : f' ▻∘ cross(a) = f)
+    : f' = f▻[positive].
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x▻[positive])) <span class="k">in</span> H.
+    <span class="nb">refine</span> (_ @ H).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">unfold</span> envelope_factor_positive; <span class="nb">cbn</span>.
+    etrans; [<span class="nb">apply</span> assoc|].
+    <span class="nb">apply</span> remove_id_left; [|<span class="bp">reflexivity</span>].
+    <span class="nb">apply</span> (is_inverse_in_precat2 positive).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_factor_positive_weq</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">positive</span> : envelope_chosen_positive a)
+    : (π⊖ a --&gt; π⊖ b) ≃ (envelope_mor a b).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="nb">intro</span> f'; <span class="bp">exact</span> (f' ▻∘ cross(a)).
+    - <span class="nb">intro</span> f.
+      use unique_exists.
+      + <span class="bp">exact</span> (envelope_factor_positive positive f).
+      + <span class="nb">apply</span> envelope_factor_positive_eq.
+      + <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+      + <span class="nb">apply</span> envelope_factor_positive_unique.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Envelope unital magmoid *)</span>
+
+  <span class="sd">(** To compose two morphisms, we need a choice of polarization for the middle object. *)</span>
+  <span class="kn">Definition</span> <span class="nf">envelope_compose'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">choice</span> : envelope_polarization_choice b)
+    : envelope_mor a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> envelope_mor <span class="k">in</span> *.
+    <span class="nb">induction</span> choice <span class="k">as</span> [Hnegative | Hpositive].
+    - <span class="bp">exact</span> (f◅[Hnegative] ◅· g).
+    - <span class="bp">exact</span> (f ·▻ g▻[Hpositive]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_compose_id_left</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b)
+    (<span class="nv">choice</span> : envelope_polarization_choice a)
+    : envelope_compose' cross(a) f choice = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> choice <span class="k">as</span> [Hnegative | Hpositive]; <span class="nb">cbn</span>.
+    - intermediate_path (identity _ ◅· f).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ◅· _) _).
+        <span class="nb">apply</span> pathsinv0, envelope_factor_negative_unique.
+        <span class="nb">apply</span> oblique_compose_positive_identity.
+      + <span class="nb">apply</span> oblique_compose_positive_identity.
+    - <span class="nb">apply</span> envelope_factor_positive_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_compose_id_right</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b)
+    (<span class="nv">choice</span> : envelope_polarization_choice b)
+    : envelope_compose' f cross(b) choice = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> choice <span class="k">as</span> [Hnegative | Hpositive]; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> envelope_factor_negative_eq.
+    - intermediate_path (identity _ ▻∘ f).
+      + <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ▻∘ _) _).
+        <span class="nb">apply</span> pathsinv0, envelope_factor_positive_unique.
+        <span class="nb">apply</span> oblique_compose_negative_identity.
+      + <span class="nb">apply</span> oblique_compose_negative_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** However, if both choices exist, then it does not matter which we choose. *)</span>
+  <span class="kn">Theorem</span> <span class="nf">envelope_compose_irrel</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">negative</span> : envelope_chosen_negative b)
+    (<span class="nv">positive</span> : envelope_chosen_positive b)
+    : envelope_compose' f g (ii2 positive) = envelope_compose' f g (ii1 negative).
+  <span class="kn">Proof</span>.
+    <span class="nb">change</span> (f ·▻ g▻[positive] = f◅[negative] ◅· g).
+    intermediate_path ((f◅[negative] ◅· cross(b)) ·▻ g▻[positive]).
+    - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ·▻ _) _).
+      <span class="nb">apply</span> pathsinv0, envelope_factor_negative_eq.
+    - <span class="nb">refine</span> (oblique_compose_negative_positive_comm _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ◅· x) _).
+      <span class="nb">apply</span> envelope_factor_positive_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">envelope_compose_irrel'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">choice1</span> <span class="nv">choice2</span> : envelope_polarization_choice b)
+    : envelope_compose' f g choice1 = envelope_compose' f g choice2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> choice1, choice2.
+    <span class="mi">1</span>, <span class="mi">4</span>: <span class="nb">apply</span> maponpaths, maponpaths, proofirrelevance, isaprop_is_z_isomorphism.
+    - <span class="nb">apply</span> pathsinv0, envelope_compose_irrel.
+    - <span class="nb">apply</span> envelope_compose_irrel.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** This justifies truncating the polarization choice to a property *)</span>
+  <span class="kn">Definition</span> <span class="nf">envelope_polarization</span> (<span class="nv">a</span> : envelope_preob) : hProp
+    := ∥envelope_polarization_choice a∥.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_envelope_polarization</span> (<span class="nv">a</span> : envelope_preob) : isaprop (envelope_polarization a).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> propproperty. <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_compose</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">polarization</span> : envelope_polarization b)
+    : envelope_mor a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (squash_to_set _ (envelope_compose' f g) _ polarization).
+    - <span class="kp">abstract</span> (<span class="nb">apply</span> isaset_oblique_mor).
+    - <span class="nb">apply</span> envelope_compose_irrel'.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_polarization_rec</span> {<span class="nv">a</span> : envelope_preob}
+    (<span class="nv">T</span> : envelope_polarization a -&gt; hProp)
+    (<span class="nv">Hnegative</span> : ∏ (negative : envelope_chosen_negative a), T (hdisj_in1 negative))
+    (<span class="nv">Hpositive</span> : ∏ (positive : envelope_chosen_positive a), T (hdisj_in2 positive))
+    : ∏ (polarization : envelope_polarization a), T polarization.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> polarization; <span class="nb">apply</span> squash_rec; <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [Hn | Hp].
+    - <span class="nb">apply</span> Hnegative.
+    - <span class="nb">apply</span> Hpositive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_polarization_rec'</span> {<span class="nv">a</span> : envelope_preob}
+    (<span class="nv">T</span> : envelope_polarization a -&gt; UU)
+    (<span class="nv">Hprop</span> : isPredicate T)
+    (<span class="nv">Hnegative</span> : ∏ (negative : envelope_chosen_negative a), T (hdisj_in1 negative))
+    (<span class="nv">Hpositive</span> : ∏ (positive : envelope_chosen_positive a), T (hdisj_in2 positive))
+    : ∏ (polarization : envelope_polarization a), T polarization.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (envelope_polarization_rec (<span class="k">λ</span> <span class="nv">H</span>, make_hProp (T H) (Hprop H))); <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_compose_rec</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">T</span> : envelope_mor a c -&gt; hProp)
+    (<span class="nv">Hnegative</span> : ∏ negative, T (envelope_compose' f g (ii1 negative)))
+    (<span class="nv">Hpositive</span> : ∏ positive, T (envelope_compose' f g (ii2 positive)))
+    : ∏ (polarization : envelope_polarization b), T (envelope_compose f g polarization).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> polarization.
+    <span class="nb">apply</span> (envelope_polarization_rec (<span class="k">λ</span> <span class="nv">H</span>, T (envelope_compose f g H))).
+    - <span class="nb">apply</span> Hnegative.
+    - <span class="nb">apply</span> Hpositive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_compose_rec'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    (<span class="nv">T</span> : envelope_mor a c -&gt; UU)
+    (<span class="nv">Hprop</span> : isPredicate T)
+    (<span class="nv">Hnegative</span> : ∏ negative, T (envelope_compose' f g (ii1 negative)))
+    (<span class="nv">Hpositive</span> : ∏ positive, T (envelope_compose' f g (ii2 positive)))
+    : ∏ (polarization : envelope_polarization b), T (envelope_compose f g polarization).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (envelope_compose_rec _ _ (<span class="k">λ</span> <span class="nv">H</span>, make_hProp (T H) (Hprop H))); <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_compose_known</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : envelope_preob}
+    (<span class="nv">Hchoice</span> : envelope_polarization_choice b)
+    (<span class="nv">Hpolarization</span> : envelope_polarization b)
+    (<span class="nv">f</span> : envelope_mor a b) (<span class="nv">g</span> : envelope_mor b c)
+    : envelope_compose f g Hpolarization = envelope_compose' f g Hchoice.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> envelope_compose_rec'.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+    <span class="kp">all</span>: <span class="nb">intro</span>; <span class="nb">apply</span> envelope_compose_irrel'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_ob</span> := ∑ (a : envelope_preob), envelope_polarization a.
+  <span class="kn">Definition</span> <span class="nf">make_envelope_ob</span> (<span class="nv">a</span> : envelope_preob)
+    (<span class="nv">H</span> : envelope_polarization a) : envelope_ob
+    := a,,H.
+
+  <span class="kn">Coercion</span> <span class="nf">envelope_ob_to_envelope_preob</span> (a : envelope_ob) : envelope_preob := pr1 a.
+  <span class="kn">Coercion</span> <span class="nf">envelope_ob_to_envelope_polarization</span> (a : envelope_ob) : envelope_polarization a := pr2 a.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_preob_of_positive</span> (<span class="nv">p</span> : P) : envelope_preob.
+  <span class="kn">Proof</span>.
+    use make_envelope_preob.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> (L p).
+    - <span class="bp">exact</span> (oblique_positive_identity θ p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_preob_of_negative</span> (<span class="nv">n</span> : N) : envelope_preob.
+  <span class="kn">Proof</span>.
+    use make_envelope_preob.
+    - <span class="bp">exact</span> (R n).
+    - <span class="bp">exact</span> n.
+    - <span class="bp">exact</span> (oblique_negative_identity θ n).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_positive_of_positive</span> (<span class="nv">p</span> : P)
+    : envelope_chosen_positive (envelope_preob_of_positive p).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_z_isomorphism_identity. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_chosen_negative_of_negative</span> (<span class="nv">n</span> : N)
+    : envelope_chosen_negative (envelope_preob_of_negative n).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> is_z_isomorphism_identity. <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_ob_of_positive</span> (<span class="nv">p</span> : P) : envelope_ob.
+  <span class="kn">Proof</span>.
+    use (make_envelope_ob (envelope_preob_of_positive p)).
+    <span class="nb">apply</span> hdisj_in2; <span class="nb">apply</span> envelope_chosen_positive_of_positive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_ob_of_negative</span> (<span class="nv">n</span> : N) : envelope_ob.
+  <span class="kn">Proof</span>.
+    use (make_envelope_ob (envelope_preob_of_negative n)).
+    <span class="nb">apply</span> hdisj_in1; <span class="nb">apply</span> envelope_chosen_negative_of_negative.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_ob_mor</span> : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> envelope_ob.
+    - <span class="nb">intros</span> a b; <span class="bp">exact</span> (envelope_mor a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_unital_premagmoid_data</span> : unital_premagmoid_data.
+  <span class="kn">Proof</span>.
+    use (make_precategory_data envelope_ob_mor).
+    - <span class="nb">cbn</span>; <span class="nb">intro</span> a; <span class="bp">exact</span> cross(a).
+    - <span class="nb">cbn</span>; <span class="nb">intros</span> a b c f g; <span class="bp">exact</span> (envelope_compose f g b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_is_unital_premagmoid</span> : is_unital_premagmoid envelope_unital_premagmoid_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intros</span> a b f; <span class="nb">cbn</span>;
+      (<span class="nb">apply</span> envelope_compose_rec'; [<span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor | |]).
+    <span class="mi">1</span>, <span class="mi">2</span>: <span class="nb">intro</span>; <span class="nb">apply</span> envelope_compose_id_left.
+    <span class="mi">1</span>, <span class="mi">2</span>: <span class="nb">intro</span>; <span class="nb">apply</span> envelope_compose_id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_unital_premagmoid</span> : unital_premagmoid
+    := make_unital_premagmoid _ envelope_is_unital_premagmoid.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_unital_magmoid</span> : unital_magmoid.
+  <span class="kn">Proof</span>.
+    use (make_unital_magmoid envelope_unital_premagmoid).
+    <span class="kp">abstract</span> (<span class="nb">intros</span> a b; <span class="nb">apply</span> isaset_oblique_mor).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Envelope preduploid *)</span>
+
+  <span class="kn">Ltac</span> <span class="nf">envelope_induction</span> a
+    := <span class="k">let</span> <span class="nv">a'</span> := <span class="kp">uconstr</span>:(a : envelope_ob) <span class="k">in</span>
+       <span class="nb">generalize</span> (a' : envelope_polarization a');
+       <span class="nb">apply</span> (envelope_polarization_rec' (a:=a')).
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_of_envelope_chosen_positive</span> (<span class="nv">a</span> : envelope_unital_magmoid)
+    (<span class="nv">H</span> : envelope_chosen_positive (a : envelope_ob)) : is_positive a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f c d g h; <span class="nb">cbn</span> <span class="k">in</span> c, f, g, h |- *.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii2 H)).
+    envelope_induction c.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+    - <span class="nb">intro</span> Hn; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> oblique_compose_negative_positive_comm.
+    - <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!oblique_compose_negative_compose _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ·▻ x) _).
+      <span class="nb">apply</span> envelope_factor_positive_unique.
+      <span class="nb">refine</span> (oblique_compose_negative_compose _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ·▻ _) _).
+      <span class="nb">apply</span> envelope_factor_positive_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_positive_envelope_ob_of_positive</span> (<span class="nv">p</span> : P)
+    : is_positive (M:=envelope_unital_magmoid) (envelope_ob_of_positive p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_positive_of_envelope_chosen_positive, envelope_chosen_positive_of_positive.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_of_envelope_chosen_negative</span> (<span class="nv">a</span> : envelope_unital_magmoid)
+    (<span class="nv">H</span> : envelope_chosen_negative (a : envelope_ob)) : is_negative a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b f c d g h; <span class="nb">cbn</span> <span class="k">in</span> c, f, g, h |- *.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii1 H)).
+    envelope_induction c.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+    - <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!oblique_compose_positive_compose _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ ∘◅ x) _).
+      <span class="nb">apply</span> envelope_factor_negative_unique.
+      <span class="nb">refine</span> (oblique_compose_positive_compose _ _ _ _ @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ∘◅ _) _).
+      <span class="nb">apply</span> envelope_factor_negative_eq.
+    - <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> pathsinv0, oblique_compose_negative_positive_comm.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">is_negative_envelope_ob_of_negative</span> (<span class="nv">n</span> : N)
+    : is_negative (M:=envelope_unital_magmoid) (envelope_ob_of_negative n).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_negative_of_envelope_chosen_negative, envelope_chosen_negative_of_negative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_has_polarities</span> : has_polarities envelope_unital_magmoid.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> a; <span class="nb">cbn</span> <span class="k">in</span> a.
+    envelope_induction a.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> propproperty.
+    - <span class="nb">intro</span> H.
+      <span class="nb">apply</span> make_has_polarity_negative, is_negative_of_envelope_chosen_negative, H.
+    - <span class="nb">intro</span> H.
+      <span class="nb">apply</span> make_has_polarity_positive, is_positive_of_envelope_chosen_positive, H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_preduploid</span> : preduploid :=
+    make_preduploid envelope_unital_magmoid envelope_has_polarities.
+
+  <span class="sd">(** *** Envelope duploid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">envelope_downshift</span> (<span class="nv">a</span> : envelope_preob) : envelope_ob
+    := envelope_ob_of_positive (π⊕ a).
+  <span class="kn">Definition</span> <span class="nf">envelope_upshift</span> (<span class="nv">a</span> : envelope_preob)
+    : envelope_ob := envelope_ob_of_negative (π⊖ a).
+
+  <span class="kn">Definition</span> <span class="nf">envelope_force</span>
+    (<span class="nv">a</span> : envelope_preob) : envelope_mor (envelope_upshift a) a.
+  <span class="kn">Proof</span>. <span class="bp">exact</span> (oblique_negative_identity θ (π⊖ a)). <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">envelope_delay</span>
+    (<span class="nv">a</span> : envelope_preob) : envelope_mor a (envelope_upshift a).
+  <span class="kn">Proof</span>. <span class="bp">exact</span> cross(a). <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_wrap</span>
+    (<span class="nv">a</span> : envelope_preob) : envelope_mor a (envelope_downshift a).
+  <span class="kn">Proof</span>. <span class="bp">exact</span> (oblique_positive_identity θ (π⊕ a)). <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">envelope_unwrap</span>
+    (<span class="nv">a</span> : envelope_preob) : envelope_mor (envelope_downshift a) a.
+  <span class="kn">Proof</span>. <span class="bp">exact</span> cross(a). <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_envelope_force</span> (<span class="nv">a</span> : envelope_ob)
+    : is_linear (M:=envelope_preduploid) (envelope_force a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b c g h; <span class="nb">cbn</span> <span class="k">in</span> b.
+    envelope_induction b.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    <span class="mi">1</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> assoc'_negative, is_negative_of_envelope_chosen_negative, H.
+    <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii2 Hp)); <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (φ_adj_inv_identity θ), &lt;- φ_adj_inv_natural_precomp, !id_right.
+    <span class="bp">now</span> <span class="nb">rewrite</span> oblique_mor_positive_transpose.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_envelope_delay</span> (<span class="nv">a</span> : envelope_ob)
+    : is_linear (M:=envelope_preduploid) (envelope_delay a).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> a; envelope_induction a.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_linear.
+    <span class="mi">2</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> is_linear_of_positive, is_positive_of_envelope_chosen_positive, H.
+    <span class="nb">intros</span> Hn b c g h.
+    <span class="nb">cbn</span> <span class="k">in</span> b; envelope_induction b.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    <span class="mi">1</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> assoc'_negative, is_negative_of_envelope_chosen_negative, H.
+    <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii2 Hp)),
+      !(envelope_compose_known (ii1 Hn)); <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_delay; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (oblique_mor_positive_transpose θ cross(a)), &lt;- φ_adj_inv_natural_precomp.
+    <span class="bp">now</span> <span class="nb">rewrite</span> !assoc', !(is_inverse_in_precat2 Hn), !id_right,
+      oblique_mor_positive_transpose.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_in_precat_envelope_force_delay</span> (<span class="nv">a</span> : envelope_ob)
+    : is_inverse_in_precat (C:=envelope_preduploid) (envelope_force a) (envelope_delay a).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - envelope_induction a.
+      <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+      + <span class="nb">intro</span> Hn; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_delay, envelope_force; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> (is_inverse_in_precat2 Hn).
+      + <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_delay; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (is_inverse_in_precat2 Hp), functor_id, id_right.
+    - <span class="nb">unfold</span> envelope_delay, envelope_force; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> !id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_linear_inverse_envelope_force</span> (<span class="nv">a</span> : envelope_ob)
+    : has_linear_inverse (M:=envelope_preduploid) (envelope_force a).
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="bp">exact</span> (make_submm_mor _l _ (is_linear_envelope_delay a)).
+    - <span class="nb">apply</span> is_inverse_in_precat_envelope_force_delay.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_negative_shift_data</span> : negative_shift_data envelope_preduploid.
+  <span class="kn">Proof</span>.
+    use make_negative_shift_data.
+    - <span class="nb">intro</span> a; <span class="bp">exact</span> (envelope_upshift (a : envelope_ob)).
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> (envelope_force (a : envelope_ob)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_negative_shift_axioms</span> : negative_shift_axioms envelope_negative_shift_data.
+  <span class="kn">Proof</span>.
+    use make_negative_shift_axioms.
+    - <span class="nb">apply</span> is_linear_envelope_force.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> is_negative_envelope_ob_of_negative.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> has_linear_inverse_envelope_force.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_has_negative_shifts</span> : has_negative_shifts envelope_preduploid
+    := make_has_negative_shifts _ envelope_negative_shift_axioms.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_envelope_wrap</span> (<span class="nv">a</span> : envelope_ob)
+    : is_thunkable (M:=envelope_preduploid) (envelope_wrap a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b c g h; <span class="nb">cbn</span> <span class="k">in</span> b.
+    envelope_induction b.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    <span class="mi">2</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> assoc_positive, is_positive_of_envelope_chosen_positive, H.
+    <span class="nb">intro</span> Hn; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii1 Hn)); <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_wrap; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (φ_adj_identity θ), &lt;- φ_adj_natural_postcomp, !id_left.
+    <span class="bp">now</span> <span class="nb">rewrite</span> oblique_mor_negative_transpose.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_envelope_unwrap</span> (<span class="nv">a</span> : envelope_ob)
+    : is_thunkable (M:=envelope_preduploid) (envelope_unwrap a).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> a; envelope_induction a.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_thunkable.
+    <span class="mi">1</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> is_thunkable_of_negative, is_negative_of_envelope_chosen_negative, H.
+    <span class="nb">intros</span> Hp b c g h.
+    <span class="nb">cbn</span> <span class="k">in</span> b; envelope_induction b.
+    <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> unital_magmoid_has_homsets.
+    <span class="mi">2</span>: <span class="nb">intro</span> H; <span class="nb">apply</span> assoc_positive, is_positive_of_envelope_chosen_positive, H.
+    <span class="nb">intro</span> Hn; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !(envelope_compose_known (ii1 Hn)),
+      !(envelope_compose_known (ii2 Hp)); <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> envelope_unwrap; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (oblique_mor_negative_transpose θ cross(a)), &lt;- φ_adj_natural_postcomp.
+    <span class="bp">now</span> <span class="nb">rewrite</span> !assoc, !(is_inverse_in_precat1 Hp), !id_left,
+      oblique_mor_negative_transpose.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_inverse_in_precat_envelope_unwrap_wrap</span> (<span class="nv">a</span> : envelope_ob)
+    : is_inverse_in_precat (C:=envelope_preduploid) (envelope_unwrap a) (envelope_wrap a).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - envelope_induction a.
+      <span class="mi">1</span>: <span class="nb">intro</span>; <span class="nb">apply</span> isaset_oblique_mor.
+      + <span class="nb">intro</span> Hn; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_unwrap, envelope_wrap; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="nb">rewrite</span> (is_inverse_in_precat1 Hn), functor_id, id_left.
+      + <span class="nb">intro</span> Hp; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_unwrap, envelope_wrap; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> (is_inverse_in_precat1 Hp).
+    - <span class="nb">unfold</span> envelope_wrap, envelope_unwrap; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> !id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_thunkable_inverse_envelope_wrap</span> (<span class="nv">a</span> : envelope_ob)
+    : has_thunkable_inverse (M:=envelope_preduploid) (envelope_wrap a).
+  <span class="kn">Proof</span>.
+    use make_has_submm_inverse.
+    - <span class="bp">exact</span> (make_submm_mor _t _ (is_thunkable_envelope_unwrap a)).
+    - <span class="nb">apply</span> is_inverse_in_precat_inv, is_inverse_in_precat_envelope_unwrap_wrap.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_positive_shift_data</span> : positive_shift_data envelope_preduploid.
+  <span class="kn">Proof</span>.
+    use make_positive_shift_data.
+    - <span class="nb">intro</span> a; <span class="bp">exact</span> (envelope_downshift (a : envelope_ob)).
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> (envelope_wrap (a : envelope_ob)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_positive_shift_axioms</span> : positive_shift_axioms envelope_positive_shift_data.
+  <span class="kn">Proof</span>.
+    use make_positive_shift_axioms.
+    - <span class="nb">apply</span> is_thunkable_envelope_wrap.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> is_positive_envelope_ob_of_positive.
+    - <span class="nb">intro</span> a; <span class="nb">apply</span> has_thunkable_inverse_envelope_wrap.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_has_positive_shifts</span> : has_positive_shifts envelope_preduploid
+    := make_has_positive_shifts _ envelope_positive_shift_axioms.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_has_polarity_shifts</span> : has_polarity_shifts envelope_preduploid.
+  <span class="kn">Proof</span>.
+    use make_has_polarity_shifts.
+    - <span class="nb">apply</span> envelope_has_negative_shifts.
+    - <span class="nb">apply</span> envelope_has_positive_shifts.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">envelope_duploid</span> : duploid
+    := make_duploid _ envelope_has_polarity_shifts.
+
+  <span class="kn">Coercion</span> <span class="nf">envelope_ob_to_ob</span> (a : envelope_ob) : ob envelope_duploid := a.
+
+  <span class="sd">(** ** Lemmas about the envelope duploid</span>
+<span class="sd">   *** Characterization of polarities *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_from_upshift_iff_envelope_counit_precompose</span> {<span class="nv">a</span> : N} {<span class="nv">b</span> : envelope_ob}
+    (<span class="nv">f</span> : envelope_duploid⟦envelope_ob_of_negative a, b⟧)
+    : is_oblique_mor_linear θ f ≃ is_linear f.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_linear_iff_force_unwrap (D:=envelope_duploid))].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, (oblique_mor_negative_path_weq θ _ _)].
+    <span class="nb">cbn</span>; <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_left, !functor_id, !id_left, !id_right.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_envelope_linear_mor_oblique_linear_mor</span> (<span class="nv">n</span> : N) (<span class="nv">a</span> : envelope_ob)
+    : oblique_linear_mor θ n (π⊖ a) ≃ envelope_ob_of_negative n --&gt;{_l} a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_linear_from_upshift_iff_envelope_counit_precompose.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_iff_from_envelope_chosen_negative</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_ob}
+    (<span class="nv">f</span> : envelope_duploid⟦a, b⟧)
+    (<span class="nv">Hn</span> : envelope_chosen_negative a)
+    : is_oblique_mor_linear θ
+        (oblique_compose_positive _ (is_z_isomorphism_mor Hn) f)
+        ≃ is_linear f.
+  <span class="kn">Proof</span>.
+    intermediate_weq (is_oblique_mor_linear θ (force a · f)). {
+      <span class="nb">apply</span> eqweqmap, maponpaths; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (envelope_compose_known (ii1 Hn)).
+      <span class="nb">cbn</span>; <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+    }
+    intermediate_weq (is_linear (force a · f)). {
+      <span class="nb">apply</span> is_linear_from_upshift_iff_envelope_counit_precompose.
+    }
+    use weqimplimpl.
+    <span class="mi">3</span>,<span class="mi">4</span>: <span class="nb">apply</span> isaprop_is_linear.
+    - <span class="nb">intro</span> H.
+      <span class="nb">rewrite</span> &lt;- (delay_force_left f).
+      <span class="bp">exact</span> (is_linear_compose (delay a) _ ummsolve H).
+    - <span class="nb">intro</span> H.
+      <span class="bp">exact</span> (is_linear_compose (force a) _ ummsolve H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_linear_iff_envelope_impl</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_ob}
+    (<span class="nv">f</span> : envelope_duploid⟦a, b⟧)
+    : (∏ (Hn : envelope_chosen_negative a),
+        is_oblique_mor_linear θ
+          (oblique_compose_positive _ (is_z_isomorphism_mor Hn) f))
+        ≃ is_linear f.
+  <span class="kn">Proof</span>.
+    envelope_induction a.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isapropweqtoprop, isaprop_is_linear.
+    - <span class="nb">intro</span> Hn.
+      <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_linear_iff_from_envelope_chosen_negative _ Hn)].
+      <span class="nb">pose</span> (c := iscontraprop1 (isaprop_envelope_chosen_negative a) Hn).
+      <span class="bp">exact</span> (weqsecovercontr _ c).
+    - <span class="nb">intro</span> Hp.
+      <span class="nb">apply</span> weqimplimpl.
+      + <span class="nb">intros</span> _.
+        <span class="nb">apply</span> is_linear_of_positive, is_positive_of_envelope_chosen_positive, Hp.
+      + <span class="nb">intros</span> _ Hn.
+        <span class="nb">apply</span> is_linear_iff_from_envelope_chosen_negative.
+        <span class="nb">apply</span> is_linear_of_positive, is_positive_of_envelope_chosen_positive, Hp.
+      + <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_oblique_mor_linear.
+      + <span class="nb">apply</span> isaprop_is_linear.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_envelope_upshift_iff_pre_fixed_point</span> (<span class="nv">a</span> : N)
+    : is_negative_pre_fixed_point θ a ≃ is_positive (envelope_ob_of_negative a).
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_positive_iff_linear_wrap (D:=envelope_duploid))].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_linear_from_upshift_iff_envelope_counit_precompose].
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_right.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_positive_iff_from_envelope_chosen_negative</span> (<span class="nv">a</span> : envelope_ob)
+    (<span class="nv">Hn</span> : envelope_chosen_negative a)
+    : is_negative_pre_fixed_point θ (π⊖ a) ≃ is_positive a.
+  <span class="kn">Proof</span>.
+    intermediate_weq (is_positive (⇑a)). {
+      <span class="nb">apply</span> is_positive_envelope_upshift_iff_pre_fixed_point.
+    }
+    <span class="nb">apply</span> weq_is_positive_of_lt_iso, lt_iso_upshift_of_negative.
+    <span class="nb">apply</span> is_negative_of_envelope_chosen_negative, Hn.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_from_downshift_iff_envelope_unit_postcompose</span> {<span class="nv">a</span> : envelope_ob} {<span class="nv">b</span> : P}
+    (<span class="nv">f</span> : envelope_duploid⟦a, envelope_ob_of_positive b⟧)
+    : is_oblique_mor_thunkable θ f ≃ is_thunkable f.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_thunkable_iff_delay_wrap (D:=envelope_duploid))].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> invweq, (oblique_mor_positive_path_weq θ _ _)].
+    <span class="nb">cbn</span>; <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+    <span class="nb">fold</span> R L η.
+    <span class="nb">rewrite</span> !id_right, !functor_id, !id_right, !id_left.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_envelope_thunkable_mor_oblique_thunkable_mor</span> (<span class="nv">a</span> : envelope_ob) (<span class="nv">p</span> : P)
+    : oblique_thunkable_mor θ (π⊕ a) p ≃ a --&gt;{_t} envelope_ob_of_positive p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> is_thunkable_from_downshift_iff_envelope_unit_postcompose.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_iff_from_envelope_chosen_positive</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_ob}
+    (<span class="nv">f</span> : envelope_duploid⟦a, b⟧)
+    (<span class="nv">Hp</span> : envelope_chosen_positive b)
+    : is_oblique_mor_thunkable θ
+        (oblique_compose_negative _ f (is_z_isomorphism_mor Hp))
+        ≃ is_thunkable f.
+  <span class="kn">Proof</span>.
+    intermediate_weq (is_oblique_mor_thunkable θ (f · wrap b)). {
+      <span class="nb">apply</span> eqweqmap, maponpaths; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (envelope_compose_known (ii2 Hp)).
+      <span class="nb">cbn</span>; <span class="nb">unfold</span> envelope_factor_negative, envelope_factor_positive; <span class="nb">cbn</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+    }
+    intermediate_weq (is_thunkable (f · wrap b)). {
+      <span class="nb">apply</span> is_thunkable_from_downshift_iff_envelope_unit_postcompose.
+    }
+    use weqimplimpl.
+    <span class="mi">3</span>,<span class="mi">4</span>: <span class="nb">apply</span> isaprop_is_thunkable.
+    - <span class="nb">intro</span> H.
+      <span class="nb">rewrite</span> &lt;- (wrap_unwrap_right f).
+      <span class="bp">exact</span> (is_thunkable_compose _ (unwrap b) H ummsolve).
+    - <span class="nb">intro</span> H.
+      <span class="bp">exact</span> (is_thunkable_compose _ (wrap b) H ummsolve).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_thunkable_iff_envelope_impl</span> {<span class="nv">a</span> <span class="nv">b</span> : envelope_ob}
+    (<span class="nv">f</span> : envelope_duploid⟦a, b⟧)
+    : (∏ (Hp : envelope_chosen_positive b),
+        is_oblique_mor_thunkable θ
+          (oblique_compose_negative _ f (is_z_isomorphism_mor Hp)))
+        ≃ is_thunkable f.
+  <span class="kn">Proof</span>.
+    envelope_induction b.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isapropweqtoprop, isaprop_is_thunkable.
+    - <span class="nb">intro</span> Hn.
+      <span class="nb">apply</span> weqimplimpl.
+      + <span class="nb">intros</span> _.
+        <span class="nb">apply</span> is_thunkable_of_negative, is_negative_of_envelope_chosen_negative, Hn.
+      + <span class="nb">intros</span> _ Hp.
+        <span class="nb">apply</span> is_thunkable_iff_from_envelope_chosen_positive.
+        <span class="nb">apply</span> is_thunkable_of_negative, is_negative_of_envelope_chosen_negative, Hn.
+      + <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_oblique_mor_thunkable.
+      + <span class="nb">apply</span> isaprop_is_thunkable.
+    - <span class="nb">intro</span> Hp.
+      <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_thunkable_iff_from_envelope_chosen_positive _ Hp)].
+      <span class="nb">pose</span> (c := iscontraprop1 (isaprop_envelope_chosen_positive b) Hp).
+      <span class="bp">exact</span> (weqsecovercontr _ c).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_envelope_downshift_iff_pre_fixed_point</span> (<span class="nv">a</span> : P)
+    : is_positive_pre_fixed_point θ a ≃ is_negative (envelope_ob_of_positive a).
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> (is_negative_iff_thunkable_force (D:=envelope_duploid))].
+    <span class="nb">eapply</span> weqcomp; [|<span class="nb">apply</span> is_thunkable_from_downshift_iff_envelope_unit_postcompose].
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_negative_iff_from_envelope_chosen_positive</span> (<span class="nv">a</span> : envelope_ob)
+    (<span class="nv">Hp</span> : envelope_chosen_positive a)
+    : is_positive_pre_fixed_point θ (π⊕ a) ≃ is_negative a.
+  <span class="kn">Proof</span>.
+    intermediate_weq (is_negative (⇓a)). {
+      <span class="nb">apply</span> is_negative_envelope_downshift_iff_pre_fixed_point.
+    }
+    <span class="nb">apply</span> weq_is_negative_of_lt_iso, submm_iso_inv, lt_iso_downshift_of_positive.
+    <span class="nb">apply</span> is_positive_of_envelope_chosen_positive, Hp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_mor_from_negative_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : N}
+    (<span class="nv">f</span> : a --&gt; b)
+    : envelope_duploid∣_lt∣⟦envelope_ob_of_negative a, envelope_ob_of_negative b⟧.
+  <span class="kn">Proof</span>.
+    use submm_mor_from_left.
+    - use weq_envelope_linear_mor_oblique_linear_mor.
+      <span class="bp">exact</span> (oblique_lift_negative θ f).
+    - <span class="nb">apply</span> is_thunkable_of_negative, is_negative_envelope_ob_of_negative.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">envelope_mor_from_positive_mor</span> {<span class="nv">a</span> <span class="nv">b</span> : P}
+    (<span class="nv">f</span> : a --&gt; b)
+    : envelope_duploid∣_lt∣⟦envelope_ob_of_positive a, envelope_ob_of_positive b⟧.
+  <span class="kn">Proof</span>.
+    use submm_mor_from_right.
+    - use weq_envelope_thunkable_mor_oblique_thunkable_mor.
+      <span class="bp">exact</span> (oblique_lift_positive θ f).
+    - <span class="nb">apply</span> is_linear_of_positive, is_positive_envelope_ob_of_positive.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Functors into the envelope duploid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">negative_to_envelope_duploid_data</span>
+    : functor_data N envelope_duploid⁻ₗ.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> n.
+      <span class="k">exists</span> (<span class="nv">envelope_ob_of_negative</span> <span class="nv">n</span>).
+      <span class="nb">apply</span> is_negative_envelope_ob_of_negative.
+    - <span class="nb">intros</span> a b f.
+      <span class="bp">exact</span> (envelope_mor_from_negative_mor f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">negative_to_envelope_duploid_is_functor</span>
+    : is_functor negative_to_envelope_duploid_data.
+  <span class="kn">Proof</span>.
+    use make_is_functor; <span class="nb">red</span>; <span class="nb">intros</span>;
+      <span class="nb">apply</span> submm_mor_eq;
+      <span class="nb">apply</span> oblique_mor_positive_path; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> functor_id.
+    - etrans; [<span class="nb">apply</span> functor_comp|].
+      <span class="nb">apply</span> cancel_postcomposition, pathsinv0, id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">negative_to_envelope_duploid</span> : N ⟶ envelope_duploid⁻ₗ
+    := make_functor _ negative_to_envelope_duploid_is_functor.
+
+  <span class="kn">Lemma</span> <span class="nf">split_eso_negative_to_envelope_duploid</span>
+    : split_essentially_surjective negative_to_envelope_duploid.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a; <span class="nb">cbn</span> -[envelope_duploid] <span class="k">in</span> a.
+    <span class="k">exists</span> (<span class="nv">π</span>⊖ (sub_ob_ob a : envelope_ob)).
+    <span class="nb">apply</span> weq_submm_iso_z_iso.
+    <span class="nb">change</span> (⇑a ≅{_lt} a).
+    <span class="nb">apply</span> weq_negative_lt_iso.
+    <span class="bp">exact</span> (force a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">positive_to_envelope_duploid_data</span>
+    : functor_data P envelope_duploid⁺ₜ.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> p.
+      <span class="k">exists</span> (<span class="nv">envelope_ob_of_positive</span> <span class="nv">p</span>).
+      <span class="nb">apply</span> is_positive_envelope_ob_of_positive.
+    - <span class="nb">intros</span> a b f.
+      <span class="bp">exact</span> (envelope_mor_from_positive_mor f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">positive_to_envelope_duploid_is_functor</span>
+    : is_functor positive_to_envelope_duploid_data.
+  <span class="kn">Proof</span>.
+    use make_is_functor; <span class="nb">red</span>; <span class="nb">intros</span>;
+      <span class="nb">apply</span> submm_mor_eq;
+      <span class="nb">apply</span> oblique_mor_negative_path; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> functor_id.
+    - etrans; [<span class="nb">apply</span> functor_comp|].
+      <span class="nb">apply</span> cancel_precomposition, pathsinv0, id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">positive_to_envelope_duploid</span> : P ⟶ envelope_duploid⁺ₜ
+    := make_functor _ positive_to_envelope_duploid_is_functor.
+
+  <span class="kn">Lemma</span> <span class="nf">split_eso_positive_to_envelope_duploid</span>
+    : split_essentially_surjective positive_to_envelope_duploid.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a; <span class="nb">cbn</span> -[envelope_duploid] <span class="k">in</span> a.
+    <span class="k">exists</span> (<span class="nv">π</span>⊕ (sub_ob_ob a : envelope_ob)).
+    <span class="nb">apply</span> weq_submm_iso_z_iso.
+    <span class="nb">change</span> (⇓a ≅{_lt} a).
+    <span class="nb">apply</span> weq_positive_lt_iso.
+    <span class="bp">exact</span> (unwrap a).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">envelope_defs</span>.
+
+<span class="kn">Ltac</span> <span class="nf">envelope_induction</span> θ a
+  := <span class="k">let</span> <span class="nv">a'</span> := <span class="kp">uconstr</span>:(a : envelope_ob θ) <span class="k">in</span>
+     <span class="nb">generalize</span> (a' : envelope_polarization θ a');
+     <span class="nb">apply</span> (envelope_polarization_rec' θ (a:=a')).
+
+<span class="kn">Notation</span> <span class="s2">"'π⊖'"</span> := (envelope_negative_ob _) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+<span class="kn">Notation</span> <span class="s2">"'π⊕'"</span> := (envelope_positive_ob _) (<span class="kn">at level</span> <span class="mi">1</span>) : duploid.
+<span class="kn">Notation</span> <span class="s2">"'cross(' a ')'"</span> := (envelope_cross_mor _ a) (<span class="kn">at level</span> <span class="mi">3</span>, <span class="kn">format</span> <span class="s2">"cross( a )"</span>) : duploid.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Nonassociative/Duploids/FromAdjunction/Envelope.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

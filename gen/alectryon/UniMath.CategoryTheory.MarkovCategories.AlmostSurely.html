@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlmostSurely.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Almost-sure Equality</span>
+
+<span class="sd">In this file, we define the notion almost-sure equality and prove basic lemmas about it.</span>
+
+<span class="sd">Given a state p : I --&gt; x, two morphisms f,g : x --&gt; y are p-almost surely equal if the </span>
+<span class="sd">distributions p · ⟨id, f⟩ = p · ⟨id, g⟩ coincide. This abstract property captures and generalizes</span>
+<span class="sd">almost-sure equality from probability theory, namely that the channels f(x) and g(x) are equal on the</span>
+<span class="sd">support of p, i.e. all x with p(x) &gt; 0.</span>
+
+<span class="sd">Almost-sure equality is an equivalence relation, and many constructions such as </span>
+<span class="sd">conditionals and Bayesian inverses are only unique up to almost-sure equality.  </span>
+<span class="sd">The category of probability spaces in `ProbabilitySpaces.v` is defined using</span>
+<span class="sd">the quotient modulo almost-sure equality.</span>
+
+<span class="sd">Some useful properties of almost-sure equality only hold when assuming further axioms such as causality. </span>
+<span class="sd">Those properties are proved in `InformationFlowAxioms.v`.</span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Definition of Almost Sure Equality</span>
+<span class="sd">2. Basic Lemmas </span>
+<span class="sd">3. Definition of Almost Sure Determinism</span>
+
+<span class="sd">References</span>
+<span class="sd">- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' </span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Determinism.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+<span class="sd">(** * 1. Definition of Almost Sure Equality *)</span>
+
+<span class="kn">Section</span> <span class="nf">DefAlmostSurely</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Definition</span> <span class="nf">equal_almost_surely</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) : UU
+    := p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩.
+
+  <span class="kn">Proposition</span> <span class="nf">equal_almost_surely_r</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    equal_almost_surely p f g -&gt; p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e. <span class="nb">rewrite</span> e. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">equal_almost_surely_l</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    equal_almost_surely p f g -&gt; p · ⟨f, identity _⟩ = p · ⟨g, identity _⟩.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> pairing_flip.
+    <span class="nb">apply</span> equal_almost_surely_r.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">equal_almost_surely_r2</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : x --&gt; z) :
+    equal_almost_surely p f g -&gt; p · ⟨h, f⟩ = p · ⟨h, g⟩.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    etrans. {
+      <span class="nb">rewrite</span> pairing_split_l, assoc. 
+      <span class="nb">rewrite</span> (equal_almost_surely_r p f g e).
+      <span class="nb">rewrite</span> &lt;- assoc, &lt;- pairing_split_l.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">equal_almost_surely_l2</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : x --&gt; z) :
+    equal_almost_surely p f g -&gt; p · ⟨f, h⟩ = p · ⟨g, h⟩.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> pairing_flip.
+    <span class="nb">apply</span> equal_almost_surely_r2.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equal_almost_surely_composition</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    equal_almost_surely p f g -&gt; (p · f) = (p · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> &lt;- (pairing_proj1 f (identity _)).
+    <span class="nb">rewrite</span> &lt;- (pairing_proj1 g (identity _)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> (equal_almost_surely_l _ _ _ e).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">make_equal_almost_surely_r</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    p · ⟨identity _, f⟩ = p · ⟨identity _, g⟩ -&gt; equal_almost_surely p f g.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">make_equal_almost_surely_l</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    p · ⟨f, identity _⟩ = p · ⟨g, identity _⟩ -&gt; equal_almost_surely p f g.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">rewrite</span> !assoc', !pairing_sym_mon_braiding.
+    <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_ase</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+      isaprop (equal_almost_surely p f g).
+  <span class="kn">Proof</span>. 
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.  
+
+<span class="kn">End</span> <span class="nf">DefAlmostSurely</span>.
+
+<span class="kn">Arguments</span> equal_almost_surely {C a x y} p f g /.
+<span class="kn">Notation</span> <span class="s2">"f =_{ p } g"</span> := (equal_almost_surely p f g) (<span class="kn">at level</span> <span class="mi">70</span>) : markov.
+
+<span class="sd">(** * 2. Basic Lemmas *)</span>
+
+<span class="kn">Section</span> <span class="nf">PropertiesAlmostSurely</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}
+          {<span class="nv">a</span> <span class="nv">x</span> : C}
+          (<span class="nv">p</span> : a --&gt; x).
+
+  <span class="kn">Proposition</span> <span class="nf">ase_refl</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : f =_{p} f.
+  <span class="kn">Proof</span>. 
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_symm</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    f =_{p} g -&gt; g =_{p} f.
+  <span class="kn">Proof</span>. 
+    <span class="nb">cbn</span>.
+    <span class="nb">intros</span> -&gt;.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_trans</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : x --&gt; y) :
+    f =_{p} g -&gt; g =_{p} h -&gt; f =_{p} h.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e1 e2.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> e1, e2.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_from_eq</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) : 
+    f = g -&gt; f =_{p} g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> e.
+    <span class="nb">apply</span> ase_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_postcomp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) (<span class="nv">h</span> : y --&gt; z) :
+       f1 =_{p} f2 
+    -&gt; f1 · h =_{p} f2 · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> &lt;- (id_left (identity x)).
+    <span class="nb">rewrite</span> &lt;- !pairing_tensor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_precomp</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    f =_{p} g -&gt; p · f = p · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">rewrite</span> &lt;- (pairing_proj2 (identity _) f).
+    <span class="nb">rewrite</span> &lt;- (pairing_proj2 (identity _) g).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> ase.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.    
+
+  <span class="kn">Proposition</span> <span class="nf">cancel_braiding_ase</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y ⊗ z) :
+    f · sym_mon_braiding _ y z =_{p} g · sym_mon_braiding _ y z -&gt; f =_{p} g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">rewrite</span> &lt;- (id_right f), &lt;- (id_right g).
+    <span class="nb">rewrite</span> &lt;- !sym_mon_braiding_inv, !assoc.
+    <span class="nb">apply</span> ase_postcomp.
+    <span class="bp">exact</span> ase.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_pairing_l</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : x --&gt; z) :
+    f =_{p} g -&gt; ⟨f, h⟩ =_{p} ⟨g, h⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">apply</span> make_equal_almost_surely_l.
+    <span class="nb">rewrite</span> &lt;- pairing_rassociator, assoc.
+    <span class="nb">rewrite</span> (equal_almost_surely_l2 _ f g _ ase).
+    <span class="nb">rewrite</span> &lt;- assoc, pairing_rassociator.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_pairing_r</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">h</span> : x --&gt; z) :
+    f =_{p} g -&gt; ⟨h, f⟩ =_{p} ⟨h, g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">apply</span> cancel_braiding_ase.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+    <span class="nb">apply</span> ase_pairing_l.
+    <span class="bp">exact</span> ase.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_pairing</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) (<span class="nv">g1</span> <span class="nv">g2</span> : x --&gt; z) :
+    f1 =_{p} f2 -&gt; g1 =_{p} g2 -&gt; ⟨f1, g1⟩ =_{p} ⟨f2, g2⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase_f ase_g.
+    <span class="nb">apply</span> ase_trans <span class="k">with</span> (⟨f2, g1⟩).
+    { <span class="nb">apply</span> ase_pairing_l; <span class="bp">exact</span> ase_f. }
+    <span class="nb">apply</span> ase_pairing_r; <span class="bp">exact</span> ase_g.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">PropertiesAlmostSurely</span>.
+
+<span class="kn">Section</span> <span class="nf">MiscellaneousLemmas</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">id_ase</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    (f =_{identity x} g) -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">rewrite</span> &lt;- (pairing_proj1 f (identity x)), &lt;- (pairing_proj1 g (identity x)).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- (id_left ⟨ f, identity x ⟩), &lt;- (id_left ⟨ g, identity x ⟩).
+    <span class="nb">apply</span> equal_almost_surely_l.
+    <span class="bp">exact</span> ase.
+  <span class="kn">Qed</span>. 
+
+  <span class="kn">Lemma</span> <span class="nf">copy_ase</span> (<span class="nv">x</span> : C) : proj1 =_{copy x} proj2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_equal_almost_surely_l.
+    <span class="nb">apply</span> det_eta; <span class="kp">try</span> <span class="nb">auto with</span> autodet.
+    - <span class="nb">rewrite</span> !assoc', !pairing_proj1.
+      <span class="nb">rewrite</span> copy_proj1, copy_proj2.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> !assoc', !pairing_proj2.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">ase_tensor_split</span> {<span class="nv">a1</span> <span class="nv">a2</span> <span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C} 
+    {<span class="nv">p1</span> : a1 --&gt; x1} {<span class="nv">p2</span> : a2 --&gt; x2}
+    {<span class="nv">f1</span> : x1 --&gt; y1} {<span class="nv">f2</span> : x2 --&gt; y2}
+    {<span class="nv">g1</span> : x1 --&gt; y1} {<span class="nv">g2</span> : x2 --&gt; y2}
+    : f1 =_{p1} g1 -&gt; f2 =_{p2} g2 -&gt; (f1 #⊗ f2) =_{p1 #⊗ p2} (g1 #⊗ g2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase1 ase2.
+    <span class="nb">apply</span> make_equal_almost_surely_r.
+    <span class="nb">rewrite</span> &lt;- !tensor_id_id.
+    <span class="nb">rewrite</span> &lt;- !pairing_inner_swap, !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+    <span class="nb">apply</span> maponpaths_12.
+    - <span class="nb">apply</span> equal_almost_surely_r; <span class="bp">exact</span> ase1.
+    - <span class="nb">apply</span> equal_almost_surely_r; <span class="bp">exact</span> ase2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cancel_z_iso_ase</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+      {<span class="nv">p</span> : a --&gt; x} {<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y} (<span class="nv">g</span> : z_iso y z)
+    : f1 · g =_{p} f2 · g -&gt; f1 =_{p} f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ase.
+    <span class="nb">assert</span>(e1 : f1 = f1 · g · inv_from_z_iso g).
+    { <span class="nb">rewrite</span> assoc', z_iso_inv_after_z_iso, id_right. <span class="bp">reflexivity</span>. }
+    <span class="nb">assert</span>(e2 : f2 = f2 · g · inv_from_z_iso g).
+    { <span class="nb">rewrite</span> assoc', z_iso_inv_after_z_iso, id_right. <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> e1, e2.
+    <span class="nb">apply</span> ase_postcomp.
+    <span class="bp">exact</span> ase.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">MiscellaneousLemmas</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> equal_almost_surely.
+
+<span class="sd">(** * 3. Definition of Almost Sure Determinism *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlmostSurelyDeterministic</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Definition</span> <span class="nf">is_deterministic_ase</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) : UU
+   := f · copy y =_{p} copy x · f #⊗ f.
+
+  <span class="c">(* Accessors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">make_is_deterministic_ase</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) :
+    f · copy y =_{p} copy x · f #⊗ f -&gt; is_deterministic_ase p f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_deterministic_ase_eq</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) :
+    is_deterministic_ase p f -&gt; f · copy y =_{p} copy x · f #⊗ f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d. <span class="bp">exact</span> d.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_deterministic_ase</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) :
+    isaprop (is_deterministic_ase p f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_ase.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlmostSurelyDeterministic</span>. 
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> is_deterministic_ase.
+
+<span class="kn">Section</span> <span class="nf">AlmostSurelyDeterministicProperties</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">deterministic_implies_determinstic_ase</span> 
+            {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) :
+    is_deterministic f -&gt; is_deterministic_ase p f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> make_is_deterministic_ase.
+    <span class="nb">apply</span> ase_from_eq.
+    <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_ase_stable</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) :
+    (f =_{p} g) -&gt; is_deterministic_ase p f -&gt; is_deterministic_ase p g.
+  <span class="kn">Proof</span>. 
+    <span class="nb">intros</span> ase df.
+    <span class="nb">apply</span> make_is_deterministic_ase.
+
+    <span class="nb">apply</span> ase_trans <span class="k">with</span> (f · copy y).
+    { <span class="nb">apply</span> ase_postcomp. <span class="nb">apply</span> ase_symm. <span class="bp">exact</span> ase. }
+
+    <span class="nb">apply</span> ase_trans <span class="k">with</span> (copy x · f #⊗ f).
+    { <span class="nb">apply</span> df.  }
+
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- pairing_eq.
+    <span class="nb">apply</span> ase_pairing; <span class="bp">exact</span> ase.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_ase_postcomp</span>
+    {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) 
+    : is_deterministic_ase p f -&gt; is_deterministic g -&gt; is_deterministic_ase p (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df dg.
+    <span class="nb">apply</span> make_is_deterministic_ase.
+    <span class="nb">rewrite</span> assoc', dg.
+    <span class="nb">rewrite</span> tensor_comp_mor, !assoc.
+    <span class="nb">apply</span> ase_postcomp. 
+    <span class="bp">exact</span> df.
+  <span class="kn">Qed</span>.    
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_ase_tensor</span> 
+      {<span class="nv">a1</span> <span class="nv">x1</span> <span class="nv">y1</span> <span class="nv">a2</span> <span class="nv">x2</span> <span class="nv">y2</span> : C} {<span class="nv">p1</span> : a1 --&gt; x1} {<span class="nv">f1</span> : x1 --&gt; y1}
+      {<span class="nv">p2</span> : a2 --&gt; x2} {<span class="nv">f2</span> : x2 --&gt; y2} 
+    :    is_deterministic_ase p1 f1 -&gt; is_deterministic_ase p2 f2 
+      -&gt; is_deterministic_ase (p1 #⊗ p2) (f1 #⊗ f2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    <span class="nb">apply</span> make_is_deterministic_ase.
+    use cancel_z_iso_ase.
+    - <span class="bp">exact</span> ((y1 ⊗ y1) ⊗ (y2 ⊗ y2)).
+    - <span class="k">exists</span> (<span class="nv">inner_swap</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>); <span class="nb">apply</span> inner_swap_is_z_isomorphism.
+    - <span class="nb">apply</span> ase_trans <span class="k">with</span> ((f1 · copy y1) #⊗ (f2 · copy y2)). {
+        <span class="nb">rewrite</span> assoc', copy_tensor'.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">apply</span> ase_refl.
+      }
+
+      <span class="nb">rewrite</span> assoc', &lt;- naturality_inner_swap.
+      <span class="nb">rewrite</span> assoc, copy_tensor'.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+
+      <span class="nb">apply</span> ase_tensor_split.
+      * <span class="bp">exact</span> d1.
+      * <span class="bp">exact</span> d2.
+  <span class="kn">Qed</span>.   
+
+  <span class="kn">Proposition</span> <span class="nf">is_deterministic_ase_pairing</span>
+      {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">p</span> : a --&gt; x} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : x --&gt; z} 
+    :    is_deterministic_ase p f -&gt; is_deterministic_ase p g 
+      -&gt; is_deterministic_ase p ⟨f,g⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    <span class="nb">apply</span> make_is_deterministic_ase.
+    use cancel_z_iso_ase.
+    - <span class="bp">exact</span> (y ⊗ y ⊗ (z ⊗ z)).
+    - <span class="k">exists</span> (<span class="nv">inner_swap</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>); <span class="nb">apply</span> inner_swap_is_z_isomorphism.
+    - <span class="nb">apply</span> ase_trans <span class="k">with</span> (⟨f · copy y, g · copy z⟩). {
+        <span class="nb">apply</span> ase_from_eq.
+        <span class="nb">rewrite</span> assoc', copy_tensor'.
+        <span class="nb">rewrite</span> pairing_tensor.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">rewrite</span> pairing_inner_swap.
+      <span class="nb">rewrite</span> copy_pairing.
+      <span class="nb">apply</span> ase_pairing.
+      * <span class="bp">exact</span> d1.
+      * <span class="bp">exact</span> d2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlmostSurelyDeterministicProperties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/AlmostSurely.v</tt>, line 28)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

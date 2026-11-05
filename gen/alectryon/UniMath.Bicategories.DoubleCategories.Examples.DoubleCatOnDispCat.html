@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleCatOnDispCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Displayed categories on vertical categories</span>
+
+<span class="sd"> We discuss a way to construct more complicated double categories from simpler ones. More</span>
+<span class="sd"> specifically, suppose that we have a pseudo double category `C` and a displayed category `D`</span>
+<span class="sd"> on the vertical category of `C`. Then we have a double category whose vertical category is</span>
+<span class="sd"> given by the total category of `D`. This construction is useful for several reasons and one</span>
+<span class="sd"> of them is that it allows us to construct full subdouble categories.</span>
+
+<span class="sd"> If we look at this construction from a broader perspective, then this construction would be</span>
+<span class="sd"> a special case of 'displayed double categories'. Intuitively, we can add structure/properties</span>
+<span class="sd"> to the objects, morphisms, and squares of a double category in two step. First, we add</span>
+<span class="sd"> structure/properties to the objects and vertical morphisms. This is described by a displayed</span>
+<span class="sd"> category over the vertical category, and the corresponding construction is given in this file.</span>
+<span class="sd"> The second step would be to add stsructure/properties to the horizontal morphisms and squares.</span>
+<span class="sd"> The corresponding construction on 2-sided displayed categories is described in the file</span>
+<span class="sd"> `DispCatOnTwoSidedDispCat.v` and it is used to construct several 2-sided displayed categories</span>
+<span class="sd"> (such as spans and bimodules). However, in order to guarantee that the resulting 2-sided</span>
+<span class="sd"> displayed category indeed is a double category, several requirements would need to be added to</span>
+<span class="sd"> guarantee that the resulting 2-sided displayed category has horizontal identities, composition,</span>
+<span class="sd"> and so on.</span>
+
+<span class="sd"> From the description in the previous paragraph, we can deduce what a displayed double</span>
+<span class="sd"> category would look like: it should consist of two displayed categories (one over the</span>
+<span class="sd"> vertical category and one over the total category). This notion seems to be quite similar</span>
+<span class="sd"> to that of a 'double fibration' as in Definition 2.10 in "Double fibrations" by Cruttwell,</span>
+<span class="sd"> Lambert, Pronk, and Szyld.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Double fibrations" by Cruttwell, Lambert, Pronk, and Szyld</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The double category</span>
+<span class="sd"> 2. Properties of this double category</span>
+<span class="sd"> 3. Univalence and strictness</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.TwoSidedDispCatOnDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">DispCatOnDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : double_cat)
+          (<span class="nv">D</span> : disp_cat C).
+
+  <span class="kn">Let</span> <span class="nf">E</span> : category := total_category D.
+
+  <span class="sd">(** * 1. The double category *)</span>
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_hor_id_data</span>
+    : hor_id_data (twosided_disp_cat_on_disp_cat D D (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_h (pr1 x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_h_square _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_hor_id_laws</span>
+    : hor_id_laws double_cat_on_disp_cat_hor_id_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_h_square_id.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_hor_id</span>
+    : hor_id (twosided_disp_cat_on_disp_cat D D (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_id_data.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_id_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_hor_comp_data</span>
+    : hor_comp_data (twosided_disp_cat_on_disp_cat D D (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f ·h g).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s₁</span> <span class="nv">s₂</span>, s₁ ⋆h s₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_hor_comp_laws</span>
+    : hor_comp_laws double_cat_on_disp_cat_hor_comp_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> comp_h_square_id.
+    - <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> comp_h_square_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_hor_comp</span>
+    : hor_comp (twosided_disp_cat_on_disp_cat D D (hor_mor C)).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_comp_data.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_comp_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_lunitor_data</span>
+    : double_lunitor_data
+        double_cat_on_disp_cat_hor_id
+        double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use to_iso_twosided_disp_cat_on_disp_cat.
+    <span class="bp">exact</span> (lunitor_globular_iso_square f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_lunitor_laws</span>
+    : double_lunitor_laws double_cat_on_disp_cat_lunitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+    <span class="nb">refine</span> (_ @ !(lunitor_square _)).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_lunitor</span>
+    : double_cat_lunitor
+        double_cat_on_disp_cat_hor_id
+        double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_lunitor_data.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_lunitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_runitor_data</span>
+    : double_runitor_data
+        double_cat_on_disp_cat_hor_id
+        double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use to_iso_twosided_disp_cat_on_disp_cat.
+    <span class="bp">exact</span> (runitor_globular_iso_square f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_runitor_laws</span>
+    : double_runitor_laws double_cat_on_disp_cat_runitor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+    <span class="nb">refine</span> (_ @ !(runitor_square _)).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_runitor</span>
+    : double_cat_runitor
+        double_cat_on_disp_cat_hor_id
+        double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_runitor_data.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_runitor_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_associator_data</span>
+    : double_associator_data double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w x y z h₁ h₂ h₃.
+    use to_iso_twosided_disp_cat_on_disp_cat.
+    <span class="bp">exact</span> (associator_globular_iso_square h₁ h₂ h₃).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_associator_laws</span>
+    : double_associator_laws double_cat_on_disp_cat_associator_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+    <span class="nb">refine</span> (_ @ !(lassociator_square _ _ _)).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat_associator</span>
+    : double_cat_associator double_cat_on_disp_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_associator_data.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_associator_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_triangle</span>
+    : triangle_law
+        double_cat_on_disp_cat_lunitor
+        double_cat_on_disp_cat_runitor
+        double_cat_on_disp_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+    <span class="nb">refine</span> (double_triangle _ _ @ _).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">double_cat_on_disp_cat_pentagon</span>
+    : pentagon_law double_cat_on_disp_cat_associator.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> transportb_disp_mor2_twosided_disp_cat_on_disp_cat.
+    <span class="nb">refine</span> (_ @ double_pentagon _ _ _ _).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_on_disp_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use make_double_cat.
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> (twosided_disp_cat_on_disp_cat D D (hor_mor C)).
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_id.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_hor_comp.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_lunitor.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_runitor.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_associator.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_triangle.
+    - <span class="bp">exact</span> double_cat_on_disp_cat_pentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Properties of this double category *)</span>
+  <span class="kn">Definition</span> <span class="nf">ver_weq_square_double_cat_on_disp_cat</span>
+             (<span class="nv">H</span> : ver_weq_square C)
+             (<span class="nv">HD</span> : locally_propositional D)
+    : ver_weq_square double_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g.
+    <span class="nb">cbn</span> <span class="k">in</span> x, y, f, g.
+    use weqhomot.
+    - <span class="nb">refine</span> (make_weq _ (H (pr1 x) (pr1 y) (pr1 f) (pr1 g)) ∘ path_sigma_hprop _ _ _ _)%weq.
+      <span class="nb">apply</span> HD.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_companions_double_cat_on_disp_cat</span>
+             (<span class="nv">H</span> : all_companions_double_cat C)
+    : all_companions_double_cat double_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">pose</span> (c := H (pr1 x) (pr1 y) (pr1 f)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pr1 c).
+    - use make_double_cat_are_companions.
+      + <span class="bp">exact</span> (pr12 c).
+      + <span class="bp">exact</span> (pr122 c).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           <span class="nb">refine</span> (_ @ pr1 (pr222 c)) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           <span class="nb">refine</span> (_ @ pr2 (pr222 c)) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_conjoints_double_cat_on_disp_cat</span>
+             (<span class="nv">H</span> : all_conjoints_double_cat C)
+    : all_conjoints_double_cat double_cat_on_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">pose</span> (c := H (pr1 x) (pr1 y) (pr1 f)).
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pr1 c).
+    - use make_double_cat_are_conjoints.
+      + <span class="bp">exact</span> (pr12 c).
+      + <span class="bp">exact</span> (pr122 c).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           <span class="nb">refine</span> (_ @ pr1 (pr222 c)) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           <span class="nb">refine</span> (_ @ pr2 (pr222 c)) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">refine</span> (transportf_disp_mor2_twosided_disp_cat_on_disp_cat _ _ _ _ _ _ @ _) ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DispCatOnDoubleCat</span>.
+
+<span class="sd">(** * 3. Univalence and strictness *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_double_cat_on_disp_cat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+           (<span class="nv">D</span> : disp_univalent_category C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (double_cat_on_disp_cat C D).
+  - <span class="nb">split</span>.
+    + use is_univalent_total_category.
+      * <span class="nb">apply</span> univalent_category_is_univalent.
+      * <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+    + use is_univalent_twosided_disp_cat_on_disp_cat.
+      <span class="nb">apply</span> is_univalent_twosided_disp_cat_hor_mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pseudo_double_set_cat_on_disp_cat</span>
+           (<span class="nv">C</span> : pseudo_double_setcat)
+           (<span class="nv">D</span> : disp_cat C)
+           (<span class="nv">HD</span> : ∏ (x : C), isaset (D x))
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use make_pseudo_double_setcat.
+  - <span class="bp">exact</span> (double_cat_on_disp_cat C D).
+  - <span class="nb">split</span>.
+    + use isaset_total2.
+      * <span class="nb">apply</span> (is_setcategory_vertical_cat C).
+      * <span class="bp">exact</span> HD.
+    + <span class="nb">apply</span> homset_property.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> (is_strict_twosided_disp_cat_hor_mor C).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/DoubleCatOnDispCat.v</tt>, line 39)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Univalence and strictness
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additional results about univalence *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="sd">(** Funextsec and toforallpaths are mutually inverses *)</span>
+<span class="kn">Lemma</span> <span class="nf">funextsec_toforallpaths</span> {<span class="nv">T</span> : UU} {<span class="nv">P</span> : T -&gt; UU} {<span class="nv">f</span> <span class="nv">g</span> : ∏ t : T, P t} :
+  ∏ (h : f = g), funextsec _  _ _ (toforallpaths _ _ _ h) = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> h; <span class="bp">exact</span> (!homotinvweqweq0 (weqtoforallpaths _ _ _) h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">toforallpaths_funextsec</span> {<span class="nv">T</span> : UU} {<span class="nv">P</span> : T -&gt; UU} {<span class="nv">f</span> <span class="nv">g</span> : ∏ t : T, P t} :
+  ∏ (h : ∏ t : T, f t = g t), toforallpaths _  _ _ (funextsec _ _ _ h) = h.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> h; <span class="bp">exact</span> (homotweqinvweq (weqtoforallpaths _ _ _) h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">toforallpaths_funextsec_comp</span> {<span class="nv">T</span> : UU} {<span class="nv">P</span> : T -&gt; UU} (<span class="nv">f</span> <span class="nv">g</span> : ∏ t, P t) :
+  toforallpaths P f g ∘ funextsec P f g = idfun _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span>. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> toforallpaths_funextsec.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">maponpaths_funextsec</span> {<span class="nv">T</span> : UU} {<span class="nv">P</span> : T -&gt; UU}
+          (<span class="nv">f</span> <span class="nv">g</span> : ∏ t, P t) (<span class="nv">t</span> : T) (<span class="nv">p</span> : f ~ g) :
+ maponpaths (<span class="k">λ</span> <span class="nv">h</span>, h t) (funextsec _ f g p) = p t.
+<span class="kn">Proof</span>.
+ intermediate_path (toforallpaths _ _ _ (funextsec _ f g p) t).
+ - <span class="nb">generalize</span> (funextsec _ f g p); <span class="nb">intros</span> q.
+   <span class="nb">induction</span> q.
+   <span class="bp">reflexivity</span>.
+ - <span class="nb">apply</span> (eqtohomot (eqtohomot (toforallpaths_funextsec_comp f g) p) t).
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">weqonsec</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>) (<span class="nv">Q</span>:Y-&gt;<span class="kt">Type</span>)
+           (<span class="nv">f</span>:X ≃ Y) (<span class="nv">g</span>:∏ x, weq (P x) (Q (f x))) :
+  (∏ x:X, P x) ≃ (∏ y:Y, Q y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="bp">exact</span> (weqcomp (weqonsecfibers P (<span class="k">λ</span> <span class="nv">x</span>, Q(f x)) g)
+                 (invweq (weqonsecbase Q f))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_transportf</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:x = y) : (P x) ≃ (P y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_transportf_comp</span> {<span class="nv">X</span>} (<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>) {<span class="nv">x</span> <span class="nv">y</span>:X} (<span class="nv">p</span>:x = y) (<span class="nv">f</span>:∏ x, P x) :
+  weq_transportf P p (f x) = f y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqonpaths2</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span>:X ≃ Y) {<span class="nv">x</span> <span class="nv">x'</span>:X} {<span class="nv">y</span> <span class="nv">y'</span>:Y} :
+  w x = y -&gt; w x' = y' -&gt; (x = x') ≃ (y = y').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p q. <span class="nb">induction</span> p,q. <span class="nb">apply</span> weqonpaths.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqweqmap_ap</span> {<span class="nv">T</span>} (<span class="nv">P</span>:T-&gt;<span class="kt">Type</span>) {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">e</span>:t = t') (<span class="nv">f</span>:∏ t:T, P t) :
+  eqweqmap (maponpaths P e) (f t) = f t'. <span class="c">(* move near eqweqmap *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eqweqmap_ap'</span> {<span class="nv">T</span>} (<span class="nv">P</span>:T-&gt;<span class="kt">Type</span>) {<span class="nv">t</span> <span class="nv">t'</span>:T} (<span class="nv">e</span>:t = t') (<span class="nv">f</span>:∏ t:T, P t) :
+  invmap (eqweqmap (maponpaths P e)) (f t') = f t. <span class="c">(* move near eqweqmap *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** weak equivalences *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pr1_eqweqmap</span> { <span class="nv">X</span> <span class="nv">Y</span> } ( <span class="nv">e</span>: X = Y ) : cast e = pr1 (eqweqmap e).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_to_fun</span> {<span class="nv">X</span> <span class="nv">Y</span>} : X=Y -&gt; X-&gt;Y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p. <span class="nb">induction</span> p. <span class="bp">exact</span> (idfun _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_eqweqmap2</span> { <span class="nv">X</span> <span class="nv">Y</span> } ( <span class="nv">e</span>: X = Y ) :
+  pr1 (eqweqmap e) = transportf (<span class="k">λ</span> <span class="nv">T</span>:<span class="kt">Type</span>, T) e.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqpath_transport</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span> : X ≃ Y) :
+  transportf (idfun UU) (weqtopaths w) = pr1 w.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (!pr1_eqweqmap2 _ @ maponpaths pr1 (weqpathsweq w)).
+<span class="kn">Defined</span>.
+
+<span class="c">(*TODO: improve the proof*)</span>
+<span class="kn">Definition</span> <span class="nf">weqpath_transportb</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span> : X ≃ Y) :
+  transportb (idfun UU) (weqtopaths (invweq w)) = pr1 w.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  { use (! pr1_eqweqmap2 _). }
+  use (maponpaths pr1).
+  <span class="nb">eapply</span> pathscomp0.
+  { use eqweqmap_pathsinv0. }
+  use (transportb (<span class="k">λ</span> <span class="nv">arg</span>, invweq arg = w) (weqpathsweq (invweq w))).
+  <span class="nb">simpl</span>.
+  use subtypePath.
+  - use isapropisweq.
+  - use funextsec.
+    <span class="nb">intro</span>.
+    use invinv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqpath_transportb'</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span> : X ≃ Y) :
+  transportb (idfun UU) (weqtopaths w) = invmap w.
+<span class="kn">Proof</span>.
+  use (transportf (<span class="k">λ</span> <span class="nv">arg</span>, transportb (idfun UU) (weqtopaths w) = invmap arg) (weqpathsweq w)).
+  <span class="nb">simpl</span>.
+  <span class="nb">change</span> (weqtopathsUAH univalenceAxiom X Y w) <span class="k">with</span> (weqtopaths w).
+  <span class="nb">induction</span> (weqtopaths w).
+  use (maponpaths pr1 inv_idweq_is_idweq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqpath_cast</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">w</span> : X ≃ Y) : cast (weqtopaths w) = w.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="bp">exact</span> (pr1_eqweqmap _ @ maponpaths pr1 (weqpathsweq w)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">switch_weq</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X ≃ Y) {<span class="nv">x</span> <span class="nv">y</span>} : y = f x -&gt; invweq f y = x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p. <span class="bp">exact</span> (maponpaths (invweq f) p @ homotinvweqweq f x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">switch_weq'</span> {<span class="nv">X</span> <span class="nv">Y</span>} (<span class="nv">f</span>:X ≃ Y) {<span class="nv">x</span> <span class="nv">y</span>} : invweq f y = x -&gt; y = f x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> p. <span class="bp">exact</span> (! homotweqinvweq f y @ maponpaths f p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+
+<span class="kn">Definition</span> <span class="nf">weq_over_sections</span> {<span class="nv">S</span> <span class="nv">T</span>} (<span class="nv">w</span>:S ≃ T)
+           {<span class="nv">s0</span>:S} {<span class="nv">t0</span>:T} (<span class="nv">k</span>:w s0 = t0)
+           {<span class="nv">P</span>:T-&gt;<span class="kt">Type</span>}
+           (<span class="nv">p0</span>:P t0) (<span class="nv">pw0</span>:P(w s0)) (<span class="nv">l</span>:k#pw0 = p0)
+           (<span class="nv">H</span>:(∏ t, P t) -&gt; UU)
+           (<span class="nv">J</span>:(∏ s, P(w s)) -&gt; UU)
+           (<span class="nv">g</span>:∏ f:(∏ t, P t), weq (H f) (J (maponsec1 P w f))) :
+  weq (hfiber (<span class="k">λ</span> <span class="nv">fh</span>:total2 H, pr1 fh t0) p0 )
+      (hfiber (<span class="k">λ</span> <span class="nv">fh</span>:total2 J, pr1 fh s0) pw0).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">simple refine</span> (weqbandf _ _ _ _).
+  { <span class="nb">simple refine</span> (weqbandf _ _ _ _).
+    { <span class="bp">exact</span> (weqonsecbase P w). }
+    { <span class="nb">unfold</span> weqonsecbase; <span class="nb">simpl</span>. <span class="bp">exact</span> g. } }
+  { <span class="nb">intros</span> [f h]. <span class="nb">simpl</span>. <span class="nb">unfold</span> maponsec1; <span class="nb">simpl</span>.
+    <span class="nb">induction</span> k, l; <span class="nb">simpl</span>. <span class="nb">unfold</span> transportf; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> idweq. }
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Definition</span> <span class="nf">maponpaths_app_homot</span>
+           {<span class="nv">X</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : UU}
+           {<span class="nv">f</span> <span class="nv">g</span> : Y₁ → X → Y₂}
+           (<span class="nv">p</span> : ∏ (z : Y₁ × X), f (pr1 z) (pr2 z) = g (pr1 z) (pr2 z))
+           (<span class="nv">x</span> : X)
+           (<span class="nv">y</span> : Y₁)
+  : maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f x) (app_homot p y)
+    =
+    p (y ,, x).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (maponpaths_funextsec (f y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_path_fun</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+           {<span class="nv">e₁</span> <span class="nv">e₂</span> : f = g}
+           (<span class="nv">h</span> : ∏ (x : X), eqtohomot e₁ x = eqtohomot e₂ x)
+  : e₁ = e₂.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!(@funextsec_toforallpaths X (<span class="k">λ</span> <span class="nv">_</span>, Y) f g e₁) @ _).
+  <span class="nb">refine</span> (_ @ @funextsec_toforallpaths X (<span class="k">λ</span> <span class="nv">_</span>, Y) f g e₂).
+  <span class="nb">apply</span> maponpaths.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> h.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">funextsec_inv</span> {<span class="nv">T</span>:UU} (<span class="nv">P</span> : T → UU)
+  (<span class="nv">f</span> <span class="nv">g</span> : ∏ t : T, P t)
+  (<span class="nv">H</span> : f ~ g)
+  : (! funextsec P f g H)
+  = funextsec P g f (<span class="k">λ</span> <span class="nv">t</span>, ! (H t)).
+<span class="kn">Proof</span>.
+  use (transportb (<span class="k">λ</span> <span class="nv">h</span>, ! funextsec P f g h = funextsec P g f (<span class="k">λ</span> <span class="nv">t</span> : T, ! h t)) (!toforallpaths_funextsec _) _).
+    use (invmap ((weqonpaths (weqtoforallpaths _ _ _)) _ _)).
+  <span class="nb">induction</span> (funextsec P f g H).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> funextsec_toforallpaths, toforallpaths_funextsec.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(*[toforallpaths_induction'] is the same as [toforallpaths_induction] in [Foundations/UnivalenceAxiom.v] but with f and g dependent functions*)</span>
+<span class="kn">Lemma</span> <span class="nf">toforallpaths_induction'</span> (<span class="nv">X</span> : UU) (<span class="nv">Y</span>: X -&gt; UU) (<span class="nv">f</span> <span class="nv">g</span> : ∏ (x:X), Y x)
+  (<span class="nv">P</span> : (∏ x, f x = g x) -&gt; UU)
+  (<span class="nv">H</span> : ∏ e : f = g, P (toforallpaths _ _ _ e)) : ∏ i : (∏ x, f x = g x), P i.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i. <span class="nb">rewrite</span> &lt;- (homotweqinvweq (weqtoforallpaths _ f g)). <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportf_funextsec</span>
+  {<span class="nv">X</span>: UU} {<span class="nv">Y</span> : X -&gt; UU} (<span class="nv">P</span> : ∏ (x:X), Y x -&gt; UU)
+  (<span class="nv">F</span> <span class="nv">F'</span> : ∏ (x:X), Y x)
+  (<span class="nv">H</span> : ∏ (x : X), F x = F' x)
+  (<span class="nv">x</span> : X) (<span class="nv">f</span> : P x (F x))
+  :
+  transportf (<span class="k">λ</span> (<span class="nv">x0</span> : ∏(x:X), Y x), P x (x0 x)) (funextsec _ F F' H) f = transportf (<span class="k">λ</span> <span class="nv">x0</span> : Y x, P x x0) (H x) f.
+<span class="kn">Proof</span>.
+  use (toforallpaths_induction' X Y F F'
+    (<span class="k">λ</span> <span class="nv">H'</span>,  transportf  (<span class="k">λ</span> <span class="nv">x0</span> : ∏ x0 : X, Y x0, P x (x0 x))
+                        (funextsec Y F F' H')
+                        f =
+            transportf  (<span class="k">λ</span> <span class="nv">x0</span> : Y x, P x x0)
+                        (H' x)
+                        f) _ H).
+  <span class="nb">intro</span> e. <span class="nb">clear</span> H.
+  <span class="nb">set</span> (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  <span class="nb">set</span> (H := funextsec Y F F' (toforallpaths Y F F' e)).
+  <span class="nb">set</span> (P' := <span class="k">λ</span> (<span class="nv">F0</span> : ∏ (x:X), Y x) , P x (F0 x)).
+  use pathscomp0.
+  - <span class="bp">exact</span> (transportf P' e f).
+  - use transportf_paths. <span class="bp">exact</span> XR.
+  - <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_funextfun</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">P</span> : Y -&gt; UU) (<span class="nv">F</span> <span class="nv">F'</span> : X -&gt; Y) (<span class="nv">H</span> : ∏ (x : X), F x = F' x)
+           (<span class="nv">x</span> : X) (<span class="nv">f</span> : P (F' x)) :
+  transportb (<span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x)) (funextsec _ F F' H) f = transportb (<span class="k">λ</span> <span class="nv">x0</span> : Y, P x0) (H x) f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (toforallpaths_induction
+           _ _ F F' (<span class="k">λ</span> <span class="nv">H'</span>, transportb (<span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x))
+                                       (funextsec (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' (<span class="k">λ</span> <span class="nv">x0</span> : X, H' x0)) f =
+                            transportb (<span class="k">λ</span> <span class="nv">x0</span> : Y, P x0) (H' x) f)).
+  <span class="nb">intro</span> e. <span class="nb">clear</span> H.
+  <span class="nb">set</span> (XR := homotinvweqweq (weqtoforallpaths _ F F') e).
+  <span class="nb">set</span> (H := funextsec (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' (<span class="k">λ</span> <span class="nv">x0</span> : X, toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : X, Y) F F' e x0)).
+  <span class="nb">set</span> (P' := <span class="k">λ</span> <span class="nv">x0</span> : X → Y, P (x0 x)).
+  use pathscomp0.
+  - <span class="bp">exact</span> (transportb P' e f).
+  - use transportf_paths.
+    use invrot.
+    <span class="nb">eapply</span> pathscomp0.
+    { use pathsinv0inv0. }
+    <span class="bp">exact</span> XR.
+  - <span class="nb">induction</span> e. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportf_funextsec_2</span>
+  {<span class="nv">X</span> : UU} {<span class="nv">Z</span> : X → UU} (<span class="nv">P</span> : ∏ x x', Z x → Z x' → UU)
+  {<span class="nv">F</span> <span class="nv">F'</span> : ∏ x, Z x} (<span class="nv">H</span> : ∏ x, F x = F' x) 
+  {<span class="nv">x</span> <span class="nv">x'</span> : X} (<span class="nv">f</span> : P x x' (F x) (F x'))
+  : transportf (<span class="k">λ</span> <span class="nv">F</span>, P x x' (F x) (F x')) (funextsec Z F F' H) f
+    = transportf (<span class="k">λ</span> <span class="nv">fx</span> : Z x, P x x' fx (F' x')) (H x)
+      (transportf (<span class="k">λ</span> <span class="nv">fx'</span> : Z x', P x x' (F x) fx') (H x') f).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (∏ x, maponpaths (<span class="k">λ</span> <span class="nv">u</span>, u x) (funextsec Z F F' H) = H x) 
+  <span class="k">as</span> H' <span class="bp">by</span> (<span class="nb">intro</span>; use maponpaths_funextsec).
+  <span class="nb">unfold</span> transportf2.
+  <span class="nb">rewrite</span> &lt;- (H' x), &lt;- (H' x').
+  <span class="nb">induction</span> (funextsec Z F F' H).
+  use idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Univalence.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Additional results about univalence *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.UnivalenceAxiom.
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

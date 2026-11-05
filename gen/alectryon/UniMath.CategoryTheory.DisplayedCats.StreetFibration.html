@@ -1,0 +1,875 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StreetFibration.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd">The definition of a Street fibration of categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">StreetFibration</span>.
+  <span class="kn">Context</span> {<span class="nv">E</span> <span class="nv">B</span> : category}
+          (<span class="nv">F</span> : E ⟶ B).
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_sfib</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             (<span class="nv">f</span> : e₁--&gt; e₂)
+    : UU
+    := ∏ (z : E)
+         (g : z --&gt; e₂)
+         (h : F z --&gt; F e₁)
+         (p : #F g = h · #F f),
+       <span class="k">∃</span>! (φ : z --&gt; e₁),
+       #F φ = h
+       ×
+       φ · f = g.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_cartesian_sfib</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             (<span class="nv">f</span> : e₁--&gt; e₂)
+    : isaprop (is_cartesian_sfib f).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_factorization_sfib</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             {<span class="nv">f</span> : e₁--&gt; e₂}
+             (<span class="nv">Hf</span> : is_cartesian_sfib f)
+             {<span class="nv">z</span> : E}
+             (<span class="nv">g</span> : z --&gt; e₂)
+             (<span class="nv">h</span> : F z --&gt; F e₁)
+             (<span class="nv">p</span> : #F g = h · #F f)
+    : z --&gt; e₁
+    := pr11 (Hf z g h p).
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_factorization_sfib_over</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             {<span class="nv">f</span> : e₁--&gt; e₂}
+             (<span class="nv">Hf</span> : is_cartesian_sfib f)
+             {<span class="nv">z</span> : E}
+             (<span class="nv">g</span> : z --&gt; e₂)
+             (<span class="nv">h</span> : F z --&gt; F e₁)
+             (<span class="nv">p</span> : #F g = h · #F f)
+    : #F (cartesian_factorization_sfib Hf g h p) = h
+    := pr121 (Hf z g h p).
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_factorization_sfib_commute</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             {<span class="nv">f</span> : e₁--&gt; e₂}
+             (<span class="nv">Hf</span> : is_cartesian_sfib f)
+             {<span class="nv">z</span> : E}
+             (<span class="nv">g</span> : z --&gt; e₂)
+             (<span class="nv">h</span> : F z --&gt; F e₁)
+             (<span class="nv">p</span> : #F g = h · #F f)
+    : cartesian_factorization_sfib Hf g h p · f = g
+    := pr221 (Hf z g h p).
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_factorization_sfib_unique</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             {<span class="nv">f</span> : e₁--&gt; e₂}
+             (<span class="nv">Hf</span> : is_cartesian_sfib f)
+             {<span class="nv">z</span> : E}
+             (<span class="nv">g</span> : z --&gt; e₂)
+             (<span class="nv">h</span> : F z --&gt; F e₁)
+             {<span class="nv">p</span> : #F g = h · #F f}
+             (<span class="nv">φ₁</span> <span class="nv">φ₂</span> : z --&gt; e₁)
+             (<span class="nv">p₁</span> : #F φ₁ = h)
+             (<span class="nv">p₂</span> : #F φ₂ = h)
+             (<span class="nv">q₁</span> : φ₁ · f = g)
+             (<span class="nv">q₂</span> : φ₂ · f = g)
+    : φ₁ = φ₂.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths
+             pr1
+             (proofirrelevance
+                _
+                (isapropifcontr (Hf z g h p))
+                (φ₁ ,, p₁ ,, q₁)
+                (φ₂ ,, p₂ ,, q₂))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">street_fib</span>
+    : UU
+    := ∏ (e : E)
+         (b : B)
+         (f : b --&gt; F e),
+       ∑ (bb : E)
+         (ff_i : bb --&gt; e × z_iso (F bb) b),
+       # F (pr1 ff_i) = pr2 ff_i · f
+       ×
+       is_cartesian_sfib (pr1 ff_i).
+<span class="kn">End</span> <span class="nf">StreetFibration</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_unique_sfib_map</span>
+           {<span class="nv">E</span> <span class="nv">B</span> : category}
+           (<span class="nv">F</span> : E ⟶ B)
+           {<span class="nv">e</span> : E}
+           {<span class="nv">b</span> : B}
+           (<span class="nv">f</span> : b --&gt; F e)
+           (<span class="nv">bb₁</span> <span class="nv">bb₂</span> : E)
+           (<span class="nv">ff₁</span> : bb₁ --&gt; e)
+           (<span class="nv">β₁</span> : z_iso (F bb₁) b)
+           (<span class="nv">ff₂</span> : bb₂ --&gt; e)
+           (<span class="nv">β₂</span> : z_iso (F bb₂) b)
+           (<span class="nv">over₁</span> : # F (ff₁) = β₁ · f)
+           (<span class="nv">over₂</span> : # F (ff₂) = β₂ · f)
+           (<span class="nv">cart₁</span> : is_cartesian_sfib F ff₁)
+           (<span class="nv">cart₂</span> : is_cartesian_sfib F ff₂)
+  : bb₁ --&gt; bb₂.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (cartesian_factorization_sfib F cart₂ ff₁ (β₁ · inv_from_z_iso β₂) _).
+  <span class="kp">abstract</span>
+    (<span class="nb">rewrite</span> over₁, over₂ ;
+     <span class="nb">rewrite</span> !assoc' ;
+     <span class="nb">apply</span> maponpaths ;
+     <span class="nb">rewrite</span> !assoc ;
+     <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+     <span class="nb">rewrite</span> id_left ;
+     <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">UniqueLifts</span>.
+  <span class="kn">Context</span> {<span class="nv">E</span> <span class="nv">B</span> : category}
+          (<span class="nv">F</span> : E ⟶ B)
+          {<span class="nv">e</span> : E}
+          {<span class="nv">b</span> : B}
+          (<span class="nv">f</span> : b --&gt; F e)
+          (<span class="nv">bb₁</span> <span class="nv">bb₂</span> : E)
+          (<span class="nv">ff₁</span> : bb₁ --&gt; e)
+          (<span class="nv">β₁</span> : z_iso (F bb₁) b)
+          (<span class="nv">ff₂</span> : bb₂ --&gt; e)
+          (<span class="nv">β₂</span> : z_iso (F bb₂) b)
+          (<span class="nv">over₁</span> : # F (ff₁) = β₁ · f)
+          (<span class="nv">over₂</span> : # F (ff₂) = β₂ · f)
+          (<span class="nv">cart₁</span> : is_cartesian_sfib F ff₁)
+          (<span class="nv">cart₂</span> : is_cartesian_sfib F ff₂).
+
+  <span class="kn">Let</span> <span class="nf">ζ</span> : bb₁ --&gt; bb₂
+    := lift_unique_sfib_map F f bb₁ bb₂ ff₁ β₁ ff₂ β₂ over₁ over₂ cart₁ cart₂.
+  <span class="kn">Let</span> <span class="nf">ζinv</span> : bb₂ --&gt; bb₁
+    := lift_unique_sfib_map F f bb₂ bb₁ ff₂ β₂ ff₁ β₁ over₂ over₁ cart₂ cart₁.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lift_unique_sfib_inv₁</span>
+    : ζ · ζinv = identity bb₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ζ, ζinv, lift_unique_sfib_map.
+    use (cartesian_factorization_sfib_unique
+           F
+           cart₁
+           ff₁
+           (identity _)).
+    - <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !cartesian_factorization_sfib_over.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> functor_id.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !cartesian_factorization_sfib_commute.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">lift_unique_sfib_inv₂</span>
+    : ζinv · ζ = identity bb₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ζ, ζinv, lift_unique_sfib_map.
+    use (cartesian_factorization_sfib_unique
+           F
+           cart₂
+           ff₂
+           (identity _)).
+    - <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !cartesian_factorization_sfib_over.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> functor_id.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !cartesian_factorization_sfib_commute.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lift_unique_sfib</span>
+    : z_iso bb₁ bb₂.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ζ</span>.
+    <span class="k">exists</span> <span class="nv">ζinv</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> lift_unique_sfib_inv₁.
+    - <span class="bp">exact</span> lift_unique_sfib_inv₂.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">UniqueLifts</span>.
+
+<span class="sd">(**</span>
+<span class="sd">The projection of a fibration is a Street fibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">CleavingToStreetFib</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : category}
+          {<span class="nv">D</span> : disp_cat B}.
+
+  <span class="kn">Let</span> <span class="nf">E</span> : category := total_category D.
+  <span class="kn">Let</span> <span class="nf">P</span> : E ⟶ B := pr1_category D.
+
+  <span class="kn">Local Definition</span> <span class="nf">is_cartesian_to_unique_sfib</span>
+        {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+        (<span class="nv">f</span> : e₁ --&gt; e₂)
+        (<span class="nv">H</span> : is_cartesian (pr2 f))
+        {<span class="nv">z</span> : E}
+        (<span class="nv">g</span> : z --&gt; e₂)
+        (<span class="nv">h</span> : P z --&gt; P e₁)
+        (<span class="nv">p</span> : # P g = h · # P f)
+    : isaprop (∑ φ : E ⟦ z, e₁ ⟧, # P φ = h × φ · f = g).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (lift := H (pr1 z) h (pr2 z) (transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) p (pr2 g))).
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    use (total2_paths_f (pr12 φ₁ @ !(pr12 φ₂))).
+    <span class="nb">pose</span> (φφ₁ := transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (pr12 φ₁) (pr21 φ₁)).
+    <span class="nb">pose</span> (φφ₂ := transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) (pr12 φ₂) (pr21 φ₂)).
+    <span class="nb">simpl</span> <span class="k">in</span> φφ₁, φφ₂.
+    <span class="nb">assert</span> ((φφ₁ ;; pr2 f)%mor_disp
+            =
+            transportf (<span class="k">λ</span> <span class="nv">w</span>, pr2 z --&gt;[ w ] pr2 e₂) p (pr2 g))
+      <span class="k">as</span> H₁.
+    {
+      <span class="nb">unfold</span> φφ₁.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (transportb_transpose_right (fiber_paths (pr22 φ₁))).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">assert</span> ((φφ₂ ;; pr2 f)%mor_disp
+            =
+            transportf (<span class="k">λ</span> <span class="nv">w</span>, pr2 z --&gt;[ w ] pr2 e₂) p (pr2 g))
+      <span class="k">as</span> H₂.
+    {
+      <span class="nb">unfold</span> φφ₂.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (transportb_transpose_right (fiber_paths (pr22 φ₂))).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">pose</span> (proofirrelevance _ (isapropifcontr lift)) <span class="k">as</span> q.
+    <span class="nb">assert</span> (r := maponpaths pr1 (q (φφ₁ ,, H₁) (φφ₂ ,, H₂))).
+    <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="nb">unfold</span> φφ₁, φφ₂ <span class="k">in</span> r.
+    <span class="nb">simple refine</span> (_ @ maponpaths (transportb _ (pr12 φ₂)) r @ _)
+    ; <span class="nb">unfold</span> transportb
+    ; <span class="nb">rewrite</span> transport_f_f.
+    + <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    + <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_to_is_cartesian_sfib</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             (<span class="nv">f</span> : e₁ --&gt; e₂)
+             (<span class="nv">H</span> : is_cartesian (pr2 f))
+    : is_cartesian_sfib P f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g h p.
+    <span class="nb">pose</span> (lift := H (pr1 z) h (pr2 z) (transportf (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _) p (pr2 g))).
+    use iscontraprop1.
+    - <span class="bp">exact</span> (is_cartesian_to_unique_sfib f H g h p).
+    - <span class="nb">simple refine</span> ((h ,, pr11 lift) ,, (idpath _ ,, _)) ; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span>
+        (<span class="nb">pose</span> (pr21 lift) <span class="k">as</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q ;
+         use total2_paths_f ;
+         [ <span class="bp">exact</span> (!p)
+         | <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> q ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> transportf_set ;
+           <span class="nb">apply</span> homset_property ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">is_cartesian_sfib_to_unique_cartesian</span>
+        {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+        (<span class="nv">f</span> : e₁ --&gt; e₂)
+        (<span class="nv">H</span> : is_cartesian_sfib P f)
+        {<span class="nv">z</span> : B}
+        (<span class="nv">g</span> : z --&gt; pr1 e₁)
+        (<span class="nv">zz</span> : D z)
+        (<span class="nv">gf</span> : zz --&gt;[ g · pr1 f] pr2 e₂)
+    : isaprop (∑ gg, (gg ;; pr2 f)%mor_disp = gf).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (lift := H (z ,, zz) (g · pr1 f ,, gf) g (idpath _)).
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> D.
+    }
+    <span class="nb">pose</span> (φφ₁ := (g ,, pr1 φ₁) : E ⟦ z,, zz, e₁ ⟧).
+    <span class="nb">assert</span> (# P φφ₁ = g × φφ₁ · f = g · pr1 f,, gf) <span class="k">as</span> H₁.
+    {
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr2 φ₁).
+    }
+    <span class="nb">pose</span> (φφ₂ := (g ,, pr1 φ₂) : E ⟦ z,, zz, e₁ ⟧).
+    <span class="nb">assert</span> (# P φφ₂ = g × φφ₂ · f = g · pr1 f,, gf) <span class="k">as</span> H₂.
+    {
+      <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr2 φ₂).
+    }
+    <span class="nb">assert</span> (q := maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, pr1 z)
+                   (proofirrelevance
+                      _
+                      (isapropifcontr lift)
+                      (φφ₁ ,, H₁) (φφ₂ ,, H₂))).
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">refine</span> (!_ @ fiber_paths q).
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_sfib_to_is_cartesian</span>
+             {<span class="nv">e₁</span> <span class="nv">e₂</span> : E}
+             (<span class="nv">f</span> : e₁ --&gt; e₂)
+             (<span class="nv">H</span> : is_cartesian_sfib P f)
+    : is_cartesian (pr2 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g zz gf.
+    <span class="nb">pose</span> (lift := H (z ,, zz) (g · pr1 f ,, gf) g (idpath _)).
+    use iscontraprop1.
+    - <span class="nb">apply</span> is_cartesian_sfib_to_unique_cartesian.
+      <span class="bp">exact</span> H.
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 (pr121 lift)
+                 (pr211 lift)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">simpl</span> ;
+           <span class="nb">pose</span> (transportb_transpose_right (fiber_paths (pr221 lift))) <span class="k">as</span> p ;
+           <span class="nb">rewrite</span> mor_disp_transportf_postwhisker ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">refine</span> (maponpaths _ p @ _) ;
+           <span class="nb">unfold</span> transportb ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> transportf_set ;
+           <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fibration_is_street_fib</span>
+             (<span class="nv">HD</span> : cleaving D)
+    : street_fib (pr1_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e b f.
+    <span class="nb">pose</span> (HD (pr1 e) b f (pr2 e)) <span class="k">as</span> c.
+    <span class="nb">refine</span> ((b ,, pr1 c) ,, ((f ,, pr12 c) ,, identity_z_iso b) ,, _).
+    <span class="nb">simpl</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> (!(id_left _)).
+    - <span class="nb">apply</span> is_cartesian_to_is_cartesian_sfib.
+      <span class="bp">exact</span> (pr22 c).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CleavingToStreetFib</span>.
+
+<span class="sd">(** Morphisms between Street fibrations *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_cartesian</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           (<span class="nv">P₁</span> : E₁ ⟶ B₁)
+           (<span class="nv">P₂</span> : E₂ ⟶ B₂)
+           (<span class="nv">FE</span> : E₁ ⟶ E₂)
+  : UU
+  := ∏ (e₁ e₂ : E₁)
+       (f : e₁ --&gt; e₂),
+     is_cartesian_sfib P₁ f
+     →
+     is_cartesian_sfib P₂ (#FE f).
+
+<span class="kn">Definition</span> <span class="nf">identity_preserves_cartesian</span>
+           {<span class="nv">B</span> <span class="nv">E</span> : category}
+           (<span class="nv">P</span> : E ⟶ B)
+  : preserves_cartesian P P (functor_identity E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? H.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">composition_preserves_cartesian</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           {<span class="nv">P₃</span> : E₃ ⟶ B₃}
+           {<span class="nv">FE₁</span> : E₁ ⟶ E₂}
+           {<span class="nv">FE₂</span> : E₂ ⟶ E₃}
+           (<span class="nv">HFE₁</span> : preserves_cartesian P₁ P₂ FE₁)
+           (<span class="nv">HFE₂</span> : preserves_cartesian P₂ P₃ FE₂)
+  : preserves_cartesian P₁ P₃ (FE₁ ∙ FE₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ? H.
+  <span class="nb">apply</span> HFE₂.
+  <span class="nb">apply</span> HFE₁.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_preserves_cartesian</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           (<span class="nv">P₁</span> : E₁ ⟶ B₁)
+           (<span class="nv">P₂</span> : E₂ ⟶ B₂)
+           (<span class="nv">FE</span> : E₁ ⟶ E₂)
+  : isaprop (preserves_cartesian P₁ P₂ FE).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_cartesian_sfib.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mor_of_street_fib</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           (<span class="nv">P₁</span> : E₁ ⟶ B₁)
+           (<span class="nv">P₂</span> : E₂ ⟶ B₂)
+  : UU
+  := ∑ (FB : B₁ ⟶ B₂)
+       (FE : E₁ ⟶ E₂),
+     preserves_cartesian P₁ P₂ FE
+     ×
+     nat_z_iso (P₁ ∙ FB) (FE ∙ P₂).
+
+<span class="kn">Definition</span> <span class="nf">mor_of_street_fib_base</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           (<span class="nv">F</span> : mor_of_street_fib P₁ P₂)
+  : B₁ ⟶ B₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">mor_of_street_fib_total</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           (<span class="nv">F</span> : mor_of_street_fib P₁ P₂)
+  : E₁ ⟶ E₂
+  := pr12 F.
+
+<span class="kn">Definition</span> <span class="nf">mor_of_street_fib_preserves_cartesian</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           (<span class="nv">F</span> : mor_of_street_fib P₁ P₂)
+  : preserves_cartesian P₁ P₂ (mor_of_street_fib_total F)
+  := pr122 F.
+
+<span class="kn">Definition</span> <span class="nf">mor_of_street_fib_preserves_nat_z_iso</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">E₁</span> <span class="nv">E₂</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           (<span class="nv">F</span> : mor_of_street_fib P₁ P₂)
+  : nat_z_iso
+      (P₁ ∙ mor_of_street_fib_base F)
+      (mor_of_street_fib_total F ∙ P₂)
+  := pr222 F.
+
+<span class="kn">Definition</span> <span class="nf">id_mor_of_street_fib_nat_trans</span>
+           {<span class="nv">B</span> <span class="nv">E</span> : category}
+           (<span class="nv">P</span> : E ⟶ B)
+  : P ∙ functor_identity B ⟹ functor_identity E ∙ P.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ? ? ? ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_mor_of_street_fib_nat_z_iso</span>
+           {<span class="nv">B</span> <span class="nv">E</span> : category}
+           (<span class="nv">P</span> : E ⟶ B)
+  : nat_z_iso (P ∙ functor_identity B) (functor_identity E ∙ P).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (id_mor_of_street_fib_nat_trans P).
+  - <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_mor_of_street_fib</span>
+           {<span class="nv">B</span> <span class="nv">E</span> : category}
+           (<span class="nv">P</span> : E ⟶ B)
+  : mor_of_street_fib P P
+  := functor_identity _
+     ,,
+     functor_identity _
+     ,,
+     identity_preserves_cartesian _
+     ,,
+     id_mor_of_street_fib_nat_z_iso P.
+
+<span class="kn">Definition</span> <span class="nf">comp_mor_of_street_fib_nat_trans</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           {<span class="nv">P₃</span> : E₃ ⟶ B₃}
+           (<span class="nv">F₁</span> : mor_of_street_fib P₁ P₂)
+           (<span class="nv">F₂</span> : mor_of_street_fib P₂ P₃)
+  : P₁ ∙ (mor_of_street_fib_base F₁ ∙ mor_of_street_fib_base F₂)
+    ⟹
+    (mor_of_street_fib_total F₁ ∙ mor_of_street_fib_total F₂) ∙ P₃.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, #(mor_of_street_fib_base F₂) (mor_of_street_fib_preserves_nat_z_iso F₁ x)
+                ·
+                mor_of_street_fib_preserves_nat_z_iso F₂ _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">rewrite</span> &lt;- functor_comp ;
+       etrans ;
+         [ <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (nat_trans_ax (mor_of_street_fib_preserves_nat_z_iso F₁) _ _ f)
+         | ] ;
+       <span class="nb">rewrite</span> functor_comp ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> (nat_trans_ax (mor_of_street_fib_preserves_nat_z_iso F₂))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_mor_of_street_fib_nat_z_iso</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           {<span class="nv">P₃</span> : E₃ ⟶ B₃}
+           (<span class="nv">F₁</span> : mor_of_street_fib P₁ P₂)
+           (<span class="nv">F₂</span> : mor_of_street_fib P₂ P₃)
+  : nat_z_iso
+      (P₁ ∙ (mor_of_street_fib_base F₁ ∙ mor_of_street_fib_base F₂))
+      ((mor_of_street_fib_total F₁ ∙ mor_of_street_fib_total F₂) ∙ P₃).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (comp_mor_of_street_fib_nat_trans F₁ F₂).
+  - <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> is_z_isomorphism_comp.
+    + <span class="nb">apply</span> functor_on_is_z_isomorphism.
+      <span class="nb">apply</span> (mor_of_street_fib_preserves_nat_z_iso F₁).
+    + <span class="nb">apply</span> (mor_of_street_fib_preserves_nat_z_iso F₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_mor_of_street_fib</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> <span class="nv">E₁</span> <span class="nv">E₂</span> <span class="nv">E₃</span> : category}
+           {<span class="nv">P₁</span> : E₁ ⟶ B₁}
+           {<span class="nv">P₂</span> : E₂ ⟶ B₂}
+           {<span class="nv">P₃</span> : E₃ ⟶ B₃}
+           (<span class="nv">F₁</span> : mor_of_street_fib P₁ P₂)
+           (<span class="nv">F₂</span> : mor_of_street_fib P₂ P₃)
+  : mor_of_street_fib P₁ P₃
+  := mor_of_street_fib_base F₁ ∙ mor_of_street_fib_base F₂
+     ,,
+     mor_of_street_fib_total F₁ ∙ mor_of_street_fib_total F₂
+     ,,
+     composition_preserves_cartesian
+       (mor_of_street_fib_preserves_cartesian F₁)
+       (mor_of_street_fib_preserves_cartesian F₂)
+     ,,
+     comp_mor_of_street_fib_nat_z_iso F₁ F₂.
+
+<span class="sd">(** The type of Street fibrations is a proposition *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_street_fib</span>
+           {<span class="nv">B</span> <span class="nv">E</span> : category}
+           (<span class="nv">HE</span> : is_univalent E)
+           (<span class="nv">F</span> : E ⟶ B)
+  : isaprop (street_fib F).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span> e.
+  use impred ; <span class="nb">intro</span> b.
+  use impred ; <span class="nb">intro</span> f.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use total2_paths_f.
+  - <span class="nb">apply</span> (isotoid _ HE).
+    <span class="bp">exact</span> (lift_unique_sfib
+             F f
+             (pr1 φ₁) (pr1 φ₂)
+             (pr112 φ₁) (pr212 φ₁)
+             (pr112 φ₂) (pr212 φ₂)
+             (pr122 φ₁) (pr122 φ₂)
+             (pr222 φ₁) (pr222 φ₂)).
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ;
+        [ <span class="nb">apply</span> homset_property
+        | <span class="nb">apply</span> isaprop_is_cartesian_sfib ].
+    }
+    <span class="nb">rewrite</span> pr1_transportf.
+    use dirprod_paths.
+    + etrans.
+      {
+        <span class="nb">apply</span> (@pr1_transportf E (<span class="k">λ</span> <span class="nv">x</span>, x --&gt; e) (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span>, z_iso (F x) b)).
+      }
+      <span class="nb">rewrite</span> transportf_isotoid.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+    + <span class="nb">rewrite</span> pr2_transportf.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_isomorphism.
+      }
+      <span class="nb">unfold</span> z_iso.
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">rewrite</span> transportf_functor_isotoid.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> cartesian_factorization_sfib_over.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Lemmas on cartesian cells for Street fibrations</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_cartesian_sfib_eq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+           (<span class="nv">p</span> : f₁ = f₂)
+           (<span class="nv">Hf₁</span> : is_cartesian_sfib F f₁)
+  : is_cartesian_sfib F f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> Hf₁.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_is_cartesian_sfib</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           (<span class="nv">i</span> : x₁ --&gt; x₂)
+           (<span class="nv">Hi</span> : is_z_isomorphism i)
+  : is_cartesian_sfib F i.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (i_iso := make_z_iso' _ Hi).
+  <span class="nb">intros</span> w g h p.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+       <span class="nb">refine</span> (!(id_right _) @ _ @ id_right _) ;
+       <span class="nb">rewrite</span> &lt;- (z_iso_inv_after_z_iso i_iso) ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">rewrite</span> (pr22 φ₁), (pr22 φ₂) ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (g · inv_from_z_iso i_iso).
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> functor_comp ;
+         <span class="nb">rewrite</span> p ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> &lt;- functor_comp ;
+         etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="bp">exact</span> (z_iso_inv_after_z_iso i_iso)
+           | ] ;
+         <span class="nb">rewrite</span> functor_id ;
+         <span class="nb">apply</span> id_right).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">refine</span> (_ @ id_right _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> z_iso_after_z_iso_inv).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">CompositionCartesian</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+          {<span class="nv">f</span> : x₁ --&gt; x₂}
+          (<span class="nv">Hf</span> : is_cartesian_sfib F f)
+          {<span class="nv">g</span> : x₂ --&gt; x₃}
+          (<span class="nv">Hg</span> : is_cartesian_sfib F g).
+
+  <span class="kn">Section</span> <span class="nf">Factorization</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> : C₁}
+            {<span class="nv">h₁</span> : w --&gt; x₃}
+            {<span class="nv">h₂</span> : F w --&gt; F x₁}
+            (<span class="nv">p</span> : # F h₁ = h₂ · # F (f · g)).
+
+    <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib_factor_help</span>
+      : w --&gt; x₂.
+    <span class="kn">Proof</span>.
+      use (cartesian_factorization_sfib
+             _ Hg
+             h₁ (h₂ · #F f)).
+      <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (p @ _) ;
+         <span class="nb">rewrite</span> functor_comp ;
+         <span class="nb">rewrite</span> assoc ;
+         <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib_factor</span>
+      : w --&gt; x₁.
+    <span class="kn">Proof</span>.
+      use (cartesian_factorization_sfib _ Hf).
+      - <span class="bp">exact</span> comp_is_cartesian_sfib_factor_help.
+      - <span class="bp">exact</span> h₂.
+      - <span class="nb">apply</span> cartesian_factorization_sfib_over.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib_factor_over</span>
+      : # F comp_is_cartesian_sfib_factor = h₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> cartesian_factorization_sfib_over.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib_factor_comm</span>
+      : comp_is_cartesian_sfib_factor · (f · g) = h₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> comp_is_cartesian_sfib_factor, comp_is_cartesian_sfib_factor_help.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !cartesian_factorization_sfib_commute.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib_factor_unique</span>
+      : isaprop (∑ φ, # F φ = h₂ × φ · (f · g) = h₁).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use (cartesian_factorization_sfib_unique
+             _ Hf
+             comp_is_cartesian_sfib_factor_help h₂).
+      - <span class="nb">apply</span> cartesian_factorization_sfib_over.
+      - <span class="bp">exact</span> (pr12 φ₁).
+      - <span class="bp">exact</span> (pr12 φ₂).
+      - use (cartesian_factorization_sfib_unique _ Hg h₁ (h₂ · #F f)).
+        + <span class="nb">rewrite</span> p.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> (pr12 φ₁).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> cartesian_factorization_sfib_over.
+        + <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> (pr22 φ₁).
+        + <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+      - use (cartesian_factorization_sfib_unique _ Hg h₁ (h₂ · #F f)).
+        + <span class="nb">rewrite</span> p.
+          <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> functor_comp.
+          <span class="nb">rewrite</span> (pr12 φ₂).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> cartesian_factorization_sfib_over.
+        + <span class="nb">rewrite</span> assoc'.
+          <span class="nb">apply</span> (pr22 φ₂).
+        + <span class="nb">apply</span> cartesian_factorization_sfib_commute.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Factorization</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comp_is_cartesian_sfib</span>
+    : is_cartesian_sfib F (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w h₁ h₂ p.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (comp_is_cartesian_sfib_factor_unique p).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (comp_is_cartesian_sfib_factor p).
+      + <span class="bp">exact</span> (comp_is_cartesian_sfib_factor_over p).
+      + <span class="bp">exact</span> (comp_is_cartesian_sfib_factor_comm p).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CompositionCartesian</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/StreetFibration.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

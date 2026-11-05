@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Definition.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************</span>
+<span class="sd">Conditionals.Definition</span>
+
+<span class="sd">We define the notion of a Markov category with chosen conditionals,</span>
+<span class="sd">and various interderivable notions such as Bayesian inverses. </span>
+
+<span class="sd">1. Definition of [markov_category_with_conditionals]</span>
+<span class="sd">2. Accessors</span>
+<span class="sd">   - Specialized definitions and lemmas for conditional distributions</span>
+<span class="sd">3. Bayesian Inverses</span>
+<span class="sd">   - Definition of the Bayesian inverse (dagger) [is_bayesian_inverse]</span>
+<span class="sd">   - Accessors</span>
+<span class="sd">   - Uniqueness and stability under [equal_almost_surely]</span>
+<span class="sd">4. Laws and Properties of Bayesian inverses</span>
+<span class="sd">   - dagger laws (identity, idempotence, composition)</span>
+<span class="sd">   - almost sure determinism is dagger-coisometry</span>
+<span class="sd">5. Construction of [bayesian_inverse]</span>
+<span class="sd">   - Every Markov category with conditionals comes with a </span>
+<span class="sd">     canonical choice [bayesian_inverse] of Bayesian inverse</span>
+
+<span class="sd">References</span>
+<span class="sd">- T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' </span>
+<span class="sd">**********************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.MarkovCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.Determinism.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.MarkovCategories.AlmostSurely.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> markov.
+
+<span class="sd">(** * 1. Definition of [markov_category_with_conditionals] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_conditional</span> {<span class="nv">C</span> : markov_category} {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} 
+                          (<span class="nv">f</span> : a --&gt; x ⊗ y) (<span class="nv">k</span> : x ⊗ a --&gt; y) : UU
+    := f = copy a 
+           · (f · proj1 · copy x) #⊗ identity a
+           · mon_lassociator _ _ _
+           · identity x #⊗ k.
+
+<span class="kn">Definition</span> <span class="nf">has_conditionals</span> (<span class="nv">C</span> : markov_category) : UU :=
+   ∏ (a x y : C) (f : a --&gt; x ⊗ y),
+   ∑ (k : x ⊗ a --&gt; y), is_conditional f k.
+
+<span class="kn">Definition</span> <span class="nf">markov_category_with_conditionals</span> : UU :=
+   ∑ (C : markov_category), has_conditionals C. 
+
+<span class="kn">Coercion</span> <span class="nf">markov_cat_with_conditional_to_markov</span>
+         (C : markov_category_with_conditionals)
+  : markov_category := pr1 C.
+
+<span class="sd">(** * 2. Accessors *)</span>
+
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+
+  <span class="kn">Definition</span> <span class="nf">conditional</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; x ⊗ y) : x ⊗ a --&gt; y
+    := pr1 (pr2 C a x y f).
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_eq</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; x ⊗ y)
+    : f = copy a 
+           · (f · proj1 · copy x) #⊗ identity a
+           · mon_lassociator _ _ _
+           · identity x #⊗ (conditional f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 C a x y f)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Accessors</span>.
+
+<span class="kn">Lemma</span> <span class="nf">copy_tensor_x_I_mor_comp</span> {<span class="nv">C</span> : markov_category} {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : I_{C} --&gt; x ⊗ x) (<span class="nv">g</span> : x ⊗ I_{C} --&gt; y) : 
+     ⟨f, identity _⟩ · mon_lassociator _ _ _ · (identity _ #⊗ g) 
+   = f · (identity _ #⊗ (mon_rinvunitor _ · g)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> pairing.
+  <span class="nb">rewrite</span> copy_I_mon_rinvunitor.
+  <span class="nb">rewrite</span> &lt;- tensor_rinvunitor.
+  <span class="nb">rewrite</span> &lt;- !assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- mon_rinvunitor_triangle.
+  etrans.
+  {
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> mon_rassociator_lassociator.
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> &lt;- tensor_comp_l_id_r.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">ConditionalDistributions</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+
+  <span class="kn">Definition</span> <span class="nf">conditional_distribution_1</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) : x --&gt; y
+    := mon_rinvunitor _ · conditional p.
+
+  <span class="kn">Definition</span> <span class="nf">conditional_distribution_2</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) : y --&gt; x
+    := conditional_distribution_1 (p · sym_mon_braiding _ _ _). 
+
+  <span class="kn">Notation</span> <span class="s2">"p |1"</span> := (conditional_distribution_1 p) : markov.
+  <span class="kn">Notation</span> <span class="s2">"p |2"</span> := (conditional_distribution_2 p) : markov.
+ 
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_1_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) :
+    p = p · proj1 · ⟨identity x, p|<span class="mi">1</span>⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> conditional_distribution_1. 
+    etrans. { <span class="nb">apply</span> (conditional_eq p). }
+    <span class="nb">rewrite</span> &lt;- pairing_eq.
+    <span class="nb">rewrite</span> copy_tensor_x_I_mor_comp.
+    <span class="nb">unfold</span> pairing.
+    <span class="nb">rewrite</span> assoc.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_2_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) :
+    p = p · proj2 · ⟨p|<span class="mi">2</span>, identity y⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">unfold</span> conditional_distribution_2.
+    etrans.
+    {
+      <span class="nb">apply</span> conditional_distribution_1_eq.
+    }
+    <span class="nb">symmetry</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">simple refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">simple refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> sym_mon_braiding_proj1.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_1_ase_unique</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) (<span class="nv">f</span> : x --&gt; y) :
+    p = p · proj1 · ⟨identity x, f⟩ -&gt; f =_{p · proj1} p|<span class="mi">1</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> make_equal_almost_surely_r.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_2_ase_unique</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) (<span class="nv">f</span> : y --&gt; x) :
+    p = p · proj2 · ⟨f, identity y⟩ -&gt; f =_{p · proj2} p|<span class="mi">2</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">apply</span> make_equal_almost_surely_r.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !pairing_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_2_eq.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_1_braiding</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) :
+    (p · sym_mon_braiding _ _ _)|<span class="mi">1</span> =_{p · proj2} p|<span class="mi">2</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> conditional_distribution_2_ase_unique.
+    <span class="nb">rewrite</span> &lt;- sym_mon_braiding_proj1.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_1_eq.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_2_braiding</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : I_{C} --&gt; x ⊗ y) :
+    (p · sym_mon_braiding _ _ _)|<span class="mi">2</span> =_{p · proj1} p|<span class="mi">1</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> conditional_distribution_1_ase_unique.
+    <span class="nb">rewrite</span> &lt;- sym_mon_braiding_proj2.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> pairing_sym_mon_braiding.
+    <span class="nb">rewrite</span> &lt;- conditional_distribution_2_eq.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Convenient helper functions that generates an additional equality goal *)</span>
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_1_ase_unique'</span>
+      {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">p</span> : I_{C} --&gt; x ⊗ y} (<span class="nv">p1</span> : I_{C} --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">e</span> : p · proj1 = p1)
+    : p = p1 · ⟨identity x, f⟩ -&gt; f =_{p1} p|<span class="mi">1</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="nb">apply</span> conditional_distribution_1_ase_unique.    
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conditional_distribution_2_ase_unique'</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">p</span> : I_{C} --&gt; x ⊗ y} (<span class="nv">p2</span> : I_{C} --&gt; y) (<span class="nv">f</span> : y --&gt; x) (<span class="nv">e</span> : p · proj2 = p2)
+  : p = p2 · ⟨f, identity y⟩ -&gt; f =_{p2} p|<span class="mi">2</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="nb">apply</span> conditional_distribution_2_ase_unique.    
+  <span class="kn">Qed</span>.
+  
+<span class="kn">End</span> <span class="nf">ConditionalDistributions</span>.
+
+<span class="kn">Notation</span> <span class="s2">"p |1"</span> := (conditional_distribution_1 p) : markov.
+<span class="kn">Notation</span> <span class="s2">"p |2"</span> := (conditional_distribution_2 p) : markov.
+
+<span class="sd">(** * 3. Bayesian inverses *)</span>
+
+<span class="kn">Section</span> <span class="nf">DefBayesianInverse</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+  
+  <span class="kn">Definition</span> <span class="nf">is_bayesian_inverse</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">fi</span> : y --&gt; x) : UU
+    := p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
+
+  <span class="c">(* Accessors *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">make_bayesian_inverse_l</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">fi</span> : y --&gt; x) 
+    : p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩ -&gt; is_bayesian_inverse p f fi.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> bi. <span class="bp">exact</span> bi.
+  <span class="kn">Qed</span>.
+  
+  <span class="kn">Proposition</span> <span class="nf">make_bayesian_inverse_r</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">fi</span> : y --&gt; x) 
+    : p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩ -&gt; is_bayesian_inverse p f fi.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> bi. 
+    <span class="nb">apply</span> pairing_flip.
+    <span class="bp">exact</span> bi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_bayesian_inverse_l</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">fi</span> : y --&gt; x) 
+    : is_bayesian_inverse p f fi -&gt; p · ⟨identity x, f⟩ = (p · f) · ⟨fi, identity y⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> bi. <span class="bp">exact</span> bi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_bayesian_inverse_r</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">fi</span> : y --&gt; x) 
+  : is_bayesian_inverse p f fi -&gt; p · ⟨f, identity x⟩ = (p · f) · ⟨identity y, fi⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> bi. 
+    <span class="nb">apply</span> pairing_flip.
+    <span class="bp">exact</span> bi.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Bayesian inverses are almost surely unique *)</span>
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_ase_unique</span> 
+      {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g1</span> <span class="nv">g2</span> : y --&gt; x)
+      (<span class="nv">b1</span> : is_bayesian_inverse p f g1) (<span class="nv">b2</span> : is_bayesian_inverse p f g2)
+    : g1 =_{p · f} g2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_bayesian_inverse <span class="k">in</span> *.
+    <span class="nb">apply</span> make_equal_almost_surely_r.
+    <span class="nb">apply</span> pairing_flip.
+    <span class="nb">rewrite</span> &lt;- b1, &lt;- b2.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Useful reformulation that generates an auxiliary equality goal *)</span>
+  <span class="kn">Lemma</span> <span class="nf">bayesian_inverse_ase_unique'</span> 
+    {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">q</span> : a --&gt; y) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g1</span> <span class="nv">g2</span> : y --&gt; x)
+    (<span class="nv">e</span> : p · f = q) (<span class="nv">b1</span> : is_bayesian_inverse p f g1) (<span class="nv">b2</span> : is_bayesian_inverse p f g2) 
+  : g1 =_{q} g2.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="nb">apply</span> bayesian_inverse_ase_unique; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Being a bayesian inverse is stable under almost sure equality *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_bayesian_inverse_ase_cong</span>
+    {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) (<span class="nv">g1</span> <span class="nv">g2</span> : y --&gt; x) 
+    (<span class="nv">fase</span> : f1 =_{ p } f2) (<span class="nv">gase</span> : g1 =_{ p · f1 } g2)
+    (<span class="nv">b1</span> : is_bayesian_inverse p f1 g1) 
+    : is_bayesian_inverse p f2 g2.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_bayesian_inverse <span class="k">in</span> *.
+    <span class="nb">rewrite</span> &lt;- (equal_almost_surely_r _ _ _ fase).
+    <span class="nb">rewrite</span> (equal_almost_surely_composition _ _ _ fase) <span class="k">in</span> gase.
+    <span class="nb">rewrite</span> &lt;- (equal_almost_surely_l _ _ _ gase).
+    <span class="nb">rewrite</span> &lt;- (equal_almost_surely_composition _ _ _ fase).
+    <span class="nb">rewrite</span> b1.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+    
+<span class="kn">End</span> <span class="nf">DefBayesianInverse</span>.
+
+<span class="sd">(** * 4. Laws and Properties of Bayesian inverses *)</span>
+
+<span class="kn">Section</span> <span class="nf">BayesianInverseLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">is_bayesian_inverse_state_preservation</span>
+      {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; x)
+    : is_bayesian_inverse p f g -&gt; p · f · g = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">rewrite</span> &lt;- id_right.
+    <span class="nb">rewrite</span> &lt;- (pairing_proj1 (identity x) f).
+    <span class="nb">rewrite</span> &lt;- (pairing_proj1 g (identity y)).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> e.
+    <span class="bp">reflexivity</span>. 
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_identity</span> {<span class="nv">a</span> <span class="nv">x</span> : C} (<span class="nv">p</span> : a --&gt; x) :
+    is_bayesian_inverse p (identity x) (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_bayesian_inverse.
+    <span class="nb">rewrite</span> id_right.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_idempotent</span> 
+    {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; x)
+    : is_bayesian_inverse p f g -&gt; is_bayesian_inverse (p · f) g f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e.
+    <span class="nb">unfold</span> is_bayesian_inverse <span class="k">in</span> *.
+    <span class="nb">assert</span>(e2 : p · f · g = p).
+    {
+      <span class="nb">rewrite</span> &lt;- id_right.
+      <span class="nb">rewrite</span> &lt;- (pairing_proj1 (identity x) f).
+      <span class="nb">rewrite</span> &lt;- (pairing_proj1 g (identity y)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> e.
+      <span class="bp">reflexivity</span>. 
+    }
+    <span class="nb">rewrite</span> e2.
+    <span class="nb">apply</span> pairing_flip.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_comp</span> 
+    {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">p</span> : a --&gt; x) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">fi</span> : y --&gt; x) (<span class="nv">gi</span> : z --&gt; y)
+    (<span class="nv">bf</span> : is_bayesian_inverse p f fi) (<span class="nv">bg</span> : is_bayesian_inverse (p · f) g gi)
+    : is_bayesian_inverse p (f · g) (gi · fi).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_bayesian_inverse <span class="k">in</span> *.
+    etrans. { 
+      <span class="nb">rewrite</span> &lt;- pairing_tensor_r.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> bf.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> pairing_tensor_r.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> pairing_split_l.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> bg.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> pairing_tensor_l.
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+     
+<span class="kn">End</span> <span class="nf">BayesianInverseLaws</span>.
+
+
+<span class="sd">(** 5. Construction of [bayesian_inverse] *)</span>
+
+<span class="kn">Section</span> <span class="nf">ConstructionBayesianInverse</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : markov_category_with_conditionals}.
+  <span class="kn">Context</span> {<span class="nv">x</span> : C}.
+  <span class="kn">Context</span> (<span class="nv">p</span> : I_{C} --&gt; x).
+
+  <span class="kn">Definition</span> <span class="nf">bayesian_inverse</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : y --&gt; x
+    := mon_rinvunitor y · conditional (p · ⟨f, identity x⟩).
+
+  <span class="kn">Definition</span> <span class="nf">bayesian_inverse_eq</span> {<span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} :
+    is_bayesian_inverse p f (bayesian_inverse f).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> is_bayesian_inverse, bayesian_inverse.
+    <span class="nb">apply</span> pairing_flip.
+    <span class="nb">pose</span>(phi := p · ⟨ f, identity x ⟩).
+    <span class="nb">pose</span>(K := conditional_eq phi).
+    
+    <span class="nb">assert</span>(Aux1 : phi · proj1 = p · f).
+    { <span class="nb">unfold</span> phi. 
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> pairing_proj1.
+      <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> Aux1 <span class="k">in</span> K.
+    <span class="nb">clear</span> Aux1.
+    <span class="nb">rewrite</span> &lt;- pairing_eq <span class="k">in</span> K.
+    <span class="nb">rewrite</span> copy_tensor_x_I_mor_comp <span class="k">in</span> K.
+    <span class="nb">unfold</span> phi <span class="k">in</span> K.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> K.
+    etrans. 
+    { <span class="nb">rewrite</span> K. <span class="bp">reflexivity</span>. }
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_eq_l</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    p · f · ⟨bayesian_inverse f, identity _⟩ = p · ⟨identity _, f⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">symmetry</span>.
+    <span class="nb">assert</span>(e : is_bayesian_inverse p f (bayesian_inverse f)). 
+      { <span class="nb">apply</span> bayesian_inverse_eq. }
+    <span class="nb">unfold</span> is_bayesian_inverse <span class="k">in</span> e.
+    <span class="nb">rewrite</span> &lt;- e.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>. 
+   
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_eq_r</span> {<span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :
+    p · f · ⟨identity _, bayesian_inverse f⟩ = p · ⟨f, identity _⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> cancel_braiding.
+    <span class="nb">rewrite</span> !assoc', !pairing_sym_mon_braiding, assoc.
+    <span class="nb">apply</span> bayesian_inverse_eq_l.
+  <span class="kn">Qed</span>.
+    
+  <span class="kn">Proposition</span> <span class="nf">bayesian_inverse_state_preservation</span>
+      {<span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) 
+    : p · f · bayesian_inverse f = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_bayesian_inverse_state_preservation.
+    <span class="nb">apply</span> bayesian_inverse_eq.
+  <span class="kn">Qed</span>.
+  
+<span class="kn">End</span> <span class="nf">ConstructionBayesianInverse</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> bayesian_inverse.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/Conditionals/Definition.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - T. Fritz - 'A synthetic approach to Markov kernels, conditional independence and theorems on sufficient statistics' 
+  &gt; **********************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

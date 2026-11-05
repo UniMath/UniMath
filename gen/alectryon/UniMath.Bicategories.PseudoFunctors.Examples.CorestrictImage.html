@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CorestrictImage.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Restrict pseudofunctor to its full image.</span>
+<span class="sd">We also give conditions when it gives rise to a weak equivalence.</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Image.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Properties.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CorestrictImage</span>.
+  <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+          (<span class="nv">F</span> : psfunctor B₁ B₂).
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image_data</span>
+    : psfunctor_data B₁ (full_image F).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F x ,, hinhpr (x ,, idpath (F x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, #F f ,, tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, ##F α ,, tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 (psfunctor_id F x) ,, tt).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, pr1 (psfunctor_comp F f g) ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image_laws</span>
+    : psfunctor_laws corestrict_full_image_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | <span class="nb">apply</span> F ]).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image_invertibles</span>
+    : invertible_cells corestrict_full_image_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span>
+    ; <span class="nb">apply</span> bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell
+    ; <span class="nb">apply</span> F.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image</span>
+    : psfunctor B₁ (full_image F).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> corestrict_full_image_data.
+    - <span class="bp">exact</span> corestrict_full_image_laws.
+    - <span class="bp">exact</span> corestrict_full_image_invertibles.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image_essentially_surjective</span>
+    : essentially_surjective_psfunctor corestrict_full_image.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [x₁ x₂].
+    <span class="nb">simpl</span> <span class="k">in</span> x₂.
+    <span class="nb">revert</span> x₂.
+    use squash_rec.
+    <span class="nb">intro</span> x.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">refine</span> (pr1 x ,, _).
+    <span class="nb">apply</span> bicat_adjoint_equivalence_is_fullsub_adjoint_equivalence.
+    <span class="bp">exact</span> (idtoiso_2_0 _ _ (pr2 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">CorestrictFullImageLocalEquivalence</span>.
+    <span class="kn">Variable</span> (<span class="nv">B₁_is_univalent_2_1</span> : is_univalent_2_1 B₁)
+             (<span class="nv">B₂_is_univalent_2_1</span> : is_univalent_2_1 B₂)
+             (<span class="nv">FI_is_univalent_2_1</span> : is_univalent_2_1 (full_image F))
+             (<span class="nv">F_local_equiv</span> : local_equivalence
+                                B₁_is_univalent_2_1
+                                B₂_is_univalent_2_1
+                                F).
+
+    <span class="kn">Definition</span> <span class="nf">corestrict_full_image_local_equivalence_right_adj</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : B₁)
+      : bicat_of_univ_cats
+          ⟦ univ_hom
+              FI_is_univalent_2_1
+              (corestrict_full_image x)
+              (corestrict_full_image y),
+            univ_hom B₁_is_univalent_2_1 x y ⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (G := F_local_equiv x y).
+      use make_functor.
+      - use make_functor_data.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 (left_adjoint_right_adjoint G) (pr1 z)).
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, # (pr1 (left_adjoint_right_adjoint G)) (pr1 f)).
+      - <span class="nb">split</span>.
+        + <span class="kp">abstract</span>
+            (<span class="nb">intro</span> a ;
+             <span class="bp">exact</span> (functor_id (left_adjoint_right_adjoint G) (pr1 a))).
+        + <span class="kp">abstract</span>
+            (<span class="nb">intros</span> ? ? ? f g ;
+             <span class="bp">exact</span> (functor_comp (left_adjoint_right_adjoint G) (pr1 f) (pr1 g))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">corestrict_full_image_local_equivalence</span>
+      : local_equivalence
+          B₁_is_univalent_2_1
+          FI_is_univalent_2_1
+          corestrict_full_image.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      use equiv_to_isadjequiv.
+      <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+      - <span class="bp">exact</span> (corestrict_full_image_local_equivalence_right_adj x y).
+      - use make_nat_trans.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 (left_adjoint_unit (F_local_equiv x y)) z).
+        + <span class="kp">abstract</span>
+            (<span class="nb">intros</span> a b g ;
+             <span class="bp">exact</span> (pr2 (left_adjoint_unit (F_local_equiv x y)) _ _ g)).
+      - use make_nat_trans.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, pr1 (left_adjoint_counit (F_local_equiv x y)) (pr1 z) ,, tt).
+        + <span class="kp">abstract</span>
+            (<span class="nb">intros</span> a b g ;
+             use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ] ;
+             <span class="bp">exact</span> (pr2 (left_adjoint_counit (F_local_equiv x y)) _ _ (pr1 g))).
+      - <span class="nb">apply</span> is_nat_z_iso_to_is_invertible_2cell.
+        <span class="nb">intro</span> z.
+        <span class="bp">exact</span> (is_invertible_2cell_to_is_nat_z_iso
+                 _
+                 (left_equivalence_unit_iso (F_local_equiv x y)) z).
+      - <span class="nb">apply</span> is_nat_z_iso_to_is_invertible_2cell.
+        <span class="nb">intro</span> z.
+        <span class="nb">apply</span> is_inv2cell_to_is_z_iso.
+        <span class="nb">apply</span> bicat_is_invertible_2cell_to_fullsub_is_invertible_2cell.
+        <span class="nb">apply</span> (z_iso_to_inv2cell
+                (_ ,,
+                   is_invertible_2cell_to_is_nat_z_iso
+                   _
+                   (left_equivalence_counit_iso (F_local_equiv x y)) (pr1 z))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CorestrictFullImageLocalEquivalence</span>.
+
+  <span class="kn">Definition</span> <span class="nf">corestrict_full_image_weak_equivalence</span>
+             (<span class="nv">B₁_is_univalent_2_1</span> : is_univalent_2_1 B₁)
+             (<span class="nv">B₂_is_univalent_2_1</span> : is_univalent_2_1 B₂)
+             (<span class="nv">FI_is_univalent_2_1</span> : is_univalent_2_1 (full_image F))
+             (<span class="nv">F_local_equiv</span> : local_equivalence
+                                B₁_is_univalent_2_1
+                                B₂_is_univalent_2_1
+                                F)
+    : weak_equivalence
+        B₁_is_univalent_2_1
+        FI_is_univalent_2_1
+        corestrict_full_image.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (corestrict_full_image_local_equivalence _ _ _ F_local_equiv).
+    - <span class="nb">apply</span> corestrict_full_image_essentially_surjective.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CorestrictImage</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/Examples/CorestrictImage.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Restrict pseudofunctor to its full image.
+  &gt; We also give conditions when it gives rise to a weak equivalence.
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

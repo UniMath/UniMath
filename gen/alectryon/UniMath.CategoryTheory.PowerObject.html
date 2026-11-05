@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PowerObject.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **</span>
+<span class="sd">  Following Saunders Mac Lane &amp; Ieke Moerdijk</span>
+<span class="sd">  Sheaves in Geometry and Logic - A First Introduction to Topos theory.</span>
+<span class="sd">  Chapter IV.1</span>
+
+<span class="sd">  Contents :</span>
+<span class="sd">  - The definition of [PowerObject];</span>
+<span class="sd">  - The derivation of [PowerObject] from [Exponentials];</span>
+<span class="sd">	-	The definition of [PowerObject_functor];</span>
+<span class="sd">	-	The derivation of [PowerObject_nat_z_iso],</span>
+<span class="sd">      the natural (in a and b) (z-)isomorphism from Hom(b x a , Omega) to Hom(a,P b)</span>
+<span class="sd">      (Omega is a subobject classifier) induced by the Power Object P;</span>
+<span class="sd">	-	The derivation of [PowerObject_charname_nat_z_iso],</span>
+<span class="sd">      the natural (z-)isomorphism from Hom(- , Omega) to Hom(1,P(-)) obtained from the one above choosing a = T (T is the Terminal Object);</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PowerObject_def</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span>:category} {<span class="nv">T</span>:Terminal C} (<span class="nv">Prod</span> : BinProducts C) (<span class="nv">O</span> : subobject_classifier T).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c 'x' d"</span> :=
+    (BinProductObject C (Prod c d))(<span class="kn">at level</span> <span class="mi">5</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⨱ g"</span> :=
+    (BinProductOfArrows _ (Prod _ _) (Prod _ _) f g) (<span class="kn">at level</span> <span class="mi">10</span>).
+
+  <span class="kn">Definition</span> <span class="nf">is_PowerObject</span>
+    (<span class="nv">P</span> : ob C -&gt;  ob C)
+    (<span class="nv">inmap</span> : ∏ (b:C), C ⟦b x (P b), O⟧ ):=
+    ∏ (a b:C) (f : C ⟦b x a, O⟧),
+      <span class="k">∃</span>! g : C ⟦a, P b⟧,
+        f = identity b ⨱ g·(inmap b).
+
+  <span class="kn">Definition</span> <span class="nf">PowerObject</span> :=
+    ∑ (P : ob C -&gt;  ob C)
+      (inmap : ∏ (b:C), C ⟦b x (P b), O⟧ ),
+      is_PowerObject P inmap.
+
+  <span class="kn">Definition</span> <span class="nf">make_PowerObject</span>
+    (<span class="nv">P</span> : ob C -&gt;  ob C) (<span class="nv">inmap</span> : ∏ (b:C), C ⟦b x (P b), O⟧ ) (<span class="nv">isc</span> : is_PowerObject P inmap)
+    : PowerObject.
+  <span class="kn">Proof</span>.
+    use tpair.
+    + <span class="bp">exact</span> P.
+    + use tpair.
+      - <span class="bp">exact</span> inmap.
+      - <span class="bp">exact</span> isc.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PowerObject_def</span>.
+
+<span class="kn">Section</span> <span class="nf">PowerObject_from_exponentials</span>.
+<span class="kn">Context</span> {<span class="nv">C</span>:category} {<span class="nv">T</span>:Terminal C} (<span class="nv">Prod</span> : BinProducts C) (<span class="nv">Ω</span> : subobject_classifier T) (<span class="nv">Exp</span> : Exponentials Prod).
+
+<span class="kn">Let</span> <span class="nf">ExpFun</span> (<span class="nv">c</span>:C) := right_adjoint (Exp c).
+<span class="kn">Let</span> <span class="nf">ExpEv</span> (<span class="nv">c</span>:C) := counit_from_left_adjoint (Exp c).
+<span class="kn">Let</span> <span class="nf">ExpUnit</span> (<span class="nv">c</span>:C) := unit_from_left_adjoint (Exp c).
+<span class="kn">Let</span> <span class="nf">ExpAdj</span> (<span class="nv">c</span>:C) := pr2 (Exp c).
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_from_exponentials</span> : PowerObject Prod Ω.
+<span class="kn">Proof</span>.
+  use make_PowerObject.
+  + <span class="nb">intro</span> b.
+    <span class="bp">exact</span> (ExpFun b Ω).
+  + <span class="nb">intro</span> b.
+    use (ExpEv b).
+  + <span class="c">(*This proof should be generalized to any adjunction, it would essentialy be the inverse result of [[reflections_to_is_right_adjoint]]*)</span>
+    <span class="nb">intros</span> c b f.
+    use make_iscontr.
+    - <span class="nb">split with</span>
+        (φ_adj (ExpAdj b) f).
+      use pathsinv0.
+      use (pathscomp0 (b:=(φ_adj_inv (ExpAdj b) (φ_adj (ExpAdj b) f)))).
+      * <span class="nb">apply</span> idpath.
+      * use φ_adj_inv_after_φ_adj.
+    - <span class="nb">intros</span> (t,tisc).
+      use subtypePath.
+      * <span class="nb">intro</span>.
+        use homset_property.
+      * use (invmaponpathsweq (invweq (adjunction_hom_weq (ExpAdj b) c Ω))).
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> φ_adj_inv_after_φ_adj.
+        use pathsinv0.
+        use tisc.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PowerObject_from_exponentials</span>.
+
+<span class="kn">Section</span> <span class="nf">ContextAndNotaions</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span>:category} {<span class="nv">T</span>:Terminal C} {<span class="nv">Prod</span> : BinProducts C} {<span class="nv">Ω</span> : subobject_classifier T} (<span class="nv">P</span>: PowerObject Prod Ω).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"c ⨉ d"</span>
+  := (BinProductObject C (Prod c d))(<span class="kn">at level</span> <span class="mi">5</span>).
+  <span class="c">(*\bigtimes*)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ⨱ g"</span>
+  := (BinProductOfArrows _ (Prod _ _) (Prod _ _) f g) (<span class="kn">at level</span> <span class="mi">10</span>).
+  <span class="c">(*\timesbar*)</span>
+
+<span class="kn">Section</span> <span class="nf">PowerObject_accessor</span>.
+  <span class="kn">Definition</span> <span class="nf">PowerObject_on_ob</span> : C -&gt; C := pr1 P.
+  <span class="kn">Definition</span> <span class="nf">PowerObject_inPred</span>
+    : ∏ a : C, C ⟦(a ⨉ (PowerObject_on_ob a)), Ω⟧
+    := pr1 (pr2 P).
+  <span class="kn">Definition</span> <span class="nf">PowerObject_property</span> {<span class="nv">a</span> <span class="nv">b</span> : C}
+    : ∏ f : C ⟦ b ⨉ a, Ω ⟧, <span class="k">∃</span>! g : C ⟦ a, PowerObject_on_ob b ⟧,
+      f = (identity b) ⨱ g · PowerObject_inPred b
+    := (pr2 (pr2 P)) a b.
+  <span class="kn">Definition</span> <span class="nf">PowerObject_transpose</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ b ⨉ a , Ω⟧)
+    : C ⟦a , (PowerObject_on_ob b)⟧
+    := pr1 ( iscontrpr1 ((pr2 (pr2 P)) a b f)).
+  <span class="kn">Definition</span> <span class="nf">PowerObject_transpose_tri</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ b ⨉ a , Ω⟧)
+    : f = (identity b) ⨱ (PowerObject_transpose f)·
+          PowerObject_inPred b
+    := pr2 (iscontrpr1 ((pr2 (pr2 P)) a b f)).
+<span class="kn">End</span> <span class="nf">PowerObject_accessor</span>.
+
+<span class="kn">Section</span> <span class="nf">PowerObject_transpose_lemma</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">PowerObject_transpose_precomp</span> {<span class="nv">a'</span> <span class="nv">a</span> <span class="nv">b</span>: C} (<span class="nv">g</span> : C ⟦a', a⟧)(<span class="nv">f</span> : C ⟦(b ⨉ a), Ω⟧ )
+    : PowerObject_transpose (identity b ⨱ g · f) = g · (PowerObject_transpose f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    use path_to_ctr.
+    use pathsinv0.
+    <span class="nb">rewrite</span> &lt;-BinProductOfArrows_idxcomp.
+    <span class="nb">rewrite</span> !assoc'.
+    use cancel_precomposition.
+    use pathsinv0.
+    use (PowerObject_transpose_tri).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PowerObject_transpose_lemma</span>.
+
+<span class="kn">Section</span> <span class="nf">PowerObject_functor</span>.
+
+<span class="kn">Let</span> <span class="nf">construction</span> {<span class="nv">c</span> <span class="nv">b</span> : C} (<span class="nv">h</span> : C ⟦b,c⟧):=
+  h ⨱ (identity (PowerObject_on_ob c))·(PowerObject_inPred c).
+
+<span class="c">(*</span>
+<span class="c">  The PowerObject P induces a functor which maps object with PowerObject_on_ob</span>
+<span class="c">  and, given a morphism h, Ph is defined as the only morphism which makes</span>
+<span class="c">  the following diagram commute</span>
+<span class="c">  &lt;&lt;</span>
+<span class="c">                    h x id</span>
+<span class="c">            b x Pc --------&gt; c x Pc</span>
+<span class="c">            |                  |</span>
+<span class="c">    id x Ph |                  | inPred c</span>
+<span class="c">            v                  v</span>
+<span class="c">            b x Pb --------&gt;   O</span>
+<span class="c">                  inPred b</span>
+<span class="c">  &gt;&gt;</span>
+<span class="c">  construction produces the upper composition</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_functor_data</span> : functor_data C^op C.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (PowerObject_on_ob).
+  - <span class="nb">intros</span> c b h.
+    use PowerObject_transpose.
+    <span class="bp">exact</span> (construction h).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">PowerObject_functor_isfunctor</span> : is_functor PowerObject_functor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  + <span class="nb">intro</span> b.
+    use pathsinv0.
+    use path_to_ctr.
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">unfold</span> functor_compax.
+    <span class="nb">intros</span> c b a h h'.
+    <span class="nb">cbn</span> <span class="k">in</span> c, b, a, h, h'.
+    <span class="nb">cbn</span>.
+    use pathsinv0.
+    use path_to_ctr.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> construction.
+    <span class="nb">rewrite</span>
+      &lt;-BinProductOfArrows_idxcomp,
+      &lt;-(BinProductOfArrows_compxid), assoc'.
+    <span class="nb">fold</span> (construction h).
+    <span class="nb">rewrite</span>
+      (PowerObject_transpose_tri (construction h)),
+      assoc.
+    <span class="nb">rewrite</span> BinProductOfArrows_comp,
+      (id_right h'), &lt;-(id_left h'),
+      (id_left (PowerObject_transpose _)),
+      &lt;-(id_right (PowerObject_transpose _)),
+      &lt;-BinProductOfArrows_comp,
+      !assoc', id_left, id_right.
+    <span class="nb">fold</span> (construction h').
+    <span class="nb">rewrite</span> (PowerObject_transpose_tri (construction h')),
+      !assoc.
+    <span class="nb">rewrite</span> &lt;-(PowerObject_transpose_tri (construction h')), &lt;-(PowerObject_transpose_tri (construction h)).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_functor</span> : functor C^op C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  + <span class="bp">exact</span> PowerObject_functor_data.
+  + <span class="bp">exact</span> PowerObject_functor_isfunctor.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PowerObject_functor</span>.
+
+<span class="c">(* In this section we show the natural isomorphis</span>
+<span class="c">from Hom ( -- x - , Ω) to Hom ( - , P(--) )*)</span>
+<span class="kn">Section</span> <span class="nf">PowerObject_nat_z_iso</span>.
+
+<span class="c">(*The functor Hom ( -- x - , Ω)*)</span>
+<span class="kn">Definition</span> <span class="nf">HomxO</span> : functor (category_binproduct C^op C^op) hset_category
+  :=( binswap_pair_functor ∙
+      category_op_binproduct ∙
+      (functor_opp (binproduct_functor Prod)) ∙
+      (contra_homSet_functor Ω)).
+
+<span class="c">(*The functor Hom ( - , P(--) )*)</span>
+<span class="kn">Definition</span> <span class="nf">HomP</span> : functor (category_binproduct C^op C^op) hset_category
+  :=( pair_functor (functor_identity C^op) (PowerObject_functor) ∙
+      homSet_functor).
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_nt_data</span> : nat_trans_data HomxO HomP.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ab.
+  <span class="bp">exact</span> PowerObject_transpose.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">PowerObject_nt_is_nat_trans</span> : is_nat_trans HomxO HomP PowerObject_nt_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> (a,b) (a',b') (a'a,b'b).
+  <span class="nb">cbn</span> <span class="k">in</span> a'a, b'b.
+  use funextfun.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> pathsinv0.
+  use path_to_ctr.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> &lt;-BinProductOfArrows_idxcomp,
+    !assoc'.
+  <span class="nb">rewrite</span> &lt;-(PowerObject_transpose_tri).
+  <span class="nb">rewrite</span> !assoc,
+    BinProductOfArrows_comp,
+    id_left, id_right.
+  <span class="nb">rewrite</span>
+    (PowerObject_transpose_tri f),
+    assoc,
+    BinProductOfArrows_comp,
+    id_right,
+    &lt;-(PowerObject_transpose_tri f).
+    <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_nattrans</span> : nat_trans HomxO HomP.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  + <span class="bp">exact</span> PowerObject_nt_data.
+  + <span class="bp">exact</span> PowerObject_nt_is_nat_trans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">PowerObject_nt_is_nat_z_iso</span> : is_nat_z_iso PowerObject_nattrans.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> (a,b).
+  <span class="nb">cbn</span>.
+  use make_is_z_isomorphism.
+  + <span class="nb">intro</span> g.
+    <span class="bp">exact</span> ((identity b) ⨱ g · (PowerObject_inPred b)).
+  + <span class="nb">cbn</span>.
+    use make_is_inverse_in_precat.
+    - use funextfun.
+      <span class="nb">intros</span> f.
+      <span class="nb">cbn</span>.
+      use pathsinv0.
+      use PowerObject_transpose_tri.
+    - use funextfun.
+      <span class="nb">intros</span> g.
+      use pathsinv0.
+      use path_to_ctr.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_nat_z_iso</span> : nat_z_iso HomxO HomP.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  + <span class="bp">exact</span> PowerObject_nattrans.
+  + <span class="bp">exact</span> PowerObject_nt_is_nat_z_iso.
+<span class="kn">Defined</span>.
+
+
+<span class="c">(*in particolar, fixing (-) = T, we also get a natural isomorphism from from Hom(-,Ω) to Hom(T,P(-))*)</span>
+
+<span class="c">(*The natural transformation from (-)xT to (-) , with T the constant (terminal) functor*)</span>
+<span class="kn">Definition</span> <span class="nf">idxT_nattrans</span> := binproduct_nat_trans_pr1 C C Prod (functor_identity C) (constant_functor C C T).
+
+<span class="kn">Theorem</span> <span class="nf">idxT_is_nat_z_iso</span> : is_nat_z_iso idxT_nattrans.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  use (terminal_binprod_unit_r_z T Prod).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">idxT_nat_z_iso</span> := (make_nat_z_iso _ _ (idxT_nattrans) (idxT_is_nat_z_iso)).
+
+<span class="c">(*The natural transformation from (-)^op to ((-)xT)^op*)</span>
+<span class="kn">Definition</span> <span class="nf">idxT_nat_inopp</span> := op_nt idxT_nat_z_iso.
+
+<span class="c">(*The natural transformation from Hom(-,Ω) to Hom( ((-)xT) , O ) *)</span>
+<span class="kn">Definition</span> <span class="nf">idxT_whiskered_nat</span> := post_whisker (idxT_nat_inopp) (contra_homSet_functor Ω).
+
+<span class="c">(*The natural iso from Hom( - x T , Ω ) to Hom( T , P(-) ), with T terminal object*)</span>
+<span class="kn">Definition</span> <span class="nf">PowerObject_nat_z_iso_Tfixed</span> := nat_z_iso_fix_fst_arg C^op C^op hset_category _ _ PowerObject_nat_z_iso T.
+
+<span class="c">(*composition yelds the nt from Hom(-,Ω) to Hom( T , P(-) )*)</span>
+<span class="kn">Definition</span> <span class="nf">PowerObject_charname_nattrans</span> := nat_trans_comp _ _ _ idxT_whiskered_nat PowerObject_nat_z_iso_Tfixed.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_charname_is_nat_z_iso</span> : is_nat_z_iso PowerObject_charname_nattrans.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  use is_z_isomorphism_comp.
+  + <span class="nb">generalize</span> c.
+    use post_whisker_z_iso_is_z_iso.
+    use op_nt_is_z_iso.
+    use pr2_nat_z_iso.
+  + <span class="nb">generalize</span> c.
+    use (pr2_nat_z_iso PowerObject_nat_z_iso_Tfixed).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_charname_nat_z_iso</span> : nat_z_iso (contra_homSet_functor Ω) (functor_fix_fst_arg C^op C^op hset_category HomP T).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  + <span class="bp">exact</span> PowerObject_charname_nattrans.
+  + <span class="bp">exact</span> PowerObject_charname_is_nat_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PowerObject_charname_nat_z_iso_tri</span> {<span class="nv">b</span> : C} (<span class="nv">f</span> : C ⟦ b , Ω ⟧)
+  : (identity b) ⨱ (PowerObject_charname_nat_z_iso b f)·
+    PowerObject_inPred b
+    = (BinProductPr1 C (Prod b T) · f).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (PowerObject_transpose_tri).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PowerObject_nat_z_iso</span>.
+
+<span class="kn">End</span> <span class="nf">ContextAndNotaions</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/PowerObject.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       the natural (z-)isomorphism from Hom(- , Omega) to Hom(1,P(-)) obtained from the one above choosing a = T (T is the Terminal Object);
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

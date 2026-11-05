@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalRezkCompletion.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RezkCompletion.LiftedMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RezkCompletions.Construction.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonoidalRezkCompletion</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoidal_cat)
+          {<span class="nv">D</span> : univalent_category}
+          {<span class="nv">H</span> : functor M D}
+          (<span class="nv">H_eso</span> : essentially_surjective H)
+          (<span class="nv">H_ff</span> : fully_faithful H).
+
+  <span class="kn">Definition</span> <span class="nf">RezkCompletion_monoidal_cat</span>
+    : monoidal_cat
+    := TransportedMonoidal
+         (univalent_category_is_univalent D)
+         H_eso H_ff
+         _ _ _ _ _
+         (monoidal_cat_triangle_eq M)
+         (monoidal_cat_pentagon_eq M).
+
+  <span class="kn">Definition</span> <span class="nf">RezkCompletion_monoidal_functor</span>
+    : functor_monoidal_cat
+        (monoidal_cat_left_unitor M)
+        (monoidal_cat_left_unitor RezkCompletion_monoidal_cat)
+        (monoidal_cat_right_unitor M)
+        (monoidal_cat_right_unitor RezkCompletion_monoidal_cat)
+        (monoidal_cat_associator M)
+        (monoidal_cat_associator RezkCompletion_monoidal_cat)
+    := H_monoidal
+         (univalent_category_is_univalent D)
+         H_eso H_ff
+         _ _
+         (monoidal_cat_left_unitor M)
+         (monoidal_cat_right_unitor M)
+         (monoidal_cat_associator M).
+
+  <span class="kn">Definition</span> <span class="nf">RezkCompletion_monoidal_universalproperty</span>
+    : ∏ (E : monoidal_cat) (Euniv : is_univalent E),
+      adj_equivalence_of_cats
+         (total_functor
+            (precompMonoidal
+               (univalent_category_is_univalent D)
+               H_eso H_ff
+               _ _
+               (monoidal_cat_left_unitor M) (monoidal_cat_right_unitor M)
+               (monoidal_cat_associator M)
+               _ _
+               (monoidal_cat_left_unitor E)
+               (monoidal_cat_right_unitor E) (monoidal_cat_associator E)))
+    := <span class="k">λ</span> <span class="nv">E</span> <span class="nv">Euniv</span>,
+      precomp_monoidal_adj_equiv
+        (univalent_category_is_univalent D)
+        H_eso H_ff
+        _ _
+        (monoidal_cat_left_unitor M)
+        (monoidal_cat_right_unitor M)
+        (monoidal_cat_associator M)
+        Euniv
+        _ _
+        (monoidal_cat_left_unitor E)
+        (monoidal_cat_right_unitor E)
+        (monoidal_cat_associator E).
+
+<span class="kn">End</span> <span class="nf">MonoidalRezkCompletion</span>.
+
+<span class="kn">Section</span> <span class="nf">MonoidalRezkCompletionUsingRepresentableCopresheaves</span>.
+
+  <span class="kn">Context</span> {<span class="nv">M</span> : monoidal_cat}.
+
+  <span class="kn">Definition</span> <span class="nf">Copresheaf_RezkCompletion_monoidal_cat</span>
+    : monoidal_cat
+    := RezkCompletion_monoidal_cat
+         M
+         (Rezk_eta_essentially_surjective M)
+         (Rezk_eta_fully_faithful M).
+
+  <span class="kn">Definition</span> <span class="nf">Copresheaf_RezkCompletion_monoidal_functor</span>
+    : functor_monoidal_cat
+        (monoidal_cat_left_unitor M)
+        (monoidal_cat_left_unitor Copresheaf_RezkCompletion_monoidal_cat)
+        (monoidal_cat_right_unitor M)
+        (monoidal_cat_right_unitor Copresheaf_RezkCompletion_monoidal_cat)
+        (monoidal_cat_associator M)
+        (monoidal_cat_associator Copresheaf_RezkCompletion_monoidal_cat)
+    := RezkCompletion_monoidal_functor
+         M
+         (Rezk_eta_essentially_surjective M)
+         (Rezk_eta_fully_faithful M).
+
+  <span class="kn">Definition</span> <span class="nf">Copresheaf_RezkCompletion_monoidal_universalproperty</span>
+    : ∏ (E : monoidal_cat) (Euniv : is_univalent E),
+      adj_equivalence_of_cats
+        (total_functor
+           (precompMonoidal
+              (univalent_category_is_univalent (Rezk_completion M))
+              (Rezk_eta_essentially_surjective M) (Rezk_eta_fully_faithful M)
+              _ _
+              (monoidal_cat_left_unitor M) (monoidal_cat_right_unitor M)
+              (monoidal_cat_associator M)
+              _ _
+              (monoidal_cat_left_unitor E)
+              (monoidal_cat_right_unitor E) (monoidal_cat_associator E)))
+    := <span class="k">λ</span> <span class="nv">E</span> <span class="nv">Euniv</span>, RezkCompletion_monoidal_universalproperty
+                    M
+                    (Rezk_eta_essentially_surjective M)
+                    (Rezk_eta_fully_faithful M) E Euniv.
+
+<span class="kn">End</span> <span class="nf">MonoidalRezkCompletionUsingRepresentableCopresheaves</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/RezkCompletion/MonoidalRezkCompletion.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

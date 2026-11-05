@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pushouts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Direct implementation of pushouts</span>
+
+<span class="sd">Definition of Epi in terms of a pushout diagram</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">def_po</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Definition</span> <span class="nf">isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+             (<span class="nv">in1</span> : b --&gt; d) (<span class="nv">in2</span> : c --&gt; d) (<span class="nv">H</span> : f · in1 = g · in2) : UU :=
+    ∏ e (h : b --&gt; e) (k : c --&gt; e) (H : f · h = g · k),
+    <span class="k">∃</span>! hk : d --&gt; e, (in1 · hk = h) × (in2 · hk = k).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+        (<span class="nv">in1</span> : b --&gt; d) (<span class="nv">in2</span> : c --&gt; d) (<span class="nv">H</span> : f · in1 = g · in2) :
+    isaprop (isPushout f g in1 in2 H).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrowUnique</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+        (<span class="nv">in1</span> : b --&gt; d) (<span class="nv">in2</span> : c --&gt; d) (<span class="nv">H</span> : f · in1 = g · in2)
+        (<span class="nv">P</span> : isPushout f g in1 in2 H) <span class="nv">e</span> (<span class="nv">h</span> : b --&gt; e) (<span class="nv">k</span> : c --&gt; e)
+        (<span class="nv">Hcomm</span> : f · h = g · k)
+        (<span class="nv">w</span> : d --&gt; e)
+        (<span class="nv">H1</span> : in1 · w = h) (<span class="nv">H2</span> : in2 · w = k) :
+    w = (pr1 (pr1 (P e h k Hcomm))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (T := tpair (<span class="k">fun</span> <span class="nv">hk</span> : d --&gt; e =&gt; dirprod (in1 · hk = h)(in2 · hk = k))
+                    w (make_dirprod H1 H2)).
+    <span class="nb">set</span> (T' := pr2 (P e h k Hcomm) T).
+    <span class="bp">exact</span> (base_paths _ _ T').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c) :=
+    ∑ pfg : (∑ p : C, (b --&gt; p) × (c --&gt; p)),
+      ∑ H : f · pr1 (pr2 pfg) = g · pr2 (pr2 pfg),
+        isPushout f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H.
+
+  <span class="kn">Definition</span> <span class="nf">Pushouts</span> : UU :=
+     ∏ (a b c : C) (f : a --&gt; b) (g : a --&gt; c), Pushout f g.
+
+  <span class="kn">Definition</span> <span class="nf">hasPushouts</span> : UU :=
+    ∏ (a b c : C) (f : a --&gt; b) (g : a --&gt; c), ishinh (Pushout f g).
+
+  <span class="kn">Definition</span> <span class="nf">PushoutObject</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}:
+    Pushout f g -&gt; C := <span class="k">λ</span> <span class="nv">H</span>, pr1 (pr1 H).
+  <span class="kn">Coercion</span> <span class="nf">PushoutObject</span> : Pushout &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutIn1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> : Pushout f g) : b --&gt; Pb := pr1 (pr2 (pr1 Pb)).
+
+  <span class="kn">Definition</span> <span class="nf">PushoutIn2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> : Pushout f g) : c --&gt; Pb := pr2 (pr2 (pr1 Pb)).
+
+  <span class="kn">Definition</span> <span class="nf">PushoutSqrCommutes</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> : Pushout f g) :
+    f · PushoutIn1 Pb = g · PushoutIn2 Pb.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 Pb)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isPushout_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">P</span> : Pushout f g) :
+    isPushout f g (PushoutIn1 P) (PushoutIn2 P) (PushoutSqrCommutes P).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 P)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">PushoutArrow</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> : Pushout f g) <span class="nv">e</span> (<span class="nv">h</span> : b --&gt; e) (<span class="nv">k</span> : c --&gt; e)
+             (<span class="nv">H</span> : f · h = g · k) :
+    Pb --&gt; e := pr1 (pr1 (isPushout_Pushout Pb e h k H)).
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrow_PushoutIn1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+        (<span class="nv">Pb</span> : Pushout f g) <span class="nv">e</span> (<span class="nv">h</span> : b --&gt; e) (<span class="nv">k</span> : c --&gt; e)
+        (<span class="nv">H</span> : f · h = g · k) :
+    PushoutIn1 Pb · PushoutArrow Pb e h k H = h.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 (pr1 (isPushout_Pushout Pb e h k H)))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutArrow_PushoutIn2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+        (<span class="nv">Pb</span> : Pushout f g) <span class="nv">e</span> (<span class="nv">h</span> : b --&gt; e) (<span class="nv">k</span> : c --&gt; e)
+        (<span class="nv">H</span> : f · h = g · k) :
+    PushoutIn2 Pb · PushoutArrow Pb e h k H = k.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 (pr1 (isPushout_Pushout Pb e h k H)))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦a, c⟧)
+             (<span class="nv">d</span> : C) (<span class="nv">in1</span> : C⟦b,d⟧) (<span class="nv">in2</span> : C ⟦c,d⟧)
+             (<span class="nv">H</span> : f · in1 = g · in2)
+             (<span class="nv">ispb</span> : isPushout f g in1 in2 H)
+    : Pushout f g.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="nb">apply</span> d.
+      + <span class="k">exists</span> <span class="nv">in1</span>.
+        <span class="bp">exact</span> in2.
+    - <span class="k">exists</span> <span class="nv">H</span>.
+      <span class="nb">apply</span> ispb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_isPushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦a, b⟧) (<span class="nv">g</span> : C ⟦a, c⟧)
+             (<span class="nv">in1</span> : C⟦b,d⟧) (<span class="nv">in2</span> : C⟦c,d⟧) (<span class="nv">H</span> : f · in1 = g · in2) :
+    (∏ e (h : C ⟦b, e⟧) (k : C⟦c,e⟧)(Hk : f · h = g · k),
+        <span class="k">∃</span>! hk : C⟦d,e⟧,(in1 · hk = h) × (in2 · hk = k)) →
+    isPushout f g in1 in2 H.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H' x cx k sqr.
+    <span class="nb">apply</span> H'. <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MorphismsOutofPushoutEqual</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+        {<span class="nv">in1</span> : b --&gt; d} {<span class="nv">in2</span> : c --&gt; d} {<span class="nv">H</span> : f · in1 = g · in2}
+        (<span class="nv">P</span> : isPushout f g in1 in2 H) {<span class="nv">e</span>}
+        (<span class="nv">w</span> <span class="nv">w'</span>: d --&gt; e)
+        (<span class="nv">H1</span> : in1 · w = in1 · w') (<span class="nv">H2</span> : in2 · w = in2 · w')
+    : w = w'.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (Hw : f · in1 · w = g · in2 · w).
+    { <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath. }
+    <span class="nb">assert</span> (Hw' : f · in1 · w' = g · in2 · w').
+    { <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath. }
+    <span class="nb">set</span> (Pb := make_Pushout _ _ _ _ _ _ P).
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> Hw. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> Hw.
+    <span class="nb">set</span> (Xw := PushoutArrow Pb e (in1 · w) (in2 · w) Hw).
+    intermediate_path Xw; [ <span class="nb">apply</span> PushoutArrowUnique; <span class="nb">apply</span> idpath |].
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> PushoutArrowUnique. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H1.
+    <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> H2.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">identity_is_Pushout_input</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> : Pushout f g) :
+    ∑ hk : Pb --&gt; Pb,
+      (PushoutIn1 Pb · hk = PushoutIn1 Pb) × (PushoutIn2 Pb · hk = PushoutIn2 Pb).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">Pb</span>).
+    <span class="nb">apply</span> make_dirprod; <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">PushoutEndo_is_identity</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+        (<span class="nv">Pb</span> : Pushout f g) (<span class="nv">k</span> : Pb --&gt; Pb)
+        (<span class="nv">kH1</span> : PushoutIn1 Pb · k = PushoutIn1 Pb)
+        (<span class="nv">kH2</span> : PushoutIn2 Pb · k = PushoutIn2 Pb) :
+    identity Pb = k.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H1 := tpair ((<span class="k">fun</span> <span class="nv">hk</span> : Pb --&gt; Pb =&gt; dirprod (_ · hk = _)(_ · hk = _)))
+                     k (make_dirprod kH1 kH2)).
+    <span class="nb">assert</span> (H2 : identity_is_Pushout_input Pb = H1).
+    - <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">apply</span> (isPushout_Pushout Pb).
+      <span class="nb">apply</span> PushoutSqrCommutes.
+    - <span class="nb">apply</span> (base_paths _ _ H2).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pushout f g) : Pb --&gt; Pb'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (PushoutArrow Pb Pb' (PushoutIn1 _ ) (PushoutIn2 _)).
+    <span class="bp">exact</span> (PushoutSqrCommutes _ ).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b}
+        {<span class="nv">g</span> : a --&gt; c} (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pushout f g) :
+    is_inverse_in_precat (from_Pushout_to_Pushout Pb' Pb)
+                         (from_Pushout_to_Pushout Pb Pb').
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+
+    <span class="sd">(** First identity *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> PushoutEndo_is_identity.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+    <span class="nb">apply</span> idpath.
+
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+    <span class="nb">apply</span> idpath.
+
+    <span class="sd">(** Second identity *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> PushoutEndo_is_identity.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+    <span class="nb">apply</span> idpath.
+
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">unfold</span> from_Pushout_to_Pushout.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+    <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">isziso_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+        (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pushout f g) :
+    is_z_isomorphism (from_Pushout_to_Pushout Pb Pb').
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">from_Pushout_to_Pushout</span> <span class="nv">Pb'</span> <span class="nv">Pb</span>).
+    <span class="nb">apply</span> are_inverses_from_Pushout_to_Pushout.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_from_Pushout_to_Pushout</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; c}
+             (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pushout f g) : z_iso Pb Pb' :=
+    tpair _ _ (isziso_from_Pushout_to_Pushout Pb Pb').
+
+
+  <span class="kn">Lemma</span> <span class="nf">inv_from_z_iso_z_iso_from_Pushout</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+        (<span class="nv">Pb</span> : Pushout f g) (<span class="nv">Pb'</span> : Pushout f g):
+      inv_from_z_iso (z_iso_from_Pushout_to_Pushout Pb Pb')
+      = from_Pushout_to_Pushout Pb' Pb.
+  <span class="kn">Proof</span>.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> inv_z_iso_unique'.
+      <span class="nb">set</span> (T:= are_inverses_from_Pushout_to_Pushout Pb' Pb).
+      <span class="nb">apply</span> (pr1 T).
+  <span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">def_po</span>.
+
+<span class="sd">(** Make the C not implicit for Pushouts *)</span>
+<span class="kn">Arguments</span> Pushouts : <span class="kn">clear implicits</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Universal_Unique</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Hypothesis</span> <span class="nv">H</span> : is_univalent C.
+
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_Pushouts</span>: isaprop (Pushouts C).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> impred; <span class="nb">intro</span> a; <span class="nb">apply</span> impred; <span class="nb">intro</span> b; <span class="nb">apply</span> impred; <span class="nb">intro</span> c;
+        <span class="nb">apply</span> impred; <span class="nb">intro</span> p1; <span class="nb">apply</span> impred; <span class="nb">intro</span> p2;
+          <span class="nb">apply</span> invproofirrelevance.
+      <span class="nb">intros</span> Pb Pb'.
+      <span class="nb">apply</span> subtypePath.
+      - <span class="nb">intro</span>; <span class="nb">apply</span> isofhleveltotal2.
+        + <span class="nb">apply</span> C.
+        + <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_isPushout.
+      - <span class="nb">apply</span> (total2_paths_f
+                 (isotoid _ H (z_iso_from_Pushout_to_Pushout Pb Pb' ))).
+        <span class="nb">rewrite</span> transportf_dirprod, transportf_isotoid', transportf_isotoid'.
+        <span class="nb">fold</span> (PushoutIn1 Pb). <span class="nb">fold</span> (PushoutIn2 Pb).
+        use (dirprodeq); <span class="nb">simpl</span>.
+
+        <span class="nb">destruct</span> Pb <span class="k">as</span> [Cone bla];
+          <span class="nb">destruct</span> Pb' <span class="k">as</span> [Cone' bla'];
+          <span class="nb">simpl</span> <span class="k">in</span> *.
+
+        <span class="nb">destruct</span> Cone <span class="k">as</span> [p [h k]];
+          <span class="nb">destruct</span> Cone' <span class="k">as</span> [p' [h' k']];
+          <span class="nb">simpl</span> <span class="k">in</span> *.
+
+        <span class="nb">unfold</span> from_Pushout_to_Pushout.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn1.
+        <span class="nb">apply</span> idpath.
+
+        <span class="nb">unfold</span> from_Pushout_to_Pushout.
+        <span class="nb">rewrite</span> PushoutArrow_PushoutIn2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Universal_Unique</span>.
+
+
+<span class="sd">(** In this section we prove that the pushout of an epimorphism is an</span>
+<span class="sd">  epimorphism. *)</span>
+<span class="kn">Section</span> <span class="nf">epi_po</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="sd">(** The pushout of an epimorphism is an epimorphism. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">EpiPushoutisEpi</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">E</span> : Epi _ a b) (<span class="nv">g</span> : a --&gt; c) (<span class="nv">PB</span> : Pushout E g) :
+    isEpi (PushoutIn2 PB).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isEpi. <span class="nb">intros</span> z g0 h X.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ _ X).
+
+    <span class="nb">set</span> (X0 := maponpaths (<span class="k">λ</span> <span class="nv">f</span>, g · f) X); <span class="nb">simpl</span> <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> X0. <span class="nb">rewrite</span> assoc <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> &lt;- (PushoutSqrCommutes PB) <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> X0. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> X0.
+    <span class="nb">apply</span> (pr2 E _ _ _) <span class="k">in</span> X0. <span class="nb">apply</span> X0.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Same result for the other morphism *)</span>
+  <span class="kn">Lemma</span> <span class="nf">EpiPushoutisEpi'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">E</span> : Epi _ a c) (<span class="nv">PB</span> : Pushout f E) :
+    isEpi (PushoutIn1 PB).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isEpi. <span class="nb">intros</span> z g0 h X.
+    use (MorphismsOutofPushoutEqual (isPushout_Pushout PB) _ _ X).
+
+    <span class="nb">set</span> (X0 := maponpaths (<span class="k">λ</span> <span class="nv">f'</span>, f · f') X); <span class="nb">simpl</span> <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> X0. <span class="nb">rewrite</span> assoc <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> (PushoutSqrCommutes PB) <span class="k">in</span> X0.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> X0. <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> X0.
+    <span class="nb">apply</span> (pr2 E _ _ _) <span class="k">in</span> X0. <span class="nb">apply</span> X0.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">epi_po</span>.
+
+
+<span class="sd">(** Criteria for existence of pushouts. *)</span>
+<span class="kn">Section</span> <span class="nf">po_criteria</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="kn">Definition</span> <span class="nf">Pushout_from_Coequalizer_BinCoproduct_eq</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+             (<span class="nv">f</span> : Z --&gt; X) (<span class="nv">g</span> : Z --&gt; Y) (<span class="nv">BinCoprod</span> : BinCoproduct X Y)
+             (<span class="nv">CEq</span> : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
+    f · ((BinCoproductIn1 BinCoprod) · CoequalizerArrow CEq)
+    = g · ((BinCoproductIn2 BinCoprod) · CoequalizerArrow CEq).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> CoequalizerEqAr.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">Pushout_from_Coequalizer_BinCoproduct_isPushout</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+             (<span class="nv">f</span> : Z --&gt; X) (<span class="nv">g</span> : Z --&gt; Y) (<span class="nv">BinCoprod</span> : BinCoproduct X Y)
+             (<span class="nv">CEq</span> : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
+    isPushout f g (BinCoproductIn1 BinCoprod · CoequalizerArrow CEq)
+               (BinCoproductIn2 BinCoprod · CoequalizerArrow CEq)
+               (Pushout_from_Coequalizer_BinCoproduct_eq
+                  X Y Z f g BinCoprod CEq).
+  <span class="kn">Proof</span>.
+    use make_isPushout.
+    <span class="nb">intros</span> e h k Hk.
+    <span class="nb">set</span> (com1 := BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    <span class="nb">set</span> (com2 := BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">l</span> : _, f · l)) <span class="k">in</span> com1.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">l</span> : _, g · l)) <span class="k">in</span> com2.
+    <span class="nb">rewrite</span> &lt;- com1 <span class="k">in</span> Hk. <span class="nb">rewrite</span> &lt;- com2 <span class="k">in</span> Hk.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> Hk.
+    <span class="nb">apply</span> (unique_exists (CoequalizerOut CEq _ _ Hk)).
+
+    <span class="c">(* Commutativity *)</span>
+    <span class="nb">split</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (CoequalizerCommutes CEq e _).
+    <span class="bp">exact</span> (BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (CoequalizerCommutes CEq e _).
+    <span class="bp">exact</span> (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+
+    <span class="c">(* Equality on equalities of morphisms. *)</span>
+    <span class="nb">intros</span> y. <span class="nb">apply</span> isapropdirprod. <span class="nb">apply</span> C. <span class="nb">apply</span> C.
+
+    <span class="c">(* Uniqueness *)</span>
+    <span class="nb">intros</span> y H. <span class="nb">induction</span> H <span class="k">as</span> [t p]. <span class="nb">apply</span> CoequalizerOutsEq.
+    <span class="nb">apply</span> BinCoproductArrowsEq.
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> t. <span class="nb">rewrite</span> t.
+    <span class="nb">rewrite</span> (CoequalizerCommutes CEq e _). <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (BinCoproductIn1Commutes C _ _ BinCoprod _ h k).
+    <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> p. <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> (CoequalizerCommutes CEq e _). <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (BinCoproductIn2Commutes C _ _ BinCoprod _ h k).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushout_from_Coequalizer_BinCoproduct</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C)
+             (<span class="nv">f</span> : Z --&gt; X) (<span class="nv">g</span> : Z --&gt; Y) (<span class="nv">BinCoprod</span> : BinCoproduct X Y)
+             (<span class="nv">CEq</span> : Coequalizer (f · (BinCoproductIn1 BinCoprod))
+                                (g · (BinCoproductIn2 BinCoprod))) :
+    Pushout f g.
+  <span class="kn">Proof</span>.
+    use (make_Pushout f g CEq ((BinCoproductIn1 BinCoprod)
+                               · CoequalizerArrow CEq)
+                    ((BinCoproductIn2 BinCoprod) · CoequalizerArrow CEq)).
+    - <span class="nb">apply</span> Pushout_from_Coequalizer_BinCoproduct_eq.
+    - <span class="nb">apply</span> Pushout_from_Coequalizer_BinCoproduct_isPushout.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pushouts_from_Coequalizers_BinCoproducts</span>
+             (<span class="nv">BinCoprods</span> : BinCoproducts C)
+             (<span class="nv">CEqs</span> : Coequalizers C) : Pushouts C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z X Y f g.
+    use (Pushout_from_Coequalizer_BinCoproduct X Y Z f g).
+    <span class="nb">apply</span> BinCoprods.
+    <span class="nb">apply</span> CEqs.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">po_criteria</span>.
+
+
+<span class="kn">Section</span> <span class="nf">lemmas_on_pushouts</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}.
+  <span class="kn">Context</span> {<span class="nv">f</span> : C ⟦a, b⟧} {<span class="nv">g</span> : C ⟦a, c⟧} {<span class="nv">h</span> : C⟦b, d⟧} {<span class="nv">k</span> : C⟦c, d⟧}.
+  <span class="kn">Variable</span> <span class="nv">H</span> : f · h = g · k.
+
+  <span class="sd">(** Pushout is symmetric, i.e., we can rotate a po square *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">is_symmetric_isPushout</span> : isPushout _ _ _ _ H -&gt; isPushout _ _ _ _ (!H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> isPo.
+    <span class="nb">set</span> (Po := make_Pushout _ _ _ _ _ _ isPo).
+    use make_isPushout.
+    <span class="nb">intros</span> e x y Hxy.
+    use unique_exists.
+    - use (PushoutArrow Po).
+      + <span class="bp">exact</span> y.
+      + <span class="bp">exact</span> x.
+      + <span class="bp">exact</span> (! Hxy).
+    - <span class="nb">cbn</span>. <span class="nb">split</span>.
+      + <span class="nb">apply</span> (PushoutArrow_PushoutIn2 Po).
+      + <span class="nb">apply</span> (PushoutArrow_PushoutIn1 Po).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> C.
+      + <span class="nb">apply</span> C.
+    - <span class="nb">intros</span> y0. <span class="nb">intros</span> X. <span class="nb">cbn</span> <span class="k">in</span> X.
+      use PushoutArrowUnique.
+      + <span class="bp">exact</span> (dirprod_pr2 X).
+      + <span class="bp">exact</span> (dirprod_pr1 X).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">lemmas_on_pushouts</span>.
+
+
+<span class="kn">Section</span> <span class="nf">pushout_up_to_z_iso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Local Lemma</span> <span class="nf">isPushout_up_to_z_iso_eq</span> {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+        (<span class="nv">in1</span> : b --&gt; d) (<span class="nv">in2</span> : c --&gt; d) (<span class="nv">H</span> : f · in1 = g · in2) (<span class="nv">i</span> : z_iso a' a) :
+    i · f · in1 = i · g · in2.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isPushout_up_to_z_iso</span> {<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : a --&gt; c)
+        (<span class="nv">in1</span> : b --&gt; d) (<span class="nv">in2</span> : c --&gt; d) (<span class="nv">H</span> : f · in1 = g · in2) (<span class="nv">i</span> : z_iso a' a)
+        (<span class="nv">iPo</span> : isPushout (i · f) (i · g) in1 in2 (isPushout_up_to_z_iso_eq f g in1 in2 H i)) :
+    isPushout f g in1 in2 H.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (Po := make_Pushout _ _ _ _ _ _ iPo).
+    use make_isPushout.
+    <span class="nb">intros</span> e h k Hk.
+    use unique_exists.
+    - use (PushoutArrow Po).
+      + <span class="bp">exact</span> h.
+      + <span class="bp">exact</span> k.
+      + use isPushout_up_to_z_iso_eq. <span class="bp">exact</span> Hk.
+    - <span class="nb">cbn</span>. <span class="nb">split</span>.
+      + <span class="bp">exact</span> (PushoutArrow_PushoutIn1 Po e h k (isPushout_up_to_z_iso_eq f g h k Hk i)).
+      + <span class="bp">exact</span> (PushoutArrow_PushoutIn2 Po e h k (isPushout_up_to_z_iso_eq f g h k Hk i)).
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> isapropdirprod.
+      + <span class="nb">apply</span> C.
+      + <span class="nb">apply</span> C.
+    - <span class="nb">intros</span> y X. <span class="nb">cbn</span> <span class="k">in</span> X.
+      use PushoutArrowUnique.
+      + <span class="bp">exact</span> (dirprod_pr1 X).
+      + <span class="bp">exact</span> (dirprod_pr2 X).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">pushout_up_to_z_iso</span>.
+
+
+<span class="kn">Section</span> <span class="nf">pushout_paths</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Lemma</span> <span class="nf">isPushout_mor_paths</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">f1</span> <span class="nv">f2</span> : a --&gt; b} {<span class="nv">g1</span> <span class="nv">g2</span> : a --&gt; c} {<span class="nv">in11</span> <span class="nv">in21</span> : b --&gt; d}
+        {<span class="nv">in12</span> <span class="nv">in22</span> : c --&gt; d} (<span class="nv">e1</span> : f1 = f2) (<span class="nv">e2</span> : g1 = g2) (<span class="nv">e3</span> : in11 = in21) (<span class="nv">e4</span> : in12 = in22)
+        (<span class="nv">H1</span> : f1 · in11 = g1 · in12) (<span class="nv">H2</span> : f2 · in21 = g2 · in22)
+        (<span class="nv">iPo</span> : isPushout f1 g1 in11 in12 H1) : isPushout f2 g2 in21 in22 H2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e1, e2, e3, e4.
+    <span class="nb">assert</span> (e5 : H1 = H2) <span class="bp">by</span> <span class="nb">apply</span> C.
+    <span class="nb">induction</span> e5.
+    <span class="bp">exact</span> iPo.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">pushout_paths</span>.
+
+<span class="sd">(**</span>
+<span class="sd">Proof that f: A -&gt; B is an epi is the same as saying that the diagram</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">A ---&gt; B</span>
+<span class="sd">|      |</span>
+<span class="sd">|      |  id</span>
+<span class="sd">‌v     ‌‌ v</span>
+<span class="sd">B----&gt; B</span>
+<span class="sd">  id</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">is a pushout</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">EpiPushoutId</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">A</span> <span class="nv">B</span> : C} (<span class="nv">f</span> : C⟦A,B ⟧).
+
+  <span class="kn">Lemma</span> <span class="nf">epi_to_pushout</span> : isEpi f -&gt; isPushout f f (identity _) (identity _) (idpath _).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> h.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span> x p1 p2 eqx.
+    <span class="nb">assert</span> (hp : p1 = p2).
+    { <span class="bp">now</span> <span class="nb">apply</span> h. }
+    <span class="nb">induction</span> hp.
+    <span class="nb">apply</span> (unique_exists p1).
+    - <span class="nb">split</span>; <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> y [h1 _].
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> h1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pushout_to_epi</span> : isPushout f f (identity _) (identity _) (idpath _)
+                          -&gt; isEpi f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> hf.
+    <span class="nb">intros</span> D p1 p2 hp.
+    <span class="nb">apply</span> hf <span class="k">in</span> hp.
+    <span class="nb">destruct</span> hp <span class="k">as</span> [[p [hp1 hp2]] _].
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- hp1,hp2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">EpiPushoutId</span>.
+
+<span class="kn">Lemma</span> <span class="nf">induced_precategory_reflects_pushouts</span> {<span class="nv">M</span> : category} {<span class="nv">X</span> : <span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M)
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : induced_category M j}
+      (<span class="nv">f</span> : b &lt;-- a) (<span class="nv">g</span> : c &lt;-- a) (<span class="nv">p1</span> : d &lt;-- b) (<span class="nv">p2</span> : d &lt;-- c)
+      (<span class="nv">H</span> : p1 ∘ f = p2 ∘ g) :
+  isPushout (# (induced_precategory_incl j) f)
+            (# (induced_precategory_incl j) g)
+            (# (induced_precategory_incl j) p1)
+            (# (induced_precategory_incl j) p2) H -&gt;
+  isPushout f g p1 p2 H.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">pb</span> <span class="nv">T</span>, pb (j T)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Pushouts.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Definition of Epi in terms of a pushout diagram
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

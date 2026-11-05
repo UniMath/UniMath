@@ -1,0 +1,824 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpCellBicatLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************</span>
+
+<span class="sd"> Limits in op2 bicat</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Final object</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> 3. Mirroring pullbacks</span>
+<span class="sd"> 4. Pullbacks in op2 bicat</span>
+<span class="sd"> 5. Comma objects</span>
+<span class="sd"> 6. Eilenberg-Moore objects</span>
+
+<span class="sd"> ***********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.CommaObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.EilenbergMooreObjects.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.EilenbergMooreComonad.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.MonadInclusion.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Final object</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">op2_bicat_bifinal</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> : B}
+           (<span class="nv">Hx</span> : is_bifinal x)
+  : @is_bifinal (op2_bicat B) x.
+<span class="kn">Proof</span>.
+  use make_is_bifinal.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, is_bifinal_1cell_property Hx y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>, is_bifinal_2cell_property Hx y g f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">β</span>, is_bifinal_eq_property Hx y g f α β).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Products</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ProductOp2</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">p₁</span> : a --&gt; x)
+          (<span class="nv">p₂</span> : a --&gt; y)
+          (<span class="nv">cone</span> := make_binprod_cone a p₁ p₂)
+          (<span class="nv">ump</span> : has_binprod_ump cone).
+
+  <span class="kn">Definition</span> <span class="nf">op2_binprod_cone</span>
+    : @binprod_cone (op2_bicat B) x y
+    := make_binprod_cone a p₁ p₂.
+
+  <span class="kn">Definition</span> <span class="nf">has_binprod_ump_1_op_cell</span>
+             (<span class="nv">q</span> : @binprod_cone (op2_bicat B) x y)
+    : binprod_1cell q op2_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (k₁ := binprod_cone_pr1 q).
+    <span class="nb">pose</span> (k₂ := binprod_cone_pr2 q).
+    use make_binprod_1cell.
+    - <span class="bp">exact</span> (binprod_ump_1cell ump k₁ k₂).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (binprod_ump_1cell_pr1 ump _ k₁ k₂)).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (binprod_ump_1cell_pr2 ump _ k₁ k₂)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_binprod_ump_2_op_cell</span>
+    : binprod_ump_2 op2_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q φ ψ α β.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="bp">exact</span> (binprod_ump_2cell_unique_alt
+                  ump
+                  _ _
+                  (pr12 φ₁ @ !(pr12 φ₂))
+                  (pr22 φ₁ @ !(pr22 φ₂)))).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (binprod_ump_2cell ump α β).
+      + <span class="bp">exact</span> (binprod_ump_2cell_pr1 ump α β).
+      + <span class="bp">exact</span> (binprod_ump_2cell_pr2 ump α β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_bicat_has_binprod_ump</span>
+    : has_binprod_ump op2_binprod_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> has_binprod_ump_1_op_cell.
+    - <span class="bp">exact</span> has_binprod_ump_2_op_cell.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProductOp2</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Mirroring pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">mirror_cone</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           {<span class="nv">f</span> : x --&gt; z}
+           {<span class="nv">g</span> : y --&gt; z}
+           (<span class="nv">p</span> : pb_cone f g)
+  : pb_cone g f
+  := make_pb_cone
+       p
+       (pb_cone_pr2 p) (pb_cone_pr1 p)
+       (inv_of_invertible_2cell (pb_cone_cell p)).
+
+<span class="kn">Section</span> <span class="nf">Mirroring</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">pb</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+          {<span class="nv">f</span> : x --&gt; z}
+          {<span class="nv">g</span> : y --&gt; z}
+          {<span class="nv">p₁</span> : pb --&gt; x}
+          {<span class="nv">p₂</span> : pb --&gt; y}
+          {<span class="nv">γ</span> : invertible_2cell (p₁ · f) (p₂ · g)}
+          (<span class="nv">cone</span> := make_pb_cone pb p₁ p₂ γ)
+          (<span class="nv">pb_sqr</span> : has_pb_ump cone).
+
+  <span class="kn">Definition</span> <span class="nf">mirror_has_pb_ump</span>
+    : has_pb_ump (mirror_cone cone).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> q.
+      use make_pb_1cell.
+      + <span class="bp">exact</span> (pb_ump_mor pb_sqr (mirror_cone q)).
+      + <span class="bp">exact</span> (pb_ump_mor_pr2 pb_sqr (mirror_cone q)).
+      + <span class="bp">exact</span> (pb_ump_mor_pr1 pb_sqr (mirror_cone q)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">pose</span> (r := pb_ump_mor_cell pb_sqr (mirror_cone q)) ;
+           <span class="nb">cbn</span> <span class="k">in</span> r ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="kp">do</span> <span class="mi">2</span> (use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span>) ;
+           <span class="nb">rewrite</span> !vassocl <span class="k">in</span> r ;
+           <span class="bp">exact</span> (!r)).
+    - <span class="nb">intros</span> w φ ψ α β q.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> ζ₁ ζ₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+           <span class="nb">refine</span> (pb_ump_eq
+                     pb_sqr
+                     φ ψ β α
+                     _ _ _
+                     (pr22 ζ₁) (pr12 ζ₁)
+                     (pr22 ζ₂) (pr12 ζ₂)) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">cbn</span> <span class="k">in</span> q ;
+           use vcomp_move_R_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> q ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> vcomp_linv ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">apply</span> idpath).
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * use (pb_ump_cell pb_sqr φ ψ β α).
+          <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">cbn</span> <span class="k">in</span> q ;
+             use vcomp_move_R_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> q ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> lwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> lwhisker_id2 ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">apply</span> idpath).
+        * <span class="bp">exact</span> (pb_ump_cell_pr2 pb_sqr φ ψ β α _).
+        * <span class="bp">exact</span> (pb_ump_cell_pr1 pb_sqr φ ψ β α _).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Mirroring</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Pullbacks in op2 bicat</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">to_op2_pb_cone</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">pb</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           {<span class="nv">f</span> : x --&gt; z}
+           {<span class="nv">g</span> : y --&gt; z}
+           {<span class="nv">p₁</span> : pb --&gt; x}
+           {<span class="nv">p₂</span> : pb --&gt; y}
+           (<span class="nv">γ</span> : invertible_2cell (p₁ · f) (p₂ · g))
+           (<span class="nv">cone</span> := make_pb_cone pb p₁ p₂ γ)
+  : @pb_cone (op2_bicat B) _ _ _ f g.
+<span class="kn">Proof</span>.
+  use make_pb_cone.
+  - <span class="bp">exact</span> pb.
+  - <span class="bp">exact</span> p₁.
+  - <span class="bp">exact</span> p₂.
+  - <span class="nb">apply</span> weq_op2_invertible_2cell.
+    <span class="bp">exact</span> (inv_of_invertible_2cell γ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_op2_pb_cone</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           {<span class="nv">f</span> : x --&gt; z}
+           {<span class="nv">g</span> : y --&gt; z}
+           (<span class="nv">cone</span> : @pb_cone (op2_bicat B) _ _ _ f g)
+  : pb_cone f g.
+<span class="kn">Proof</span>.
+  use make_pb_cone.
+  - <span class="bp">exact</span> cone.
+  - <span class="bp">exact</span> (pb_cone_pr1 cone).
+  - <span class="bp">exact</span> (pb_cone_pr2 cone).
+  - <span class="bp">exact</span> (inv_of_invertible_2cell
+             (invmap
+                (weq_op2_invertible_2cell _ _)
+                (pb_cone_cell cone))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">ToOp2Pullback</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">pb</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+          {<span class="nv">f</span> : x --&gt; z}
+          {<span class="nv">g</span> : y --&gt; z}
+          {<span class="nv">p₁</span> : pb --&gt; x}
+          {<span class="nv">p₂</span> : pb --&gt; y}
+          (<span class="nv">γ</span> : invertible_2cell (p₁ · f) (p₂ · g))
+          (<span class="nv">cone</span> := make_pb_cone pb p₁ p₂ γ)
+          (<span class="nv">H</span> : has_pb_ump cone).
+
+  <span class="kn">Definition</span> <span class="nf">to_op2_pb_ump_1</span>
+    : pb_ump_1 (to_op2_pb_cone γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    use make_pb_1cell ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (pb_ump_mor H (from_op2_pb_cone q)).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell
+               (pb_ump_mor_pr1 H (from_op2_pb_cone q))).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell
+               (pb_ump_mor_pr2 H (from_op2_pb_cone q))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">pose</span> (pb_ump_mor_cell H (from_op2_pb_cone q)) <span class="k">as</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+         use vcomp_move_L_pM ; [ is_iso | ] ;
+         use vcomp_move_R_Mp ; [ is_iso | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+         use vcomp_move_L_pM ;
+         [ <span class="nb">apply</span> from_op2_is_invertible_2cell ;
+           <span class="nb">apply</span> property_from_invertible_2cell
+         | ] ;
+         <span class="nb">cbn</span> ;
+         use vcomp_move_L_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+         use vcomp_move_L_pM ; [ is_iso | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ !p) ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_op2_pb_ump_2</span>
+    : pb_ump_2 (to_op2_pb_cone γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w φ ψ α β p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> ζ₁ ζ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         use (pb_ump_eq H _ _ α β _ _ _ (pr12 ζ₁) (pr22 ζ₁) (pr12 ζ₂) (pr22 ζ₂)) ;
+         <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> !vassocl ;
+         use vcomp_move_R_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         use vcomp_move_L_Mp ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="bp">exact</span> p).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + use (pb_ump_cell H ψ φ α β).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !vassocl ;
+           use vcomp_move_R_pM ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           use vcomp_move_L_Mp ; [ is_iso ; <span class="nb">apply</span> property_from_invertible_2cell | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> p).
+      + <span class="nb">split</span>.
+        * <span class="nb">apply</span> (pb_ump_cell_pr1 H ψ φ α β).
+        * <span class="nb">apply</span> (pb_ump_cell_pr2 H ψ φ α β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_op2_has_pb_ump</span>
+    : has_pb_ump (to_op2_pb_cone γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> to_op2_pb_ump_1.
+    - <span class="bp">exact</span> to_op2_pb_ump_2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToOp2Pullback</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Comma objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Op2Comma</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">c</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+          {<span class="nv">f</span> : x --&gt; z}
+          {<span class="nv">g</span> : y --&gt; z}
+          {<span class="nv">p₁</span> : c --&gt; x}
+          {<span class="nv">p₂</span> : c --&gt; y}
+          {<span class="nv">γ</span> : p₁ · f ==&gt; p₂ · g}
+          (<span class="nv">cone</span> := make_comma_cone c p₁ p₂ γ)
+          (<span class="nv">comma_sqr</span> : has_comma_ump cone).
+
+  <span class="kn">Definition</span> <span class="nf">op2_comma_cone</span>
+    : @comma_cone (op2_bicat B) _ _ _ g f.
+  <span class="kn">Proof</span>.
+    use make_comma_cone.
+    - <span class="bp">exact</span> c.
+    - <span class="bp">exact</span> p₂.
+    - <span class="bp">exact</span> p₁.
+    - <span class="bp">exact</span> γ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_comma_has_comma_ump_1</span>
+    : comma_ump_1 op2_comma_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    <span class="nb">pose</span> (q' := make_comma_cone
+                  _
+                  (comma_cone_pr2 q : B ⟦ _ , _ ⟧)
+                  (comma_cone_pr1 q)
+                  (comma_cone_cell q)).
+    use make_comma_1cell ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (comma_ump_mor comma_sqr q').
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (comma_ump_mor_pr2 comma_sqr q')).
+    - <span class="nb">apply</span> weq_op2_invertible_2cell.
+      <span class="bp">exact</span> (inv_of_invertible_2cell (comma_ump_mor_pr1 comma_sqr q')).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (comma_ump_mor_cell comma_sqr q' @ _) ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_comma_has_comma_ump_2</span>
+    : comma_ump_2 op2_comma_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> q φ ψ α β p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> ζ₁ ζ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">refine</span> (comma_ump_eq
+                   comma_sqr
+                   _ _
+                   β α
+                   _ _ _
+                   (pr22 ζ₁) (pr12 ζ₁) (pr22 ζ₂) (pr12 ζ₂)) ;
+         <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="bp">exact</span> (!p)).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + use (comma_ump_cell comma_sqr _ _ β α).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="bp">exact</span> (!p)).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> (comma_ump_cell_pr2 comma_sqr)).
+      + <span class="kp">abstract</span> (<span class="nb">apply</span> (comma_ump_cell_pr1 comma_sqr)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_comma_has_comma_ump</span>
+    : has_comma_ump op2_comma_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> op2_comma_has_comma_ump_1.
+    - <span class="bp">exact</span> op2_comma_has_comma_ump_2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Op2Comma</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Eilenberg-Moore objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">em_comnd_cone_to_op2_em_cone</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">m</span> : mnd (op2_bicat B)}
+           (<span class="nv">e</span> : em_comnd_cone m)
+  : em_cone m.
+<span class="kn">Proof</span>.
+  use make_em_cone.
+  - <span class="bp">exact</span> e.
+  - <span class="bp">exact</span> (mor_of_em_comnd_cone _ e).
+  - <span class="bp">exact</span> (lunitor _ • cell_of_em_comnd_cone _ e).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !vassocr ;
+       use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="bp">exact</span> (!(em_comnd_cone_counit _ e))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">refine</span> (_ @ em_comnd_cone_comult _ e) ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">rewrite</span> !vassocr ;
+       <span class="nb">rewrite</span> rwhisker_vcomp ;
+       <span class="nb">rewrite</span> !vassocr ;
+       <span class="nb">rewrite</span> linvunitor_lunitor ;
+       <span class="nb">rewrite</span> id2_left ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">ComonadEilenbergMoore</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">m</span> : mnd (op2_bicat B)}
+          {<span class="nv">e</span> : em_comnd_cone m}
+          (<span class="nv">He</span> : has_em_comnd_ump m e).
+
+  <span class="kn">Section</span> <span class="nf">UMP1</span>.
+    <span class="kn">Context</span> (<span class="nv">q</span> : em_cone m).
+
+    <span class="kn">Let</span> <span class="nf">f</span> : B ⟦ q , ob_of_mnd m ⟧ := mor_of_mnd_mor (mor_of_em_cone _ q).
+    <span class="kn">Let</span> <span class="nf">γ</span> : id₁ _ · f
+            ==&gt;
+            f · endo_of_mnd m
+      := mnd_mor_endo (mor_of_em_cone _ q).
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_mor_unit</span>
+      : (linvunitor f • γ) • (f ◃ unit_of_mnd m) = rinvunitor f.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_R_pM ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      use vcomp_move_L_Mp ; [ is_iso | ] ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (!(mnd_mor_unit (mor_of_em_cone _ q)) @ _).
+      <span class="nb">refine</span> (_ @ id2_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_mor_mult</span>
+      : ((linvunitor f • γ)
+        • ((linvunitor f • γ) ▹ endo_of_mnd m))
+        • rassociator f (endo_of_mnd m) (endo_of_mnd m)
+        =
+        (linvunitor f
+        • γ)
+        • (f ◃ mult_of_mnd m).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">assert</span> (γ
+              • (((linvunitor _ • γ) ▹ _)
+              • rassociator _ _ _)
+              =
+              (linvunitor _ ▹ _)
+              • (rassociator _ _ _
+              • ((_ ◃ γ)
+              • (lassociator _ _ _
+              • ((γ ▹ _)
+              • rassociator _ _ _)))))
+        <span class="k">as</span> p.
+      {
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- linvunitor_assoc.
+        <span class="nb">rewrite</span> lwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> linvunitor_assoc.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="bp">exact</span> (p @ mnd_mor_mu (mor_of_em_cone _ q)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_mor</span>
+      : q --&gt; em_comnd_cone_to_op2_em_cone e.
+    <span class="kn">Proof</span>.
+      use (em_comnd_ump_mor m He).
+      - <span class="bp">exact</span> f.
+      - <span class="bp">exact</span> (linvunitor _ • γ).
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_1_mor_unit.
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_1_mor_mult.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_cell_data</span>
+      : mnd_cell_data
+          (# (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_1_mor
+           · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e))
+          (mor_of_em_cone m q)
+      := em_comnd_ump_mor_cell
+           m He
+           f
+           (linvunitor _ • γ)
+           op2_bicat_has_em_ump_1_mor_unit
+           op2_bicat_has_em_ump_1_mor_mult.
+
+    <span class="kn">Let</span> <span class="nf">δ</span> : (mor_of_mnd_mor (mor_of_em_cone m q) : B ⟦ _ , _ ⟧)
+            ==&gt;
+            op2_bicat_has_em_ump_1_mor · mor_of_em_comnd_cone m e
+      := op2_bicat_has_em_ump_1_cell_data.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_cell_is_mnd_cell</span>
+      : is_mnd_cell op2_bicat_has_em_ump_1_cell_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (p := em_comnd_ump_mor_cell_endo
+                   m He
+                   f
+                   (linvunitor _ • γ)
+                   op2_bicat_has_em_ump_1_mor_unit
+                   op2_bicat_has_em_ump_1_mor_mult).
+      use (vcomp_lcancel (linvunitor _)) ; [ is_iso | ].
+      <span class="nb">refine</span> (_ @ vassocl _ _ _).
+      <span class="nb">refine</span> (_ @ !p) ; <span class="nb">clear</span> p.
+      <span class="nb">assert</span> (linvunitor _
+              • ((_ ◃ δ)
+              • (lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)))))
+              =
+              (δ
+              • (_ ◃ cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)
+        <span class="k">as</span> p.
+      {
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (@linvunitor_assoc B).
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> (@rassociator_lassociator B).
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> (@rwhisker_vcomp B).
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- (@triangle_r_inv B).
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">rewrite</span> (@lwhisker_vcomp B).
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1_cell</span>
+      : # (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_1_mor
+        · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)
+        ==&gt;
+        mor_of_em_cone m q.
+    <span class="kn">Proof</span>.
+      use make_mnd_cell.
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_1_cell_data.
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_1_cell_is_mnd_cell.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_1</span>
+      : em_cone_mor m q (em_comnd_cone_to_op2_em_cone e).
+    <span class="kn">Proof</span>.
+      use make_em_cone_mor.
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_1_mor.
+      - use make_invertible_2cell.
+        + <span class="bp">exact</span> op2_bicat_has_em_ump_1_cell.
+        + use is_invertible_mnd_2cell.
+          <span class="nb">apply</span> to_op2_is_invertible_2cell.
+          <span class="nb">apply</span> (em_comnd_ump_mor_cell_is_invertible m He).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">UMP1</span>.
+
+  <span class="kn">Section</span> <span class="nf">UMP2</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : op2_bicat B}
+            {<span class="nv">g₁</span> <span class="nv">g₂</span> : x --&gt; em_comnd_cone_to_op2_em_cone e}
+            (<span class="nv">α</span> : # (mnd_incl (op2_bicat B)) g₁
+                 · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)
+                 ==&gt;
+                 # (mnd_incl (op2_bicat B)) g₂
+                 · mor_of_em_cone m (em_comnd_cone_to_op2_em_cone e)).
+
+    <span class="kn">Let</span> <span class="nf">αcell</span> : (g₂ · mor_of_em_comnd_cone m e : B ⟦ _ , _ ⟧)
+                ==&gt;
+                g₁ · mor_of_em_comnd_cone m e
+        := cell_of_mnd_cell α.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_2_help</span>
+      : αcell
+        • (_ ◃ cell_of_em_comnd_cone m e)
+        • lassociator _ _ _
+        =
+        (_ ◃ cell_of_em_comnd_cone m e)
+        • lassociator _ _ _
+        • (αcell ▹ endo_of_mnd m).
+    <span class="kn">Proof</span>.
+      use (vcomp_lcancel (lunitor _)) ; [ is_iso | ].
+      <span class="nb">assert</span> (lunitor _
+              • ((αcell
+              • (_ ◃ cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)
+              =
+              (_ ◃ αcell)
+              • (lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _)))))
+        <span class="k">as</span> p₁.
+      {
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lunitor_triangle.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) _).
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_hcomp.
+          <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+          <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+          <span class="nb">rewrite</span> lwhisker_vcomp.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> linvunitor_lunitor.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> vcomp_lunitor.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">assert</span> ((lassociator _ _ _
+              • (((lunitor _ • rinvunitor _) ▹ mor_of_em_comnd_cone m e)
+              • (rassociator _ _ _
+              • ((_ ◃ (lunitor _ • cell_of_em_comnd_cone m e))
+              • lassociator _ _ _))))
+              • (αcell ▹ _)
+              =
+              lunitor _
+              • (((_ ◃ cell_of_em_comnd_cone m e)
+              • lassociator _ _ _)
+              • (αcell ▹ endo_of_mnd m)))
+        <span class="k">as</span> p₂.
+      {
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lunitor_triangle.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">refine</span> (_ @ id2_right _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_hcomp.
+        <span class="nb">rewrite</span> &lt;- triangle_r_inv.
+        <span class="nb">rewrite</span> &lt;- lwhisker_hcomp.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> linvunitor_lunitor.
+        <span class="nb">apply</span> lwhisker_id2.
+      }
+      <span class="bp">exact</span> (p₁ @ mnd_cell_endo α @ p₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_2_unique</span>
+      : isaprop (∑ β : g₁ ==&gt; g₂, ## (mnd_incl (op2_bicat B)) β ▹ _ = α).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> β₁ β₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> cellset_property.
+      }
+      use (em_comnd_ump_eq m He).
+      - <span class="bp">exact</span> (pr1 β₁ ▹ mor_of_em_comnd_cone m e).
+      - <span class="nb">rewrite</span> vcomp_whisker.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_rwhisker.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> idpath.
+      - <span class="bp">exact</span> (!(maponpaths pr1 (pr2 β₁ @ !(pr2 β₂)))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_2_cell</span>
+      : g₁ ==&gt; g₂.
+    <span class="kn">Proof</span>.
+      use (em_comnd_ump_cell m He).
+      - <span class="bp">exact</span> αcell.
+      - <span class="bp">exact</span> op2_bicat_has_em_ump_2_help.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_2_cell_eq</span>
+      : ## (mnd_incl (op2_bicat B)) op2_bicat_has_em_ump_2_cell ▹ _ = α.
+    <span class="kn">Proof</span>.
+      use eq_mnd_cell.
+      <span class="nb">apply</span> (em_comnd_ump_cell_eq m He).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP2</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump_2</span>
+    : em_ump_2 m (em_comnd_cone_to_op2_em_cone e).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x g₁ g₂ α.
+    use iscontraprop1.
+    - <span class="nb">apply</span> op2_bicat_has_em_ump_2_unique.
+    - <span class="bp">exact</span> (op2_bicat_has_em_ump_2_cell α ,, op2_bicat_has_em_ump_2_cell_eq α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">op2_bicat_has_em_ump</span>
+    : has_em_ump m (em_comnd_cone_to_op2_em_cone e).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> op2_bicat_has_em_ump_1.
+    - <span class="bp">exact</span> op2_bicat_has_em_ump_2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ComonadEilenbergMoore</span>.
+
+<span class="kn">Definition</span> <span class="nf">op2_bicat_has_em</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : has_em_comnd B)
+  : bicat_has_em (op2_bicat B)
+  := <span class="k">λ</span> <span class="nv">m</span>,
+     <span class="k">let</span> <span class="nv">e</span> := HB m
+     <span class="k">in</span> em_comnd_cone_to_op2_em_cone (pr1 e) ,, op2_bicat_has_em_ump (pr2 e).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/Examples/OpCellBicatLimits.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Eilenberg-Moore objects
+  &gt;
+  &gt;  ***********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Basics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Posets</span>
+
+<span class="sd"> In this file, we some basic constructions and theory on posets.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Accessors for posets</span>
+<span class="sd"> 2. The unit poset</span>
+<span class="sd"> 3. The product of posets</span>
+<span class="sd"> 4. Type indexed products of posets</span>
+<span class="sd"> 5. The equalizer of posets</span>
+<span class="sd"> 6. The booleans as partial order</span>
+<span class="sd"> 7. Discrete partial orders</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Accessors for posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">trans_PartialOrder</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">R</span> : PartialOrder X)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : X}
+            (<span class="nv">p</span> : R x₁ x₂)
+            (<span class="nv">q</span> : R x₂ x₃)
+  : R x₁ x₃.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr112 R _ _ _ p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">refl_PartialOrder</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">R</span> : PartialOrder X)
+            (<span class="nv">x</span> : X)
+  : R x x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr212 R x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">antisymm_PartialOrder</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">R</span> : PartialOrder X)
+            {<span class="nv">x</span> <span class="nv">y</span> : X}
+            (<span class="nv">p</span> : R x y)
+            (<span class="nv">q</span> : R y x)
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 R _ _ p q).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The unit poset</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_PartialOrder</span>
+  : PartialOrder unitset.
+<span class="kn">Proof</span>.
+  use make_PartialOrder.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, htrue).
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    <span class="nb">intros</span> x y p q.
+    <span class="nb">apply</span> isapropunit.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The product of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ProdOrder</span>.
+  <span class="kn">Context</span> {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+          (<span class="nv">R₁</span> : PartialOrder X₁)
+          (<span class="nv">R₂</span> : PartialOrder X₂).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : hrel (X₁ × X₂)%<span class="nb">set</span> := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, R₁ (pr1 x) (pr1 y) ∧ R₂ (pr2 x) (pr2 y).
+
+  <span class="kn">Proposition</span> <span class="nf">prod_PartialOrderLaws</span>
+    : isPartialOrder R.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">p</span> <span class="nv">q</span>, _ ,, _).
+      + <span class="bp">exact</span> (trans_PartialOrder R₁ (pr1 p) (pr1 q)).
+      + <span class="bp">exact</span> (trans_PartialOrder R₂ (pr2 p) (pr2 q)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, _ ,, _).
+      + <span class="bp">exact</span> (refl_PartialOrder R₁ (pr1 x)).
+      + <span class="bp">exact</span> (refl_PartialOrder R₂ (pr2 x)).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">q</span>, _).
+      use pathsdirprod.
+      + <span class="bp">exact</span> (antisymm_PartialOrder R₁ (pr1 p) (pr1 q)).
+      + <span class="bp">exact</span> (antisymm_PartialOrder R₂ (pr2 p) (pr2 q)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_PartialOrder</span>
+    : PartialOrder (X₁ × X₂)%<span class="nb">set</span>.
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> R.
+    - <span class="bp">exact</span> prod_PartialOrderLaws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProdOrder</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Type indexed products of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">depfunction_poset</span>
+           {<span class="nv">X</span> : UU}
+           (<span class="nv">Y</span> : X → hSet)
+           (<span class="nv">RY</span> : ∏ (x : X), PartialOrder (Y x))
+  : PartialOrder (forall_hSet Y).
+<span class="kn">Proof</span>.
+  use make_PartialOrder.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span>, <span class="k">∀</span> (<span class="nv">x</span> : X), RY x (f x) (g x)).
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g h p q x ;
+         <span class="bp">exact</span> (trans_PartialOrder (RY x) (p x) (q x))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f x ;
+         <span class="bp">exact</span> (refl_PartialOrder (RY x) (f x))).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f g p q ;
+         use funextsec ;
+         <span class="nb">intro</span> x ;
+         <span class="bp">exact</span> (antisymm_PartialOrder (RY x) (p x) (q x))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The equalizer of posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Equalizer</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">RX</span> : PartialOrder X)
+          (<span class="nv">Y</span> : hSet)
+          (<span class="nv">f</span> <span class="nv">g</span> : X → Y).
+
+  <span class="kn">Let</span> <span class="nf">Eq</span> : hSet
+    := (∑ (x : X), f x = g x) ,, isaset_total2 _ (pr2 X) (<span class="k">λ</span> <span class="nv">_</span>, isasetaprop (pr2 Y _ _)).
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_order</span>
+    : PartialOrder Eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, ((_ ,, _) ,, _)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, RX (pr1 x) (pr1 y)).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">p</span> <span class="nv">q</span>, trans_PartialOrder RX p q)).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, refl_PartialOrder RX (pr1 x))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y p q ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> (pr2 Y) | ] ;
+         <span class="bp">exact</span> (antisymm_PartialOrder RX p q)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Equalizer</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. The booleans as partial order</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">PartialOrder_boolset</span>
+  : PartialOrder boolset.
+<span class="kn">Proof</span>.
+  use make_PartialOrder.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b₁</span> <span class="nv">b₂</span>, <span class="k">if</span> b₁ <span class="k">then</span> <span class="k">if</span> b₂ <span class="k">then</span> htrue <span class="k">else</span> hfalse <span class="k">else</span> htrue).
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> b₁ b₂ b₃ p q ;
+         <span class="nb">induction</span> b₁, b₂, b₃ ; <span class="nb">induction</span> p ; <span class="nb">induction</span> q ;
+         <span class="nb">apply</span> tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> b ;
+         <span class="nb">induction</span> b ; <span class="bp">exact</span> tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> b₁ b₂ p q ;
+         <span class="nb">induction</span> b₁, b₂ ; <span class="nb">induction</span> p ; <span class="nb">induction</span> q ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Discrete partial orders</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">DiscretePartialOrder</span>.
+  <span class="kn">Context</span> (<span class="nv">A</span> : hSet).
+
+  <span class="kn">Definition</span> <span class="nf">discrete_hrel</span>
+    : hrel A
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (x = y)%logic.
+
+  <span class="kn">Proposition</span> <span class="nf">isPartialOrder_discrete_hrel</span>
+    : isPartialOrder discrete_hrel.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((_ ,, _) ,, _).
+    - <span class="nb">intros</span> x y z p q.
+      <span class="bp">exact</span> (p @ q).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idpath _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">q</span>, p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_partial_order</span>
+    : PartialOrder A.
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> discrete_hrel.
+    - <span class="bp">exact</span> isPartialOrder_discrete_hrel.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DiscretePartialOrder</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/Basics.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. Discrete partial orders
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; (**
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

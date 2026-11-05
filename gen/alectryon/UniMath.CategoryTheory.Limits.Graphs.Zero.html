@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Zero.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Zero Objects</span>
+<span class="sd">  Zero objects are objects of precategory which are both initial objects and</span>
+<span class="sd">  terminal object. *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of Zero</span>
+<span class="sd">- Coincides with the direct definition</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of zero using limits and colimits *)</span>
+<span class="kn">Section</span> <span class="nf">def_zero</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** An object c is zero if it initial and terminal. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isZero</span> (<span class="nv">c</span> : C) : UU := (isInitial C c) × (isTerminal C c).
+
+  <span class="sd">(** Construction of isZero for an object c from the conditions that the space</span>
+<span class="sd">    of all morphisms from c to any object d is contractible and and the space of</span>
+<span class="sd">    all morphisms from any object d to c is contractible. *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_isZero</span> (<span class="nv">c</span> : C) (<span class="nv">H</span> : (∏ (d : C), iscontr (c --&gt; d))
+                                      × (∏ (d : C), iscontr (d --&gt; c))) :
+    isZero c := make_isInitial c (dirprod_pr1 H),,make_isTerminal c (dirprod_pr2 H).
+
+  <span class="sd">(** Definition of Zero. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Zero</span> : UU := ∑ c : C, isZero c.
+  <span class="kn">Definition</span> <span class="nf">make_Zero</span> (<span class="nv">c</span> : C) (<span class="nv">H</span> : isZero c) : Zero := tpair _ c H.
+  <span class="kn">Definition</span> <span class="nf">ZeroObject</span> (<span class="nv">Z</span> : Zero) : C := pr1 Z.
+
+  <span class="sd">(** Construction of Initial and Terminal from Zero. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Zero_to_Initial</span> (<span class="nv">Z</span> : Zero) : Initial C :=
+    make_Initial (pr1 Z) (dirprod_pr1 (pr2 Z)).
+  <span class="kn">Definition</span> <span class="nf">Zero_to_Terminal</span> (<span class="nv">Z</span> : Zero) : Terminal C :=
+    make_Terminal (pr1 Z) (dirprod_pr2 (pr2 Z)).
+
+  <span class="sd">(** The following lemmas show that the underlying objects of Initial</span>
+<span class="sd">    and Terminal, constructed above, are equal to ZeroObject. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ZeroObject_equals_InitialObject</span> (<span class="nv">Z</span> : Zero) :
+    ZeroObject Z = InitialObject (Zero_to_Initial Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroObject_equals_TerminalObject</span> (<span class="nv">Z</span> : Zero) :
+    ZeroObject Z = TerminalObject (Zero_to_Terminal Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** We construct morphisms from ZeroObject to any other object c and from any</span>
+<span class="sd">    other object c to the ZeroObject. *)</span>
+  <span class="kn">Definition</span> <span class="nf">ZeroArrowFrom</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) : C⟦ZeroObject Z, c⟧ :=
+    InitialArrow (Zero_to_Initial Z) c.
+  <span class="kn">Definition</span> <span class="nf">ZeroArrowTo</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) : C⟦c, ZeroObject Z⟧ :=
+    TerminalArrow (Zero_to_Terminal Z) c.
+
+  <span class="sd">(** In particular, we get a zero morphism between any objects. *)</span>
+  <span class="kn">Definition</span> <span class="nf">ZeroArrow</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> <span class="nv">d</span> : C) : C⟦c, d⟧ :=
+    @compose C _ (ZeroObject Z) _ (ZeroArrowTo Z c) (ZeroArrowFrom Z d).
+
+  <span class="sd">(** We show that the above morphisms from ZeroObject and to ZeroObject are</span>
+<span class="sd">    unique by using uniqueness of the morphism from InitialObject and uniqueness</span>
+<span class="sd">    of the morphism to TerminalObject. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ZeroArrowFromUnique</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦ZeroObject Z, c⟧) :
+    f = (ZeroArrowFrom Z c).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (InitialArrowUnique (Zero_to_Initial Z) c f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroArrowToUnique</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦c, ZeroObject Z⟧) :
+    f = (ZeroArrowTo Z c).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (TerminalArrowUnique (Zero_to_Terminal Z) c f).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Therefore, any two morphisms from the ZeroObject to an object c are</span>
+<span class="sd">    equal and any two morphisms from an object c to the ZeroObject are equal. *)</span>
+  <span class="kn">Corollary</span> <span class="nf">ArrowsFromZero</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C⟦ZeroObject Z, c⟧) :
+    f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="nb">apply</span> (ZeroArrowFromUnique Z c f).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (ZeroArrowFromUnique Z c g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">ArrowsToZero</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : C⟦c, ZeroObject Z⟧) :
+    f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="nb">apply</span> (ZeroArrowToUnique Z c f).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (ZeroArrowToUnique Z c g).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** It follows that any morphism which factors through 0 is the ZeroArrow. *)</span>
+  <span class="kn">Corollary</span> <span class="nf">ZeroArrowUnique</span> (<span class="nv">Z</span> : Zero) (<span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">f</span> : C⟦c, ZeroObject Z⟧)
+            (<span class="nv">g</span> : C⟦ZeroObject Z, d⟧) : f · g = ZeroArrow Z c d.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (ZeroArrowToUnique Z c f).
+    <span class="nb">rewrite</span> (ZeroArrowFromUnique Z d g).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Compose any morphism with the ZeroArrow and you get the ZeroArrow. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">precomp_with_ZeroArrow</span> (<span class="nv">Z</span> : Zero) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦a, b⟧) :
+    f · ZeroArrow Z b c = ZeroArrow Z a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ZeroArrow <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> ZeroArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">postcomp_with_ZeroArrow</span> (<span class="nv">Z</span> : Zero) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦b, c⟧) :
+    ZeroArrow Z a b · f = ZeroArrow Z a c.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ZeroArrow <span class="nb">at</span> <span class="mi">1</span>. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> ZeroArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** An endomorphism of the ZeroObject is the identity morphism. *)</span>
+  <span class="kn">Corollary</span> <span class="nf">ZeroEndo_is_identity</span> (<span class="nv">Z</span> : Zero)
+            (<span class="nv">f</span> : C⟦ZeroObject Z, ZeroObject Z⟧) :
+    f = identity (ZeroObject Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ArrowsFromZero.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The morphism from ZeroObject to ZeroObject is an isomorphisms. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isiso_from_Zero_to_Zero</span> (<span class="nv">Z</span> <span class="nv">Z'</span> : Zero) :
+    is_iso (ZeroArrowFrom Z (ZeroObject Z')).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_qinv _ (ZeroArrowFrom Z' (ZeroObject Z))).
+    <span class="nb">split</span>; <span class="nb">apply</span> ArrowsFromZero.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Using the above lemma we can construct an isomorphisms between any two</span>
+<span class="sd">    ZeroObjects. *)</span>
+  <span class="kn">Definition</span> <span class="nf">iso_Zeros</span> (<span class="nv">Z</span> <span class="nv">Z'</span> : Zero) : iso (ZeroObject Z) (ZeroObject Z') :=
+    tpair _ (ZeroArrowFrom Z (ZeroObject Z')) (isiso_from_Zero_to_Zero Z Z').
+
+  <span class="kn">Definition</span> <span class="nf">hasZero</span> := ishinh Zero.
+
+  <span class="sd">(** Construct Zero from Initial and Terminal for which the underlying objects</span>
+<span class="sd">    are isomorphic. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Initial_and_Terminal_to_Zero</span>
+             (<span class="nv">I</span> : Initial C) (<span class="nv">T</span> : Terminal C)
+             (<span class="nv">e</span>: iso (InitialObject I) (TerminalObject T)) : Zero.
+  <span class="kn">Proof</span>.
+    use (make_Zero (InitialObject I)).
+    <span class="nb">split</span>.
+    - use (make_isInitial (InitialObject I)); <span class="nb">intro</span> b.
+      <span class="nb">apply</span> make_iscontr <span class="k">with</span> (x := (InitialArrow I b)), InitialArrowUnique.
+    - use (make_isTerminal (InitialObject I)); <span class="nb">intro</span> a.
+      <span class="nb">apply</span> (iscontrretract (postcomp_with (inv_from_iso e))
+                            (postcomp_with (morphism_from_iso e))).
+      <span class="nb">intros</span> y. <span class="nb">unfold</span> postcomp_with.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (iso_inv_after_iso e).
+      <span class="nb">apply</span> (remove_id_right _ _ _ y y _ (idpath _) (idpath _)).
+      <span class="nb">apply</span> (make_iscontr (TerminalArrow T a)), TerminalArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The following lemma verifies that the ZeroObject of the Zero,</span>
+<span class="sd">    constructed from Initial and Terminal with InitialObject isomorphic to</span>
+<span class="sd">    TerminalObject, is isomorphic to the InitialObject and isomorphic to the</span>
+<span class="sd">    TerminalObject. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">Initial_and_Terminal_ob_equals_Zero_ob</span> (<span class="nv">I</span> : Initial C)
+        (<span class="nv">T</span> :Terminal C) (<span class="nv">e</span> : iso (InitialObject I) (TerminalObject T)) :
+    (iso (InitialObject I) (ZeroObject (Initial_and_Terminal_to_Zero I T e)))
+      × (iso (TerminalObject T)
+             (ZeroObject (Initial_and_Terminal_to_Zero I T e))).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(identity_iso (InitialObject I),,iso_inv_from_iso e).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">def_zero</span>.
+
+<span class="sd">(** * Zero coincides with the direct definition *)</span>
+<span class="kn">Section</span> <span class="nf">zero_coincides</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="sd">(** ** isZero *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isZero1</span> (<span class="nv">c</span> : C) :
+    Limits.Zero.isZero c -&gt; isZero c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    use make_isZero.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> d. <span class="nb">apply</span> ((pr1 X) d).
+    - <span class="nb">intros</span> d. <span class="nb">apply</span> ((pr2 X) d).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_isZero2</span> (<span class="nv">c</span> : C) :
+    Limits.Zero.isZero c &lt;- isZero c.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">set</span> (XZ := make_Zero c X).
+
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> b.
+      use tpair.
+      <span class="nb">apply</span> (InitialArrow (Zero_to_Initial XZ) b).
+      <span class="nb">intros</span> t.
+      use (InitialArrowUnique (Zero_to_Initial XZ) b).
+    - <span class="nb">intros</span> a.
+      use tpair.
+      <span class="nb">apply</span> (TerminalArrow (Zero_to_Terminal XZ) a).
+      <span class="nb">intros</span> t.
+      use (TerminalArrowUnique (Zero_to_Terminal XZ) a).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Zero **)</span>
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Zero1</span> :
+    Limits.Zero.Zero C -&gt; @Zero C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z.
+    <span class="bp">exact</span> (make_Zero Z (equiv_isZero1 _ (pr2 Z))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_Zero2</span> :
+    Limits.Zero.Zero C &lt;- @Zero C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z.
+    <span class="bp">exact</span> (Limits.Zero.make_Zero
+             (ZeroObject Z)
+             (equiv_isZero2
+                _ ((isInitial_Initial (Zero_to_Initial Z))
+                     ,,(isTerminal_Terminal (Zero_to_Terminal Z))))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Arrows *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_ZeroArrowTo</span> (<span class="nv">x</span> : C) (<span class="nv">Z</span> : Zero) :
+    @Limits.Zero.ZeroArrowTo C (equiv_Zero2 Z) x = ZeroArrowTo Z x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ZeroArrowToUnique.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_ZeroArrowFrom</span> (<span class="nv">x</span> : C) (<span class="nv">Z</span> : Zero) :
+    @Limits.Zero.ZeroArrowFrom C (equiv_Zero2 Z) x = ZeroArrowFrom Z x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ZeroArrowFromUnique.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_ZeroArrow</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">Z</span> : Zero) :
+    @Limits.Zero.ZeroArrow C (equiv_Zero2 Z) x y = ZeroArrow Z x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> Limits.Zero.ZeroArrow. <span class="nb">unfold</span> ZeroArrow.
+    <span class="nb">rewrite</span> equiv_ZeroArrowTo.
+    <span class="nb">rewrite</span> equiv_ZeroArrowFrom.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">zero_coincides</span>.
+
+
+<span class="sd">(** Following Initial and Terminal, we clear implicit arguments. *)</span>
+<span class="kn">Arguments</span> Zero : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> isZero : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Zero.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Coincides with the direct definition
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

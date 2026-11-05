@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+construction of a (displayed) pseudofunctor from the operation <span class="inlinecode"><a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#reindexed_actegory"><span class="id" title="definition">reindexed_actegory</span></a></span> on actegories
+
+<div class="paragraph"> </div>
+
+author: Ralph Matthes 2023
+
+<div class="paragraph"> </div>
+
+Notice that lifting was renamed into reindexing in July 2023, but the file name stayed the same although <span class="inlinecode"><span class="id" title="var">ReindexingActegories.v</span></span> would be more appropriate.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.Actegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.MorphismsOfActegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.MorphismsOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.ConstructionOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.html#"><span class="id" title="library">UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Identity</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#"><span class="id" title="library">UniMath.Bicategories.MonoidalCategories.BicatOfActegories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispPseudofunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBuilders.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBuilders</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PseudofunctorFromReindexing" class="idref" href="#PseudofunctorFromReindexing"><span class="id" title="section">PseudofunctorFromReindexing</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="PseudofunctorFromReindexing.V" class="idref" href="#PseudofunctorFromReindexing.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="PseudofunctorFromReindexing.Mon_V" class="idref" href="#PseudofunctorFromReindexing.Mon_V"><span class="id" title="variable">Mon_V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#V:1"><span class="id" title="variable">V</span></a>) {<a id="PseudofunctorFromReindexing.W" class="idref" href="#PseudofunctorFromReindexing.W"><span class="id" title="variable">W</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="PseudofunctorFromReindexing.Mon_W" class="idref" href="#PseudofunctorFromReindexing.Mon_W"><span class="id" title="variable">Mon_W</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#W:3"><span class="id" title="variable">W</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="PseudofunctorFromReindexing.F" class="idref" href="#PseudofunctorFromReindexing.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#W:3"><span class="id" title="variable">W</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#V:1"><span class="id" title="variable">V</span></a>} (<a id="PseudofunctorFromReindexing.U" class="idref" href="#PseudofunctorFromReindexing.U"><span class="id" title="variable">U</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#Mon_W:4"><span class="id" title="variable">Mon_W</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#Mon_V:2"><span class="id" title="variable">Mon_V</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#F:5"><span class="id" title="variable">F</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="PseudofunctorFromReindexing.dBV" class="idref" href="#PseudofunctorFromReindexing.dBV"><span class="id" title="variable">dBV</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#bidisp_actbicat_disp_bicat"><span class="id" title="definition">bidisp_actbicat_disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_V"><span class="id" title="variable">Mon_V</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="PseudofunctorFromReindexing.dBW" class="idref" href="#PseudofunctorFromReindexing.dBW"><span class="id" title="variable">dBW</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a> := <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#bidisp_actbicat_disp_bicat"><span class="id" title="definition">bidisp_actbicat_disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_W"><span class="id" title="variable">Mon_W</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reindexing_actegories_disp_psfunctor" class="idref" href="#reindexing_actegories_disp_psfunctor"><span class="id" title="definition">reindexing_actegories_disp_psfunctor</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#disp_psfunctor"><span class="id" title="definition">disp_psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.dBV"><span class="id" title="variable">dBV</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.dBW"><span class="id" title="variable">dBW</span></a> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#id_psfunctor"><span class="id" title="definition">id_psfunctor</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBuilders.html#make_disp_psfunctor"><span class="id" title="definition">make_disp_psfunctor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#actbicat_disp_2cells_isaprop"><span class="id" title="lemma">actbicat_disp_2cells_isaprop</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#actbicat_disp_locally_groupoid"><span class="id" title="definition">actbicat_disp_locally_groupoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">Act</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegories.html#reindexed_actegory"><span class="id" title="definition">reindexed_actegory</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_V"><span class="id" title="variable">Mon_V</span></a> <span class="id" title="var">Act</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_W"><span class="id" title="variable">Mon_W</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.U"><span class="id" title="variable">U</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">D</span> <span class="id" title="var">H</span> <span class="id" title="var">ActC</span> <span class="id" title="var">ActD</span> <span class="id" title="var">ll</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.html#reindexed_lax_lineator"><span class="id" title="definition">reindexed_lax_lineator</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_V"><span class="id" title="variable">Mon_V</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_W"><span class="id" title="variable">Mon_W</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.U"><span class="id" title="variable">U</span></a> <span class="id" title="var">ActC</span> <span class="id" title="var">ActD</span> <span class="id" title="var">ll</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">D</span> <span class="id" title="var">H</span> <span class="id" title="var">K</span> <span class="id" title="var">ξ</span> <span class="id" title="var">ActC</span> <span class="id" title="var">ActD</span> <span class="id" title="var">Hl</span> <span class="id" title="var">Kl</span> <span class="id" title="var">islntξ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.html#preserves_linearity_reindexed_lax_lineator"><span class="id" title="lemma">preserves_linearity_reindexed_lax_lineator</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">islntξ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">ActC</span> <span class="id" title="var">w</span> <span class="id" title="var">c</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_leftid"><span class="id" title="definition">bifunctor_leftid</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_action"><span class="id" title="definition">actegory_action</span></a> <span class="id" title="var">_</span> <span class="id" title="var">ActC</span>));<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">do</span> 2 <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">intros</span> <span class="id" title="var">C</span> <span class="id" title="var">D</span> <span class="id" title="var">E</span> <span class="id" title="var">H</span> <span class="id" title="var">K</span> <span class="id" title="var">ActC</span> <span class="id" title="var">ActD</span> <span class="id" title="var">ActE</span> <span class="id" title="var">Hl</span> <span class="id" title="var">Kl</span> <span class="id" title="var">w</span> <span class="id" title="var">c</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_leftid"><span class="id" title="definition">bifunctor_leftid</span></a> (<a class="idref" href="UniMath.CategoryTheory.Actegories.Actegories.html#actegory_action"><span class="id" title="definition">actegory_action</span></a> <span class="id" title="var">_</span> <span class="id" title="var">ActE</span>)) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="reindexing_actegories_psfunctor" class="idref" href="#reindexing_actegories_psfunctor"><span class="id" title="definition">reindexing_actegories_psfunctor</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> (<a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#actbicat"><span class="id" title="definition">actbicat</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_V"><span class="id" title="variable">Mon_V</span></a>) (<a class="idref" href="UniMath.Bicategories.MonoidalCategories.BicatOfActegories.html#actbicat"><span class="id" title="definition">actbicat</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.Mon_W"><span class="id" title="variable">Mon_W</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.html#total_psfunctor"><span class="id" title="definition">total_psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.dBV"><span class="id" title="variable">dBV</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing.dBW"><span class="id" title="variable">dBW</span></a> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Identity.html#id_psfunctor"><span class="id" title="definition">id_psfunctor</span></a> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#reindexing_actegories_disp_psfunctor"><span class="id" title="definition">reindexing_actegories_disp_psfunctor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.LiftingActegories.html#PseudofunctorFromReindexing"><span class="id" title="section">PseudofunctorFromReindexing</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

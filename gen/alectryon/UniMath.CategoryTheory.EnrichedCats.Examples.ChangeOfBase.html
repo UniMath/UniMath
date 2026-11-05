@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ChangeOfBase.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Change of base for enriched categories</span>
+
+<span class="sd"> In this file, we define the change of base for enriched</span>
+<span class="sd"> categories. In textbooks, this construction works as follows: if</span>
+<span class="sd"> we have two monoidal categories `V₁` and `V₂` and a lax monoidal</span>
+<span class="sd"> functor `F : V₁ ⟶ V₂`, then every category enriched over `V₁`</span>
+<span class="sd"> gives rise to a category enriched over `V₂`. The objects stay the</span>
+<span class="sd"> same and for the enriched morphisms, we use the functor `F`.</span>
+
+<span class="sd"> However, in a univalent setting, we would like to restrict this</span>
+<span class="sd"> construction. Let `V₁` be any monoidal category (for example,</span>
+<span class="sd"> `Set`) and let `V₂` be the terminal monoidal category (only one</span>
+<span class="sd"> object and only one morphism). Then we have a functor `V₁ ⟶ V₂`</span>
+<span class="sd"> and as such, every category enriched over `V₁` is also enriched</span>
+<span class="sd"> over the terminal monoidal category. However, between any two</span>
+<span class="sd"> objects in a category enriched over the terminal monoidal</span>
+<span class="sd"> category, there is at most one isomorphism. As such, if we leave</span>
+<span class="sd"> the objects the same in this construction, this does not in</span>
+<span class="sd"> general give rise to a univalent category.</span>
+
+<span class="sd"> To guarantee that the change of base actually gives rise to a</span>
+<span class="sd"> univalent category, we define a notion of preserving the</span>
+<span class="sd"> underlying category (`preserve_underlying`), and this is</span>
+<span class="sd"> sufficient to construct the desired assumptions. As such,</span>
+<span class="sd"> univalence of the change of base follows directly from the</span>
+<span class="sd"> univalence of the original category.</span>
+
+<span class="sd"> We also show that functors that satisfy the following two</span>
+<span class="sd"> conditions preserve the underlying category:</span>
+<span class="sd"> - The functor is fully faithful on morphisms from the unit</span>
+<span class="sd"> - The functor is a strong monoidal functor</span>
+
+<span class="sd"> We also discuss the action of the change of base on functors</span>
+<span class="sd"> and natural transformations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Functors that preserve the underlying category</span>
+<span class="sd"> 1.1. The definition of such functors</span>
+<span class="sd"> 1.2. Conditions that imply preservation of the underlying category</span>
+<span class="sd"> 2. Change of base: enrichment for categories</span>
+<span class="sd"> 3. Change of base: enrichment for functors</span>
+<span class="sd"> 4. Change of base: enrichment for natural transformations</span>
+<span class="sd"> 5. Change of base on the identity</span>
+<span class="sd"> 6. Change of base on composition</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Functors that preserve the underlying category</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 1.1. The definition of such functors</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">preserve_underlying_data</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           (<span class="nv">F</span> : lax_monoidal_functor V₁ V₂)
+  : UU
+  := ∏ (v : V₁), I_{V₂} --&gt; F v → I_{V₁} --&gt; v.
+
+<span class="kn">Definition</span> <span class="nf">preserves_underlying_laws</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           {<span class="nv">F</span> : lax_monoidal_functor V₁ V₂}
+           (<span class="nv">Fv</span> : preserve_underlying_data F)
+  : UU
+  := (∏ (v : V₁)
+        (f : I_{V₂} --&gt; F v),
+      mon_functor_unit F · #F (Fv v f) = f)
+     ×
+     (∏ (v : V₁)
+        (f : I_{V₁} --&gt; v),
+      Fv v (mon_functor_unit F · #F f) = f).
+
+<span class="kn">Definition</span> <span class="nf">preserve_underlying</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           (<span class="nv">F</span> : lax_monoidal_functor V₁ V₂)
+  : UU
+  := ∑ (Fv : preserve_underlying_data F), preserves_underlying_laws Fv.
+
+<span class="kn">Definition</span> <span class="nf">make_preserve_underlying</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           {<span class="nv">F</span> : lax_monoidal_functor V₁ V₂}
+           (<span class="nv">Fv</span> : preserve_underlying_data F)
+           (<span class="nv">HFv</span> : preserves_underlying_laws Fv)
+  : preserve_underlying F
+  := Fv ,, HFv.
+
+<span class="kn">Definition</span> <span class="nf">preserve_underlying_to_data</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           {<span class="nv">F</span> : lax_monoidal_functor V₁ V₂}
+           (<span class="nv">Fv</span> : preserve_underlying F)
+           (<span class="nv">v</span> : V₁)
+  : I_{V₂} --&gt; F v → I_{V₁} --&gt; v
+  := pr1 Fv v.
+
+<span class="kn">Coercion</span> <span class="nf">preserve_underlying_to_data</span> : preserve_underlying &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Section</span> <span class="nf">Laws</span>.
+  <span class="kn">Context</span> {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+          {<span class="nv">F</span> : lax_monoidal_functor V₁ V₂}
+          (<span class="nv">Fv</span> : preserve_underlying F).
+
+  <span class="kn">Proposition</span> <span class="nf">preserve_underlying_right_inv</span>
+              {<span class="nv">v</span> : V₁}
+              (<span class="nv">f</span> : I_{V₂} --&gt; F v)
+    : mon_functor_unit F · #F (Fv v f) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 Fv v f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserve_underlying_left_inv</span>
+              {<span class="nv">v</span> : V₁}
+              (<span class="nv">f</span> : I_{V₁} --&gt; v)
+    : Fv v (mon_functor_unit F · #F f) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 Fv v f).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Laws</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 1.2. Conditions that imply preservation of the underlying category</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">strong_fully_faithful_on_points_to_preserve_underlying</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           {<span class="nv">F</span> : strong_monoidal_functor V₁ V₂}
+           (<span class="nv">HF</span> : ∏ (x : V₁), isweq (<span class="k">λ</span> (<span class="nv">f</span> : I_{V₁} --&gt; x), #F f))
+  : preserve_underlying F.
+<span class="kn">Proof</span>.
+  use make_preserve_underlying.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">f</span>, invmap (make_weq _ (HF v)) (strong_functor_unit_inv F · f)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> v f ;
+         <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (homotweqinvweq (make_weq _ (HF v)) _) @ _) ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> strong_functor_unit_unit_inv ;
+         <span class="nb">apply</span> id_left).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> v f ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> strong_functor_unit_inv_unit ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">apply</span> (homotinvweqweq (make_weq _ (HF v)) _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">strong_fully_faithful_to_preserve_underlying</span>
+           {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+           {<span class="nv">F</span> : strong_monoidal_functor V₁ V₂}
+           (<span class="nv">HF</span> : fully_faithful F)
+  : preserve_underlying F.
+<span class="kn">Proof</span>.
+  use strong_fully_faithful_on_points_to_preserve_underlying.
+  <span class="nb">intro</span> v.
+  <span class="nb">apply</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">ChangeOfBase</span>.
+  <span class="kn">Context</span> {<span class="nv">V₁</span> <span class="nv">V₂</span> : monoidal_cat}
+          (<span class="nv">F</span> : lax_monoidal_functor V₁ V₂)
+          (<span class="nv">Fv</span> : preserve_underlying F).
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Change of base: enrichment for categories</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">Enrichment</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : category}
+            (<span class="nv">E</span> : enrichment C V₁).
+
+    <span class="kn">Definition</span> <span class="nf">change_of_base_enrichment_data</span>
+      : enrichment_data C V₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, F (E ⦃ x , y ⦄)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, mon_functor_unit F · #F (enriched_id E x)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, mon_functor_tensor F _ _ · #F (enriched_comp E x y z)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, mon_functor_unit F · #F (enriched_from_arr E f)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>,
+               enriched_to_arr
+                 E
+                 (Fv _ f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">change_of_base_enrichment_laws</span>
+      : enrichment_laws change_of_base_enrichment_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (mon_functor_lunitor F (E ⦃ x, y ⦄) @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> tensor_comp_id_r.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (enrichment_id_left E x y).
+        }
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> tensor_mon_functor_tensor.
+        }
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_id.
+      - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (mon_functor_runitor F (E ⦃ x, y ⦄) @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> tensor_comp_id_l.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (enrichment_id_right E x y).
+        }
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> tensor_mon_functor_tensor.
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_id.
+      - <span class="nb">intros</span> w x y z ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> tensor_comp_id_l.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> functor_id.
+          }
+          <span class="nb">apply</span> (tensor_mon_functor_tensor F).
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (mon_functor_lassociator F).
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> enrichment_assoc.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> tensor_comp_id_r.
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> functor_id.
+            }
+            <span class="nb">apply</span> (tensor_mon_functor_tensor F).
+          }
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- functor_comp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ enriched_to_from_arr E f).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> preserve_underlying_left_inv.
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> enriched_from_to_arr.
+        <span class="nb">apply</span> preserve_underlying_right_inv.
+      - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ enriched_to_arr_id E _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> preserve_underlying_left_inv.
+      - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (enriched_to_arr_comp E f g @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> tensor_comp_l_id_l.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_comp_r_id_l.
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> &lt;- functor_comp.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- mon_functor_linvunitor.
+          <span class="nb">rewrite</span> &lt;- functor_comp.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> preserve_underlying_left_inv.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">change_of_base_enrichment</span>
+      : enrichment C V₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> change_of_base_enrichment_data.
+      - <span class="bp">exact</span> change_of_base_enrichment_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">change_of_base_precomp</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">w</span> : C)
+                (<span class="nv">f</span> : x --&gt; y)
+      : precomp_arr change_of_base_enrichment w f
+        =
+        #F (precomp_arr E w f).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> precomp_arr ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> mon_functor_rinvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_mon_functor_tensor.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">change_of_base_postcomp</span>
+                {<span class="nv">x</span> <span class="nv">y</span> : C}
+                (<span class="nv">w</span> : C)
+                (<span class="nv">f</span> : x --&gt; y)
+      : postcomp_arr change_of_base_enrichment w f
+        =
+        #F (postcomp_arr E w f).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> postcomp_arr ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> mon_functor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_mon_functor_tensor.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Enrichment</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Change of base: enrichment for functors</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">EnrichmentFunctor</span>.
+    <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">H</span> : C₁ ⟶ C₂}
+            {<span class="nv">E₁</span> : enrichment C₁ V₁}
+            {<span class="nv">E₂</span> : enrichment C₂ V₁}
+            (<span class="nv">HE</span> : functor_enrichment H E₁ E₂).
+
+    <span class="kn">Definition</span> <span class="nf">change_of_base_functor_enrichment_laws</span>
+      : @is_functor_enrichment
+          _ _ _
+          H
+          (change_of_base_enrichment E₁)
+          (change_of_base_enrichment E₂)
+          (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : C₁, # F (HE x y)).
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_enrichment_id.
+      - <span class="nb">intros</span> x y z ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (tensor_mon_functor_tensor F).
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- !functor_comp.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> functor_enrichment_comp.
+      - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- (functor_comp F).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_enrichment_from_arr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">change_of_base_functor_enrichment</span>
+      : functor_enrichment
+          H
+          (change_of_base_enrichment E₁)
+          (change_of_base_enrichment E₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, #F (HE x y)).
+      - <span class="bp">exact</span> change_of_base_functor_enrichment_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentFunctor</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Change of base: enrichment for natural transformations</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">change_of_base_nat_trans_enrichment</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             {<span class="nv">H₁</span> <span class="nv">H₂</span> : C₁ ⟶ C₂}
+             {<span class="nv">τ</span> : H₁ ⟹ H₂}
+             {<span class="nv">E₁</span> : enrichment C₁ V₁}
+             {<span class="nv">E₂</span> : enrichment C₂ V₁}
+             {<span class="nv">HE₁</span> : functor_enrichment H₁ E₁ E₂}
+             {<span class="nv">HE₂</span> : functor_enrichment H₂ E₁ E₂}
+             (<span class="nv">Hτ</span> : nat_trans_enrichment τ HE₁ HE₂)
+    : nat_trans_enrichment
+        τ
+        (change_of_base_functor_enrichment HE₁)
+        (change_of_base_functor_enrichment HE₂).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> change_of_base_precomp, change_of_base_postcomp.
+    <span class="nb">rewrite</span> &lt;- !functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (nat_trans_enrichment_to_comp Hτ x y).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Change of base on the identity</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">change_of_base_enrichment_identity</span>
+             {<span class="nv">C</span> : univalent_category}
+             (<span class="nv">E</span> : enrichment C V₁)
+    : nat_trans_enrichment
+        (<span class="k">λ</span> <span class="nv">_</span>, identity _)
+        (functor_id_enrichment (change_of_base_enrichment E))
+        (change_of_base_functor_enrichment (functor_id_enrichment E)).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> precomp_arr_id, postcomp_arr_id.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Change of base on composition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">change_of_base_enrichment_comp</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univalent_category}
+             {<span class="nv">G₁</span> : C₁ ⟶ C₂}
+             {<span class="nv">G₂</span> : C₂ ⟶ C₃}
+             {<span class="nv">E₁</span> : enrichment C₁ V₁}
+             {<span class="nv">E₂</span> : enrichment C₂ V₁}
+             {<span class="nv">E₃</span> : enrichment C₃ V₁}
+             (<span class="nv">EG₁</span> : functor_enrichment G₁ E₁ E₂)
+             (<span class="nv">EG₂</span> : functor_enrichment G₂ E₂ E₃)
+    : nat_trans_enrichment
+        (<span class="k">λ</span> <span class="nv">c</span>, identity _)
+        (functor_comp_enrichment
+           (change_of_base_functor_enrichment EG₁)
+           (change_of_base_functor_enrichment EG₂))
+        (change_of_base_functor_enrichment (functor_comp_enrichment EG₁ EG₂)).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> precomp_arr_id, postcomp_arr_id.
+    <span class="nb">rewrite</span> !id_right.
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ChangeOfBase</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/ChangeOfBase.v</tt>, line 49)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Change of base on composition
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

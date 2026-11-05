@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheoryToMonoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The monoid of terms in one variable, of an algebraic theory</span>
+
+<span class="sd">  If we have an algebraic theory T, we can give T_1 a monoid structure, with substitution as the</span>
+<span class="sd">  operation and x_1 as the unit. This construction is functorial in T. The monoid, when viewed as a</span>
+<span class="sd">  category, can be embedded into the Lawvere theory associated to T.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The construction of the monoid [algebraic_theory_to_monoid]</span>
+<span class="sd">  2. The embedding into the Lawvere theory [theory_monoid_to_lawvere]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Monoid.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.MonoidToCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryToLawvereTheory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="sd">(** * 1. The construction of the monoid *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlgebraicTheoryToMonoid</span>.
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_monoid_ob</span> : monoid.
+    <span class="kn">Proof</span>.
+      use make_monoid.
+      - use make_setwithbinop.
+        + <span class="bp">exact</span> (T <span class="mi">1</span>).
+        + <span class="nb">intros</span> a b.
+          <span class="bp">exact</span> (a • (<span class="k">λ</span> <span class="nv">_</span>, b)).
+      - use make_ismonoidop.
+        + <span class="kp">abstract</span> (
+            <span class="nb">intros</span> a b c;
+            <span class="nb">apply</span> subst_subst
+          ).
+        + <span class="k">exists</span> (<span class="nv">var</span> (● <span class="mi">0</span> : stn <span class="mi">1</span>)).
+          <span class="kp">abstract</span> (
+            <span class="nb">split</span>;
+            [ <span class="nb">intro</span> m;
+              <span class="nb">apply</span> var_subst
+            | <span class="nb">intro</span> m;
+              <span class="nb">refine</span> (_ @ subst_var _ _);
+              <span class="nb">apply</span> (maponpaths (<span class="nb">subst</span> m));
+              <span class="nb">apply</span> funextfun;
+              <span class="nb">intro</span> i;
+              <span class="nb">apply</span> maponpaths;
+              <span class="nb">symmetry</span>;
+              <span class="nb">apply</span> (iscontr_uniqueness (iscontrstn1)) ]
+          ).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+    <span class="kn">Context</span> (<span class="nv">f</span> : algebraic_theory_morphism T T').
+
+    <span class="kn">Lemma</span> <span class="nf">algebraic_theory_morphism_to_ismonoidfun</span>
+      : ismonoidfun (X := algebraic_theory_to_monoid_ob T) (Y := algebraic_theory_to_monoid_ob T') (f <span class="mi">1</span>).
+    <span class="kn">Proof</span>.
+      use make_ismonoidfun.
+      - <span class="nb">intros</span> s t.
+        <span class="nb">apply</span> mor_subst.
+      - <span class="nb">apply</span> mor_var.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">algebraic_theory_morphism_to_monoidfun</span>
+      : monoidfun (algebraic_theory_to_monoid_ob T) (algebraic_theory_to_monoid_ob T')
+      := make_monoidfun algebraic_theory_morphism_to_ismonoidfun.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_monoid_functor_data</span>
+    : functor_data algebraic_theory_cat monoid_category
+    := make_functor_data (C' := monoid_category)
+      algebraic_theory_to_monoid_ob
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, algebraic_theory_morphism_to_monoidfun).
+
+  <span class="kn">Lemma</span> <span class="nf">algebraic_theory_to_monoid_is_functor</span>
+    : is_functor algebraic_theory_to_monoid_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> T.
+      <span class="bp">now</span> <span class="nb">apply</span> monoidfun_paths.
+    - <span class="nb">intros</span> T T' T'' f f'.
+      <span class="bp">now</span> <span class="nb">apply</span> monoidfun_paths.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_to_monoid</span>
+    : algebraic_theory_cat ⟶ monoid_category
+    := make_functor
+      algebraic_theory_to_monoid_functor_data
+      algebraic_theory_to_monoid_is_functor.
+
+<span class="kn">End</span> <span class="nf">AlgebraicTheoryToMonoid</span>.
+
+<span class="sd">(** * 2. The embedding into the Lawvere theory *)</span>
+
+<span class="kn">Section</span> <span class="nf">Lawvere</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+  <span class="kn">Definition</span> <span class="nf">algebraic_theory_monoid_category</span>
+    : setcategory
+    := monoid_to_category (algebraic_theory_to_monoid T).
+
+  <span class="kn">Definition</span> <span class="nf">theory_monoid_to_lawvere</span>
+    : algebraic_theory_monoid_category ⟶ (algebraic_theory_to_lawvere T : setcategory).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">intro</span> t.
+        <span class="bp">exact</span> <span class="mi">1</span>.
+      + <span class="nb">intros</span> t t' f i.
+        <span class="bp">exact</span> f.
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span> (
+          <span class="nb">intro</span> t;
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span> i;
+          <span class="nb">apply</span> (maponpaths var);
+          <span class="nb">apply</span> proofirrelevancecontr;
+          <span class="nb">apply</span> iscontrstn1
+        ).
+      + <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">theory_monoid_to_lawvere_fully_faithful</span>
+    : fully_faithful theory_monoid_to_lawvere.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> t t'.
+    use isweq_iso.
+    - <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (f (● <span class="mi">0</span> : stn <span class="mi">1</span>)).
+    - <span class="kp">abstract</span> <span class="nb">trivial</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="nb">apply</span> funextfun;
+        <span class="nb">intro</span> i;
+        <span class="nb">apply</span> (maponpaths f);
+        <span class="nb">apply</span> proofirrelevancecontr;
+        <span class="nb">apply</span> iscontrstn1
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Lawvere</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraicTheoryToMonoid.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2. The embedding into the Lawvere theory [theory_monoid_to_lawvere]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

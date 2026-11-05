@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BenabouCosmos.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Benabou cosmos</span>
+
+<span class="sd"> In the theory of enriched categories, one often is interested in categories enriched over</span>
+<span class="sd"> a monoidal category with sufficient structure. The reason for that is that structure on the</span>
+<span class="sd"> category over which we enrich, allows us to do more sophisticated constructions.</span>
+
+<span class="sd"> A key notion is given by the notion of a Benabou cosmos. A Benabou cosmos is given by a</span>
+<span class="sd"> complete and cocomplete symmetric monoidal closed category. Let us understand why this</span>
+<span class="sd"> notion is nice in the context of enriched category theory.</span>
+<span class="sd"> - To construct the opposite of enriched categories, we assume that the category over which</span>
+<span class="sd">   we enrich, is symmetric monoidal.</span>
+<span class="sd"> - To construct Eilenberg-Moore categories of enriched monads, we assume that the category</span>
+<span class="sd">   over which we enrich, has equalizers.</span>
+<span class="sd"> - To construct the self-enriched category, we assume that the category over which we enrich,</span>
+<span class="sd">   is symmetric monoidal closed.</span>
+<span class="sd"> - To construct enriched functor categories, we assume that the category over which we enrich,</span>
+<span class="sd">   is complete and symmetric monoidal closed.</span>
+<span class="sd"> - To construct the composition of enriched profunctors, we assume that the category over</span>
+<span class="sd">   which we enrich, is cocomplete.</span>
+<span class="sd"> Note that from the last point, we see that to construct a double (bi)category of enriched</span>
+<span class="sd"> categories and profunctors, we need to assume that we are enriched over a cocomplete</span>
+<span class="sd"> monoidal category.</span>
+
+<span class="sd"> A Benabou cosmos collects each of these assumptions and combines it all into one notion.</span>
+
+<span class="sd"> We also define the notion of quantales. Essentially, a quantale is given by a Benabou cosmos</span>
+<span class="sd"> that is also a posetal category (see, e.g., Section 2.1 in "A point-free perspective on lax</span>
+<span class="sd"> extensions and predicate liftings"). Note that in this file, we define commutative quantales.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Elementary Cosmos I" by Street</span>
+<span class="sd"> - "A point-free perspective on lax extensions and predicate liftings" by Goncharov, Hofmann,</span>
+<span class="sd">   Nora, Schröder and Wild</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Benabou cosmos</span>
+<span class="sd"> 2. Accessors</span>
+<span class="sd"> 3. Quantales</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="sd">(** * 1. Benabou cosmos *)</span>
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos</span>
+  : UU
+  := ∑ (V : sym_mon_closed_cat),
+     (∏ (I : UU), Products I V)
+     ×
+     Equalizers V
+     ×
+     (∏ (I : UU), Coproducts I V)
+     ×
+     Coequalizers V.
+
+<span class="sd">(** * 2. Accessors *)</span>
+<span class="kn">Coercion</span> <span class="nf">benabou_cosmos_to_sym_mon_closed_cat</span>
+         (V : benabou_cosmos)
+  : sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 V).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_products</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+           (<span class="nv">I</span> : UU)
+  : Products I V
+  := pr12 V I.
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_binproducts</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+  : BinProducts V.
+<span class="kn">Proof</span>.
+  use BinProducts_from_Products.
+  <span class="nb">apply</span> benabou_cosmos_products.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_equalizers</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+  : Equalizers V
+  := pr122 V.
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_coproducts</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+           (<span class="nv">I</span> : UU)
+  : Coproducts I V
+  := pr1 (pr222 V) I.
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_initial</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+  : Initial V
+  := initial_from_empty_coproduct V (benabou_cosmos_coproducts V ∅ _).
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_coequalizers</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+  : Coequalizers V
+  := pr2 (pr222 V).
+
+<span class="kn">Definition</span> <span class="nf">benabou_cosmos_coends</span>
+           (<span class="nv">V</span> : benabou_cosmos)
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> : category_binproduct (C^opp) C ⟶ V)
+  : coend_colimit F.
+<span class="kn">Proof</span>.
+  use construction_of_coends.
+  - <span class="nb">apply</span> benabou_cosmos_coequalizers.
+  - <span class="nb">apply</span> benabou_cosmos_coproducts.
+  - <span class="nb">apply</span> benabou_cosmos_coproducts.
+<span class="kn">Defined</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> benabou_cosmos_initial.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> benabou_cosmos_coends.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> benabou_cosmos_binproducts.
+
+<span class="kn">Definition</span> <span class="nf">is_initial_tensor_initial_l</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v</span> : V)
+  : isInitial V (v ⊗ benabou_cosmos_initial V).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((left_adjoint_preserves_initial
+            _
+            (sym_mon_closed_left_tensor_left_adjoint V v))
+           _
+           (pr2 (benabou_cosmos_initial V))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_initial_tensor_initial_r</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v</span> : V)
+  : isInitial V (benabou_cosmos_initial V ⊗ v).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((left_adjoint_preserves_initial
+            _
+            (sym_mon_closed_right_tensor_left_adjoint V v))
+           _
+           (pr2 (benabou_cosmos_initial V))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_from_tensor_initial_l_benabou_cosmos</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v</span> <span class="nv">w</span> : V)
+  : v ⊗ benabou_cosmos_initial V --&gt; w.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (InitialArrow
+           (make_Initial
+              _
+              (is_initial_tensor_initial_l v))
+           w).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_from_tensor_initial_r_benabou_cosmos</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v</span> <span class="nv">w</span> : V)
+  : benabou_cosmos_initial V ⊗ v --&gt; w.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (InitialArrow
+           (make_Initial
+              _
+              (is_initial_tensor_initial_r v))
+           w).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">arrow_from_tensor_initial_l_benabou_cosmos_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">v</span> <span class="nv">w</span> : V}
+            (<span class="nv">f</span> <span class="nv">g</span> : v ⊗ benabou_cosmos_initial V --&gt; w)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@InitialArrowEq _ (make_Initial _ (is_initial_tensor_initial_l v))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">arrow_from_tensor_initial_r_benabou_cosmos_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">v</span> <span class="nv">w</span> : V}
+            (<span class="nv">f</span> <span class="nv">g</span> : benabou_cosmos_initial V ⊗ v --&gt; w)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@InitialArrowEq _ (make_Initial _ (is_initial_tensor_initial_r v))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_initial_tensor_initial_1</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v₁</span> <span class="nv">v₂</span> : V)
+  : isInitial V (benabou_cosmos_initial V ⊗ v₁ ⊗ v₂).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((left_adjoint_preserves_initial
+             _
+             (sym_mon_closed_right_tensor_left_adjoint V _))
+            _
+            _).
+  <span class="nb">apply</span> is_initial_tensor_initial_r.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">arrow_from_tensor_initial_1_benabou_cosmos_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">w</span> : V}
+            (<span class="nv">f</span> <span class="nv">g</span> : benabou_cosmos_initial V ⊗ v₁ ⊗ v₂ --&gt; w)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@InitialArrowEq _ (make_Initial _ (is_initial_tensor_initial_1 _ _))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_initial_tensor_initial_2</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v₁</span> <span class="nv">v₂</span> : V)
+  : isInitial V (v₁ ⊗ benabou_cosmos_initial V ⊗ v₂).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((left_adjoint_preserves_initial
+             _
+             (sym_mon_closed_right_tensor_left_adjoint V _))
+            _
+            _).
+  <span class="nb">apply</span> is_initial_tensor_initial_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">arrow_from_tensor_initial_2_benabou_cosmos_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">w</span> : V}
+            (<span class="nv">f</span> <span class="nv">g</span> : v₁ ⊗ benabou_cosmos_initial V ⊗ v₂ --&gt; w)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@InitialArrowEq _ (make_Initial _ (is_initial_tensor_initial_2 _ _))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_initial_tensor_initial_3</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           (<span class="nv">v₁</span> <span class="nv">v₂</span> : V)
+  : isInitial V (v₁ ⊗ (v₂ ⊗ benabou_cosmos_initial V)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((left_adjoint_preserves_initial
+             _
+             (sym_mon_closed_left_tensor_left_adjoint V _))
+            _
+            _).
+  <span class="nb">apply</span> is_initial_tensor_initial_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">arrow_from_tensor_initial_3_benabou_cosmos_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">w</span> : V}
+            (<span class="nv">f</span> <span class="nv">g</span> : v₁ ⊗ (v₂ ⊗ benabou_cosmos_initial V) --&gt; w)
+  : f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@InitialArrowEq _ (make_Initial _ (is_initial_tensor_initial_3 _ _))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">arrow_from_tensor_coproduct_benabou_cosmos</span>
+           {<span class="nv">V</span> : benabou_cosmos}
+           {<span class="nv">v</span> <span class="nv">w</span> : V}
+           {<span class="nv">I</span> : UU}
+           {<span class="nv">D</span> : I → V}
+           (<span class="nv">fs</span> : ∏ (i : I), v ⊗ D i --&gt; w)
+  : v ⊗ benabou_cosmos_coproducts V I D --&gt; w.
+<span class="kn">Proof</span>.
+  use (CoproductArrow
+         _ _
+         (make_Coproduct
+            _ _ _ _ _
+            (left_adjoint_preserves_coproduct
+               _
+               (sym_mon_closed_left_tensor_left_adjoint V v)
+               I
+               _ _ _
+               (isCoproduct_Coproduct _ _ (benabou_cosmos_coproducts V I D))))).
+  <span class="bp">exact</span> fs.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Quantales *)</span>
+<span class="kn">Definition</span> <span class="nf">quantale_cosmos</span>
+  : UU
+  := ∑ (V : benabou_cosmos)
+       (HV : is_univalent V),
+     is_poset_category (_ ,, HV).
+
+<span class="kn">Coercion</span> <span class="nf">quantale_cosmos_to_benabou_cosmos</span>
+         (V : quantale_cosmos)
+  : benabou_cosmos.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 V).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_quantale_cosmos</span>
+            (<span class="nv">V</span> : quantale_cosmos)
+  : is_univalent V.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 V).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_category_of_quantale_cosmos</span>
+           (<span class="nv">V</span> : quantale_cosmos)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> V.
+  - <span class="bp">exact</span> (is_univalent_quantale_cosmos V).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_poset_category_quantale_cosmos</span>
+            (<span class="nv">V</span> : quantale_cosmos)
+  : is_poset_category (_ ,, is_univalent_quantale_cosmos V).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 V).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/BenabouCosmos.v</tt>, line 43)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Quantales
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

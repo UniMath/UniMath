@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Monoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">In this file, the monoidal category of comonoids internal to a symmetric monoidal category is defined.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Tensor.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ComonoidNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">MonoidalCategoryOfComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat).
+
+  <span class="kn">Let</span> <span class="nf">V_comult</span> : disp_monoidal (dialgebra_disp_cat _ _) V
+      := dialgebra_disp_monoidal (identity_fmonoidal V) (diag_functor_fmonoidal_lax V).
+
+  <span class="kn">Let</span> <span class="nf">V_counit</span>
+      : disp_monoidal (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})) V
+      := dialgebra_disp_monoidal (identity_fmonoidal V) (constantly_unit_functor_fmonoidal V).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_comonoids_data</span>
+    : disp_monoidal (disp_cat_of_comonoids_data V) V.
+  <span class="kn">Proof</span>.
+    use dirprod_disp_cat_monoidal.
+    - <span class="bp">exact</span> V_comult.
+    - <span class="bp">exact</span> V_counit.
+    - <span class="nb">apply</span> is_locally_propositional_dialgebra_disp_cat.
+    - <span class="nb">apply</span> is_locally_propositional_dialgebra_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_comonoids_comonoid_law_unit</span>
+    : comonoid_laws V I_{ total_monoidal disp_monoidal_comonoids_data}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">unfold</span> comonoid_laws_unit_left.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> (bifunctor_rightid V).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">unfold</span> comonoid_laws_unit_right.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> (bifunctor_leftid V).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> fmonoidal_preservesunit.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> diag_preserves_unit.
+      <span class="nb">rewrite</span> mon_runitor_I_mon_lunitor_I.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    - <span class="nb">unfold</span> comonoid_laws_assoc.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> dialgebra_disp_unit.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> diag_preserves_unit.
+      <span class="nb">rewrite</span> ! id_left.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lunitorinv_preserves_leftwhiskering_with_unit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_comonoids_laws</span>
+    : disp_monoidal
+        (comonoid_laws_disp_cat V)
+        (total_monoidal disp_monoidal_comonoids_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_monoidal_fullsub.
+    - <span class="bp">exact</span> disp_monoidal_comonoids_comonoid_law_unit.
+    - <span class="nb">intros</span> [x1 x2] [y1 y2] mx my.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">refine</span> (_ @ tensor_of_comonoids_laws_unit_left V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my)).
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      + <span class="nb">refine</span> (_ @ tensor_of_comonoids_laws_unit_right V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my)).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+        <span class="nb">cbn</span>.
+        <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+      + <span class="nb">refine</span> (_ @ tensor_of_comonoids_laws_assoc V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _).
+        * <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+          <span class="nb">cbn</span>.
+          <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+        * <span class="nb">cbn</span>.
+          <span class="nb">unfold</span> dialgebra_disp_tensor_op.
+          <span class="nb">cbn</span>.
+          <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_comonoids</span>
+    : disp_monoidal (disp_cat_of_comonoids V) V.
+  <span class="kn">Proof</span>.
+    use sigma_disp_cat_monoidal.
+    - <span class="bp">exact</span> disp_monoidal_comonoids_data.
+    - <span class="bp">exact</span> disp_monoidal_comonoids_laws.
+    - <span class="nb">apply</span> locally_propositional_comonoid_laws_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_commutative_comonoids_laws</span>
+    : disp_monoidal (commutative_comonoids_laws_disp_cat V) (total_monoidal disp_monoidal_comonoids).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_monoidal_fullsub.
+    - <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (_ @ id_right _);
+          <span class="nb">apply</span> maponpaths;
+          <span class="nb">apply</span> sym_mon_braiding_id).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intros</span> [x1 x2] [y1 y2] mx my;
+          <span class="nb">refine</span> (_ @ tensor_of_comm_comonoids V (x1 ,, x2 ,, mx) (y1 ,, y2 ,, my) @ _);
+          [ <span class="nb">apply</span> maponpaths_2;
+            <span class="nb">cbn</span>;
+            <span class="nb">unfold</span> dialgebra_disp_tensor_op;
+            <span class="nb">cbn</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> id_left
+          | <span class="nb">cbn</span>;
+            <span class="nb">unfold</span> dialgebra_disp_tensor_op;
+            <span class="nb">cbn</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> id_left]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_commutative_comonoids</span>
+    : disp_monoidal (disp_cat_of_commutative_comonoids V) V.
+  <span class="kn">Proof</span>.
+    use sigma_disp_cat_monoidal.
+    - <span class="bp">exact</span> disp_monoidal_comonoids.
+    - <span class="bp">exact</span> disp_monoidal_commutative_comonoids_laws.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_cat_comonoids</span>
+    : monoidal_cat.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">comonoid_category</span> <span class="nv">V</span>).
+    <span class="bp">exact</span> (total_monoidal disp_monoidal_comonoids).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_cat_of_commutative_comonoids</span>
+    : monoidal_cat.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">commutative_comonoid_category</span> <span class="nv">V</span>).
+    use total_monoidal.
+    - <span class="bp">exact</span> V.
+    - <span class="bp">exact</span> disp_monoidal_commutative_comonoids.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MonoidalCategoryOfComonoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Comonoids/Monoidal.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In this file, the monoidal category of comonoids internal to a symmetric monoidal category is defined.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

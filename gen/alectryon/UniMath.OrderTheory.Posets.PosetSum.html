@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PosetSum.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************</span>
+
+<span class="sd"> Coproducts of partial orders</span>
+
+<span class="sd"> We construct coproducts of partial orders, and we show that the</span>
+<span class="sd"> inclusion functions are monotone. In addition, we show that the</span>
+<span class="sd"> map coming from the universal property is monotone. We consider</span>
+<span class="sd"> both the case of binary coproducts and set-indexed coproducts.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Coproduct of partial orders</span>
+<span class="sd"> 2. Monotonicity of inclusion</span>
+<span class="sd"> 3. The sum of monotone maps is monotone</span>
+<span class="sd"> 4. Set indexed coproducts of partial order</span>
+<span class="sd"> 5. Monotonicity of the set-indexed inclusion</span>
+<span class="sd"> 6. The set-indexed sum of monotope maps is monotone</span>
+
+<span class="sd"> ****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+
+<span class="kn">Section</span> <span class="nf">CoproductOfPartialOrder</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          (<span class="nv">PX</span> : PartialOrder X)
+          (<span class="nv">PY</span> : PartialOrder Y).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Coproduct of partial orders</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">coproduct_hrel</span>
+    : hrel (setcoprod X Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ | y₁ ] ; <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ | y₂ ].
+    - <span class="bp">exact</span> (PX x₁ x₂).
+    - <span class="bp">exact</span> hfalse.
+    - <span class="bp">exact</span> hfalse.
+    - <span class="bp">exact</span> (PY y₁ y₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isPartialOrder_coproduct_hrel</span>
+    : isPartialOrder coproduct_hrel.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> xy₁ xy₂ xy₃ p q.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="nb">induction</span> xy₃ <span class="k">as</span> [ x₃ | y₃ ] ;
+        <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p, q ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty p)) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty q)).
+      + <span class="bp">exact</span> (trans_PartialOrder PX p q).
+      + <span class="bp">exact</span> (trans_PartialOrder PY p q).
+    - <span class="nb">intros</span> xy ; <span class="nb">induction</span> xy <span class="k">as</span> [ x | y ] ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> (refl_PartialOrder PX x).
+      + <span class="bp">exact</span> (refl_PartialOrder PY y).
+    - <span class="nb">intros</span> xy₁ xy₂ p q.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ | y₁ ] ;
+        <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ | y₂ ] ;
+        <span class="nb">cbn</span> <span class="k">in</span> p, q ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty p)) ;
+        <span class="kp">try</span> (<span class="nb">apply</span> (fromempty q)).
+      + <span class="bp">exact</span> (maponpaths inl (antisymm_PartialOrder PX p q)).
+      + <span class="bp">exact</span> (maponpaths inr (antisymm_PartialOrder PY p q)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_PartialOrder</span>
+    : PartialOrder (setcoprod X Y).
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> coproduct_hrel.
+    - <span class="bp">exact</span> isPartialOrder_coproduct_hrel.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Monotonicity of inclusion</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_monotone_inl</span>
+    : is_monotone PX coproduct_PartialOrder inl.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inl_monotone_function</span>
+    : monotone_function PX coproduct_PartialOrder
+    := _ ,, is_monotone_inl.
+
+  <span class="kn">Definition</span> <span class="nf">is_monotone_inr</span>
+    : is_monotone PY coproduct_PartialOrder inr.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">inr_monotone_function</span>
+    : monotone_function PY coproduct_PartialOrder
+    := _ ,, is_monotone_inr.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The sum of monotone maps is monotone</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_monotone_sumofmaps</span>
+             {<span class="nv">Z</span> : hSet}
+             {<span class="nv">PZ</span> : PartialOrder Z}
+             {<span class="nv">f</span> : X → Z}
+             (<span class="nv">Pf</span> : is_monotone PX PZ f)
+             {<span class="nv">g</span> : Y → Z}
+             (<span class="nv">Pg</span> : is_monotone PY PZ g)
+    : is_monotone coproduct_PartialOrder PZ (sumofmaps f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂ p.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ | y₁ ] ; <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ | y₂ ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    - <span class="nb">apply</span> Pf.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> fromempty.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> fromempty.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> Pg.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CoproductOfPartialOrder</span>.
+
+<span class="kn">Section</span> <span class="nf">CoproductOfPartialOrder</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">Y</span> : X → hSet)
+          (<span class="nv">PY</span> : ∏ (x : X), PartialOrder (Y x)).
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Set indexed coproducts of partial order</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_coproduct_hrel</span>
+    : hrel (∑ (x : X), Y x)%<span class="nb">set</span>
+    := <span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>,
+       <span class="k">let</span> <span class="nv">x₁</span> := pr1 xy₁ <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x₂</span> := pr1 xy₂ <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y₁</span> := pr2 xy₁ <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y₂</span> := pr2 xy₂ <span class="k">in</span>
+       (∑ (p : eqset x₁ x₂), PY x₂ (transportf Y p y₁) y₂)%prop.
+
+  <span class="kn">Proposition</span> <span class="nf">isPartialOrder_set_coproduct_hrel</span>
+    : isPartialOrder set_coproduct_hrel.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> xy₁ xy₂ xy₃ pq₁ pq₂.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+      <span class="nb">induction</span> xy₃ <span class="k">as</span> [ x₃ y₃ ].
+      <span class="nb">induction</span> pq₁ <span class="k">as</span> [ p₁ q₁ ].
+      <span class="nb">induction</span> pq₂ <span class="k">as</span> [ p₂ q₂ ].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, p₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">refine</span> (idpath _ ,, _) ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (trans_PartialOrder (PY _) q₁ q₂).
+    - <span class="nb">intros</span> xy.
+      <span class="nb">induction</span> xy <span class="k">as</span> [ x y ] ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (idpath _ ,, _).
+      <span class="bp">exact</span> (refl_PartialOrder (PY x) y).
+    - <span class="nb">intros</span> xy₁ xy₂ pq₁ pq₂.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+      <span class="nb">induction</span> pq₁ <span class="k">as</span> [ p₁ q₁ ].
+      <span class="nb">induction</span> pq₂ <span class="k">as</span> [ p₂ q₂ ].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">assert</span> (p₂ = idpath _) <span class="k">as</span> r.
+      {
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">rewrite</span> r <span class="k">in</span> q₂ ; <span class="nb">clear</span> p₂ r.
+      <span class="nb">cbn</span> <span class="k">in</span> q₂.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (antisymm_PartialOrder (PY _) q₁ q₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coproduct_set_PartialOrder</span>
+    : PartialOrder (∑ (x : X), Y x)%<span class="nb">set</span>.
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> set_coproduct_hrel.
+    - <span class="bp">exact</span> isPartialOrder_set_coproduct_hrel.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Monotonicity of the set-indexed inclusion</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_monotone_set_in</span>
+             (<span class="nv">x</span> : X)
+    : is_monotone (PY x) coproduct_set_PartialOrder (<span class="k">λ</span> (<span class="nv">y</span> : Y x), x ,, y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (idpath _ ,, p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_in_monotone_function</span>
+             (<span class="nv">x</span> : X)
+    : monotone_function (PY x) coproduct_set_PartialOrder
+    := _ ,, is_monotone_set_in x.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. The set-indexed sum of monotope maps is monotone</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_monotone_set_coproduct_map</span>
+             {<span class="nv">Z</span> : hSet}
+             {<span class="nv">PZ</span> : PartialOrder Z}
+             {<span class="nv">f</span> : ∏ (x : X), Y x → Z}
+             (<span class="nv">Pf</span> : ∏ (x : X), is_monotone (PY x) PZ (f x))
+    : is_monotone
+        coproduct_set_PartialOrder
+        PZ
+        (<span class="k">λ</span> <span class="nv">xy</span>, f (pr1 xy) (pr2 xy)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂ p.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+    <span class="nb">induction</span> p <span class="k">as</span> [ p q ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">apply</span> Pf.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CoproductOfPartialOrder</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/PosetSum.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The set-indexed sum of monotope maps is monotone
+  &gt;
+  &gt;  ****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

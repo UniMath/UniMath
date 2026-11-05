@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedAlgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras_eq.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.SortedTypes.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.HVectors.
+
+<span class="kn">Section</span> <span class="nf">Definitions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>:signature}.
+
+  <span class="kn">Definition</span> <span class="nf">disp_alg</span> (<span class="nv">A</span>:algebra σ) :=
+    ∑ fib : (∏ (s: sorts σ) (a : support A s), UU),
+      ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
+        hvec (h1map_vec (v:= (arity nm)) fib base_xs)
+        → (fib (sort nm) (ops A nm (base_xs))).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_alg</span> {<span class="nv">A</span>:algebra σ}
+    (<span class="nv">fib</span> : (∏ (s: sorts σ) (a : support A s), UU))
+    (<span class="nv">overops</span> : ∏ (nm: names σ) (base_xs : hvec (vec_map A (arity nm))),
+      hvec (h1map_vec (v:= (arity nm)) fib base_xs) → (fib (sort nm) (ops A nm (base_xs))))
+    : disp_alg A
+    := fib,, overops.
+
+  <span class="c">(*Accessors*)</span>
+    <span class="kn">Definition</span> <span class="nf">fib</span> {<span class="nv">A</span>:algebra σ} (<span class="nv">D</span>: disp_alg A)
+    : (∏ (s: sorts σ) (a : support A s), UU) := pr1 D.
+    <span class="kn">Definition</span> <span class="nf">overops</span> {<span class="nv">A</span>:algebra σ} (<span class="nv">D</span>: disp_alg A)
+      (<span class="nv">nm</span>: names σ) (<span class="nv">base_xs</span> : hvec (vec_map A (arity nm)))
+    : hvec (h1map_vec (v:= (arity nm)) (fib D) base_xs) → ((fib D) (sort nm) (ops A nm (base_xs))) := pr2 D nm base_xs.
+
+  <span class="kn">Definition</span> <span class="nf">total_alg</span> {<span class="nv">A</span>: algebra σ} (<span class="nv">D</span>: disp_alg A) : algebra σ.
+  <span class="kn">Proof</span>.
+    use make_algebra.
+    - <span class="nb">intro</span> s.
+      <span class="bp">exact</span> (∑(a: A s), fib D s a).
+    - <span class="nb">intros</span> nm xs.
+      use tpair.
+      + <span class="bp">exact</span> (ops A nm (h1map (<span class="k">λ</span> <span class="nv">s</span>, pr1) xs)).
+      + use overops. <span class="c">(*TODO: can we define this without transport and/or a new "map" variant ?*)</span>
+        use (transportb (<span class="k">λ</span> <span class="nv">arg</span>, hvec (h1lower arg)) (h1map_compose (<span class="k">λ</span> <span class="nv">s</span>, pr1) (fib D) xs)).
+        use (h12map (<span class="k">λ</span> <span class="nv">s</span>, pr2) xs).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Definitions</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transportf_overops</span>
+    {<span class="nv">σ</span> : signature} {<span class="nv">B</span> : algebra σ}
+    (<span class="nv">D</span> : disp_alg B)
+    {<span class="nv">nm</span> : names σ}
+    {<span class="nv">base_xs</span> <span class="nv">base_xs'</span> : hvec (vec_map B (arity nm))}
+    (<span class="nv">fiber</span> : hvec (h1lower (h1map (pr1 D) base_xs)))
+    (<span class="nv">e</span> : base_xs = base_xs')
+    : transportf
+      (<span class="k">λ</span> <span class="nv">x</span> : hvec (vec_map B (arity nm)), fib D (sort nm) (ops B nm x))
+      e (overops D nm base_xs fiber)
+    = overops D nm base_xs' (transportf (<span class="k">λ</span> <span class="nv">bs</span>, hvec (h1lower (h1map (fib D) bs))) e fiber).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">ForgetfulMorphism</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> hom.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>:signature} {<span class="nv">A</span>: algebra σ} (<span class="nv">D</span>: disp_alg A).
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_sfun</span> : total_alg D s→ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s.
+    use pr1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">forgetful_ishom</span> : ishom (forgetful_sfun).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> nm xs.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_hom</span> : total_alg D ↷ A.
+  <span class="kn">Proof</span>.
+    use make_hom.
+    - use forgetful_sfun.
+    - use forgetful_ishom.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ForgetfulMorphism</span>.
+
+<span class="kn">Section</span> <span class="nf">SubAlgebrasAsTotalAlgebras</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">    If all the fibers are propositions then the total algebra is a sub-algebra of the base one.</span>
+<span class="sd">    The inclusion is given by the forgetful_hom.</span>
+<span class="sd">    We show it is indeed an inclusion</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>:signature} (<span class="nv">A</span>: algebra σ) (<span class="nv">D</span>: disp_alg A)
+    (<span class="nv">fiberinprop</span>: ∏ (s: sorts σ) (a : support A s), isaprop (fib D s a)).
+
+  <span class="kn">Theorem</span> <span class="nf">isincl_forgetful</span> : ∏ (s: sorts σ), isincl (forgetful_hom D s).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s.
+    use isinclpr1.
+    use fiberinprop.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">SubAlgebrasAsTotalAlgebras</span>.
+
+<span class="kn">Section</span> <span class="nf">DisplayedAlgebrasFromMorphisms</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fibers_dispalg</span> {<span class="nv">σ</span> : signature} {<span class="nv">A</span> <span class="nv">B</span> : algebra σ}
+    (<span class="nv">h</span> : hom A B)
+  : disp_alg B.
+  <span class="kn">Proof</span>.
+    use make_disp_alg.
+    - <span class="bp">exact</span> (shfiber h).
+    - <span class="nb">intros</span> nm bs xs.
+      use tpair.
+      + use (ops A nm).
+        <span class="nb">unfold</span> star.
+        <span class="bp">exact</span> (h2lower (h2map (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, pr1) xs)).
+      + <span class="nb">simpl</span>.
+        <span class="nb">eapply</span> pathscomp0.
+        { use (hom2axiom h). }
+        <span class="nb">apply</span> maponpaths.
+        use hvec_of_shfiber.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DisplayedAlgebrasFromMorphisms</span>.
+
+<span class="kn">Section</span> <span class="nf">Product</span>.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>: signature}.
+
+  <span class="kn">Definition</span> <span class="nf">ProductDisplayedAlgebra</span> (<span class="nv">A</span> <span class="nv">B</span>: algebra σ): disp_alg A
+    := make_disp_alg (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">a</span>, B s)(<span class="k">λ</span> <span class="nv">nm</span> <span class="nv">_</span> <span class="nv">X</span>, ops B nm (h2lower X)).
+
+  <span class="kn">Definition</span> <span class="nf">ProductAlgebra</span> (<span class="nv">A</span> <span class="nv">B</span>: algebra σ): algebra σ
+    := make_algebra
+        (<span class="k">λ</span> <span class="nv">s</span>, A s × B s)
+        (
+          <span class="k">λ</span> <span class="nv">nm</span> <span class="nv">X</span>,
+          <span class="k">let</span> <span class="nv">X1</span> := (h1map (Q:= (<span class="k">λ</span> <span class="nv">s</span>, A s)) (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">x</span>, pr1 x) X) <span class="k">in</span>
+          <span class="k">let</span> <span class="nv">X2</span> := (h1map (Q:= (<span class="k">λ</span> <span class="nv">s</span>, B s)) (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">x</span>, pr2 x) X) <span class="k">in</span>
+          (ops A nm X1,, ops B nm X2)
+        ).
+
+<span class="kn">End</span> <span class="nf">Product</span>.
+
+<span class="kn">Section</span> <span class="nf">weqHomDispAlg</span>.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span> : signature} {<span class="nv">B</span> : algebra σ}.
+  <span class="kn">Context</span> (<span class="nv">setprop</span> : has_supportsets B).
+
+  <span class="kn">Definition</span> <span class="nf">total_fibers_sfun</span> {<span class="nv">A</span> : algebra σ} (<span class="nv">h</span> : hom A B)
+    : total_alg (fibers_dispalg h) s→ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s.
+    <span class="nb">intro</span> fib.
+    <span class="nb">simpl</span> <span class="k">in</span> fib.
+    <span class="bp">exact</span> (pr12 fib).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">total_fibers</span> {<span class="nv">A</span> : algebra σ} (<span class="nv">h</span> : hom A B)
+    : total_alg (fibers_dispalg h) = A.
+  <span class="kn">Proof</span>.
+    use make_algebra_eq.
+    - use make_hom.
+      + <span class="nb">apply</span> total_fibers_sfun.
+      + <span class="nb">intros</span> nm xs.
+        <span class="nb">unfold</span> total_fibers_sfun.
+        <span class="nb">simpl</span>.
+        use maponpaths.
+        <span class="nb">unfold</span> starfun.
+        <span class="nb">unfold</span> total_alg, dom, star <span class="k">in</span> xs.
+        <span class="nb">simpl</span> <span class="k">in</span> xs.
+        use h2map_transport_h1mapcompose.
+    - <span class="nb">intros</span> s.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> total_fibers_sfun.
+      use isweq_iso.
+      + <span class="nb">intro</span> a.
+        use (tpair _ (h s a)).
+        <span class="nb">simpl</span>.
+        use (tpair _ a).
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">simpl</span>.
+        <span class="nb">intros</span>.
+        <span class="nb">destruct</span> x <span class="k">as</span> [b fib].
+        <span class="nb">destruct</span> fib <span class="k">as</span> [a e].
+        <span class="nb">simpl</span>.
+        <span class="nb">destruct</span> e.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">simpl</span>.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">shfiber_forgetful_hom</span> (<span class="nv">D</span> : disp_alg B)
+  : shfiber (forgetful_hom D) = fib D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>.
+    use funextsec.
+    <span class="nb">intro</span> s.
+    use funextsec.
+    <span class="nb">intro</span> b.
+    use weqtopaths.
+    use weq_iso.
+    - <span class="nb">intro</span> fib.
+      use (transportf _ (shfiber_path fib) _).
+      use (pr2 (shfiber_fiber fib)).
+    - <span class="nb">intro</span> d.
+      <span class="nb">unfold</span> shfiber.
+      use tpair.
+      + use (tpair _ b d).
+      + <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">intro</span> fib.
+      <span class="nb">simpl</span>.
+      use subtypePath.
+      { <span class="nb">intro</span>.
+        use setprop. }
+      <span class="nb">simpl</span>.
+      use total2_paths2_f.
+      + use pathsinv0.
+        use (shfiber_path fib).
+      + <span class="nb">induction</span> (shfiber_path fib).
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transportb_hvecmap_shfiber_forgetful_hom</span>
+    (<span class="nv">D</span> : disp_alg B)
+    (<span class="nv">nm</span> : names σ)
+    (<span class="nv">base_xs</span> : hvec (vec_map B (arity nm)))
+    : transportb
+      (<span class="k">λ</span> <span class="nv">D0</span> : ∏ a : sorts σ, B a → UU, hvec (h1lower (h1map D0 base_xs)))
+      (shfiber_forgetful_hom D)
+    = h2map (<span class="k">λ</span> (<span class="nv">s</span> : sorts σ) (<span class="nv">b</span> : B s) (<span class="nv">d</span> : fib D s b), (b,, d),, idpath b).
+  <span class="kn">Proof</span>.
+    use funextsec.
+    <span class="nb">intro</span> fiber.
+    <span class="nb">eapply</span> pathscomp0.
+    { use transportb_h2vec. }
+    <span class="nb">simpl</span>.
+    use (maponpaths (<span class="k">λ</span> <span class="nv">arg</span>, h2map arg fiber)).
+    use funextsec. <span class="nb">intro</span> s.
+    use funextsec. <span class="nb">intro</span> b.
+    use funextsec. <span class="nb">intro</span> d.
+    <span class="nb">eapply</span> pathscomp0.
+    { use (transportb_funextsec_op
+        (S:= sorts σ)
+        (A:= B) _ _ _ s b d).
+      <span class="bp">exact</span> (arity nm). }
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    { use (transportb_funextfun (idfun UU) (X:= B s) _ _ _ b d). }
+    <span class="nb">simpl</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    { <span class="nb">fold</span> (idfun UU).
+      <span class="nb">eapply</span> (toforallpaths _ (transportb (idfun UU) (weqtopaths _))).
+      <span class="nb">change</span> (<span class="k">λ</span> <span class="nv">x0</span> : UU, x0) <span class="k">with</span> (idfun UU).
+      use weqpath_transportb'. }
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fibers_dispalg_forgetful_hom</span> (<span class="nv">D</span> : disp_alg B)
+  : fibers_dispalg (forgetful_hom D) = D.
+  <span class="kn">Proof</span>.
+    use total2_paths2_f.
+    - use shfiber_forgetful_hom.
+    - <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      { use (transportf_sec_constant
+          (A:= ∏ s : sorts σ, B s → UU)
+          (B:= names σ)
+          (C:= <span class="k">λ</span> <span class="nv">fib0</span> <span class="nv">nm</span>, ∏ (base_xs : hvec (vec_map B (arity nm))),
+            hvec (h1map_vec fib0 base_xs) → fib0 (sort nm) (ops B nm base_xs))
+          _ _). }
+      use funextsec.
+      <span class="nb">intro</span> nm.
+      <span class="nb">eapply</span> pathscomp0.
+      { use (transportf_sec_constant
+          (A:= ∏ s : sorts σ, B s → UU)
+          (B:= hvec (vec_map B (arity nm)))
+          (C:= <span class="k">λ</span> <span class="nv">fib0</span> <span class="nv">base_xs</span>, hvec (h1map_vec fib0 base_xs) → fib0 (sort nm) (ops B nm base_xs))
+          _ _). }
+      use funextsec.
+      <span class="nb">intro</span> base_xs.
+      <span class="nb">unfold</span> h1map_vec.
+      <span class="nb">eapply</span> pathscomp0.
+      { use transportf_fun_op2. }
+      <span class="nb">rewrite</span> (transportb_hvecmap_shfiber_forgetful_hom D). <span class="c">(*Doable without rewrite?*)</span>
+      <span class="nb">unfold</span> funcomp.
+      use funextsec.
+      <span class="nb">intro</span> fiber.
+      <span class="nb">eapply</span> pathscomp0.
+      { use transportf_funextsec_op.
+        <span class="bp">exact</span> (arity nm). }
+      <span class="nb">eapply</span> pathscomp0.
+      { use (transportf_funextfun (idfun UU)). }
+      <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      { <span class="nb">eapply</span> (toforallpaths _ (transportf (<span class="k">λ</span> <span class="nv">x0</span> : UU, x0) (weqtopaths _))).
+        <span class="nb">change</span> (<span class="k">λ</span> <span class="nv">x0</span> : UU, x0) <span class="k">with</span> (idfun UU).
+        use weqpath_transport. }
+      <span class="nb">simpl</span>.
+      <span class="nb">eapply</span> pathscomp0.
+      { use (!functtransportf _ _ _ _). }
+      <span class="nb">eapply</span> pathscomp0.
+      { use (transportf_overops _ _ _). }
+      use maponpaths.
+      <span class="nb">unfold</span> hvec_of_shfiber.
+      <span class="nb">eapply</span> pathscomp0.
+      { use transport_hvec_ofpaths. }
+      <span class="nb">eapply</span> pathscomp0.
+      { <span class="nb">apply</span> h2map_compose. }
+      <span class="nb">apply</span> h2map_idfun.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">morphism_dispalg_weq</span> :
+    (∑ (A:algebra σ), hom A B) ≃ (disp_alg B).
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> A.
+      <span class="nb">destruct</span> A <span class="k">as</span> [A h].
+      use (fibers_dispalg h).
+    - <span class="nb">intro</span> D.
+      use tpair.
+      + use (total_alg D).
+      + use forgetful_hom.
+    - <span class="nb">intros</span> A.
+      <span class="nb">destruct</span> A <span class="k">as</span> [A h].
+      use total2_paths2_f.
+      + use total_fibers.
+      + use subtypePath.
+        * <span class="nb">intro</span>.
+          use isapropishom.
+          use setprop.
+        * <span class="nb">eapply</span> pathscomp0.
+          { <span class="nb">unfold</span> hom.
+            use (pr1_transportf (P:= <span class="k">λ</span> <span class="nv">x</span> <span class="nv">h</span>, ishom h)). }
+          use funextsec.
+          <span class="nb">intros</span> s.
+          <span class="nb">eapply</span> pathscomp0.
+          { use transportf_sfun. }
+          use funextsec.
+          <span class="nb">intros</span> a.
+          <span class="nb">simpl</span>.
+          <span class="nb">unfold</span> forgetful_sfun.
+          <span class="nb">eapply</span> pathscomp0.
+          { <span class="nb">eapply</span> (maponpaths pr1).
+            use (functtransportb support (<span class="k">λ</span> <span class="nv">x</span>, x s) (total_fibers h) a). }
+          <span class="c">(*TODO: code almost repeated from [embeddingofsubuniverse_image]*)</span>
+          <span class="nb">unfold</span> total_fibers.
+          <span class="nb">rewrite</span> support_make_algebra_eq.
+          <span class="nb">unfold</span> make_algebra_support_eq.
+          <span class="nb">eapply</span> pathscomp0.
+          { <span class="nb">eapply</span> (maponpaths pr1).
+            <span class="nb">eapply</span> pathscomp0.
+            { use (transportb_funextfun (idfun UU)). }
+            <span class="nb">simpl</span>.
+            <span class="nb">refine</span> (toforallpaths _ _ _ _ a).
+            use weqpath_transportb'. }
+          <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">intros</span> D.
+      use fibers_dispalg_forgetful_hom.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">weqHomDispAlg</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/DisplayedAlgebras.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.Universal.Algebras.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

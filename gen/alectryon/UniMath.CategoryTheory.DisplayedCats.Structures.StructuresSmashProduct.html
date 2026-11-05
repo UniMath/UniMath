@@ -1,0 +1,970 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructuresSmashProduct.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Structures with smash products</span>
+
+<span class="sd"> In this file, we define a general notion of structure that</span>
+<span class="sd"> supports a smash product. If we have a pointed structure (if a</span>
+<span class="sd"> set can be equipped with a structure, then we have a point, and</span>
+<span class="sd"> structure preserving maps preserve the point), then we can define</span>
+<span class="sd"> an equivalence relation on the product that identifies all points</span>
+<span class="sd"> for which at least 1 coordinate is the point arising from the</span>
+<span class="sd"> structure.</span>
+
+<span class="sd"> For a structure to support smash products, the first requirement</span>
+<span class="sd"> is that the quotient with the aforementioned equivalence relation</span>
+<span class="sd"> can be equipped with a structure. In addition, we must be able to</span>
+<span class="sd"> equip the booleans with the structure, because these will</span>
+<span class="sd"> ultimately form the unit of the desired monoidal structure. This</span>
+<span class="sd"> leads to the definition `hset_struct_with_smash`, and from that,</span>
+<span class="sd"> we construct the smash product and the unit.</span>
+
+<span class="sd"> However, this is not sufficient in general to construct the</span>
+<span class="sd"> desired monoidal structure (a counterexample would be topological</span>
+<span class="sd"> spaces with a base point), and thus we look at more conditions.</span>
+<span class="sd"> The first additional requirement is that we must have function</span>
+<span class="sd"> spaces (`hset_struct_with_smash_closed_pointed`). This condition</span>
+<span class="sd"> says that we can equip the hom-sets with the structure. In</span>
+<span class="sd"> addition, we also require that the currying and uncurrying are</span>
+<span class="sd"> structure preserving maps. These conditions are necessary to prove</span>
+<span class="sd"> that the anticipated monoidal structure is closed.</span>
+
+<span class="sd"> This is actually still not enough to construct the desired</span>
+<span class="sd"> monoidal structure. Our solution is inspired by Construction 4.19</span>
+<span class="sd"> and Lemma 4.20 in https://arxiv.org/pdf/0710.0082.pdf.</span>
+
+<span class="sd"> The idea is to strengthen the requirement further: informally, we</span>
+<span class="sd"> could say that aforementioned adjunction must be properly</span>
+<span class="sd"> enriched (note that formally stating this, would be circular,</span>
+<span class="sd"> because such an enrichment would presuppose that we already</span>
+<span class="sd"> constructed the desired monoidal category). The extra requirements</span>
+<span class="sd"> state that the maps that witness the isomorphisms between the</span>
+<span class="sd"> homsets of the aforementioned adjunction, are themselves structure</span>
+<span class="sd"> preserving maps as well.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Equivalence relation of smash product</span>
+<span class="sd"> 2. Structures with smash products</span>
+<span class="sd"> 3. Accessors for structures with smash products</span>
+<span class="sd"> 4. Structures with pointed homs</span>
+<span class="sd"> 5. Accessors of structures with pointed homs</span>
+<span class="sd"> 6. Structures with an pointed hom-adjunction</span>
+<span class="sd"> 7. Accessores for structures with an pointed hom-adjunction</span>
+<span class="sd"> 8. Closed smash product structures</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SmashProduct</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_struct)
+          (<span class="nv">Pt</span> : pointed_hset_struct P)
+          {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          (<span class="nv">PX</span> : P X)
+          (<span class="nv">PY</span> : P Y).
+
+  <span class="kn">Let</span> <span class="nf">Px</span> : X := hset_struct_point Pt PX.
+  <span class="kn">Let</span> <span class="nf">Py</span> : Y := hset_struct_point Pt PY.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Equivalence relation of smash product</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">product_point_coordinate</span>
+             (<span class="nv">xy</span> : X × Y)
+    : UU
+    := (pr1 xy = Px) ⨿ (pr2 xy = Py).
+
+  <span class="kn">Definition</span> <span class="nf">smash_hrel</span>
+    : hrel (X × Y)
+    := <span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>,
+       xy₁ = xy₂
+       ∨
+       (product_point_coordinate xy₁
+        ×
+        product_point_coordinate xy₂).
+
+  <span class="kn">Proposition</span> <span class="nf">iseqrel_smash_hrel</span>
+    : iseqrel smash_hrel.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> ((_ ,, _) ,, _).
+    - <span class="nb">intros</span> x₁ x₂ x₃.
+      use factor_through_squash.
+      {
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₁.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ; <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="bp">exact</span> (inl (p₁ @ p₂)).
+      + <span class="nb">induction</span> p₁.
+        <span class="bp">exact</span> (inr p₂).
+      + <span class="nb">induction</span> p₂.
+        <span class="bp">exact</span> (inr p₁).
+      + <span class="bp">exact</span> (inr (pr1 p₁ ,, pr2 p₂)).
+    - <span class="nb">intros</span> xy.
+      <span class="bp">exact</span> (hinhpr (inl (idpath _))).
+    - <span class="nb">intros</span> xy₁ xy₂.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> p <span class="k">as</span> [ p | p ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      + <span class="bp">exact</span> (inl (!p)).
+      + <span class="bp">exact</span> (inr (pr2 p ,, pr1 p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smash_eqrel</span>
+    : eqrel (X × Y).
+  <span class="kn">Proof</span>.
+    use make_eqrel.
+    - <span class="bp">exact</span> smash_hrel.
+    - <span class="bp">exact</span> iseqrel_smash_hrel.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">map_from_smash</span>
+             {<span class="nv">Z</span> : hSet}
+             (<span class="nv">h</span> : X → Y → Z)
+             (<span class="nv">hp₁</span> : ∏ (y₁ y₂ : Y), h Px y₁ = h Px y₂)
+             (<span class="nv">hp₂</span> : ∏ (x : X) (y : Y), h x Py = h Px y)
+             (<span class="nv">hp₃</span> : ∏ (x₁ x₂ : X), h x₁ Py = h x₂ Py)
+    : setquot smash_eqrel → Z.
+  <span class="kn">Proof</span>.
+    use setquotuniv.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, h (pr1 xy) (pr2 xy)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> xy₁ xy₂ ;
+         use factor_through_squash ; [ <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p <span class="k">as</span> [ p | p ] ; [ <span class="nb">induction</span> p ; <span class="nb">apply</span> idpath | ] ;
+         <span class="nb">induction</span> p <span class="k">as</span> [ p₁ p₂ ] ;
+         <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ] ;
+         <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ;
+         <span class="nb">induction</span> p₁ <span class="k">as</span> [ p₁ | p₁ ] ;
+         <span class="nb">induction</span> p₂ <span class="k">as</span> [ p₂ | p₂ ] ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> p₁, p₂ ;
+         [ <span class="nb">apply</span> hp₁
+         | <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> hp₂
+         | <span class="nb">apply</span> hp₂
+         | <span class="nb">apply</span> hp₃ ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">map_from_smash'</span>
+             {<span class="nv">Z</span> : UU}
+             (<span class="nv">HZ</span> : isaset Z)
+             (<span class="nv">h</span> : X → Y → Z)
+             (<span class="nv">hp₁</span> : ∏ (y₁ y₂ : Y), h Px y₁ = h Px y₂)
+             (<span class="nv">hp₂</span> : ∏ (x : X) (y : Y), h x Py = h Px y)
+             (<span class="nv">hp₃</span> : ∏ (x₁ x₂ : X), h x₁ Py = h x₂ Py)
+    : setquot smash_eqrel → Z
+    := @map_from_smash (make_hSet Z HZ) h hp₁ hp₂ hp₃.
+
+  <span class="kn">Definition</span> <span class="nf">map_from_smash_pt</span>
+             {<span class="nv">Z</span> : hSet}
+             (<span class="nv">PZ</span> : P Z)
+             (<span class="nv">Pz</span> := hset_struct_point Pt PZ)
+             (<span class="nv">h</span> : X → Y → Z)
+             (<span class="nv">hp₁</span> : ∏ (y : Y), h Px y = Pz)
+             (<span class="nv">hp₂</span> : ∏ (x : X), h x Py = Pz)
+    : setquot smash_eqrel → Z.
+  <span class="kn">Proof</span>.
+    use map_from_smash.
+    - <span class="bp">exact</span> h.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ ;
+         <span class="nb">rewrite</span> !hp₁ ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y ;
+         <span class="nb">rewrite</span> hp₁, hp₂ ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ ;
+         <span class="nb">rewrite</span> !hp₂ ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SmashProduct</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Structures with smash products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_hset_struct_map_from_unit</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">Pt</span> : pointed_hset_struct P)
+           {<span class="nv">Y</span> : hSet}
+           (<span class="nv">PY</span> : P Y)
+           (<span class="nv">y</span> : Y)
+           (<span class="nv">b</span> : bool)
+  : Y
+  := <span class="k">if</span> b <span class="k">then</span> y <span class="k">else</span> hset_struct_point Pt PY.
+
+<span class="kn">Definition</span> <span class="nf">pointed_hset_struct_unit_map</span>
+           {<span class="nv">P</span> : hset_struct}
+           (<span class="nv">Pt</span> : pointed_hset_struct P)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PY</span> : P Y)
+           (<span class="nv">f</span> : X → bool)
+           (<span class="nv">g</span> : X → Y)
+           (<span class="nv">x</span> : X)
+  : Y
+  := <span class="k">if</span> f x <span class="k">then</span> g x <span class="k">else</span> hset_struct_point Pt PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_data</span>
+           (<span class="nv">P</span> : hset_cartesian_struct)
+           (<span class="nv">Pt</span> : pointed_hset_struct P)
+  : UU
+  := P boolset
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+       P (setquotinset (smash_eqrel P Pt PX PY))).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_laws</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash_data P Pt)
+  : UU
+  := (hset_struct_point Pt (pr1 SP) = false)
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y),
+      hset_struct_point Pt (pr2 SP X Y PX PY)
+      =
+      setquotpr _ (hset_struct_point Pt PX ,, hset_struct_point Pt PY))
+     ×
+     (∏ (Y : hSet)
+        (PY : P Y)
+        (y : Y),
+      mor_hset_struct
+        P
+        (pr1 SP)
+        PY
+        (pointed_hset_struct_map_from_unit Pt PY y))
+     ×
+     (∏ (X Y : hSet)
+        (PX : P X)
+        (PY : P Y)
+        (f : X → bool)
+        (Pf : mor_hset_struct P PX (pr1 SP) f)
+        (g : X → Y)
+        (Pg : mor_hset_struct P PX PY g),
+      mor_hset_struct
+        P
+        PX
+        PY
+        (pointed_hset_struct_unit_map Pt PY f g))
+     ×
+     ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+     (∏ (y : Y),
+      mor_hset_struct
+        P
+        PX
+        (pr2 SP X Y PX PY)
+        (<span class="k">λ</span> <span class="nv">x</span>, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)))
+     ×
+     (∏ (x : X),
+      mor_hset_struct
+        P
+        PY
+        (pr2 SP X Y PX PY)
+        (<span class="k">λ</span> <span class="nv">y</span>, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)))
+      ×
+      (mor_hset_struct
+        P
+        (hset_struct_prod P PX PY)
+        (pr2 SP X Y PX PY)
+        (setquotpr (smash_eqrel P Pt PX PY)))
+      ×
+      (∏ (Z : hSet)
+         (PZ : P Z)
+         (h : X → Y → Z)
+         (Ph : mor_hset_struct
+                 P
+                 (hset_struct_prod P PX PY)
+                 PZ
+                 (<span class="k">λ</span> <span class="nv">xy</span>, h (pr1 xy) (pr2 xy)))
+         (hp₁ : ∏ (y₁ y₂ : Y),
+                h (hset_struct_point Pt PX) y₁
+                =
+                h (hset_struct_point Pt PX) y₂)
+         (hp₂ : ∏ (x : X) (y : Y),
+                h x (hset_struct_point Pt PY)
+                =
+                h (hset_struct_point Pt PX) y)
+         (hp₃ : ∏ (x₁ x₂ : X),
+                h x₁ (hset_struct_point Pt PY)
+                =
+                h x₂ (hset_struct_point Pt PY)),
+        mor_hset_struct
+          P
+          (pr2 SP X Y PX PY)
+          PZ
+          (map_from_smash P Pt PX PY h hp₁ hp₂ hp₃)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash</span>
+           (<span class="nv">P</span> : hset_cartesian_struct)
+           (<span class="nv">Pt</span> : pointed_hset_struct P)
+  : UU
+  := ∑ (SP : hset_struct_with_smash_data P Pt), hset_struct_with_smash_laws SP.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Accessors for structures with smash products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_hset_struct_with_smash</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash_data P Pt)
+           (<span class="nv">SPL</span> : hset_struct_with_smash_laws SP)
+  : hset_struct_with_smash P Pt
+  := SP ,, SPL.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_unit</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : P boolset
+  := pr11 SP.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_unit_ob</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : category_of_hset_struct P
+  := _ ,, hset_struct_with_smash_unit SP.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_setquot</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : P (setquotinset (smash_eqrel P Pt PX PY))
+  := pr21 SP X Y PX PY.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_with_smash_setquot</span> : hset_struct_with_smash &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_setquot_ob</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct P)
+  : category_of_hset_struct P
+  := _ ,, SP _ _ (pr2 PX) (pr2 PY).
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_point_unit</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : hset_struct_point Pt (hset_struct_with_smash_unit SP) = false.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 SP).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_point_smash</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+  : hset_struct_point Pt (SP X Y PX PY)
+    =
+    setquotpr _ (hset_struct_point Pt PX ,, hset_struct_point Pt PY).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 SP X Y PX PY).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_map_from_unit</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">Y</span> : hSet}
+            (<span class="nv">PY</span> : P Y)
+            (<span class="nv">y</span> : Y)
+  : mor_hset_struct
+      P
+      (hset_struct_with_smash_unit SP)
+      PY
+      (pointed_hset_struct_map_from_unit Pt PY y).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr222 SP) Y PY y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_map_bool</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">PX</span> : P X}
+            {<span class="nv">PY</span> : P Y}
+            {<span class="nv">f</span> : X → bool}
+            (<span class="nv">Pf</span> : mor_hset_struct
+                    P
+                    PX
+                    (hset_struct_with_smash_unit SP)
+                    f)
+            {<span class="nv">g</span> : X → Y}
+            (<span class="nv">Pg</span> : mor_hset_struct P PX PY g)
+  : mor_hset_struct
+      P
+      PX
+      PY
+      (pointed_hset_struct_unit_map Pt PY f g).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (pr222 SP) X Y PX PY f Pf g Pg).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_setquotpr_l</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            (<span class="nv">y</span> : Y)
+  : mor_hset_struct
+      P
+      PX
+      (SP X Y PX PY)
+      (<span class="k">λ</span> <span class="nv">x</span>, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr22 (pr222 SP) X Y PX PY) y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_setquotpr_r</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            (<span class="nv">x</span> : X)
+  : mor_hset_struct
+      P
+      PY
+      (SP X Y PX PY)
+      (<span class="k">λ</span> <span class="nv">y</span>, setquotpr (smash_eqrel P Pt PX PY) (x ,, y)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (pr22 (pr222 SP) X Y PX PY) x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_setquotpr</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+  : mor_hset_struct
+      P
+      (hset_struct_prod P PX PY)
+      (SP X Y PX PY)
+      (setquotpr (smash_eqrel P Pt PX PY)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 (pr22 (pr222 SP) X Y PX PY)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_map_from_smash</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            {<span class="nv">Z</span> : hSet}
+            (<span class="nv">PZ</span> : P Z)
+            (<span class="nv">Pz</span> := hset_struct_point Pt PZ)
+            (<span class="nv">h</span> : X → Y → Z)
+            (<span class="nv">Ph</span> : mor_hset_struct
+                    P
+                    (hset_struct_prod P PX PY)
+                    PZ
+                    (<span class="k">λ</span> <span class="nv">xy</span>, h (pr1 xy) (pr2 xy)))
+            (<span class="nv">hp₁</span> : ∏ (y₁ y₂ : Y),
+                   h (hset_struct_point Pt PX) y₁
+                   =
+                   h (hset_struct_point Pt PX) y₂)
+            (<span class="nv">hp₂</span> : ∏ (x : X) (y : Y),
+                   h x (hset_struct_point Pt PY)
+                   =
+                   h (hset_struct_point Pt PX) y)
+            (<span class="nv">hp₃</span> : ∏ (x₁ x₂ : X),
+                   h x₁ (hset_struct_point Pt PY)
+                   =
+                   h x₂ (hset_struct_point Pt PY))
+  : mor_hset_struct
+      P
+      (SP X Y PX PY)
+      PZ
+      (map_from_smash P Pt PX PY h hp₁ hp₂ hp₃).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 (pr22 (pr222 SP) X Y PX PY) Z PZ h Ph hp₁ hp₂ hp₃).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_map_from_smash'</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            {<span class="nv">Z</span> : UU}
+            (<span class="nv">HZ</span> : isaset Z)
+            (<span class="nv">PZ</span> : P (Z ,, HZ))
+            (<span class="nv">Pz</span> := hset_struct_point Pt PZ)
+            (<span class="nv">h</span> : X → Y → Z)
+            (<span class="nv">Ph</span> : mor_hset_struct
+                    P
+                    (hset_struct_prod P PX PY)
+                    PZ
+                    (<span class="k">λ</span> <span class="nv">xy</span>, h (pr1 xy) (pr2 xy)))
+            (<span class="nv">hp₁</span> : ∏ (y₁ y₂ : Y),
+                   h (hset_struct_point Pt PX) y₁
+                   =
+                   h (hset_struct_point Pt PX) y₂)
+            (<span class="nv">hp₂</span> : ∏ (x : X) (y : Y),
+                   h x (hset_struct_point Pt PY)
+                   =
+                   h (hset_struct_point Pt PX) y)
+            (<span class="nv">hp₃</span> : ∏ (x₁ x₂ : X),
+                   h x₁ (hset_struct_point Pt PY)
+                   =
+                   h x₂ (hset_struct_point Pt PY))
+  : mor_hset_struct
+      P
+      (SP X Y PX PY)
+      PZ
+      (map_from_smash' P Pt PX PY HZ h hp₁ hp₂ hp₃).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 (pr22 (pr222 SP) X Y PX PY) _ PZ h Ph hp₁ hp₂ hp₃).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Structures with pointed homs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_data</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y),
+    P (@homset (category_of_hset_struct P) (X ,, PX) (Y ,, PY)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_pointed_laws</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_data SP)
+  : UU
+  := ∏ (X Y : hSet)
+       (PX : P X)
+       (PY : P Y)
+       (x : X),
+     pr1 (hset_struct_point Pt (PC X Y PX PY)) x
+     =
+     hset_struct_point Pt PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_pointed</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : UU
+  := ∑ (PC : hset_struct_with_smash_closed_data SP),
+     hset_struct_with_smash_closed_pointed_laws PC.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Accessors of structures with pointed homs</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_to_funspace</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_pointed SP)
+           (<span class="nv">X</span> <span class="nv">Y</span> : category_of_hset_struct P)
+  : category_of_hset_struct P
+  := _ ,, pr1 PC (pr1 X) (pr1 Y) (pr2 X) (pr2 Y).
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_closed_funspace_point</span>
+            {<span class="nv">P</span> : hset_cartesian_struct}
+            {<span class="nv">Pt</span> : pointed_hset_struct P}
+            {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+            (<span class="nv">PC</span> : hset_struct_with_smash_closed_pointed SP)
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : P X)
+            (<span class="nv">PY</span> : P Y)
+            (<span class="nv">x</span> : X)
+  : pr1 (hset_struct_point Pt (pr1 PC X Y PX PY)) x
+    =
+    hset_struct_point Pt PY.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 PC X Y PX PY x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Structures with an pointed hom-adjunction</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_curry_fun</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_pointed SP)
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct P}
+           (<span class="nv">f</span> : PX --&gt; hset_struct_with_smash_closed_to_funspace PC PY PZ)
+  : setquot (smash_hrel P Pt (pr2 PX) (pr2 PY)) → pr11 PZ.
+<span class="kn">Proof</span>.
+  use map_from_smash.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 (pr1 f x) y).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> y₁ y₂ ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !(pointed_hset_struct_preserve_point Pt (pr2 f)) ;
+       <span class="nb">refine</span> (pr2 PC _ _ _ _ _ @ !_) ;
+       <span class="bp">exact</span> (pr2 PC _ _ _ _ _)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !(pointed_hset_struct_preserve_point Pt (pr2 f)) ;
+       <span class="nb">refine</span> (_ @ !(pr2 PC _ _ _ _ _)) ;
+       <span class="bp">exact</span> (pointed_hset_struct_preserve_point Pt (pr2 (pr1 f x)))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (pointed_hset_struct_preserve_point Pt (pr2 (pr1 f x₁)) @ !_) ;
+       <span class="nb">refine</span> (pointed_hset_struct_preserve_point Pt (pr2 (pr1 f x₂)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_uncurry_fun</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct P}
+           (<span class="nv">g</span> : hset_struct_with_smash_setquot_ob SP PX PY --&gt; PZ)
+           (<span class="nv">x</span> : pr11 PX)
+  : PY --&gt; PZ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, pr1 g (setquotpr _ (x ,, y))).
+  - <span class="kp">abstract</span>
+      (use (hset_struct_comp P _ (pr2 g)) ;
+       <span class="nb">apply</span> hset_struct_with_smash_setquotpr_r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_eval_fun</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_pointed SP)
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : setquot (smash_eqrel P Pt (pr1 PC X Y PX PY) PX) → Y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (hset_struct_smash_curry_fun PC (identity _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_adj_laws</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_pointed SP)
+  : UU
+  := (∏ (PX PY PZ : category_of_hset_struct P)
+        (f : PX --&gt; hset_struct_with_smash_closed_to_funspace PC PY PZ),
+      mor_hset_struct
+        P
+        (pr2 (hset_struct_with_smash_setquot_ob SP PX PY))
+        (pr2 PZ)
+        (hset_struct_smash_curry_fun PC f))
+     ×
+     (∏ (PX PY PZ : category_of_hset_struct P)
+        (f : hset_struct_with_smash_setquot_ob SP PX PY --&gt; PZ),
+      mor_hset_struct
+        P
+        (pr2 PX)
+        (pr1 PC _ _ (pr2 PY) (pr2 PZ))
+        (hset_struct_smash_uncurry_fun SP f)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_adj</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           (<span class="nv">SP</span> : hset_struct_with_smash P Pt)
+  : UU
+  := ∑ (PC : hset_struct_with_smash_closed_pointed SP),
+     hset_struct_with_smash_closed_adj_laws PC.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Accessores for structures with an pointed hom-adjunction</span>
+<span class="sd"> *)</span>
+<span class="kn">Coercion</span> <span class="nf">hset_struct_with_smash_closed_to_point</span>
+         {P : hset_cartesian_struct}
+         {Pt : pointed_hset_struct P}
+         {SP : hset_struct_with_smash P Pt}
+         (PC : hset_struct_with_smash_closed_adj SP)
+  : hset_struct_with_smash_closed_pointed SP
+  := pr1 PC.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_adj_to_hom</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_adj SP)
+           (<span class="nv">X</span> <span class="nv">Y</span> : hSet)
+           (<span class="nv">PX</span> : P X)
+           (<span class="nv">PY</span> : P Y)
+  : P (@homset (category_of_hset_struct P) (X ,, PX) (Y ,, PY))
+  := pr11 PC X Y PX PY.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_with_smash_closed_adj_to_hom</span>
+  : hset_struct_with_smash_closed_adj &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_curry</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_adj SP)
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct P}
+           (<span class="nv">f</span> : PX --&gt; hset_struct_with_smash_closed_to_funspace PC PY PZ)
+  : hset_struct_with_smash_setquot_ob SP PX PY --&gt; PZ
+  := hset_struct_smash_curry_fun (pr1 PC) f ,, pr12 PC PX PY PZ f.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_uncurry</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_adj SP)
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct P}
+           (<span class="nv">g</span> : hset_struct_with_smash_setquot_ob SP PX PY --&gt; PZ)
+  : PX --&gt; hset_struct_with_smash_closed_to_funspace PC PY PZ
+  := hset_struct_smash_uncurry_fun SP g ,, pr22 PC PX PY PZ g.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_smash_eval</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_adj SP)
+           (<span class="nv">X</span> <span class="nv">Y</span> : category_of_hset_struct P)
+  : hset_struct_with_smash_setquot_ob
+      SP
+      (hset_struct_with_smash_closed_to_funspace PC X Y)
+      X
+    --&gt;
+    Y
+  := hset_struct_smash_curry PC (identity _).
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Closed smash product structures</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_laws_enrich</span>
+           {<span class="nv">P</span> : hset_cartesian_struct}
+           {<span class="nv">Pt</span> : pointed_hset_struct P}
+           {<span class="nv">SP</span> : hset_struct_with_smash P Pt}
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed_adj SP)
+  : UU
+  := (∏ (PX PY PZ : category_of_hset_struct P),
+      mor_hset_struct
+        P
+        (pr2 (hset_struct_with_smash_closed_to_funspace
+                PC
+                PX
+                (hset_struct_with_smash_closed_to_funspace PC PZ PY)))
+        (pr2 (hset_struct_with_smash_closed_to_funspace
+                PC
+                (hset_struct_with_smash_setquot_ob SP PX PZ)
+                PY))
+        (hset_struct_smash_curry PC))
+     ×
+     (∏ (PX PY PZ : category_of_hset_struct P),
+      mor_hset_struct
+        P
+        (pr2 (hset_struct_with_smash_closed_to_funspace
+                PC
+                (hset_struct_with_smash_setquot_ob SP PX PZ)
+                PY))
+        (pr2 (hset_struct_with_smash_closed_to_funspace
+                PC
+                PX
+                (hset_struct_with_smash_closed_to_funspace PC PZ PY)))
+        (hset_struct_smash_uncurry PC)).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed</span>
+  : UU
+  := ∑ (P : hset_cartesian_struct)
+       (Pt : pointed_hset_struct P)
+       (SP : hset_struct_with_smash P Pt)
+       (PC : hset_struct_with_smash_closed_adj SP),
+     hset_struct_with_smash_closed_laws_enrich PC.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_with_smash_closed_to_struct</span>
+         (PC : hset_struct_with_smash_closed)
+  : hset_cartesian_struct
+  := pr1 PC.
+
+<span class="kn">Coercion</span> <span class="nf">hset_struct_with_smash_closed_point</span>
+         (PC : hset_struct_with_smash_closed)
+  : pointed_hset_struct PC
+  := pr12 PC.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_unit</span>
+           (<span class="nv">PC</span> : hset_struct_with_smash_closed)
+  : category_of_hset_struct PC
+  := hset_struct_with_smash_unit_ob (pr122 PC).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_smash</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+  : category_of_hset_struct PC
+  := hset_struct_with_smash_setquot_ob (pr122 PC) PX PY.
+
+<span class="kn">Notation</span> <span class="s2">"PX ∧* PY"</span> := (hset_struct_with_smash_closed_smash PX PY)
+                         (<span class="kn">at level</span> <span class="mi">30</span>, <span class="kn">right associativity</span>) : cat.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_closed_point_unit</span>
+            (<span class="nv">PC</span> : hset_struct_with_smash_closed)
+  : hset_struct_point PC (pr2 (hset_struct_with_smash_closed_unit PC)) = false.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (hset_struct_with_smash_point_unit (pr122 PC)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_closed_point_smash</span>
+            {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+            (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+  : hset_struct_point PC (pr2 (PX ∧* PY))
+    =
+    setquotpr _ (hset_struct_point PC (pr2 PX) ,, hset_struct_point PC (pr2 PY)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (hset_struct_with_smash_point_smash (pr122 PC) (pr2 PX) (pr2 PY)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_map_bool</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           {<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC}
+           (<span class="nv">f</span> : PX --&gt; hset_struct_with_smash_closed_unit PC)
+           (<span class="nv">g</span> : PX --&gt; PY)
+  : PX --&gt; PY
+  := _ ,, hset_struct_with_smash_map_bool (pr122 PC) (pr2 f) (pr2 g).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_setquotpr_l</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           {<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC}
+           (<span class="nv">y</span> : pr11 PY)
+  : PX --&gt; PX ∧* PY
+  := _ ,, hset_struct_with_smash_setquotpr_l (pr122 PC) _ _ y.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_setquotpr_r</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           {<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC}
+           (<span class="nv">x</span> : pr11 PX)
+  : PY --&gt; PX ∧* PY
+  := _ ,, hset_struct_with_smash_setquotpr_r (pr122 PC) _ _ x.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_setquotpr</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+  : hset_struct_prod_ob PX PY --&gt; PX ∧* PY
+  := _ ,, hset_struct_with_smash_setquotpr (pr122 PC) (pr2 PX) (pr2 PY).
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_to_funspace_ob</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+  : category_of_hset_struct PC
+  := hset_struct_with_smash_closed_to_funspace (pr1 (pr222 PC)) PX PY.
+
+<span class="kn">Notation</span> <span class="s2">"PX --&gt;* PY"</span> := (hset_struct_with_smash_closed_to_funspace_ob PX PY)
+                           (<span class="kn">at level</span> <span class="mi">20</span>, <span class="kn">right associativity</span>) : cat.
+
+<span class="kn">Proposition</span> <span class="nf">hset_struct_with_smash_closed_fun_point</span>
+            {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+            (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+            (<span class="nv">x</span> : pr11 PX)
+  : pr1 (hset_struct_point PC (pr2 (PX --&gt;* PY))) x
+    =
+    hset_struct_point PC (pr2 PY).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hset_struct_with_smash_closed_funspace_point.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_closed_curry</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct PC}
+           (<span class="nv">f</span> : PX --&gt; PY --&gt;* PZ)
+  : (PX ∧* PY) --&gt; PZ
+  := hset_struct_smash_curry (pr1 (pr222 PC)) f.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_closed_uncurry</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           {<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct PC}
+           (<span class="nv">g</span> : (PX ∧* PY) --&gt; PZ)
+  : PX --&gt; PY --&gt;* PZ
+  := hset_struct_smash_uncurry (pr1 (pr222 PC)) g.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_with_smash_closed_eval</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> : category_of_hset_struct PC)
+  : (PX --&gt;* PY) ∧* PX --&gt; PY
+  := hset_struct_with_smash_closed_smash_eval (pr1 (pr222 PC)) PX PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_enriched_curry</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct PC)
+  : (PX --&gt;* PY --&gt;* PZ) --&gt; ((PX ∧* PY) --&gt;* PZ)
+  := _ ,, pr12 (pr222 PC) PX PZ PY.
+
+<span class="kn">Definition</span> <span class="nf">hset_struct_smash_enriched_uncurry</span>
+           {<span class="nv">PC</span> : hset_struct_with_smash_closed}
+           (<span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">PZ</span> : category_of_hset_struct PC)
+  : ((PX ∧* PY) --&gt;* PZ) --&gt; (PX --&gt;* PY --&gt;* PZ)
+  := _ ,, pr22 (pr222 PC) PX PZ PY.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Structures/StructuresSmashProduct.v</tt>, line 55)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Closed smash product structures
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

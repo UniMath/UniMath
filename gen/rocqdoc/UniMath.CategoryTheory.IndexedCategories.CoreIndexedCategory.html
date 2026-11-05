@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Groupoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Groupoids</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IndexedCategories.IndexedCategory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FiberwiseCore" class="idref" href="#FiberwiseCore"><span class="id" title="section">FiberwiseCore</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FiberwiseCore.C" class="idref" href="#FiberwiseCore.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="8dbe476dac57ee4082f46a2e3f09420d" class="idref" href="#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> : <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat"><span class="id" title="definition">indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#C:1"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   1. The data
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="core_indexed_cat_data" class="idref" href="#core_indexed_cat_data"><span class="id" title="definition">core_indexed_cat_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_data"><span class="id" title="definition">indexed_cat_data</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#FiberwiseCore.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#make_indexed_cat_data"><span class="id" title="definition">make_indexed_cat_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:3" class="idref" href="#x:3"><span class="id" title="binder"><span id="x:4" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.html#univalent_core"><span class="id" title="definition">univalent_core</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#x:3"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:8" class="id">x</span></span></a> <a id="y:6" class="idref" href="#y:6"><span class="id" title="binder"><span id="y:9" class="id">y</span></span></a> <a id="f:7" class="idref" href="#f:7"><span class="id" title="binder"><span id="f:10" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.html#core_functor"><span class="id" title="definition">core_functor</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#8439fbb71a5e6e0f083ab4268be9e169"><span class="id" title="notation">$</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#f:7"><span class="id" title="variable">f</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="xx:11" class="idref" href="#xx:11"><span class="id" title="binder"><span id="xx:12" class="id">xx</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_id_z_iso"><span class="id" title="definition">indexed_cat_id_z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#xx:11"><span class="id" title="variable">xx</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">ff</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a> | ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_id"><span class="id" title="definition">indexed_cat_id</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="xx:13" class="idref" href="#xx:13"><span class="id" title="binder"><span id="xx:14" class="id">xx</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_comp_z_iso"><span class="id" title="definition">indexed_cat_comp_z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#xx:13"><span class="id" title="variable">xx</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">ff</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a> | ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_comp"><span class="id" title="definition">indexed_cat_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="core_indexed_cat_isos" class="idref" href="#core_indexed_cat_isos"><span class="id" title="definition">core_indexed_cat_isos</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_isos"><span class="id" title="definition">indexed_cat_isos</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#core_indexed_cat_data"><span class="id" title="definition">core_indexed_cat_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.html#is_pregroupoid_core"><span class="id" title="definition">is_pregroupoid_core</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   2. The laws
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="core_indexed_cat_laws" class="idref" href="#core_indexed_cat_laws"><span class="id" title="lemma">core_indexed_cat_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_laws"><span class="id" title="definition">indexed_cat_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#core_indexed_cat_data"><span class="id" title="definition">core_indexed_cat_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">xx</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_lunitor"><span class="id" title="lemma">indexed_cat_lunitor</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">f</span> <span class="id" title="var">xx</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a>@<a class="idref" href="UniMath.CategoryTheory.Core.html#idtoiso_core"><span class="id" title="lemma">idtoiso_core</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">y</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">xx</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_runitor"><span class="id" title="lemma">indexed_cat_runitor</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">f</span> <span class="id" title="var">xx</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a>@<a class="idref" href="UniMath.CategoryTheory.Core.html#idtoiso_core"><span class="id" title="lemma">idtoiso_core</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">y</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">w</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">z</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">ww</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#isaprop_is_z_isomorphism"><span class="id" title="lemma">isaprop_is_z_isomorphism</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat_lassociator"><span class="id" title="lemma">indexed_cat_lassociator</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">ww</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (@<a class="idref" href="UniMath.CategoryTheory.Core.html#idtoiso_core"><span class="id" title="lemma">idtoiso_core</span></a> (<a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#8dbe476dac57ee4082f46a2e3f09420d"><span class="id" title="variable">Φ</span></a> <span class="id" title="var">z</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+   3. The fiberwise core
+   
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="core_indexed_cat" class="idref" href="#core_indexed_cat"><span class="id" title="definition">core_indexed_cat</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#indexed_cat"><span class="id" title="definition">indexed_cat</span></a> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#FiberwiseCore.C"><span class="id" title="variable">C</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.IndexedCategory.html#make_indexed_cat"><span class="id" title="definition">make_indexed_cat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#core_indexed_cat_data"><span class="id" title="definition">core_indexed_cat_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#core_indexed_cat_isos"><span class="id" title="definition">core_indexed_cat_isos</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#core_indexed_cat_laws"><span class="id" title="lemma">core_indexed_cat_laws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.IndexedCategories.CoreIndexedCategory.html#FiberwiseCore"><span class="id" title="section">FiberwiseCore</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

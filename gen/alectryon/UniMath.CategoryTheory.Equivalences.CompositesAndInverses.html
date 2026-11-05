@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompositesAndInverses.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Composition and inverses of (adjoint) equivalences of precategories *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Preliminaries</span>
+<span class="sd">  - Composition</span>
+<span class="sd">  - Inverses</span>
+<span class="sd">  - 2 out of 3 property</span>
+<span class="sd">  - Pairing equivalences</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** Ported from UniMath/TypeTheory, could use more cleanup *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Equivalences *)</span>
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+<span class="kn">Variables</span> <span class="nv">D1</span> <span class="nv">D2</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : functor D1 D2.
+<span class="kn">Variable</span> <span class="nv">GG</span> : adj_equivalence_of_cats F.
+
+<span class="kn">Let</span> <span class="nf">G</span> : functor D2 D1 := right_adjoint GG.
+<span class="kn">Let</span> <span class="nf">η</span> := unit_from_left_adjoint GG.
+<span class="kn">Let</span> <span class="nf">ε</span> := counit_from_left_adjoint GG.
+<span class="kn">Let</span> <span class="nf">ηinv</span> <span class="nv">a</span> := z_iso_inv_from_z_iso (unit_pointwise_z_iso_from_adj_equivalence GG a).
+<span class="kn">Let</span> <span class="nf">εinv</span> <span class="nv">a</span> := z_iso_inv_from_z_iso (counit_pointwise_z_iso_from_adj_equivalence GG a).
+
+
+<span class="kn">Lemma</span> <span class="nf">right_adj_equiv_is_ff</span> : fully_faithful G.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c d.
+  <span class="nb">set</span> (inv := (<span class="k">fun</span> <span class="nv">f</span> : D1 ⟦G c, G d⟧ =&gt; εinv _ · #F f · ε _ )).
+  <span class="nb">simpl</span> <span class="k">in</span> inv.
+  <span class="nb">apply</span> (isweq_iso _ inv ).
+  - <span class="nb">intro</span> f. <span class="nb">simpl</span> <span class="k">in</span> f. <span class="nb">unfold</span> inv.
+    <span class="nb">assert</span> (XR := nat_trans_ax ε). <span class="nb">simpl</span> <span class="k">in</span> XR.
+    <span class="nb">rewrite</span> &lt;- assoc.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> XR.
+    <span class="nb">rewrite</span> assoc.
+    etrans. <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intro</span> g.
+    <span class="nb">unfold</span> inv.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    intermediate_path ((# G (inv_from_z_iso (counit_pointwise_z_iso_from_adj_equivalence GG c)) · ηinv _ ) · (η _ · # G (# F g)) · # G (ε d)).
+    + <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+      etrans.
+      <span class="mi">2</span>: <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2; <span class="nb">eapply</span> pathsinv0, z_iso_after_z_iso_inv.
+      <span class="nb">refine</span> (_ @ assoc _ _ _).
+      <span class="bp">exact</span> (!id_left _).
+    + <span class="nb">assert</span> (XR := nat_trans_ax η). <span class="nb">simpl</span> <span class="k">in</span> XR. <span class="nb">rewrite</span> &lt;- XR. <span class="nb">clear</span> XR.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> &lt;- assoc.
+      etrans. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths. <span class="nb">apply</span>  triangle_id_right_ad. <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> assoc.
+      etrans.
+      <span class="mi">2</span>: <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> maponpaths_2.
+      etrans. <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> functor_on_inv_from_z_iso.
+      <span class="nb">assert</span> (XR := triangle_id_right_ad (pr2 (pr1 GG))); <span class="nb">simpl</span> <span class="k">in</span> XR.
+      <span class="nb">unfold</span> ηinv; <span class="nb">simpl</span>.
+      <span class="nb">pose</span> (XRR := maponpaths pr1 (z_iso_inv_of_z_iso_comp _ _ _ (unit_pointwise_z_iso_from_adj_equivalence GG ((adj_equivalence_inv GG) c)) (functor_on_z_iso G (counit_pointwise_z_iso_from_adj_equivalence GG c)) )).
+      <span class="nb">simpl</span> <span class="k">in</span> XRR.
+      etrans.
+      <span class="nb">apply</span> (! XRR).
+      <span class="nb">clear</span> XRR.
+      <span class="nb">apply</span> pathsinv0, inv_z_iso_unique'.
+      <span class="nb">cbn</span>. <span class="nb">unfold</span> precomp_with.
+      <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> XR.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">right_adj_equiv_is_ess_sur</span> : essentially_surjective G.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> d.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">F</span> <span class="nv">d</span>).
+  <span class="bp">exact</span> (ηinv d).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">A</span>.
+
+<span class="sd">(** ** Composition *)</span>
+
+<span class="kn">Section</span> <span class="nf">eqv_comp</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category}
+          {<span class="nv">F</span> : functor A B}
+          {<span class="nv">F'</span> : functor B C}.
+
+  <span class="kn">Hypothesis</span> <span class="nv">HF</span> : adj_equivalence_of_cats F.
+  <span class="kn">Hypothesis</span> <span class="nv">HF'</span> : adj_equivalence_of_cats F'.
+
+  <span class="kn">Definition</span> <span class="nf">comp_adj_equivalence_of_cats</span>
+    : adj_equivalence_of_cats (functor_composite F F').
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">is_left_adjoint_functor_composite</span> <span class="nv">HF</span> <span class="nv">HF'</span>).
+    use tpair.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_z_isomorphism_comp.
+      + <span class="nb">apply</span> (pr1 (pr2 HF)).
+      + <span class="nb">simpl</span>.
+        <span class="nb">refine</span> (eqweqmap (maponpaths is_z_isomorphism _) _).
+        <span class="nb">refine</span> (_ @ !id_right _).
+        <span class="bp">exact</span> (!id_left _).
+        <span class="nb">apply</span> functor_on_is_z_isomorphism, (pr1 (pr2 HF')).
+    - <span class="nb">cbn</span>. <span class="nb">intro</span>. <span class="nb">apply</span> is_z_isomorphism_comp.
+      + <span class="nb">refine</span> (eqweqmap (maponpaths is_z_isomorphism _) _).
+        <span class="nb">refine</span> (_ @ !id_left _).
+        <span class="nb">refine</span> (_ @ !id_left _).
+        <span class="bp">exact</span> (!id_right _).
+        <span class="nb">apply</span> functor_on_is_z_isomorphism, (pr2 (pr2 HF)).
+      + <span class="nb">apply</span> (pr2 (pr2 HF')).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">eqv_comp</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_adj_equiv</span>
+  {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category}
+  (<span class="nv">F</span> : adj_equiv A B)
+  (<span class="nv">G</span> : adj_equiv B C)
+  : adj_equiv A C
+  := (F ∙ G) ,, comp_adj_equivalence_of_cats F G.
+
+<span class="sd">(** ** Inverses *)</span>
+
+<span class="kn">Section</span> <span class="nf">eqv_inv</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">nat_z_iso_to_pointwise_z_iso</span> {<span class="nv">A</span> <span class="nv">B</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : functor A B}
+    (<span class="nv">n</span> : nat_z_iso F G) (<span class="nv">x</span> : ob A) : z_iso (F x) (G x) := make_z_iso' _ (pr2 n x).
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_z_iso_inv_after_nat_z_iso</span> {<span class="nv">A</span> <span class="nv">B</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : functor A B}
+    (<span class="nv">n</span> : nat_z_iso F G) : ∏ x, (nat_z_iso_to_pointwise_z_iso n) x · (nat_z_iso_inv n) x = identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : category} {<span class="nv">F</span> : functor A B}
+          (<span class="nv">adEquivF</span> : adj_equivalence_of_cats F).
+
+  <span class="kn">Local Notation</span> <span class="nf">η</span> := (unit_from_left_adjoint adEquivF).
+  <span class="kn">Local Notation</span> <span class="nf">ε</span> := (counit_from_left_adjoint adEquivF).
+  <span class="kn">Local Notation</span> <span class="nf">G</span> := (right_adjoint (pr1 adEquivF)).
+
+  <span class="kn">Local Notation</span> <span class="nf">ηiso</span> := (unit_nat_z_iso_from_adj_equivalence_of_cats adEquivF).
+  <span class="kn">Local Notation</span> <span class="nf">εiso</span> := (counit_nat_z_iso_from_adj_equivalence_of_cats adEquivF).
+
+  <span class="kn">Lemma</span> <span class="nf">form_adjunction_inv</span> :
+    form_adjunction _ F (nat_z_iso_inv εiso) (nat_z_iso_inv ηiso).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> b.
+      <span class="sd">(** Use the right triangle identity that we already know *)</span>
+      <span class="nb">refine</span> (_ @ triangle_id_right_ad (pr2 (pr1 adEquivF)) b).
+
+      <span class="sd">(** Transform it by precomposing with the inverse isos *)</span>
+      <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj' (f:=#G (nat_z_iso_to_pointwise_z_iso εiso b)));
+      [<span class="nb">apply</span> (functor_on_is_z_isomorphism G), z_iso_is_z_isomorphism |].
+
+      <span class="sd">(** Cancel the isos *)</span>
+      <span class="nb">unfold</span> adjunit; <span class="nb">unfold</span> adjcounit.
+      <span class="nb">unfold</span> pr2, pr1.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">unfold</span> left_functor; <span class="nb">unfold</span> pr1.
+      <span class="nb">rewrite</span> nat_z_iso_inv_after_nat_z_iso.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> assoc.
+
+      <span class="sd">(** Again, precompose with the inverse iso *)</span>
+      use (pre_comp_with_z_iso_is_inj'
+             (f:=(nat_z_iso_to_pointwise_z_iso ηiso (G b))));
+        [<span class="nb">apply</span> z_iso_is_z_isomorphism; <span class="nb">rewrite</span> z_iso_inv_after_z_iso|].
+      <span class="nb">rewrite</span> (nat_z_iso_inv_after_nat_z_iso ηiso).
+
+      <span class="nb">refine</span> (!triangle_id_right_ad (pr2 (pr1 adEquivF)) _ @ _).
+      <span class="nb">refine</span> (!id_left _ @ _).
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="c">(* This is inelegant... *)</span>
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; f · _)).
+      <span class="nb">apply</span> (!triangle_id_right_ad (pr2 (pr1 adEquivF)) _).
+    - <span class="sd">(** Same proof, just backwards *)</span>
+      <span class="nb">intro</span> a.
+      <span class="nb">refine</span> (_ @ triangle_id_left_ad (pr2 (pr1 adEquivF)) a).
+
+      <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj'
+                                      (f:=nat_z_iso_to_pointwise_z_iso εiso (F a)));
+        [<span class="nb">apply</span> z_iso_is_z_isomorphism; <span class="nb">rewrite</span> z_iso_inv_after_z_iso|].
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> (nat_z_iso_inv_after_nat_z_iso εiso).
+      <span class="nb">rewrite</span> id_left.
+
+      <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj' (f:=#F (nat_z_iso_to_pointwise_z_iso ηiso a)));
+        [<span class="nb">apply</span> (functor_on_is_z_isomorphism F), z_iso_is_z_isomorphism |].
+      <span class="nb">unfold</span> adjunit; <span class="nb">unfold</span> adjcounit.
+      <span class="nb">unfold</span> right_functor.
+      <span class="nb">unfold</span> pr2, pr1.
+      <span class="nb">refine</span> (_ @ !assoc _ _ _).
+      <span class="nb">refine</span> (!functor_comp F _ _ @ _).
+      <span class="nb">rewrite</span> (nat_z_iso_inv_after_nat_z_iso ηiso).
+      <span class="nb">rewrite</span> functor_id.
+
+      <span class="nb">refine</span> (!triangle_id_left_ad (pr2 (pr1 adEquivF)) _ @ _).
+      <span class="nb">refine</span> (!id_left _ @ _).
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="c">(* This is inelegant... *)</span>
+      <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">f</span> =&gt; f · _)).
+      <span class="nb">apply</span> (!triangle_id_left_ad (pr2 (pr1 adEquivF)) _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_left_adjoint_inv</span> : is_left_adjoint G.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> F.
+    - use tpair.
+      <span class="k">exists</span> (<span class="nv">pr1</span> (nat_z_iso_inv εiso)).
+      <span class="bp">exact</span> (pr1 (nat_z_iso_inv ηiso)).
+      <span class="nb">apply</span> form_adjunction_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equivalence_of_cats_inv</span>
+    : adj_equivalence_of_cats G.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">is_left_adjoint_inv</span>.
+    <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">unfold</span> is_left_adjoint_inv; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> (is_z_iso_inv_from_z_iso(_,,dirprod_pr2 (pr2 adEquivF) a)).
+    - <span class="nb">apply</span> (is_z_iso_inv_from_z_iso(_,,dirprod_pr1 (pr2 adEquivF) b)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">eqv_inv</span>.
+
+<span class="kn">Definition</span> <span class="nf">adj_equiv_inv</span>
+  {<span class="nv">A</span> <span class="nv">B</span> : category}
+  (<span class="nv">F</span> : adj_equiv A B)
+  : adj_equiv B A
+  := adj_equivalence_inv F ,, adj_equivalence_of_cats_inv F.
+
+<span class="kn">Section</span> <span class="nf">Transpositions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}.
+  <span class="kn">Context</span> {<span class="nv">F</span> : adj_equiv C D}.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_inv_transpose_left</span>
+    {<span class="nv">X</span> : D}
+    {<span class="nv">Y</span> : C}
+    (<span class="nv">f</span> : z_iso X (F Y))
+    : z_iso (adj_equiv_inv F X) Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_comp _ (z_iso_inv (unit_pointwise_z_iso_from_adj_equivalence F Y))).
+    <span class="nb">apply</span> weq_ff_functor_on_weq_isobandf.
+    - <span class="nb">apply</span> right_adj_equiv_is_ff.
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_inv_transpose_right</span>
+    {<span class="nv">X</span> : C}
+    {<span class="nv">Y</span> : D}
+    (<span class="nv">f</span> : z_iso (F X) Y)
+    : z_iso X (adj_equiv_inv F Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_comp (unit_pointwise_z_iso_from_adj_equivalence F X) _).
+    <span class="nb">apply</span> weq_ff_functor_on_weq_isobandf.
+    - <span class="nb">apply</span> right_adj_equiv_is_ff.
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_transpose_left</span>
+    {<span class="nv">X</span> : C}
+    {<span class="nv">Y</span> : D}
+    (<span class="nv">f</span> : z_iso X (adj_equiv_inv F Y))
+    : z_iso (F X) Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_comp _ (counit_pointwise_z_iso_from_adj_equivalence F Y)).
+    <span class="nb">apply</span> weq_ff_functor_on_weq_isobandf.
+    - <span class="bp">exact</span> (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_transpose_right</span>
+    {<span class="nv">X</span> : D}
+    {<span class="nv">Y</span> : C}
+    (<span class="nv">f</span> : z_iso (adj_equiv_inv F X) Y)
+    : z_iso X (F Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (z_iso_comp (z_iso_inv (counit_pointwise_z_iso_from_adj_equivalence F X)) _).
+    <span class="nb">apply</span> weq_ff_functor_on_weq_isobandf.
+    - <span class="bp">exact</span> (right_adj_equiv_is_ff _ _ _ (adj_equiv_inv F)).
+    - <span class="bp">exact</span> f.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Transpositions</span>.
+
+<span class="sd">(** Closure under natural isomorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_z_iso_equivalence_of_cats</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           (<span class="nv">α</span> : F ⟹ G)
+           (<span class="nv">Hα</span> : is_nat_z_iso α)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : equivalence_of_cats C₁ C₂.
+<span class="kn">Proof</span>.
+  use make_equivalence_of_cats.
+  - use make_adjunction_data.
+    + <span class="bp">exact</span> G.
+    + <span class="bp">exact</span> (right_adjoint HF).
+    + <span class="bp">exact</span> (nat_trans_comp
+               _ _ _
+               (adjunit HF)
+               (post_whisker α _)).
+    + <span class="bp">exact</span> (nat_trans_comp
+               _ _ _
+               (pre_whisker _ (nat_z_iso_inv (make_nat_z_iso _ _ α Hα)))
+               (adjcounit HF)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      use is_z_isomorphism_comp.
+      * <span class="nb">apply</span> (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
+      * <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> Hα.
+    + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      use is_z_isomorphism_comp.
+      * <span class="nb">apply</span> (is_z_iso_inv_from_z_iso(_,,(Hα (pr1 (pr1 HF) x)))).
+      * <span class="nb">apply</span> (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_iso_adj_equivalence_of_cats</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           (<span class="nv">α</span> : F ⟹ G)
+           (<span class="nv">Hα</span> : is_nat_z_iso α)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : adj_equivalence_of_cats G
+  := adjointification (nat_z_iso_equivalence_of_cats α Hα HF).
+
+<span class="sd">(**</span>
+<span class="sd"> 2 out of 3 property</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TwoOutOfThree</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">G</span> : C₂ ⟶ C₃)
+          (<span class="nv">H</span> : C₁ ⟶ C₃)
+          (<span class="nv">ν</span> : nat_z_iso (F ∙ G) H).
+
+  <span class="kn">Definition</span> <span class="nf">two_out_of_three_first</span>
+             (<span class="nv">HG</span> : adj_equivalence_of_cats G)
+             (<span class="nv">HH</span> : adj_equivalence_of_cats H)
+    : adj_equivalence_of_cats F.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (ζ := make_nat_z_iso
+                 (F ∙ functor_identity _)
+                 (F ∙ (G ∙ right_adjoint HG))
+                 _
+                 (pre_whisker_on_nat_z_iso
+                    F
+                    (unit_nat_z_iso_from_adj_equivalence_of_cats HG)
+                    (pr2 (unit_nat_z_iso_from_adj_equivalence_of_cats HG)))).
+    use (nat_iso_adj_equivalence_of_cats
+           _
+           _
+           (comp_adj_equivalence_of_cats
+              HH
+              (adj_equivalence_of_cats_inv HG))).
+    - <span class="bp">exact</span> (nat_trans_comp
+               (H ∙ right_adjoint HG)
+               ((F ∙ G) ∙ right_adjoint HG)
+               _
+               (post_whisker
+                  (nat_z_iso_inv ν)
+                  (right_adjoint HG))
+               (nat_z_iso_inv ζ)).
+    - use is_nat_z_iso_comp.
+      + use post_whisker_z_iso_is_z_iso.
+        <span class="nb">apply</span> (nat_z_iso_inv ν).
+      + <span class="nb">apply</span> (nat_z_iso_inv ζ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">two_out_of_three_second</span>
+             (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+             (<span class="nv">HH</span> : adj_equivalence_of_cats H)
+    : adj_equivalence_of_cats G.
+  <span class="kn">Proof</span>.
+    use (nat_iso_adj_equivalence_of_cats
+           _
+           _
+           (comp_adj_equivalence_of_cats
+              (adj_equivalence_of_cats_inv HF)
+              HH)).
+    - <span class="bp">exact</span> (nat_trans_comp
+               (right_adjoint HF ∙ H)
+               (right_adjoint HF ∙ F ∙ G)
+               G
+               (pre_whisker
+                  (right_adjoint HF)
+                  (nat_z_iso_inv ν))
+               (post_whisker
+                  (counit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                  G)).
+    - use is_nat_z_iso_comp.
+      + <span class="nb">apply</span> (pre_whisker_on_nat_z_iso (right_adjoint HF) (nat_z_iso_inv ν)).
+        <span class="nb">apply</span> (nat_z_iso_inv ν).
+      + <span class="nb">apply</span> (post_whisker_z_iso_is_z_iso
+                 (counit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                 G).
+        <span class="nb">apply</span> (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">two_out_of_three_comp</span>
+             (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+             (<span class="nv">HG</span> : adj_equivalence_of_cats G)
+    : adj_equivalence_of_cats H.
+  <span class="kn">Proof</span>.
+    use (nat_iso_adj_equivalence_of_cats ν (pr2 ν)).
+    <span class="bp">exact</span> (comp_adj_equivalence_of_cats HF HG).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TwoOutOfThree</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Pairing equivalences</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">PairEquivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₁'}
+          {<span class="nv">G</span> : C₂ ⟶ C₂'}
+          (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+          (<span class="nv">HG</span> : adj_equivalence_of_cats G).
+
+  <span class="kn">Let</span> <span class="nf">L</span> : category_binproduct C₁ C₂ ⟶ category_binproduct C₁' C₂'
+    := pair_functor F G.
+
+  <span class="kn">Let</span> <span class="nf">R</span> : category_binproduct C₁' C₂' ⟶ category_binproduct C₁ C₂
+    := pair_functor (right_adjoint HF) (right_adjoint HG).
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_unit_data</span>
+    : nat_trans_data (functor_identity _) (L ∙ R)
+    := <span class="k">λ</span> <span class="nv">x</span>, adjunit HF (pr1 x) ,, adjunit HG (pr2 x).
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_unit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        pair_equivalence_of_cats_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use pathsdirprod ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (nat_trans_ax (adjunit HF) _ _ (pr1 f)).
+    - <span class="bp">exact</span> (nat_trans_ax (adjunit HG) _ _ (pr2 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_unit</span>
+    : functor_identity (category_binproduct C₁ C₂) ⟹ L ∙ R.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> pair_equivalence_of_cats_unit_data.
+    - <span class="bp">exact</span> pair_equivalence_of_cats_unit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_counit_data</span>
+    : nat_trans_data (R ∙ L) (functor_identity _)
+    := <span class="k">λ</span> <span class="nv">x</span>, adjcounit HF (pr1 x) ,, adjcounit HG (pr2 x).
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_counit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        pair_equivalence_of_cats_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    use pathsdirprod ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (nat_trans_ax (adjcounit HF) _ _ (pr1 f)).
+    - <span class="bp">exact</span> (nat_trans_ax (adjcounit HG) _ _ (pr2 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats_counit</span>
+    : R ∙ L ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> pair_equivalence_of_cats_counit_data.
+    - <span class="bp">exact</span> pair_equivalence_of_cats_counit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_equivalence_of_cats</span>
+    : equivalence_of_cats
+        (category_binproduct C₁ C₂)
+        (category_binproduct C₁' C₂').
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> L.
+      + <span class="bp">exact</span> R.
+      + <span class="bp">exact</span> pair_equivalence_of_cats_unit.
+      + <span class="bp">exact</span> pair_equivalence_of_cats_counit.
+    - <span class="nb">split</span>.
+      + <span class="nb">intro</span> x.
+        use is_z_iso_binprod_z_iso.
+        * <span class="bp">exact</span> (z_iso_is_z_isomorphism
+                   (nat_z_iso_pointwise_z_iso
+                      (unit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                      (pr1 x))).
+        * <span class="bp">exact</span> (z_iso_is_z_isomorphism
+                   (nat_z_iso_pointwise_z_iso
+                      (unit_nat_z_iso_from_adj_equivalence_of_cats HG)
+                      (pr2 x))).
+      + <span class="nb">intro</span> x.
+        use is_z_iso_binprod_z_iso.
+        * <span class="bp">exact</span> (z_iso_is_z_isomorphism
+                   (nat_z_iso_pointwise_z_iso
+                      (counit_nat_z_iso_from_adj_equivalence_of_cats HF)
+                      (pr1 x))).
+        * <span class="bp">exact</span> (z_iso_is_z_isomorphism
+                   (nat_z_iso_pointwise_z_iso
+                      (counit_nat_z_iso_from_adj_equivalence_of_cats HG)
+                      (pr2 x))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PairEquivalence</span>.
+
+<span class="kn">Definition</span> <span class="nf">pair_adj_equivalence_of_cats</span>
+           {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₁'}
+           {<span class="nv">G</span> : C₂ ⟶ C₂'}
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+           (<span class="nv">HG</span> : adj_equivalence_of_cats G)
+  : adj_equivalence_of_cats (pair_functor F G)
+  := adjointification (pair_equivalence_of_cats HF HG).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Equivalences/CompositesAndInverses.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** Ported from UniMath/TypeTheory, could use more cleanup *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

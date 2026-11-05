@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Maximal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Maximal elements in a DCPO</span>
+
+<span class="sd"> In this file, we define maximal elements in DCPOs. In classical foundations,</span>
+<span class="sd"> an element `x` is called maximal if for every `y` such that `x ⊑ y`, we have</span>
+<span class="sd"> that `x = y`. However, constructively, there is a better notion, namely that</span>
+<span class="sd"> of a strongly maximal element (see https://arxiv.org/pdf/2106.05064.pdf).</span>
+
+<span class="sd"> We also prove some properties of strongly maximal elements. In particular, we</span>
+<span class="sd"> show that they are sharp and that they are maximal if the DCPO is continuous.</span>
+
+<span class="sd">Contents</span>
+<span class="sd"> 1. Maximal elements</span>
+<span class="sd"> 2. Hausdorff separated elements</span>
+<span class="sd"> 3. Properties of Hausdorff separated elements</span>
+<span class="sd"> 4. Hausdorff separatedness in continuous DCPOs</span>
+<span class="sd"> 5. Strongly maximal elements</span>
+<span class="sd"> 6. Strongly maximal elements are sharp</span>
+<span class="sd"> 7. The intrinsic apartness relation on strongly maximal elements</span>
+<span class="sd"> 8. In a continuous DCPO, strongly maximal elements are maximal</span>
+<span class="sd"> 9. A simplified strong maximality condition in a continuous DCPO</span>
+<span class="sd">10. Apartness for strongly maximal elements is Hausdorff separatedness</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottTopology.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.IntrinsicApartness.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Basis.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Elements.Sharp.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Definition</span> <span class="nf">are_disjoint</span>
+           {<span class="nv">X</span> : UU}
+           (<span class="nv">P₁</span> <span class="nv">P₂</span> : X → hProp)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">z</span> : X), ¬(P₁ z ∧ P₂ z))%logic.
+
+<span class="kn">Proposition</span> <span class="nf">symm_are_disjoint</span>
+            {<span class="nv">X</span> : UU}
+            {<span class="nv">P₁</span> <span class="nv">P₂</span> : X → hProp}
+            (<span class="nv">H</span> : are_disjoint P₁ P₂)
+  : are_disjoint P₂ P₁.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z p.
+  <span class="bp">exact</span> (H z (pr2 p ,, pr1 p)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 1. Maximal elements *)</span>
+<span class="kn">Definition</span> <span class="nf">is_maximal</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> : X)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">y</span> : X), x ⊑ y ⇒ y ⊑ x)%logic.
+
+<span class="sd">(** * 2. Hausdorff separated elements *)</span>
+<span class="kn">Definition</span> <span class="nf">is_hausdorff_separated</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : hProp
+  := <span class="k">∃</span> (<span class="nv">P₁</span> <span class="nv">P₂</span> : scott_open_set X), P₁ x ∧ P₂ y ∧ are_disjoint P₁ P₂.
+
+<span class="sd">(** * 3. Properties of Hausdorff separated elements *)</span>
+<span class="kn">Section</span> <span class="nf">PropertiesHausdorffSeparated</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="kn">Proposition</span> <span class="nf">irrefl_is_hausdorff_separated</span>
+              (<span class="nv">x</span> : X)
+    : ¬(is_hausdorff_separated x x).
+  <span class="kn">Proof</span>.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropempty.
+    }
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ P₁ [ P₂ [ Px [ Px' H ]]]].
+    <span class="bp">exact</span> (H x (Px ,, Px')).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">symm_is_hausdorff_separated</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">H</span> : is_hausdorff_separated x y)
+    : is_hausdorff_separated y x.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ P₁ [ P₂ [ Px [ Py H ]]]].
+    <span class="nb">refine</span> (hinhpr (P₂ ,, P₁ ,, Py ,, Px ,, _)).
+    <span class="nb">apply</span> symm_are_disjoint.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_hausdorff_separated_not_le</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">H</span> : is_hausdorff_separated x y)
+    : ¬(x ⊑ y).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> isapropempty.
+    }
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ P₁ [ P₂ [ Px [ Py H ]]]].
+    <span class="nb">refine</span> (H y (_ ,, _)).
+    - <span class="nb">refine</span> (is_scott_open_upper_set P₁ Px p).
+    - <span class="bp">exact</span> Py.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_hausdorff_separated_le</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X) :
+    y ⊑ z → is_hausdorff_separated y x → is_hausdorff_separated z x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Hyz.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (S1 &amp; S2 &amp; H1 &amp; H2 &amp; Hdisj).
+    <span class="nb">apply</span> hinhpr.
+    use (S1,, S2,, _,, H2,, Hdisj).
+    <span class="bp">exact</span> (is_scott_open_upper_set S1 H1 Hyz).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PropertiesHausdorffSeparated</span>.
+
+<span class="sd">(** * 4. Hausdorff separatedness in continuous DCPOs *)</span>
+<span class="kn">Definition</span> <span class="nf">from_hausdorff_separated_continuous_dcpo</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : dcpo_basis X)
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : is_hausdorff_separated x y
+    →
+    (<span class="k">∃</span> (<span class="nv">b₁</span> <span class="nv">b₂</span> : B),
+     B b₁ ≪ x
+     ∧
+     B b₂ ≪ y
+     ∧
+     ¬(<span class="k">∃</span> (<span class="nv">t</span> : B), B b₁ ≪ B t ∧ B b₂ ≪ B t))%logic.
+<span class="kn">Proof</span>.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> (S1 &amp; S2 &amp; H1 &amp; H2 &amp; Hdisj).
+  <span class="nb">pose</span> (H := is_scott_open_lub_inaccessible S1 (directed_set_from_basis B x)).
+  <span class="nb">rewrite</span> approximating_basis_lub <span class="k">in</span> H.
+  <span class="nb">specialize</span> (H H1).
+  <span class="nb">revert</span> H.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> ( i₁ &amp; Hi₁ ).
+  <span class="nb">pose</span> (H := is_scott_open_lub_inaccessible S2 (directed_set_from_basis B y)).
+  <span class="nb">rewrite</span> approximating_basis_lub <span class="k">in</span> H.
+  <span class="nb">specialize</span> (H H2).
+  <span class="nb">revert</span> H.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> ( i₂ &amp; Hi₂ ).
+  <span class="nb">cbn</span> <span class="k">in</span> i₁, i₂, Hi₁, Hi₂.
+  <span class="nb">refine</span> (hinhpr _).
+  <span class="nb">refine</span> (pr1 i₁ ,, pr1 i₂ ,, pr2 i₁ ,, pr2 i₂ ,, _).
+  use factor_through_squash.
+  { <span class="nb">apply</span> isapropempty. }
+  <span class="nb">intros</span> [ k [ Hik₁ Hik₂ ]].
+  <span class="nb">refine</span> (Hdisj (B k) _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (is_scott_open_upper_set S1 Hi₁).
+    <span class="nb">apply</span> way_below_to_le.
+    <span class="bp">exact</span> Hik₁.
+  - <span class="nb">apply</span> (is_scott_open_upper_set S2 Hi₂).
+    <span class="nb">apply</span> way_below_to_le.
+    <span class="bp">exact</span> Hik₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">to_hausdorff_separated_continuous_dcpo</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : dcpo_basis X)
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : (<span class="k">∃</span> (<span class="nv">b₁</span> <span class="nv">b₂</span> : B),
+     B b₁ ≪ x
+     ∧
+     B b₂ ≪ y
+     ∧
+     ¬(<span class="k">∃</span> (<span class="nv">t</span> : B), B b₁ ≪ B t ∧ B b₂ ≪ B t))%logic
+    →
+    is_hausdorff_separated x y.
+<span class="kn">Proof</span>.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> ( b₁ &amp; b₂ &amp; p₁ &amp; p₂ &amp; p₃ ).
+  <span class="nb">refine</span> (hinhpr _).
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="nb">refine</span> (_ ,, _).
+    <span class="bp">exact</span> (upper_set_is_scott_open (continuous_struct_from_basis B) (B b₁)).
+  - <span class="nb">refine</span> (_ ,, _).
+    <span class="bp">exact</span> (upper_set_is_scott_open (continuous_struct_from_basis B) (B b₂)).
+  - <span class="bp">exact</span> p₁.
+  - <span class="bp">exact</span> p₂.
+  - <span class="nb">cbn</span> -[way_below] ; <span class="nb">intros</span> z ( Hz₁ &amp; Hz₂ ).
+    <span class="nb">refine</span> (p₃ _).
+    <span class="nb">assert</span> (H := basis_binary_interpolation B Hz₁ Hz₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( i &amp; r₁ &amp; r₂ &amp; r₃ ).
+    <span class="bp">exact</span> (hinhpr (i ,, r₁ ,, r₂)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hausdorff_separated_continuous_dcpo_weq</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : dcpo_basis X)
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : (is_hausdorff_separated x y
+     ≃
+     <span class="k">∃</span> (<span class="nv">b₁</span> <span class="nv">b₂</span> : B),
+     B b₁ ≪ x
+     ∧
+     B b₂ ≪ y
+     ∧
+     ¬(<span class="k">∃</span> (<span class="nv">t</span> : B), B b₁ ≪ B t ∧ B b₂ ≪ B t))%logic.
+<span class="kn">Proof</span>.
+  use logeqweq.
+  - <span class="bp">exact</span> (from_hausdorff_separated_continuous_dcpo B x y).
+  - <span class="bp">exact</span> (to_hausdorff_separated_continuous_dcpo B x y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Strongly maximal elements *)</span>
+<span class="kn">Definition</span> <span class="nf">is_strongly_maximal</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">x</span> : X)
+  : hProp
+  := (<span class="k">∀</span> (<span class="nv">u</span> <span class="nv">v</span> : X), u ≪ v ⇒ (u ≪ x ∨ is_hausdorff_separated v x))%logic.
+
+<span class="kn">Definition</span> <span class="nf">strongly_maximal</span>
+           (<span class="nv">X</span> : dcpo)
+  : hSet
+  := (∑ (x : X), hProp_to_hSet (is_strongly_maximal x))%<span class="nb">set</span>.
+
+<span class="kn">Coercion</span> <span class="nf">element_of_strongly_maximal</span>
+         {X : dcpo}
+         (x : strongly_maximal X)
+  : X
+  := pr1 x.
+
+<span class="kn">Definition</span> <span class="nf">eq_strongly_maximal</span>
+           {<span class="nv">X</span> : dcpo}
+           {<span class="nv">x</span> <span class="nv">y</span> : strongly_maximal X}
+           (<span class="nv">p</span> : pr1 x = pr1 y)
+  : x = y.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Strongly maximal elements are sharp *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_sharp_is_strongly_maximal</span>
+            {<span class="nv">X</span> : dcpo}
+            {<span class="nv">x</span> : X}
+            (<span class="nv">Hx</span> : is_strongly_maximal x)
+  : is_sharp x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> u v p.
+  <span class="nb">specialize</span> (Hx u v p).
+  <span class="nb">revert</span> Hx.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ q | q ].
+  - <span class="bp">exact</span> (hinhpr (inl q)).
+  - <span class="nb">refine</span> (hinhpr (inr _)).
+    <span class="nb">apply</span> is_hausdorff_separated_not_le.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. The intrinsic apartness relation on strongly maximal elements *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_strongly_maximal_tight_apartness</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            {<span class="nv">x</span> <span class="nv">y</span> : X}
+            (<span class="nv">Hx</span> : is_strongly_maximal x)
+            (<span class="nv">Hy</span> : is_strongly_maximal y)
+            (<span class="nv">p</span> : ¬(x # y))
+  : x = y.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (is_sharp_tight_apartness CX _ _ p).
+  - <span class="nb">apply</span> is_sharp_is_strongly_maximal.
+    <span class="bp">exact</span> Hx.
+  - <span class="nb">apply</span> is_sharp_is_strongly_maximal.
+    <span class="bp">exact</span> Hy.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strongly_maximal_cotransitive_apartness</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+            (<span class="nv">Hz</span> : is_strongly_maximal z)
+            (<span class="nv">p</span> : x # y)
+  : x # z ∨ y # z.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (is_sharp_cotransitive_apartness CX _ p).
+  <span class="nb">apply</span> is_sharp_is_strongly_maximal.
+  <span class="bp">exact</span> Hz.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. In a continuous DCPO, strongly maximal elements are maximal *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_maximal_is_strongly_maximal</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+            {<span class="nv">x</span> : X}
+            (<span class="nv">Hx</span> : is_strongly_maximal x)
+  : is_maximal x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y p.
+  use (invmap (continuous_dcpo_struct_le_via_approximation CX y x)).
+  <span class="nb">intros</span> z q.
+  <span class="nb">assert</span> (H := Hx z y q).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> H.
+  <span class="nb">induction</span> H <span class="k">as</span> [ r | r ].
+  - <span class="bp">exact</span> r.
+  - <span class="nb">apply</span> fromempty.
+    <span class="bp">exact</span> (is_hausdorff_separated_not_le (symm_is_hausdorff_separated r) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_strongly_maximal_via_le</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : continuous_dcpo_struct X)
+           {<span class="nv">x</span> <span class="nv">y</span> : strongly_maximal X}
+           (<span class="nv">p</span> : x ⊑ y)
+  : x = y.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  use antisymm_dcpo.
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> (is_maximal_is_strongly_maximal CX (pr2 x) _ p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_strongly_maximal_via_top</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : continuous_dcpo_struct X)
+           {<span class="nv">x</span> <span class="nv">y</span> : strongly_maximal X}
+           (<span class="nv">z</span> : X)
+           (<span class="nv">p</span> : x ⊑ z)
+           (<span class="nv">q</span> : y ⊑ z)
+  : x = y.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">transitivity</span> z.
+  - use antisymm_dcpo.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> (is_maximal_is_strongly_maximal CX (pr2 x) _ p).
+  - <span class="nb">refine</span> (!_).
+    use antisymm_dcpo.
+    + <span class="bp">exact</span> q.
+    + <span class="bp">exact</span> (is_maximal_is_strongly_maximal CX (pr2 y) _ q).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 9. A simplified strong maximality condition in a continuous DCPO,</span>
+<span class="sd">      in terms of the basis *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_strongly_maximal_basis_1</span>  {<span class="nv">X</span> : dcpo} (<span class="nv">B</span> : dcpo_basis X) (<span class="nv">x</span> : X) :
+  (<span class="k">∀</span> (<span class="nv">i</span> <span class="nv">j</span> : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic →
+  is_strongly_maximal x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HB u v Huv.
+  <span class="nb">assert</span> (Hb := basis_unary_interpolation B Huv).
+  <span class="nb">revert</span> Hb.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intros</span> [i [Hui Hiv]].
+  <span class="nb">assert</span> (Hb := basis_unary_interpolation B Hiv).
+  <span class="nb">revert</span> Hb.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intros</span> [j [Hij Hjv]].
+  <span class="nb">specialize</span> (HB _ _ Hij).
+  <span class="nb">revert</span> HB.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intros</span> [Hix | Hsep].
+  { <span class="nb">apply</span> hinhpr. <span class="nb">left</span>.
+    use (trans_way_below Hui Hix). }
+  { <span class="nb">apply</span> hinhpr. <span class="nb">right</span>.
+    use (is_hausdorff_separated_le _ _ _ _ Hsep).
+    <span class="nb">apply</span> way_below_to_le, Hjv. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_strongly_maximal_basis_2</span>  {<span class="nv">X</span> : dcpo} (<span class="nv">B</span> : dcpo_basis X) (<span class="nv">x</span> : X) :
+  is_strongly_maximal x →
+  (<span class="k">∀</span> (<span class="nv">i</span> <span class="nv">j</span> : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HX i j p.
+  <span class="bp">exact</span> (HX (B i) (B j) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_strongly_maximal_basis</span> {<span class="nv">X</span> : dcpo} (<span class="nv">B</span> : dcpo_basis X) (<span class="nv">x</span> : X) :
+  (<span class="k">∀</span> (<span class="nv">i</span> <span class="nv">j</span> : B), B i ≪ B j ⇒ (B i ≪ x ∨ is_hausdorff_separated (B j) x))%logic ≃ is_strongly_maximal x.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="nb">apply</span> is_strongly_maximal_basis_1.
+  - <span class="nb">apply</span> is_strongly_maximal_basis_2.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 10. Apartness for strongly maximal elements is Hausdorff separatedness *)</span>
+<span class="kn">Lemma</span> <span class="nf">strongly_maximal_apart</span>
+       {<span class="nv">D</span> : dcpo}
+       (<span class="nv">C</span> : continuous_dcpo_struct D)
+       {<span class="nv">x</span> <span class="nv">y</span> : D}
+       (<span class="nv">Hx</span> : is_strongly_maximal x)
+       (<span class="nv">Hy</span> : is_strongly_maximal y)
+       (<span class="nv">p</span> : x # y)
+  : is_hausdorff_separated x y.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> p.
+  use factor_through_squash_hProp.
+  <span class="nb">intros</span> [Hxy | Hyx].
+  - <span class="nb">assert</span> (Hb := continuous_not_specialization_weq C _ _ Hxy).
+    <span class="nb">revert</span> Hb.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (b &amp; Hbx &amp; Hby).
+    <span class="nb">specialize</span> (Hy b x Hbx).
+    <span class="nb">revert</span> Hy.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [Hby' | Hxy' ].
+    + <span class="nb">apply</span> fromempty.
+      use (Hby _).
+      <span class="bp">exact</span> (way_below_to_le Hby').
+    + <span class="bp">exact</span> Hxy'.
+  - <span class="nb">assert</span> (Hb := continuous_not_specialization_weq C _ _ Hyx).
+    <span class="nb">revert</span> Hb.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (b &amp; Hby &amp; Hbx).
+    <span class="nb">specialize</span> (Hx b y Hby).
+    <span class="nb">revert</span> Hx.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [Hbx' | Hxy' ].
+    + <span class="nb">apply</span> fromempty.
+      use (Hbx _).
+      <span class="bp">exact</span> (way_below_to_le Hbx').
+    + <span class="nb">apply</span> symm_is_hausdorff_separated.
+      <span class="bp">exact</span> Hxy'.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Elements/Maximal.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; 10. Apartness for strongly maximal elements is Hausdorff separatedness
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

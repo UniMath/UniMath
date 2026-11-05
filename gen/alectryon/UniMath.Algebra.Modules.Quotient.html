@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Quotient.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Quotient Ring Modules</span>
+
+<span class="sd">  This file constructs quotient ring modules from submodules or appropriate equivalence relations.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Preliminaries</span>
+<span class="sd">  1.1. Equivalence relations on a module that are closed under the module structure [module_eqrel]</span>
+<span class="sd">  1.2. Construction of an appropriate equivalence relation from a submodule [module_eqrelsubmodule]</span>
+<span class="sd">  2. The quotient module and its universal property</span>
+<span class="sd">  2.1. The module [quotmod]</span>
+<span class="sd">  2.2. The universal property [quotmoduniv]</span>
+
+<span class="sd">  Originally written by Auke Booij, December 2017</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.ModuleCore.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.Modules.Core.
+<span class="kn">Require Import</span> UniMath.Algebra.Modules.Submodule.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> module.
+
+<span class="sd">(** * 1. Preliminaries *)</span>
+<span class="sd">(** ** 1.1. Equivalence relations on a module that are closed under the module structure *)</span>
+<span class="kn">Section</span> <span class="nf">quotmod_rel</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>}
+          (<span class="nv">M</span> : module R).
+
+  <span class="kn">Definition</span> <span class="nf">isactionhrel</span> (<span class="nv">E</span> : hrel M) : UU :=
+    ∏ r a b, E a b → E (r * a) (r * b).
+
+  <span class="kn">Definition</span> <span class="nf">module_eqrel</span> : UU :=
+    ∑ E : eqrel M, isbinophrel E × isactionhrel E.
+  <span class="kn">Definition</span> <span class="nf">hrelmodule_eqrel</span> (<span class="nv">E</span> : module_eqrel) : eqrel M := pr1 E.
+  <span class="kn">Coercion</span> <span class="nf">hrelmodule_eqrel</span> : module_eqrel &gt;-&gt; eqrel.
+
+  <span class="kn">Definition</span> <span class="nf">binophrelmodule_eqrel</span> (<span class="nv">E</span> : module_eqrel) : binopeqrel M := make_binopeqrel E (pr1 (pr2 E)).
+  <span class="kn">Coercion</span> <span class="nf">binophrelmodule_eqrel</span> : module_eqrel &gt;-&gt; binopeqrel.
+
+  <span class="kn">Definition</span> <span class="nf">isactionhrelmodule_eqrel</span> (<span class="nv">E</span> : module_eqrel) : isactionhrel E := pr2 (pr2 E).
+  <span class="kn">Coercion</span> <span class="nf">isactionhrelmodule_eqrel</span> : module_eqrel &gt;-&gt; isactionhrel.
+
+  <span class="kn">Definition</span> <span class="nf">make_module_eqrel</span> (<span class="nv">E</span> : eqrel M) : isbinophrel E -&gt; isactionhrel E -&gt; module_eqrel :=
+    <span class="k">λ</span> <span class="nv">H0</span> <span class="nv">H1</span>, (E,,(H0,,H1)).
+
+<span class="kn">End</span> <span class="nf">quotmod_rel</span>.
+
+<span class="sd">(** ** 1.2. Construction of an appropriate equivalence relation from a submodule *)</span>
+<span class="kn">Section</span> <span class="nf">quotmod_submodule</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>}
+          (<span class="nv">M</span> : module R)
+          (<span class="nv">A</span> : submodule M).
+
+  <span class="kn">Definition</span> <span class="nf">hrelsubmodule</span> : hrel M := <span class="k">λ</span> <span class="nv">m</span> <span class="nv">m'</span>, A (m - m').
+
+  <span class="kn">Lemma</span> <span class="nf">iseqrelsubmodule</span> : iseqrel hrelsubmodule.
+  <span class="kn">Proof</span>.
+    use iseqrelconstr.
+    - <span class="nb">intros</span> x y z xy yz.
+      <span class="nb">assert</span> (K := submoduleadd A (x - y) (y - z) xy yz).
+      <span class="nb">rewrite</span> (assocax M) <span class="k">in</span> K.
+      <span class="nb">rewrite</span> &lt;- (assocax M (-y) y) <span class="k">in</span> K.
+      <span class="nb">rewrite</span> grlinvax <span class="k">in</span> K.
+      <span class="nb">rewrite</span> lunax <span class="k">in</span> K.
+      <span class="bp">exact</span> K.
+    - <span class="nb">intros</span> x.
+      <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">y</span>, A y) (grrinvax M x) _).
+      <span class="bp">exact</span> (submodule0 A).
+    - <span class="nb">intros</span> x y axy.
+      <span class="nb">assert</span> (K := submoduleinv A (x - y) axy).
+      <span class="nb">rewrite</span> grinvop <span class="k">in</span> K.
+      <span class="nb">rewrite</span> grinvinv <span class="k">in</span> K.
+      <span class="bp">exact</span> K.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eqrelsubmodule</span> : eqrel M
+    := make_eqrel hrelsubmodule iseqrelsubmodule.
+
+  <span class="kn">Lemma</span> <span class="nf">isbinophrel_eqrelsubmodule</span>
+    : isbinophrel eqrelsubmodule.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a b c.
+      <span class="nb">assert</span> (H : a - b = c + a - (c + b)).
+      {
+        etrans; [|<span class="nb">eapply</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z - (c + b))); <span class="nb">apply</span> (commax M)];
+          <span class="nb">rewrite</span> assocax.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">now</span> <span class="nb">rewrite</span> grinvop, commax, assocax, grlinvax, runax.
+      }
+      <span class="nb">intro</span> H2.
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">y</span>, A y) H H2).
+    - <span class="nb">intros</span> a b c.
+      <span class="nb">assert</span> (H : a - b = a + c - (b + c)).
+      {
+        <span class="nb">rewrite</span> assocax.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">now</span> <span class="nb">rewrite</span> grinvop, &lt;- (assocax M), grrinvax, lunax.
+      }
+      <span class="nb">intro</span> H2.
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">y</span>, A y) H H2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isactionhrel_eqrelsubmodule</span>
+    : isactionhrel M eqrelsubmodule.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> r m m'.
+    <span class="nb">assert</span> (H : (r * m) - (r * m') = r * (m - m')) <span class="bp">by</span>
+        <span class="bp">now</span> <span class="nb">rewrite</span> module_inv_mult, module_mult_is_ldistr.
+    <span class="nb">generalize</span> (submodulemult A r (m - m')).
+    <span class="nb">intros</span> H2 H3.
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> hrelsubmodule.
+    <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, A x) H (H2 H3)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">module_eqrelsubmodule</span> : module_eqrel M
+    := make_module_eqrel _
+      eqrelsubmodule
+      isbinophrel_eqrelsubmodule
+      isactionhrel_eqrelsubmodule.
+
+<span class="kn">End</span> <span class="nf">quotmod_submodule</span>.
+
+<span class="sd">(** * 2. The quotient module and its universal property *)</span>
+<span class="kn">Section</span> <span class="nf">quotmod_def</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>}
+          (<span class="nv">M</span> : module R)
+          (<span class="nv">E</span> : module_eqrel M).
+
+<span class="sd">(** ** 2.1. The module *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">quotmod_abgr</span> : abgr := abgrquot E.
+
+  <span class="kn">Definition</span> <span class="nf">quotmod_ringact</span> (<span class="nv">r</span> : R) : quotmod_abgr → quotmod_abgr.
+  <span class="kn">Proof</span>.
+    use setquotuniv.
+    - <span class="nb">intros</span> m.
+      <span class="bp">exact</span> (setquotpr E (r * m)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> m m' Hmm';
+        <span class="nb">apply</span> weqpathsinsetquot;
+        <span class="bp">now</span> <span class="nb">apply</span> isactionhrelmodule_eqrel
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isbinopfun_quotmod_ringact</span>
+    (<span class="nv">r</span> : R)
+    : isbinopfun (quotmod_ringact r).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isbinopfun.
+    use (setquotuniv2prop E (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, make_hProp _ _)); [use isasetsetquot|].
+    <span class="nb">intros</span> m m'.
+    <span class="nb">unfold</span> quotmod_ringact, setquotfun2;
+      <span class="nb">rewrite</span> (setquotunivcomm E), (setquotunivcomm E);
+      <span class="nb">simpl</span>; <span class="nb">unfold</span> setquotfun2;
+        <span class="nb">rewrite</span> (setquotuniv2comm E), (setquotuniv2comm E), (setquotunivcomm E).
+    <span class="nb">apply</span> weqpathsinsetquot.
+    <span class="nb">assert</span> (H : r * (m + m') = r * m + r * m') <span class="bp">by</span> use module_mult_is_ldistr.
+    <span class="nb">simpl</span> <span class="k">in</span> H; <span class="nb">rewrite</span> H.
+    use eqrelrefl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotmod_ringmap</span> (<span class="nv">r</span> : R) : group_endomorphism_ring quotmod_abgr.
+  <span class="kn">Proof</span>.
+    use make_abelian_group_morphism.
+    - <span class="bp">exact</span> (quotmod_ringact r).
+    - <span class="bp">exact</span> (isbinopfun_quotmod_ringact r).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isrigfun_quotmod_ringmap</span>
+    : isrigfun (X := R) (Y := group_endomorphism_ring quotmod_abgr) quotmod_ringmap.
+  <span class="kn">Proof</span>.
+    use make_isrigfun.
+    <span class="c">(* To show that quotmod_ringmap is a ring action, we show it is a monoid homomorphism with</span>
+<span class="c">    respect to both monoids on R. *)</span>
+    <span class="kp">all</span>: use make_ismonoidfun;
+      <span class="c">(* To show that a map is a monoid homomorphism, we show that it respects the binary</span>
+<span class="c">      operation, as well as that it preserves the unit. *)</span>
+      [ use make_isbinopfun; <span class="nb">intros</span> r r' | ].
+    <span class="c">(* It suffices to prove the underlying maps of the resulting automorphism of our group are</span>
+<span class="c">    equal. *)</span>
+    <span class="kp">all</span>: <span class="nb">apply</span> abelian_group_morphism_eq.
+    <span class="c">(* We show this using the universal property of the set quotient. *)</span>
+    <span class="kp">all</span>: use (setquotunivprop E (<span class="k">λ</span> <span class="nv">m</span>, make_hProp _ _)); [use isasetsetquot|].
+    <span class="c">(* Expand out some definitions. *)</span>
+    <span class="kp">all</span>: <span class="nb">intros</span> m; <span class="nb">simpl</span>; <span class="nb">unfold</span> unel, quotmod_ringact, compose; <span class="nb">simpl</span>.
+    <span class="c">(* Apply the computation rule of the universal property of the set quotient. *)</span>
+    <span class="kp">all</span>: [&gt; <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (setquotunivcomm E) | <span class="nb">rewrite</span> (setquotunivcomm E)
+          | <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (setquotunivcomm E) | <span class="nb">rewrite</span> (setquotunivcomm E)].
+    <span class="c">(* We can show the required equalities because the representatives of the equivalence classes</span>
+<span class="c">    are already equal. *)</span>
+    <span class="kp">all</span>: use maponpaths; <span class="nb">simpl</span>.
+    <span class="c">(* The representatives are equal because of the fact that our input map was a ring action. *)</span>
+    - use module_mult_is_rdistr.
+    - use module_mult_0_to_0.
+    - use module_mult_assoc.
+    - use module_mult_unel2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotmod_ringfun</span> : ringfun R (group_endomorphism_ring quotmod_abgr)
+    := rigfunconstr isrigfun_quotmod_ringmap.
+
+  <span class="kn">Definition</span> <span class="nf">quotmod_mod_struct</span> : module_struct R quotmod_abgr := quotmod_ringfun.
+
+  <span class="kn">Definition</span> <span class="nf">quotmod</span> : module R.
+  <span class="kn">Proof</span>.
+    use make_module.
+    - <span class="bp">exact</span> quotmod_abgr.
+    - <span class="bp">exact</span> quotmod_mod_struct.
+  <span class="kn">Defined</span>.
+  <span class="kn">Notation</span> <span class="s2">"M / A"</span> := (quotmod M (module_eqrelsubmodule M A)) : module_scope.
+
+<span class="sd">(** ** 2.2. The universal property *)</span>
+
+  <span class="kn">Notation</span> <span class="s2">"R-mod( M , N )"</span> := (modulefun M N) : module_scope.
+  <span class="kn">Definition</span> <span class="nf">quotmod_quotmap</span> : R-mod(M, quotmod).
+  <span class="kn">Proof</span>.
+    use make_modulefun.
+    - <span class="bp">exact</span> (setquotpr E).
+    - <span class="bp">now</span> use (make_ismodulefun (make_isbinopfun _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotmoduniv_data</span>
+    (<span class="nv">N</span> : module R)
+    (<span class="nv">f</span> : R-mod(M, N))
+    (<span class="nv">isc</span> : iscomprelfun E f)
+    : quotmod → N
+    := setquotuniv E _ f isc.
+
+  <span class="kn">Lemma</span> <span class="nf">quotmoduniv_ismodulefun</span>
+    (<span class="nv">N</span> : module R)
+    (<span class="nv">f</span> : R-mod(M, N))
+    (<span class="nv">isc</span> : iscomprelfun E f)
+    : ismodulefun (quotmoduniv_data N f isc).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> quotmoduniv_data.
+    use make_ismodulefun.
+    - use make_isbinopfun.
+      use (setquotuniv2prop E (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span>, make_hProp _ _)); [<span class="nb">apply</span> setproperty|].
+      <span class="nb">intros</span> m m'.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> op, setquotfun2.
+      <span class="nb">rewrite</span> setquotuniv2comm.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> (setquotunivcomm E).
+      <span class="nb">apply</span> modulefun_to_isbinopfun.
+    - <span class="nb">intros</span> r.
+      use (setquotunivprop E (<span class="k">λ</span> <span class="nv">m</span>, make_hProp _ _)); [<span class="nb">apply</span> setproperty|].
+      <span class="nb">intros</span> m.
+      <span class="nb">assert</span> (H : r * quotmod_quotmap m = quotmod_quotmap (r * m)) <span class="bp">by</span>
+          use (! modulefun_to_islinear _ _ _).
+      <span class="nb">simpl</span> <span class="k">in</span> H. <span class="nb">simpl</span>.
+      <span class="nb">refine</span> (maponpaths _ H @ _).
+      <span class="nb">rewrite</span> (setquotunivcomm E).
+      <span class="nb">refine</span> (setquotunivcomm E _ _ _ _ @ _).
+      <span class="nb">apply</span> modulefun_to_islinear.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">quotmoduniv</span>
+    (<span class="nv">N</span> : module R)
+    (<span class="nv">f</span> : R-mod(M, N))
+    (<span class="nv">isc</span> : iscomprelfun E f)
+    : R-mod(quotmod, N)
+    := make_modulefun (quotmoduniv_data N f isc) (quotmoduniv_ismodulefun N f isc).
+
+<span class="kn">End</span> <span class="nf">quotmod_def</span>.
+
+<span class="sd">(** * Universal property in terms of submodules</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">from_submodule</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : <span class="bp">ring</span>}
+          (<span class="nv">M</span> : module R)
+          (<span class="nv">A</span> : submodule M).
+
+  <span class="kn">Notation</span> <span class="s2">"R-mod( M , N )"</span> := (modulefun M N) : module_scope.
+
+  <span class="kn">Definition</span> <span class="nf">quotmoduniv_submodule</span>
+             (<span class="nv">N</span> : module R)
+             (<span class="nv">f</span> : R-mod(M, N))
+             (<span class="nv">isc</span> : iscomprelfun (module_eqrelsubmodule M A) f) :
+    R-mod(quotmod M (module_eqrelsubmodule M A), N) :=
+    quotmoduniv M (module_eqrelsubmodule M A) N f isc.
+
+<span class="kn">End</span> <span class="nf">from_submodule</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Modules/Quotient.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Originally written by Auke Booij, December 2017
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Categories.ModuleCore.
+  &gt; Require Import UniMath.Algebra.Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

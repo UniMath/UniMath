@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LimitIso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*************************************************************************************</span>
+
+<span class="sd"> Limits and isomorphisms</span>
+
+<span class="sd"> If we have two cones `C₁` and `C₂` that are isomorphic, then a limit for `C₁` is also</span>
+<span class="sd"> a limit for `C₂`. We consider this statement for binary products, equalizers, and</span>
+<span class="sd"> binary coproducts.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Binary products on isomorphisc cones</span>
+<span class="sd"> 2. Equalizers on isomorphic cones</span>
+<span class="sd"> 3. Binary coproducts on isomorphic cocones</span>
+
+<span class="sd"> *************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Binary products on isomorphisc cones *)</span>
+<span class="kn">Section</span> <span class="nf">BinProductIsoComp</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+          (<span class="nv">p</span> : BinProduct C x₁ y₁)
+          (<span class="nv">l</span> : z_iso x₂ x₁)
+          (<span class="nv">r</span> : z_iso y₂ y₁).
+
+  <span class="kn">Let</span> <span class="nf">π₁</span> : p --&gt; x₂ := BinProductPr1 _ p · inv_from_z_iso l.
+  <span class="kn">Let</span> <span class="nf">π₂</span> : p --&gt; y₂ := BinProductPr2 _ p · inv_from_z_iso r.
+
+  <span class="kn">Proposition</span> <span class="nf">BinProduct_z_iso_lr_unique</span>
+              {<span class="nv">w</span> : C}
+              (<span class="nv">f</span> : w --&gt; x₂)
+              (<span class="nv">g</span> : w --&gt; y₂)
+    : isaprop (∑ fg, fg · π₁ = f × fg · π₂ = g).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    use BinProductArrowsEq.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · l) (pr12 φ₁ @ !(pr12 φ₂)) @ _).
+      + <span class="nb">unfold</span> π₁.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">unfold</span> π₁.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · r) (pr22 φ₁ @ !(pr22 φ₂)) @ _).
+      + <span class="nb">unfold</span> π₂.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">unfold</span> π₂.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinProduct_z_iso_lr</span>
+    : BinProduct C x₂ y₂.
+  <span class="kn">Proof</span>.
+    use make_BinProduct.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> π₁.
+    - <span class="bp">exact</span> π₂.
+    - <span class="nb">intros</span> w f g.
+      use iscontraprop1.
+      + <span class="nb">apply</span> BinProduct_z_iso_lr_unique.
+      + <span class="nb">refine</span> (BinProductArrow _ p (f · l) (g · r) ,, _ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> π₁ ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> BinProductPr1Commutes ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+             <span class="nb">apply</span> id_right).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> π₂ ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> BinProductPr2Commutes ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+             <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinProductIsoComp</span>.
+
+<span class="sd">(** * 2. Equalizers on isomorphic cones *)</span>
+<span class="kn">Section</span> <span class="nf">EqualizerIsoComp</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+          {<span class="nv">f₁</span> <span class="nv">g₁</span> : x₁ --&gt; y₁}
+          {<span class="nv">f₂</span> <span class="nv">g₂</span> : x₂ --&gt; y₂}
+          (<span class="nv">E</span> : Equalizer f₁ g₁)
+          (<span class="nv">l</span> : z_iso x₂ x₁)
+          (<span class="nv">r</span> : z_iso y₂ y₁)
+          (<span class="nv">p</span> : l · f₁ = f₂ · r)
+          (<span class="nv">q</span> : l · g₁ = g₂ · r).
+
+  <span class="kn">Let</span> <span class="nf">ι</span> : E --&gt; x₂ := EqualizerArrow E · inv_from_z_iso l.
+
+  <span class="kn">Lemma</span> <span class="nf">Equalizer_z_iso_lr_eq</span>
+    : ι · f₂ = ι · g₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ι.
+    <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, inv_from_z_iso l · z · inv_from_z_iso r) p) <span class="k">as</span> p'.
+    <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, inv_from_z_iso l · z · inv_from_z_iso r) q) <span class="k">as</span> q'.
+    <span class="nb">cbn</span> <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> !assoc <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> p', q'.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- p', &lt;- q'.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> EqualizerEqAr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">Equalizer_z_iso_lr_unique</span>
+              {<span class="nv">w</span> : C}
+              (<span class="nv">h</span> : w --&gt; x₂)
+    : isaprop (∑ φ, φ · ι = h).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use EqualizerInsEq.
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · l) (pr2 φ₁ @ !(pr2 φ₂)) @ _).
+    - <span class="nb">unfold</span> ι.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> ι.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Equalizer_z_iso_lr</span>
+    : Equalizer f₂ g₂.
+  <span class="kn">Proof</span>.
+    use make_Equalizer.
+    - <span class="bp">exact</span> E.
+    - <span class="bp">exact</span> ι.
+    - <span class="bp">exact</span> Equalizer_z_iso_lr_eq.
+    - <span class="nb">intros</span> w h s.
+      use iscontraprop1.
+      + <span class="bp">exact</span> (Equalizer_z_iso_lr_unique h).
+      + <span class="nb">simple refine</span> (EqualizerIn E w (h · l) _ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> p, q ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> s ;
+             <span class="nb">apply</span> idpath).
+        * <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">unfold</span> ι ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> EqualizerCommutes ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+             <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EqualizerIsoComp</span>.
+
+<span class="sd">(** * 3. Binary coproducts on isomorphic cocones *)</span>
+<span class="kn">Section</span> <span class="nf">BinCoproductIsoComp</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+          (<span class="nv">p</span> : BinCoproduct x₁ y₁)
+          (<span class="nv">l</span> : z_iso x₁ x₂)
+          (<span class="nv">r</span> : z_iso y₁ y₂).
+
+  <span class="kn">Let</span> <span class="nf">ι₁</span> : x₂ --&gt; p := inv_from_z_iso l · BinCoproductIn1 p.
+  <span class="kn">Let</span> <span class="nf">ι₂</span> : y₂ --&gt; p := inv_from_z_iso r · BinCoproductIn2 p.
+
+  <span class="kn">Proposition</span> <span class="nf">BinCoproduct_z_iso_lr_unique</span>
+              {<span class="nv">w</span> : C}
+              (<span class="nv">f</span> : x₂ --&gt; w)
+              (<span class="nv">g</span> : y₂ --&gt; w)
+    : isaprop (∑ fg, ι₁ · fg = f × ι₂ · fg = g).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    }
+    use BinCoproductArrowsEq.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, l · z) (pr12 φ₁ @ !(pr12 φ₂)) @ _).
+      + <span class="nb">unfold</span> ι₁.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">unfold</span> ι₁.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, r · z) (pr22 φ₁ @ !(pr22 φ₂)) @ _).
+      + <span class="nb">unfold</span> ι₂.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">unfold</span> ι₂.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">BinCoproduct_z_iso_lr</span>
+    : BinCoproduct x₂ y₂.
+  <span class="kn">Proof</span>.
+    use make_BinCoproduct.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> ι₁.
+    - <span class="bp">exact</span> ι₂.
+    - <span class="nb">intros</span> w f g.
+      use iscontraprop1.
+      + <span class="nb">apply</span> BinCoproduct_z_iso_lr_unique.
+      + <span class="nb">refine</span> (BinCoproductArrow p (l · f) (r · g) ,, _ ,, _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> ι₁ ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> BinCoproductIn1Commutes ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+             <span class="nb">apply</span> id_left).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> ι₂ ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> BinCoproductIn2Commutes ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> z_iso_after_z_iso_inv ;
+             <span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BinCoproductIsoComp</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/LimitIso.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Binary coproducts on isomorphic cocones
+  &gt;
+  &gt;  *************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

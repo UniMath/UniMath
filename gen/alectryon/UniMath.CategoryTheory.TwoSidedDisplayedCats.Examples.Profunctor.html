@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Profunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Every profunctor gives rise to a discrete two-sided fibration</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition</span>
+<span class="sd"> 2. Univalence and discreteness</span>
+<span class="sd"> 3. The two-sided fibration</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ProfunctorToTwosidedDispCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">P</span> : profunctor C₁ C₂).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Definition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_twosided_disp_cat_ob_mor</span>
+    : twosided_disp_cat_ob_mor C₂ C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, P x y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> <span class="nv">f</span> <span class="nv">g</span>, rmap P g z₁ = lmap P f z₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_twosided_disp_cat_id_comp</span>
+    : twosided_disp_cat_id_comp profunctor_to_twosided_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y xy ; <span class="nb">cbn</span> -[lmap rmap].
+      <span class="nb">rewrite</span> lmap_id, rmap_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x₁ x₂ x₃ y₁ y₂ y₃ xy₁ xy₂ xy₃ f₁ f₂ g₁ g₂ fg₁ fg₂ ; <span class="nb">cbn</span> -[lmap rmap] <span class="k">in</span> *.
+      <span class="nb">rewrite</span> lmap_comp, rmap_comp.
+      <span class="nb">rewrite</span> fg₁.
+      <span class="nb">rewrite</span> rmap_lmap.
+      <span class="nb">rewrite</span> fg₂.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_twosided_disp_cat_data</span>
+    : twosided_disp_cat_data C₂ C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> profunctor_to_twosided_disp_cat_ob_mor.
+    - <span class="bp">exact</span> profunctor_to_twosided_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_profunctor_to_twosided_mor</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+             (<span class="nv">xy₁</span> : profunctor_to_twosided_disp_cat_data y₁ x₁)
+             (<span class="nv">xy₂</span> : profunctor_to_twosided_disp_cat_data y₂ x₂)
+             (<span class="nv">fg</span> <span class="nv">fg'</span> : xy₁ --&gt;[ g ][ f ] xy₂)
+    : fg = fg'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (P y₁ x₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_twosided_disp_cat_axioms</span>
+    : twosided_disp_cat_axioms profunctor_to_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="kp">try</span> (<span class="nb">apply</span> isaprop_profunctor_to_twosided_mor).
+    <span class="nb">apply</span> isasetaprop.
+    use invproofirrelevance.
+    <span class="nb">intro</span> ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_profunctor_to_twosided_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_twosided_disp_cat</span>
+    : twosided_disp_cat C₂ C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> profunctor_to_twosided_disp_cat_data.
+    - <span class="bp">exact</span> profunctor_to_twosided_disp_cat_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Univalence and discreteness</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">univalent_profunctor_to_twosided_disp_cat</span>
+    : is_univalent_twosided_disp_cat profunctor_to_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ p q xy₁ xy₂.
+    <span class="nb">induction</span> p ; <span class="nb">induction</span> q.
+    use isweqimplimpl.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intro</span> z.
+      <span class="nb">pose</span> (p := pr1 z) ; <span class="nb">cbn</span> -[lmap rmap] <span class="k">in</span> p.
+      <span class="nb">rewrite</span> lmap_id, rmap_id <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    - <span class="nb">apply</span> (P x₁ y₁).
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_profunctor_to_twosided_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_profunctor_to_twosided_disp_cat</span>
+    : discrete_twosided_disp_cat profunctor_to_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_discrete_twosided_disp_cat.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_profunctor_to_twosided_mor.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g Hf Hg p ; <span class="nb">cbn</span> -[lmap rmap] <span class="k">in</span> *.
+      <span class="nb">pose</span> (q := maponpaths (rmap P (inv_from_z_iso (g,, Hg))) p).
+      <span class="nb">cbn</span> -[rmap lmap].
+      <span class="nb">rewrite</span> &lt;- rmap_comp <span class="k">in</span> q.
+      <span class="nb">assert</span> (xy₁
+              =
+              rmap P (inv_from_z_iso (g,, Hg)) (lmap P f xy₂)) <span class="k">as</span> r.
+      {
+        <span class="nb">refine</span> (_ @ q).
+        <span class="nb">refine</span> (!(rmap_id P xy₁) @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(z_iso_inv_after_z_iso (_ ,, Hg))).
+      }
+      <span class="nb">rewrite</span> r.
+      <span class="nb">rewrite</span> rmap_lmap.
+      <span class="nb">rewrite</span> &lt;- lmap_comp.
+      <span class="nb">refine</span> (!(lmap_id P _) @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(z_iso_after_z_iso_inv (_ ,, Hf))).
+    - <span class="bp">exact</span> univalent_profunctor_to_twosided_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The two-sided fibration</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">profunctor_to_discrete_twosided_fibration</span>
+    : discrete_twosided_fibration C₂ C₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> profunctor_to_twosided_disp_cat.
+    - <span class="bp">exact</span> discrete_profunctor_to_twosided_disp_cat.
+    - <span class="nb">intros</span> x₁ x₂ y xy₂ f.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (lmap P f xy₂).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[lmap rmap] ;
+           <span class="nb">rewrite</span> rmap_id ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> -[lmap rmap] <span class="k">in</span> * ;
+           <span class="nb">rewrite</span> id_right <span class="k">in</span> fg' ;
+           <span class="nb">rewrite</span> fg' ;
+           <span class="nb">rewrite</span> lmap_comp ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> y x₁ x₂ xy₂ f.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (rmap P f xy₂).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> -[lmap rmap] ;
+           <span class="nb">rewrite</span> lmap_id ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> -[lmap rmap] <span class="k">in</span> * ;
+           <span class="nb">rewrite</span> id_left <span class="k">in</span> fg' ;
+           <span class="nb">rewrite</span> &lt;- fg' ;
+           <span class="nb">rewrite</span> rmap_comp ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProfunctorToTwosidedDispCat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/Profunctor.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The two-sided fibration
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

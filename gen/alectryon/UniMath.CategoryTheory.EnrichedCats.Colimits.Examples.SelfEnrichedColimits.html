@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SelfEnrichedColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Colimits in self enriched categories</span>
+
+<span class="sd"> We construct colimits in self enriched categories. Copowers in</span>
+<span class="sd"> the self enriched category come from the tensor in the monoidal</span>
+<span class="sd"> category.</span>
+
+<span class="sd"> To show how the construction of colimits works, we show how to</span>
+<span class="sd"> construct an initial object in the self-enriched category Suppose</span>
+<span class="sd"> that `V` is a symmetric monoidal closed category and let `x` be</span>
+<span class="sd"> an initial object in `V`. We want to show that `x` also is an</span>
+<span class="sd"> initial object in the enriched sense. This means that for all</span>
+<span class="sd"> objects `y`, we must show that `x ⊸ y` is terminal in `V`. So,</span>
+<span class="sd"> we must show that for every `w` the type `w --&gt; x ⊸ y` is</span>
+<span class="sd"> contractible.</span>
+
+<span class="sd"> Since `⊸` is right adjoint to `⊗`, the types `w --&gt; x ⊸ y` and</span>
+<span class="sd"> `w ⊗ x --&gt; y` are equivalent. As such, it suffices to show that</span>
+<span class="sd"> `w ⊗ x --&gt; y` is contractible. This is equivalent to `w ⊗ x`</span>
+<span class="sd"> being an initial object, so it suffices to show that `w ⊗ x` is</span>
+<span class="sd"> initial. Since `V` is monoidal closed, we know that the functor</span>
+<span class="sd"> `x ↦ w ⊗ x` is a left adjoint, and thus it preserves initial</span>
+<span class="sd"> objects. Since `x` is initial, we also get that `w ⊗ x` is</span>
+<span class="sd"> initial, so we conclude that `V` has an initial object in the</span>
+<span class="sd"> enriched sense.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Initial objects</span>
+<span class="sd"> 2. Binary coproducts</span>
+<span class="sd"> 3. Coequalizers</span>
+<span class="sd"> 4. Copowers</span>
+<span class="sd"> 5. Type indexed coproducts</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedBinaryCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCoequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">SelfEnrichmentColimits</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_mon_closed_cat).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Initial objects</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">self_enrichment_initial</span>
+             (<span class="nv">v</span> : Initial V)
+    : initial_enriched (self_enrichment V).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pr1 v ,, _).
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use (iscontrweqb (internal_hom_equiv _ _ _)).
+    <span class="bp">exact</span> (left_adjoint_preserves_initial
+             _
+             (sym_mon_closed_left_tensor_left_adjoint V y)
+             _
+             (pr2 v)
+             x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Binary coproducts</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">SelfEnrichedCoproduct</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : V}
+            (<span class="nv">c</span> : BinCoproduct x y).
+
+    <span class="kn">Let</span> <span class="nf">ι₁</span> : I_{V} --&gt; x ⊸ c
+      := enriched_from_arr
+           (self_enrichment V)
+           (BinCoproductIn1 c).
+
+    <span class="kn">Let</span> <span class="nf">ι₂</span> : I_{V} --&gt; y ⊸ c
+      := enriched_from_arr
+           (self_enrichment V)
+           (BinCoproductIn2 c).
+
+    <span class="kn">Definition</span> <span class="nf">make_self_enriched_binary_coprod_cocone</span>
+      : enriched_binary_coprod_cocone (self_enrichment V) x y.
+    <span class="kn">Proof</span>.
+      use make_enriched_binary_coprod_cocone.
+      - <span class="bp">exact</span> c.
+      - <span class="bp">exact</span> ι₁.
+      - <span class="bp">exact</span> ι₂.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_binary_coprod_paths_weq</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">f</span> : z --&gt; x ⊸ w)
+               (<span class="nv">g</span> : z --&gt; y ⊸ w)
+               (<span class="nv">fg</span> : z --&gt; c ⊸ w)
+      : (fg · precomp_arr (self_enrichment V) w (internal_to_arr ι₁) = f
+         ×
+         fg · precomp_arr (self_enrichment V) w (internal_to_arr ι₂) = g)
+        ≃
+        (identity z #⊗ BinCoproductIn1 c · (fg #⊗ identity c · internal_eval c w)
+         =
+         f #⊗ identity x · internal_eval x w)
+        ×
+        (identity z #⊗ BinCoproductIn2 c · (fg #⊗ identity c · internal_eval c w)
+         =
+         g #⊗ identity y · internal_eval y w).
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">intros</span> pq.
+        <span class="nb">split</span>.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- tensor_split.
+          <span class="nb">pose</span> (p := pr1 pq) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> self_enrichment_precomp <span class="k">in</span> p.
+          <span class="nb">rewrite</span> &lt;- p.
+          <span class="nb">rewrite</span> tensor_comp_r_id_r.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- tensor_split'.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> internal_to_from_arr.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- tensor_split.
+          <span class="nb">pose</span> (p := pr2 pq) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> self_enrichment_precomp <span class="k">in</span> p.
+          <span class="nb">rewrite</span> &lt;- p.
+          <span class="nb">rewrite</span> tensor_comp_r_id_r.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- tensor_split'.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> internal_to_from_arr.
+          <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> pq.
+        <span class="nb">split</span>.
+        + <span class="nb">pose</span> (p := pr1 pq).
+          <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+          <span class="nb">rewrite</span> &lt;- tensor_split <span class="k">in</span> p.
+          use internal_funext.
+          <span class="nb">intros</span> a h.
+          <span class="nb">rewrite</span> tensor_comp_r_id_r.
+          <span class="nb">rewrite</span> self_enrichment_precomp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">rewrite</span> (tensor_split f h).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- p.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> internal_to_from_arr.
+        + <span class="nb">pose</span> (p := pr2 pq) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+          <span class="nb">rewrite</span> &lt;- tensor_split <span class="k">in</span> p.
+          use internal_funext.
+          <span class="nb">intros</span> a h.
+          <span class="nb">rewrite</span> tensor_comp_r_id_r.
+          <span class="nb">rewrite</span> self_enrichment_precomp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> internal_beta.
+          <span class="nb">rewrite</span> (tensor_split g h).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> &lt;- p.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> internal_to_from_arr.
+      - <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      - <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_binary_coprod_weq</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">f</span> : z --&gt; x ⊸ w)
+               (<span class="nv">g</span> : z --&gt; y ⊸ w)
+      : (∑ (fg : z --&gt; c ⊸ w),
+         fg · precomp_arr (self_enrichment V) w (internal_to_arr ι₁) = f
+         ×
+         fg · precomp_arr (self_enrichment V) w (internal_to_arr ι₂) = g)
+        ≃
+        (∑ (fg : z ⊗ c --&gt; w),
+         identity z #⊗ BinCoproductIn1 c · fg = f #⊗ identity x · internal_eval x w
+         ×
+         identity z #⊗ BinCoproductIn2 c · fg = g #⊗ identity y · internal_eval y w).
+    <span class="kn">Proof</span>.
+      use weqtotal2.
+      - <span class="bp">exact</span> (internal_hom_equiv z c w).
+      - <span class="bp">exact</span> (self_enriched_is_binary_coprod_paths_weq f g).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_binary_coprod</span>
+      : is_binary_coprod_enriched
+          (self_enrichment V)
+          x y
+          make_self_enriched_binary_coprod_cocone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w z f g.
+      use (iscontrweqb (self_enriched_is_binary_coprod_weq f g)).
+      <span class="nb">apply</span> (left_adjoint_preserves_bincoproduct
+               _
+               (sym_mon_closed_left_tensor_left_adjoint V z)
+               _ _ _ _ _
+               (pr2 c)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SelfEnrichedCoproduct</span>.
+
+  <span class="kn">Definition</span> <span class="nf">self_enrichment_binary_coproducts</span>
+             (<span class="nv">coprodV</span> : BinCoproducts V)
+    : enrichment_binary_coprod (self_enrichment V)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>,
+       make_self_enriched_binary_coprod_cocone (coprodV x y)
+       ,,
+       self_enriched_is_binary_coprod (coprodV x y).
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Coequalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">SelfEnrichmentCoequalizer</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : V}
+            {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+            (<span class="nv">c</span> : Coequalizer f g).
+
+    <span class="kn">Let</span> <span class="nf">e</span> : y --&gt; c := CoequalizerArrow c.
+
+    <span class="kn">Definition</span> <span class="nf">make_self_enriched_coequalizer_cocone</span>
+      : enriched_coequalizer_cocone (self_enrichment V) f g.
+    <span class="kn">Proof</span>.
+      use make_enriched_coequalizer_cocone.
+      - <span class="bp">exact</span> c.
+      - <span class="bp">exact</span> (enriched_from_arr (self_enrichment V) e).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !internal_to_from_arr ;
+           <span class="bp">exact</span> (CoequalizerEqAr c)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_coequalizer_path_weq</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">h</span> : z --&gt; y ⊸ w)
+               (<span class="nv">φ</span> : z --&gt; c ⊸ w)
+      : (φ · precomp_arr (self_enrichment V) w (internal_to_arr (internal_from_arr e))
+         =
+         h)
+        ≃
+        (identity z #⊗ CoequalizerArrow c · (φ #⊗ identity c · internal_eval c w)
+         =
+         h #⊗ identity y · internal_eval y w).
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">intro</span> p.
+        <span class="nb">rewrite</span> self_enrichment_precomp <span class="k">in</span> p.
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> internal_to_from_arr.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split.
+        <span class="nb">rewrite</span> &lt;- tensor_split'.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intro</span> p.
+        use internal_funext.
+        <span class="nb">intros</span> a k.
+        <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+        <span class="nb">rewrite</span> &lt;- tensor_split <span class="k">in</span> p.
+        <span class="nb">rewrite</span> self_enrichment_precomp.
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> internal_to_from_arr.
+        <span class="nb">rewrite</span> (tensor_split h k).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- p.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">apply</span> homset_property.
+      - <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_coequalizer_weq</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">h</span> : z --&gt; y ⊸ w)
+               (<span class="nv">r</span> : h · precomp_arr (self_enrichment V) w f
+                    =
+                    h · precomp_arr (self_enrichment V) w g)
+      : (∑ (φ : z --&gt; c ⊸ w),
+         φ · precomp_arr (self_enrichment V) w (internal_to_arr (internal_from_arr e)) = h)
+        ≃
+        (∑ (φ : z ⊗ c --&gt; w),
+         identity z #⊗ CoequalizerArrow c · φ = h #⊗ identity _ · internal_eval y w).
+    <span class="kn">Proof</span>.
+      use weqtotal2.
+      - <span class="bp">exact</span> (internal_hom_equiv z c w).
+      - <span class="bp">exact</span> (self_enriched_is_coequalizer_path_weq h).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_self_enriched_is_coequalizer</span>
+      : is_coequalizer_enriched
+          (self_enrichment V)
+          f g
+          make_self_enriched_coequalizer_cocone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w z h r.
+      use (iscontrweqb (self_enriched_is_coequalizer_weq h r)).
+      <span class="nb">refine</span> (left_adjoint_preserves_coequalizer
+                _
+                (sym_mon_closed_left_tensor_left_adjoint V z)
+                _ _ _ _ _ _ _ _
+                (pr22 c)
+                _ _ _).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> CoequalizerEqAr.
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z #⊗ identity _ · internal_eval _ _) r)
+             <span class="k">as</span> r' ;
+           <span class="nb">cbn</span> <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !self_enrichment_precomp <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !tensor_comp_id_r <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !assoc' <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !internal_beta <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !assoc <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> &lt;- !tensor_split' <span class="k">in</span> r' ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> &lt;- !tensor_split ;
+           <span class="bp">exact</span> r').
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SelfEnrichmentCoequalizer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">self_enrichment_coequalizers</span>
+             (<span class="nv">coeqV</span> : Coequalizers V)
+    : enrichment_coequalizers (self_enrichment V)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span>,
+       make_self_enriched_coequalizer_cocone (coeqV x y f g)
+       ,,
+       make_self_enriched_is_coequalizer (coeqV x y f g).
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Copowers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">SelfEnrichmentCopower</span>.
+    <span class="kn">Context</span> (<span class="nv">v₁</span> <span class="nv">v₂</span> : V).
+
+    <span class="kn">Definition</span> <span class="nf">self_enrichment_copower_cocone</span>
+      : copower_cocone (self_enrichment V) v₁ v₂.
+    <span class="kn">Proof</span>.
+      use make_copower_cocone.
+      - <span class="bp">exact</span> (v₁ ⊗ v₂).
+      - <span class="bp">exact</span> (internal_pair v₁ v₂).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">self_enrichment_is_copower_eq_1</span>
+                (<span class="nv">w</span> : V)
+      : is_copower_enriched_map
+          (self_enrichment V)
+          v₁ v₂
+          self_enrichment_copower_cocone
+          w
+        · internal_uncurry v₁ v₂ w
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> a h.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_uncurry.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">unfold</span> is_copower_enriched_map.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> &lt;- tensor_id_id.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+        <span class="nb">rewrite</span> internal_beta ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> tensor_comp_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> internal_comp.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">unfold</span> internal_pair.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> mon_rassociator_lassociator.
+      <span class="nb">apply</span> id_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">self_enrichment_is_copower_eq_2</span>
+                (<span class="nv">w</span> : V)
+      : internal_uncurry v₁ v₂ w
+        · is_copower_enriched_map
+            (self_enrichment V)
+            v₁ v₂
+            self_enrichment_copower_cocone
+            w
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      use internal_funext ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> a₁ h₁.
+      <span class="nb">rewrite</span> tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> is_copower_enriched_map ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> internal_beta.
+      use internal_funext ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> a₂ h₂.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_comp.
+      <span class="nb">rewrite</span> internal_beta.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_lassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">unfold</span> internal_pair.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_lassociator.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_split.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">unfold</span> internal_uncurry.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> tensor_rassociator.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> mon_lassociator_rassociator.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enrichment_is_copower</span>
+      : is_copower_enriched
+          (self_enrichment V)
+          v₁ v₂
+          self_enrichment_copower_cocone.
+    <span class="kn">Proof</span>.
+      use make_is_copower_enriched.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span>, internal_uncurry v₁ v₂ w).
+      - <span class="bp">exact</span> self_enrichment_is_copower_eq_1.
+      - <span class="bp">exact</span> self_enrichment_is_copower_eq_2.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SelfEnrichmentCopower</span>.
+
+  <span class="kn">Definition</span> <span class="nf">self_enrichment_copowers</span>
+    : enrichment_copower (self_enrichment V)
+    := <span class="k">λ</span> <span class="nv">v₁</span> <span class="nv">v₂</span>,
+       self_enrichment_copower_cocone v₁ v₂
+       ,,
+       self_enrichment_is_copower v₁ v₂.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Type indexed coproducts</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">SelfEnrichmentTypeCoproduct</span>.
+    <span class="kn">Context</span> {<span class="nv">J</span> : UU}
+            {<span class="nv">D</span> : J → V}
+            (<span class="nv">coprod</span> : Coproduct J V D).
+
+    <span class="kn">Let</span> <span class="nf">ι</span> : ∏ (j : J), I_{V} --&gt; D j ⊸ coprod
+      := <span class="k">λ</span> <span class="nv">j</span>,
+         enriched_from_arr
+           (self_enrichment V)
+           (CoproductIn _ _ coprod j).
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_coprod_cocone</span>
+      : enriched_coprod_cocone (self_enrichment V) D.
+    <span class="kn">Proof</span>.
+      use make_enriched_coprod_cocone.
+      - <span class="bp">exact</span> coprod.
+      - <span class="bp">exact</span> ι.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_coprod_weq_path</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">f</span> : ∏ (j : J), z --&gt; D j ⊸ w)
+               (<span class="nv">fs</span> : z --&gt; coprod ⊸ w)
+               (<span class="nv">j</span> : J)
+      : (fs · precomp_arr
+                (self_enrichment V)
+                w
+                (internal_to_arr (internal_from_arr (CoproductIn J V coprod j)))
+         =
+         f j)
+        ≃
+        (identity z #⊗ CoproductIn J V coprod j
+         · (fs #⊗ identity coprod · internal_eval coprod w)
+         =
+         f j #⊗ identity (D j) · internal_eval (D j) w).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> internal_to_from_arr.
+      <span class="nb">rewrite</span> self_enrichment_precomp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_split.
+      use weqimplimpl.
+      - <span class="nb">intro</span> p.
+        <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z #⊗ identity _ · internal_eval _ _) p) <span class="k">as</span> q.
+        <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="nb">rewrite</span> tensor_comp_id_r <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !assoc' <span class="k">in</span> q.
+        <span class="nb">rewrite</span> internal_beta <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !assoc <span class="k">in</span> q.
+        <span class="nb">rewrite</span> &lt;- tensor_split' <span class="k">in</span> q.
+        <span class="bp">exact</span> q.
+      - <span class="nb">intro</span> p.
+        use internal_funext.
+        <span class="nb">intros</span> a h.
+        <span class="nb">rewrite</span> tensor_comp_r_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> internal_beta.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> (tensor_split fs h).
+        <span class="nb">rewrite</span> (tensor_split (f j) h).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_split'.
+        <span class="bp">exact</span> p.
+      - <span class="nb">apply</span> homset_property.
+      - <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_coprod_weq</span>
+               {<span class="nv">w</span> <span class="nv">z</span> : V}
+               (<span class="nv">f</span> : ∏ (j : J), z --&gt; D j ⊸ w)
+      : (∑ (fs : z --&gt; coprod ⊸ w),
+         ∏ (j : J),
+         fs · precomp_arr (self_enrichment V) w (internal_to_arr (ι j)) = f j)
+        ≃
+        (∑ (fs : z ⊗ coprod --&gt; w),
+         ∏ (j : J),
+         identity z #⊗ CoproductIn _ _ coprod j · fs
+         =
+         f j #⊗ identity _ · internal_eval (D j) w).
+    <span class="kn">Proof</span>.
+      use weqtotal2.
+      - <span class="bp">exact</span> (internal_hom_equiv z coprod w).
+      - <span class="nb">intro</span> fs ; <span class="nb">cbn</span> -[ι].
+        use weqonsecfibers.
+        <span class="nb">intro</span> j.
+        <span class="nb">apply</span> self_enriched_is_coprod_weq_path.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">self_enriched_is_coprod</span>
+      : is_coprod_enriched (self_enrichment V) D self_enriched_coprod_cocone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w z f.
+      use (iscontrweqb (self_enriched_is_coprod_weq f)).
+      <span class="nb">apply</span> (left_adjoint_preserves_coproduct
+               _
+               (sym_mon_closed_left_tensor_left_adjoint V z)
+                _ _ _ _
+               (pr2 coprod)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SelfEnrichmentTypeCoproduct</span>.
+
+  <span class="kn">Definition</span> <span class="nf">self_enrichment_coprod</span>
+             (<span class="nv">J</span> : UU)
+             (<span class="nv">HV</span> : Coproducts J V)
+    : enrichment_coprod (self_enrichment V) J
+    := <span class="k">λ</span> <span class="nv">D</span>,
+       self_enriched_coprod_cocone (HV D)
+       ,,
+       self_enriched_is_coprod (HV D).
+<span class="kn">End</span> <span class="nf">SelfEnrichmentColimits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Colimits/Examples/SelfEnrichedColimits.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Type indexed coproducts
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalCategoriesReordered.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Section</span> <span class="nf">MonoidalStructReordered</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit</span> (<span class="nv">C</span> : category) : UU := bifunctor C C C × C.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_to_tensor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C)
+    : bifunctor C C C := pr1 tu.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_to_tensor</span> : tensor_unit &gt;-&gt; bifunctor.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_to_unit</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C)
+    : ob C := pr2 tu.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_to_unit</span> : tensor_unit &gt;-&gt; ob.
+
+  <span class="c">(* Unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">laxleftunitor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ lu : leftunitor_data tu tu, leftunitor_nat lu.
+  <span class="kn">Definition</span> <span class="nf">laxleftunitor_to_lunitor_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">lu</span> : laxleftunitor tu)
+    : leftunitor_data tu tu := pr1 lu.
+  <span class="kn">Coercion</span> <span class="nf">laxleftunitor_to_lunitor_data</span> : laxleftunitor &gt;-&gt; leftunitor_data.
+  <span class="kn">Definition</span> <span class="nf">laxleftunitor_to_lunitor_nat</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">lu</span> : laxleftunitor tu)
+    : leftunitor_nat lu := pr2 lu.
+
+  <span class="kn">Definition</span> <span class="nf">laxrightunitor</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ ru : rightunitor_data tu tu, rightunitor_nat ru.
+  <span class="kn">Definition</span> <span class="nf">laxrightunitor_to_runitor_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ru</span> : laxrightunitor tu)
+    : rightunitor_data tu tu := pr1 ru.
+  <span class="kn">Coercion</span> <span class="nf">laxrightunitor_to_runitor_data</span> : laxrightunitor &gt;-&gt; rightunitor_data.
+  <span class="kn">Definition</span> <span class="nf">laxrightunitor_to_runitor_nat</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">ru</span> : laxrightunitor tu)
+    : rightunitor_nat ru := pr2 ru.
+
+  <span class="kn">Definition</span> <span class="nf">laxassociator</span> {<span class="nv">C</span> : category} (<span class="nv">tu</span> : tensor_unit C) : UU
+    := ∑ α : associator_data tu,
+        (associator_nat_leftwhisker α) × (associator_nat_rightwhisker α) ×
+    (associator_nat_leftrightwhisker α).
+  <span class="kn">Definition</span> <span class="nf">laxassociator_to_associator_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : laxassociator tu)
+    : associator_data tu := pr1 α.
+  <span class="kn">Coercion</span> <span class="nf">laxassociator_to_associator_data</span> : laxassociator &gt;-&gt; associator_data.
+  <span class="kn">Definition</span> <span class="nf">laxassociator_to_associator_nat_left</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : laxassociator tu)
+    : associator_nat_leftwhisker α := pr12 α.
+  <span class="kn">Definition</span> <span class="nf">laxassociator_to_associator_nat_right</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : laxassociator tu)
+    : associator_nat_rightwhisker α := pr122 α.
+  <span class="kn">Definition</span> <span class="nf">laxassociator_to_associator_nat_leftright</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tu</span> : tensor_unit C} (<span class="nv">α</span> : laxassociator tu)
+    : associator_nat_leftrightwhisker α := pr222 α.
+
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator</span> (<span class="nv">C</span> : category) : UU
+    := ∑ tu : tensor_unit C, laxleftunitor tu × laxrightunitor tu × laxassociator tu.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_to_tensor_unit</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : tensor_unit C := pr1 tuua.
+  <span class="kn">Coercion</span> <span class="nf">tensor_unit_unitors_associator_to_tensor_unit</span>
+    : tensor_unit_unitors_associator &gt;-&gt; tensor_unit.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_laxleftunitor</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : laxleftunitor tuua := pr12 tuua.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_laxrightunitor</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : laxrightunitor tuua := pr122 tuua.
+  <span class="kn">Definition</span> <span class="nf">tensor_unit_unitors_associator_laxassociator</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C)
+    : laxassociator tuua := pr222 tuua.
+
+  <span class="c">(* Triangle-pentagon identities and inverses *)</span>
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_leftunitor_inverse</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> :  tensor_unit_unitors_associator C) : UU
+    := ∑ lui : leftunitorinv_data M M,
+        leftunitor_iso_law (tensor_unit_unitors_associator_laxleftunitor M) lui.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_leftunitor_inverse_to_inverse_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">lui</span> : lax_monoidal_leftunitor_inverse M)
+    : leftunitorinv_data M M := pr1 lui.
+  <span class="kn">Coercion</span> <span class="nf">lax_monoidal_leftunitor_inverse_to_inverse_data</span>
+    : lax_monoidal_leftunitor_inverse &gt;-&gt; leftunitorinv_data.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_leftunitor_inverse_to_inverse_law</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">lui</span> : lax_monoidal_leftunitor_inverse M)
+    : leftunitor_iso_law (tensor_unit_unitors_associator_laxleftunitor M) lui
+    := pr2 lui.
+
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_rightunitor_inverse</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : tensor_unit_unitors_associator C) : UU
+    := ∑ lui : rightunitorinv_data M M,
+        rightunitor_iso_law (tensor_unit_unitors_associator_laxrightunitor M) lui.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_rightunitor_inverse_to_inverse_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">lui</span> : lax_monoidal_rightunitor_inverse M)
+    : rightunitorinv_data M M := pr1 lui.
+  <span class="kn">Coercion</span> <span class="nf">lax_monoidal_rightunitor_inverse_to_inverse_data</span>
+    : lax_monoidal_rightunitor_inverse &gt;-&gt; rightunitorinv_data.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_rightunitor_inverse_to_inverse_law</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">lui</span> : lax_monoidal_rightunitor_inverse M)
+    : rightunitor_iso_law (tensor_unit_unitors_associator_laxrightunitor M) lui
+    := pr2 lui.
+
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_associator_inverse</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : tensor_unit_unitors_associator C) : UU
+    := ∑ lui : associatorinv_data M,
+        associator_iso_law (tensor_unit_unitors_associator_laxassociator M) lui.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_associator_inverse_to_inverse_data</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">lui</span> : lax_monoidal_associator_inverse M)
+    : associatorinv_data M := pr1 lui.
+  <span class="kn">Coercion</span> <span class="nf">lax_monoidal_associator_inverse_to_inverse_data</span>
+    : lax_monoidal_associator_inverse &gt;-&gt; associatorinv_data.
+  <span class="kn">Definition</span> <span class="nf">lax_monoidal_associator_inverse_to_inverse_law</span>
+             {<span class="nv">C</span> : category} {<span class="nv">M</span> : tensor_unit_unitors_associator C} (<span class="nv">lui</span> : lax_monoidal_associator_inverse M)
+    : associator_iso_law (tensor_unit_unitors_associator_laxassociator M) lui
+    := pr2 lui.
+
+  <span class="kn">Definition</span> <span class="nf">unitorsassociator_inverses</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C) : UU
+    := lax_monoidal_leftunitor_inverse tuua
+                                        × lax_monoidal_rightunitor_inverse tuua
+                                        × lax_monoidal_associator_inverse tuua.
+
+  <span class="kn">Definition</span> <span class="nf">unitorsassociator_inverses_to_leftunitorinverse</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tuua</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">ui</span> : unitorsassociator_inverses tuua)
+    : lax_monoidal_leftunitor_inverse tuua := pr1 ui.
+
+  <span class="kn">Definition</span> <span class="nf">unitorsassociator_inverses_to_rightunitorinverse</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tuua</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">ui</span> : unitorsassociator_inverses tuua)
+    : lax_monoidal_rightunitor_inverse tuua := pr12 ui.
+
+  <span class="kn">Definition</span> <span class="nf">unitorsassociator_inverses_to_associatorinverse</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tuua</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">ui</span> : unitorsassociator_inverses tuua)
+    : lax_monoidal_associator_inverse tuua := pr22 ui.
+
+  <span class="kn">Definition</span> <span class="nf">pentagontriangle</span>
+             {<span class="nv">C</span> : category} (<span class="nv">tuua</span> : tensor_unit_unitors_associator C) : UU
+    := triangle_identity
+        (tensor_unit_unitors_associator_laxleftunitor tuua)
+        (tensor_unit_unitors_associator_laxrightunitor tuua)
+        (tensor_unit_unitors_associator_laxassociator tuua)
+        ×
+       pentagon_identity
+       (tensor_unit_unitors_associator_laxassociator tuua).
+
+  <span class="kn">Definition</span> <span class="nf">pentagontriangle_to_triangle</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tuua</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">pt</span> : pentagontriangle tuua)
+    : triangle_identity
+        (tensor_unit_unitors_associator_laxleftunitor tuua)
+        (tensor_unit_unitors_associator_laxrightunitor tuua)
+        (tensor_unit_unitors_associator_laxassociator tuua)
+    := pr1 pt.
+
+  <span class="kn">Definition</span> <span class="nf">pentagontriangle_to_pentagon</span>
+             {<span class="nv">C</span> : category} {<span class="nv">tuua</span> : tensor_unit_unitors_associator C}
+             (<span class="nv">pt</span> : pentagontriangle tuua)
+    : pentagon_identity
+       (tensor_unit_unitors_associator_laxassociator tuua)
+    := pr2 pt.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct</span> (<span class="nv">C</span> : category) : UU
+    := ∑ M : tensor_unit_unitors_associator C,
+        pentagontriangle M × unitorsassociator_inverses M.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_tensor_unit_unitors_associator</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : tensor_unit_unitors_associator C := pr1 M.
+  <span class="kn">Coercion</span> <span class="nf">monoidal_struct_to_tensor_unit_unitors_associator</span>
+    : monoidal_struct &gt;-&gt; tensor_unit_unitors_associator.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_pentagontriangle</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : pentagontriangle M
+    := pr12 M.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_unitorsassociator_inverses</span>
+             {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : unitorsassociator_inverses M := pr22 M.
+
+<span class="kn">End</span> <span class="nf">MonoidalStructReordered</span>.
+
+<span class="kn">Section</span> <span class="nf">ReorderingMonStructEquivalence</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_to_tensor_unit</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : tensor_unit C := monoidal_tensor M ,, monoidal_unit M.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_to_tensor_unit_unitors_associator</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : tensor_unit_unitors_associator C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">monoidal_to_tensor_unit</span> <span class="nv">M</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="k">exists</span> (<span class="nv">monoidal_leftunitordata</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_leftunitornat M).
+    - <span class="k">exists</span> (<span class="nv">monoidal_rightunitordata</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_rightunitornat M).
+    - <span class="k">exists</span> (<span class="nv">monoidal_associatordata</span> <span class="nv">M</span>).
+      <span class="k">exists</span> (<span class="nv">monoidal_associatornatleft</span> <span class="nv">M</span>).
+      <span class="k">exists</span> (<span class="nv">monoidal_associatornatright</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_associatornatleftright M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_to_monoidal_struct</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal C)
+    : monoidal_struct C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">monoidal_to_tensor_unit_unitors_associator</span> <span class="nv">M</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (monoidal_triangleidentity M).
+    - <span class="bp">exact</span> (monoidal_pentagonidentity M).
+    - <span class="k">exists</span> (<span class="nv">monoidal_leftunitorinvdata</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_leftunitorisolaw M).
+    - <span class="k">exists</span> (<span class="nv">monoidal_rightunitorinvdata</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_rightunitorisolaw M).
+    - <span class="k">exists</span> (<span class="nv">monoidal_associatorinvdata</span> <span class="nv">M</span>).
+      <span class="bp">exact</span> (monoidal_associatorisolaw M).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_monoidal_data</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : monoidal_data C.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tuua := monoidal_struct_to_tensor_unit_unitors_associator M).
+    <span class="nb">set</span> (tu := tensor_unit_unitors_associator_to_tensor_unit tuua).
+    <span class="nb">set</span> (ui := (monoidal_struct_to_unitorsassociator_inverses M)).
+    <span class="k">exists</span> (<span class="nv">tensor_unit_to_tensor</span> <span class="nv">tu</span>).
+    <span class="k">exists</span> (<span class="nv">tensor_unit_to_unit</span> <span class="nv">tu</span>).
+    <span class="k">exists</span> (<span class="nv">tensor_unit_unitors_associator_laxleftunitor</span> <span class="nv">tuua</span>).
+    <span class="k">exists</span> (<span class="nv">unitorsassociator_inverses_to_leftunitorinverse</span> <span class="nv">ui</span>).
+    <span class="k">exists</span> (<span class="nv">pr1</span> (tensor_unit_unitors_associator_laxrightunitor tuua)).
+    <span class="k">exists</span> (<span class="nv">unitorsassociator_inverses_to_rightunitorinverse</span> <span class="nv">ui</span>).
+    <span class="k">exists</span> (<span class="nv">tensor_unit_unitors_associator_laxassociator</span> <span class="nv">tuua</span>).
+    <span class="bp">exact</span> (unitorsassociator_inverses_to_associatorinverse ui).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_monoidal_laws</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : monoidal_laws (monoidal_struct_to_monoidal_data M).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tuua := monoidal_struct_to_tensor_unit_unitors_associator M).
+    <span class="nb">set</span> (tu := tensor_unit_unitors_associator_to_tensor_unit tuua).
+    <span class="nb">set</span> (ui := (monoidal_struct_to_unitorsassociator_inverses M)).
+    <span class="k">exists</span> (<span class="nv">pr2</span> (pr111 M)).
+    <span class="k">exists</span> (<span class="nv">laxleftunitor_to_lunitor_nat</span> <span class="nv">_</span> ,, <span class="nv">lax_monoidal_leftunitor_inverse_to_inverse_law</span> <span class="nv">_</span>).
+    <span class="k">exists</span> (<span class="nv">laxrightunitor_to_runitor_nat</span> <span class="nv">_</span> ,, <span class="nv">lax_monoidal_rightunitor_inverse_to_inverse_law</span> <span class="nv">_</span>).
+    <span class="nb">split</span>.
+    - <span class="k">exists</span> (<span class="nv">laxassociator_to_associator_nat_left</span> <span class="nv">_</span>).
+      <span class="k">exists</span> (<span class="nv">laxassociator_to_associator_nat_right</span> <span class="nv">_</span>).
+      <span class="k">exists</span> (<span class="nv">laxassociator_to_associator_nat_leftright</span> <span class="nv">_</span>).
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span> ; <span class="nb">apply</span> lax_monoidal_associator_inverse_to_inverse_law.
+    - <span class="nb">apply</span> monoidal_struct_to_pentagontriangle.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_to_monoidal</span> {<span class="nv">C</span> : category} (<span class="nv">M</span> : monoidal_struct C)
+    : monoidal C
+    := monoidal_struct_to_monoidal_data M ,, monoidal_struct_to_monoidal_laws M.
+
+  <span class="kn">Definition</span> <span class="nf">monoidal_struct_equiv_monoidal</span> (<span class="nv">C</span> : category)
+    : monoidal_struct C ≃ monoidal C.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> monoidal_struct_to_monoidal.
+    - <span class="bp">exact</span> monoidal_to_monoidal_struct.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ReorderingMonStructEquivalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalCategoriesReordered.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

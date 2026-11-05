@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryOfSetGroupoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************************************</span>
+
+<span class="sd"> The category of setgroupoids</span>
+
+<span class="sd"> In this file, we define the category of setgroupoids, which are groupoids whose type of objects</span>
+<span class="sd"> is a set. We also characterize the isomorphisms in this category and we prove that this category</span>
+<span class="sd"> is univalent.</span>
+
+<span class="sd"> At first instance, this might seem as the `wrong' thing to do in univalent foundations. After</span>
+<span class="sd"> all, we have univalent groupoids (aka 1-types), and it is generally better to work with those. The key</span>
+<span class="sd"> difference between univalent groupoids and setgroupoids is that the former is identified up to</span>
+<span class="sd"> adjoint equivalence, whereas the latter is identified up to isomorphism of groupoids. This</span>
+<span class="sd"> difference is quite fundamental, and one consequence is that we have a univalent bicategory of</span>
+<span class="sd"> univalent groupoids, and a univalent category of setgroupoids.</span>
+
+<span class="sd"> This difference also affects how one incarnates the groupoid model of type theory. We have</span>
+<span class="sd"> at least two ways to define the groupoid model:</span>
+<span class="sd"> - As a univalent bicategory. Contexts are interpreted as univalent groupoids.</span>
+<span class="sd"> - As a univalent category. Contexts are interpreted as setgroupoids.</span>
+<span class="sd"> If we study the groupoid model as a univalent bicategory, then we necessarily get a</span>
+<span class="sd"> 2-dimensional syntax. However, if our goal is to develop a 1-dimensional syntax, then we can</span>
+<span class="sd"> use setgroupoids instead. For this reason, we define the univalent category of setgroupoids in</span>
+<span class="sd"> this file.</span>
+
+<span class="sd"> Note that one would usually define the category of setgroupoids as a full subcategory of the</span>
+<span class="sd"> category of setcategories, we take a difference approach here. This is because the definitions</span>
+<span class="sd"> of full subcategory of some category `C` in UniMath do not have exactly the same morphisms as</span>
+<span class="sd"> `C`, but instead they also have contain an element of the unit type. Since we want the morphisms</span>
+<span class="sd"> between setgroupoids to exactly be functors, we define this category by hand. However, we reuse</span>
+<span class="sd"> the laws of the category of setcategories.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'Bicategorical type theory: semantics and syntax' by Ahrens, North, Van der Weide</span>
+<span class="sd"> - 'Two-dimensional models of type theory' by Garner</span>
+<span class="sd"> - 'The groupoid interpretation of type theory' by Hofmann and Streicher</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Groupoids whose objects form a set</span>
+<span class="sd"> 2. The category of setgroupoids</span>
+<span class="sd"> 3. Isomorphisms</span>
+<span class="sd"> 4. The univalent category of setgroupoids</span>
+
+<span class="sd"> ************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Groupoids whose objects form a set *)</span>
+<span class="kn">Definition</span> <span class="nf">setgroupoid</span>
+  : UU
+  := ∑ (C : setcategory), is_pregroupoid C.
+
+<span class="kn">Definition</span> <span class="nf">make_setgroupoid</span>
+           (<span class="nv">C</span> : setcategory)
+           (<span class="nv">HC</span> : is_pregroupoid C)
+  : setgroupoid
+  := C ,, HC.
+
+<span class="kn">Coercion</span> <span class="nf">setgroupoid_to_setcategory</span>
+         (G : setgroupoid)
+  : setcategory
+  := pr1 G.
+
+<span class="kn">Proposition</span> <span class="nf">isgroupoid_setgroupoid</span>
+            {<span class="nv">G</span> : setgroupoid}
+            {<span class="nv">x</span> <span class="nv">y</span> : G}
+            (<span class="nv">f</span> : x --&gt; y)
+  : is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 G x y f).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The category of setgroupoids *)</span>
+<span class="kn">Definition</span> <span class="nf">precat_ob_mor_of_setgroupoid</span>
+  : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  use make_precategory_ob_mor.
+  - <span class="bp">exact</span> setgroupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">G₁</span> <span class="nv">G₂</span> : setgroupoid), cat_of_setcategory ⟦ pr1 G₁ , pr1 G₂ ⟧).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_data_of_setgroupoid</span>
+  : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> precat_ob_mor_of_setgroupoid.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">G</span> : setgroupoid), functor_identity G).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> (<span class="nv">F₁</span> : _ ⟶ _) (<span class="nv">F₂</span> : _ ⟶ _), F₁ ∙ F₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_precategory_cat_of_setgroupoid</span>
+  : is_precategory precat_data_of_setgroupoid.
+<span class="kn">Proof</span>.
+  use make_is_precategory_one_assoc.
+  - <span class="nb">intros</span> G₁ G₂ F.
+    <span class="nb">apply</span> (id_left (C := cat_of_setcategory)).
+  - <span class="nb">intros</span> G₁ G₂ F.
+    <span class="nb">apply</span> (id_right (C := cat_of_setcategory)).
+  - <span class="nb">intros</span> G₁ G₂ G₃ G₄ F₁ F₂ F₃.
+    <span class="nb">apply</span> (assoc (C := cat_of_setcategory)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_of_setgroupoid</span>
+  : precategory.
+<span class="kn">Proof</span>.
+  use make_precategory.
+  - <span class="bp">exact</span> precat_data_of_setgroupoid.
+  - <span class="bp">exact</span> is_precategory_cat_of_setgroupoid.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">has_homsets_setgroupoid</span>
+  : has_homsets precat_ob_mor_of_setgroupoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G₁ G₂.
+  <span class="nb">apply</span> (homset_property cat_of_setcategory).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_setgroupoid</span>
+  : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - <span class="bp">exact</span> precat_of_setgroupoid.
+  - <span class="bp">exact</span> has_homsets_setgroupoid.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Isomorphisms *)</span>
+<span class="kn">Section</span> <span class="nf">Isomorphism</span>.
+  <span class="kn">Context</span> {<span class="nv">G₁</span> <span class="nv">G₂</span> : cat_of_setgroupoid}
+          (<span class="nv">F</span> : G₁ --&gt; G₂).
+
+  <span class="kn">Proposition</span> <span class="nf">to_iso_of_set_groupoid</span>
+              (<span class="nv">HF</span> : is_z_isomorphism (C := cat_of_setcategory) F)
+    : is_z_isomorphism F.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (Fi := (F ,, HF) : z_iso _ _).
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (inv_from_z_iso Fi).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         [ <span class="nb">apply</span> (z_iso_inv_after_z_iso Fi) | <span class="nb">apply</span> (z_iso_after_z_iso_inv Fi)]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">from_iso_of_set_groupoid</span>
+              (<span class="nv">HF</span> : is_z_isomorphism F)
+    :is_z_isomorphism (C := cat_of_setcategory) F.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (Fi := (F ,, HF) : z_iso _ _).
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (inv_from_z_iso Fi).
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         [ <span class="nb">apply</span> (z_iso_inv_after_z_iso Fi) | <span class="nb">apply</span> (z_iso_after_z_iso_inv Fi)]).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Isomorphism</span>.
+
+<span class="sd">(** * 4. The univalent category of setgroupoids *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_univalent_cat_of_setgroupoid</span>
+  : is_univalent cat_of_setgroupoid.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> G₁ G₂.
+  use weqhomot.
+  - <span class="nb">refine</span> (_
+            ∘ make_weq _ (is_univalent_cat_of_setcategory (pr1 G₁) (pr1 G₂))
+            ∘ path_sigma_hprop _ _ _ _)%weq.
+    + <span class="nb">apply</span> isaprop_is_pregroupoid.
+    + use weqfibtototal.
+      <span class="nb">intro</span> F.
+      use weqimplimpl.
+      * <span class="nb">apply</span> to_iso_of_set_groupoid.
+      * <span class="nb">apply</span> from_iso_of_set_groupoid.
+      * <span class="nb">apply</span> isaprop_is_z_isomorphism.
+      * <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use z_iso_eq.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_cat_of_setgroupoid</span>
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> cat_of_setgroupoid.
+  - <span class="bp">exact</span> is_univalent_cat_of_setgroupoid.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/CategoryOfSetGroupoids.v</tt>, line 44)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The univalent category of setgroupoids
+  &gt;
+  &gt;  ************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

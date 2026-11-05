@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsAsMonoidsElementary.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** In this file, we show how any monoid in the monoidal category of endofunctors is a monad  - here w.r.t. the</span>
+<span class="sd">    elementary definition of that monoidal category</span>
+
+<span class="sd">    the bicategorical variant is found in [MonadsAsMonoidsWhiskered]</span>
+
+<span class="sd">    we also show the direction from monads to monoids, also showing</span>
+<span class="sd">    that the category of monads in C is equivalent to the category</span>
+<span class="sd">    of monoids in [C, C]</span>
+
+<span class="sd">   Contents:</span>
+<span class="sd">   1. Monads and monoids in [C, C] are equivalent</span>
+<span class="sd">   2. Monad modules and monoid modules are equivalent</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.RModules.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.EndofunctorsMonoidalElementary.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.LModules.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="sd">(** 1. Monads and monoids in [C, C] are equivalent *)</span>
+<span class="kn">Section</span> <span class="nf">FixACategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+  <span class="kn">Let</span> <span class="nf">EndC</span> : monoidal_cat := monendocat_monoidal_cat C.
+
+  <span class="kn">Let</span> <span class="nf">EndC_swapped</span> : monoidal_cat :=  _ ,, monoidal_swapped EndC.
+
+  <span class="kn">Let</span> <span class="nf">Monoid</span> : category := category_of_monoids_in_monoidal_cat EndC.
+  <span class="kn">Let</span> <span class="nf">Monad</span> : category := category_Monad C.
+
+  <span class="kn">Let</span> <span class="nf">Monoid_swapped</span> : category := category_of_monoids_in_monoidal_cat EndC_swapped.
+
+<span class="kn">Section</span> <span class="nf">MonoidToMonad</span>.
+
+<span class="kn">Section</span> <span class="nf">OnObjects</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : Monoid).
+
+  <span class="kn">Let</span> <span class="nf">x</span> := monoid_carrier _ M.
+  <span class="kn">Let</span> <span class="nf">η</span> := monoid_unit _ M.
+  <span class="kn">Let</span> <span class="nf">μ</span> := monoid_multiplication _ M.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_disp_Monad_data_CAT</span> : disp_Monad_data x := μ ,, η.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_disp_Monad_laws_CAT</span> : disp_Monad_laws monoid_to_disp_Monad_data_CAT.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> c.
+      <span class="nb">set</span> (t := monoid_right_unit_law _ M).
+      <span class="bp">exact</span> (toforallpaths _ _ _ (base_paths _ _ t) c).
+    - <span class="nb">intro</span> c.
+      <span class="nb">set</span> (t := monoid_left_unit_law _ M).
+      <span class="bp">exact</span> (toforallpaths _ _ _ (base_paths _ _ t) c).
+    - <span class="nb">intro</span> c.
+      <span class="nb">set</span> (t := monoid_assoc_law _ M).
+      <span class="nb">refine</span> (! (toforallpaths _ _ _ (base_paths _ _ t) c) @ _).
+      etrans.
+      + <span class="nb">apply</span> assoc'.
+      + <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_CAT</span> : Monad
+    := _ ,, _ ,, monoid_to_disp_Monad_laws_CAT.
+
+<span class="kn">End</span> <span class="nf">OnObjects</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monad_map_is_monad_mor</span> {<span class="nv">M</span> <span class="nv">M'</span> : Monoid} (<span class="nv">f</span> : M --&gt; M')
+    : disp_Monad_Mor_laws (monoid_to_disp_Monad_data_CAT M) (monoid_to_disp_Monad_data_CAT M') (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> f <span class="k">as</span> [f [H1 H2]]; <span class="nb">split</span>; <span class="nb">intro</span> A; <span class="nb">cbn</span> <span class="k">in</span> f, H1, H2 |- *.
+    {
+      etrans.
+      use (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x A) H1).
+      use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      etrans.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> , pr1 x A) _).
+      use vcomp_whisker_CAT.
+      <span class="bp">easy</span>.
+    }
+    use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x A) H2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_map</span>
+    (<span class="nv">M</span> <span class="nv">M'</span> : Monoid)
+    (<span class="nv">f</span> : M --&gt; M') : monoid_to_monad_CAT M --&gt; monoid_to_monad_CAT M'
+    := pr1 f ,, monoid_to_monad_map_is_monad_mor f.
+
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_functor_data</span>
+    : functor_data Monoid Monad
+    := make_functor_data monoid_to_monad_CAT monoid_to_monad_map.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monad_is_functor</span>
+    : is_functor monoid_to_monad_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> M.
+      use subtypePath; [|<span class="bp">easy</span>].
+      use isaprop_disp_Monad_Mor_laws.
+    - <span class="nb">intros</span> M1 M2 M3 f g.
+      use subtypePath; [|<span class="bp">easy</span>].
+      use isaprop_disp_Monad_Mor_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_functor</span>
+    : Monoid ⟶ Monad
+    := make_functor monoid_to_monad_functor_data monoid_to_monad_is_functor.
+
+<span class="kn">End</span> <span class="nf">MonoidToMonad</span>.
+
+<span class="kn">Section</span> <span class="nf">MonadToMonoid</span>.
+
+<span class="kn">Section</span> <span class="nf">OnObjects</span>.
+  <span class="kn">Context</span> (<span class="nv">M</span> : Monad).
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_CAT_data</span> : monoid_data EndC (functor_from_Monad M)
+    := μ M ,, η M.
+
+  <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_CAT_laws</span> :  monoid_laws EndC monad_to_monoid_CAT_data.
+  <span class="kn">Proof</span>.
+    split3; <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intro</span> c; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> Monad_law2.
+    - <span class="nb">apply</span> Monad_law1.
+    - <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> pathsinv0, Monad_law3.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_CAT_disp</span> : monoid EndC (functor_from_Monad M)
+    := monad_to_monoid_CAT_data,,monad_to_monoid_CAT_laws.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_CAT</span> : Monoid
+    := _,,monad_to_monoid_CAT_disp.
+
+<span class="kn">End</span> <span class="nf">OnObjects</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_map_is_monoid_mor</span> {<span class="nv">M</span> <span class="nv">M'</span> : Monad} (<span class="nv">f</span> : M --&gt; M')
+    : is_monoid_mor _ (monad_to_monoid_CAT_disp M) (monad_to_monoid_CAT_disp M') (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> f <span class="k">as</span> [f [H1 H2]]; <span class="nb">split</span>; (<span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property|]).
+    - <span class="nb">intro</span> A; <span class="nb">cbn</span>.
+      etrans; [|use (!H1 A)].
+      use (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      use nat_trans_ax.
+    - <span class="bp">exact</span> H2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_map</span>
+    (<span class="nv">M</span> <span class="nv">M'</span> : Monad)
+    (<span class="nv">f</span> : M --&gt; M') : monad_to_monoid_CAT M --&gt; monad_to_monoid_CAT M'
+    := pr1 f ,, monad_to_monoid_map_is_monoid_mor f.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_functor_data</span>
+    : functor_data Monad Monoid
+    := make_functor_data monad_to_monoid_CAT monad_to_monoid_map.
+
+  <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_is_functor</span>
+    : is_functor monad_to_monoid_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> M.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+    - <span class="nb">intros</span> M1 M2 M3 f g.
+      <span class="nb">apply</span> MON_mor_eq; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_functor</span>
+    : Monad ⟶ Monoid
+    := make_functor monad_to_monoid_functor_data monad_to_monoid_is_functor.
+
+<span class="kn">End</span> <span class="nf">MonadToMonoid</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monoid_to_monad_to_monoid</span>
+  (<span class="nv">M</span> : category_of_monoids_in_monoidal_cat (monendocat_monoidal C))
+  : monad_to_monoid_CAT (monoid_to_monad_CAT M) = M.
+<span class="kn">Proof</span>.
+  use (total2_paths2_f (idpath _)).
+  use subtypePath; [|<span class="bp">easy</span>].
+  use isaprop_monoid_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monad_to_monoid_to_monad</span>
+  (<span class="nv">M</span> : Monad)
+  : monoid_to_monad_CAT (monad_to_monoid_CAT M) = M.
+<span class="kn">Proof</span>.
+  use (total2_paths2_f (idpath _)).
+  use subtypePath; [|<span class="bp">easy</span>].
+  use isaprop_disp_Monad_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_id_monoid_to_monad_to_monoid_data</span>
+  : nat_trans_data (functor_identity Monad) (monad_to_monoid_functor ∙ monoid_to_monad_functor)
+  := <span class="k">λ</span> <span class="nv">M</span>,
+    transportb
+      (<span class="k">λ</span> <span class="nv">x</span>, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f)
+      (monad_to_monoid_to_monad M)
+      (nat_trans_id _ ,, monads_category_id_subproof _ (pr22 M)).
+
+<span class="kn">Lemma</span> <span class="nf">nat_id_monoid_to_monad_to_monoid_data_is_nat</span>
+  : is_nat_trans _ _ nat_id_monoid_to_monad_to_monoid_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> M M' f.
+  <span class="nb">apply</span> Monad_Mor_equiv.
+  <span class="nb">apply</span> nat_trans_eq; [use homset_property|].
+  <span class="nb">unfold</span> nat_id_monoid_to_monad_to_monoid_data, transportb.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transportf_total2.
+  <span class="nb">intro</span> A.
+  <span class="nb">induction</span> (monad_to_monoid_to_monad M'), (monad_to_monoid_to_monad M); <span class="nb">cbn</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_id_monoid_to_monad_to_monoid</span>
+  : functor_identity Monad ⟹ monad_to_monoid_functor ∙ monoid_to_monad_functor
+  := nat_id_monoid_to_monad_to_monoid_data ,, nat_id_monoid_to_monad_to_monoid_data_is_nat.
+
+<span class="kn">Definition</span> <span class="nf">nat_monad_to_monoid_to_monad_id_data</span>
+  : nat_trans_data (monoid_to_monad_functor ∙ monad_to_monoid_functor) (functor_identity Monoid)
+  := (<span class="k">λ</span> <span class="nv">M</span>, nat_trans_id _,, id_is_monoid_mor _ _).
+
+<span class="kn">Lemma</span> <span class="nf">nat_monad_to_monoid_to_monad_id_is_nat</span>
+  : is_nat_trans _ _ nat_monad_to_monoid_to_monad_id_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> M M' f.
+  <span class="nb">apply</span> MON_mor_eq.
+  <span class="nb">apply</span> nat_trans_eq; [use homset_property |].
+  <span class="nb">intro</span> A; <span class="nb">cbn</span>. <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_monad_to_monoid_to_monad_id</span>
+  : monoid_to_monad_functor ∙ monad_to_monoid_functor ⟹ functor_identity Monoid
+  := nat_monad_to_monoid_to_monad_id_data ,, nat_monad_to_monoid_to_monad_id_is_nat.
+
+<span class="kn">Definition</span> <span class="nf">adjunction_monad_monoid</span>
+  : adjunction_data Monad Monoid
+  := make_adjunction_data
+        monad_to_monoid_functor
+        monoid_to_monad_functor
+        nat_id_monoid_to_monad_to_monoid
+        nat_monad_to_monoid_to_monad_id.
+
+<span class="kn">Lemma</span> <span class="nf">adjunction_monad_monoid_equiv</span> : forms_equivalence adjunction_monad_monoid.
+<span class="kn">Proof</span>.
+  use make_forms_equivalence.
+  - <span class="nb">intro</span> M; use make_is_z_isomorphism; [|use make_is_inverse_in_precat].
+    {
+      <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, ∑ f, disp_Monad_Mor_laws (pr12 x) (pr12 x) f) (monad_to_monoid_to_monad M)).
+      <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> (monads_category_id_subproof _ (pr22 M)).
+    }
+
+    <span class="kp">all</span>: use subtypePath;
+      [use isaprop_disp_Monad_Mor_laws|];
+      <span class="nb">apply</span> nat_trans_eq; [use homset_property |]; <span class="nb">intro</span> A; <span class="nb">cbn</span>;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">unfold</span> nat_id_monoid_to_monad_to_monoid_data, transportb; <span class="nb">rewrite</span> transportf_total2; <span class="nb">cbn</span>);
+      <span class="nb">induction</span> monad_to_monoid_to_monad; <span class="nb">cbn</span>; use id_left.
+
+  - <span class="nb">intro</span> M; use make_is_z_isomorphism; [|use make_is_inverse_in_precat].
+
+    {
+      <span class="nb">eapply</span> (transportb (<span class="k">λ</span> <span class="nv">x</span>, ∑ f, is_monoid_mor _ (pr2 x) (pr2 x) f) (monoid_to_monad_to_monoid M)).
+      <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>); use id_is_monoid_mor.
+    }
+
+    <span class="kp">all</span>: <span class="nb">apply</span> MON_mor_eq; <span class="nb">apply</span> nat_trans_eq; [use homset_property |]; <span class="nb">intro</span> A; <span class="nb">cbn</span>;
+      <span class="nb">unfold</span> transportb; <span class="nb">rewrite</span> transportf_total2; <span class="nb">cbn</span>;
+      <span class="nb">induction</span> (monoid_to_monad_to_monoid M);
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_equiv_monoid_endcat</span>
+  : equivalence_of_cats Monad Monoid
+  := make_equivalence_of_cats adjunction_monad_monoid adjunction_monad_monoid_equiv.
+
+
+<span class="sd">(** 2. Monad modules and monoid modules are equivalent *)</span>
+<span class="kn">Section</span> <span class="nf">FixAMonoid</span>.
+  <span class="c">(* We show that monad left modules are equivalent to monoid left-modules, that is, right-modules for the swapped monoidal product *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">monoid'</span> : Monoid).
+  <span class="kn">Let</span> <span class="nf">monad</span> : Monad := monoid_to_monad_CAT monoid'.
+  <span class="kn">Let</span> <span class="nf">monoid</span> : Monoid_swapped := monoid_to_monoid_swapped_mon EndC monoid'.
+
+  <span class="kn">Let</span> <span class="nf">monoidModule</span> : category := MOD (pr1 monoid) (pr2 monoid).
+  <span class="kn">Let</span> <span class="nf">monadModule</span> : category := category_LModule monad C.
+
+  <span class="kn">Section</span> <span class="nf">FixAMonadModule</span>.
+    <span class="kn">Context</span> (<span class="nv">monad_module</span> : monadModule).
+    <span class="kn">Let</span> <span class="nf">M</span> : C ⟶  C := pr11 monad_module.
+    <span class="kn">Let</span> <span class="nf">bind</span> : pr1 monad ∙ M ⟹  M := pr21 monad_module.
+
+    <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_modules_laws</span>
+      : module_laws _ (pr2 monoid) bind.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> nat_trans_eq; [use homset_property |]; <span class="nb">cbn</span>; <span class="nb">intro</span>.
+        <span class="nb">rewrite</span> id_left.
+        use LModule_law2.
+      - <span class="nb">apply</span> nat_trans_eq; [use homset_property |]; <span class="nb">cbn</span>; <span class="nb">intro</span>.
+        use LModule_law1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monad_to_monoid_modules</span>
+      : monoidModule
+      := M ,, bind ,, monad_to_monoid_modules_laws.
+  <span class="kn">End</span> <span class="nf">FixAMonadModule</span>.
+
+  <span class="kn">Section</span> <span class="nf">FixAMonadModuleMorphism</span>.
+    <span class="kn">Context</span> (<span class="nv">monad_module</span> : monadModule).
+    <span class="kn">Let</span> <span class="nf">M</span> : C ⟶  C := pr11 monad_module.
+    <span class="kn">Let</span> <span class="nf">bind</span> : pr1 monad ∙ M ⟹  M := pr21 monad_module.
+
+    <span class="kn">Context</span> (<span class="nv">monad_module'</span> : monadModule).
+    <span class="kn">Let</span> <span class="nf">M'</span> : C ⟶  C := pr11 monad_module'.
+    <span class="kn">Let</span> <span class="nf">bind'</span> : pr1 monad ∙ M' ⟹  M' := pr21 monad_module'.
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : monad_module --&gt; monad_module').
+
+    <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_modules_map_is_module_mor</span>
+      : is_module_mor _ (pr2 monoid)
+        (pr2 (monad_to_monoid_modules monad_module))
+        (pr2 (monad_to_monoid_modules monad_module'))
+        (pr1 f).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> nat_trans_eq; [use homset_property |]; <span class="nb">cbn</span>.
+      use (pr2 f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monad_to_monoid_modules_map</span>
+      : monad_to_monoid_modules monad_module --&gt; monad_to_monoid_modules monad_module'
+      := pr1 f ,, monad_to_monoid_modules_map_is_module_mor.
+  <span class="kn">End</span> <span class="nf">FixAMonadModuleMorphism</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_modules_functor_data</span>
+    : functor_data monadModule monoidModule
+    := monad_to_monoid_modules ,,  monad_to_monoid_modules_map.
+
+  <span class="kn">Lemma</span> <span class="nf">monad_to_monoid_modules_functor_laws</span>
+    : is_functor monad_to_monoid_modules_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="kp">repeat</span> <span class="nb">intro</span>; <span class="nb">apply</span> MOD_mor_eq; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monad_to_monoid_modules_functor</span>
+    : monadModule ⟶ monoidModule
+    := make_functor monad_to_monoid_modules_functor_data monad_to_monoid_modules_functor_laws.
+
+  <span class="kn">Section</span> <span class="nf">FixAMonoidModule</span>.
+    <span class="kn">Context</span> (<span class="nv">monoid_module</span> : monoidModule).
+    <span class="kn">Let</span> <span class="nf">M</span> : C ⟶  C := pr1 monoid_module.
+    <span class="kn">Let</span> <span class="nf">bind</span> : pr1 monad ∙ M ⟹  M := pr12 monoid_module.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_monad_modules_laws</span>
+      : LModule_laws monad (M,, bind).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span>; <span class="nb">cbn</span>.
+        use (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f c) (module_laws_unit_from_module _ _ (pr2 monoid_module))).
+      - <span class="nb">intro</span>; <span class="nb">cbn</span>.
+        <span class="nb">symmetry</span>; <span class="nb">rewrite</span> &lt;- id_left, assoc; <span class="nb">symmetry</span>.
+        use (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, pr1 f c) (module_laws_assoc_from_module _ _ (pr2 monoid_module))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_monad_modules</span> : monadModule
+      := (M ,, bind) ,, monoid_to_monad_modules_laws.
+  <span class="kn">End</span> <span class="nf">FixAMonoidModule</span>.
+
+  <span class="kn">Section</span> <span class="nf">FixAMonoidModuleMorphism</span>.
+    <span class="kn">Context</span> (<span class="nv">monoid_module</span> : monoidModule).
+    <span class="kn">Let</span> <span class="nf">M</span> : C ⟶  C := pr1 monoid_module.
+    <span class="kn">Let</span> <span class="nf">bind</span> : pr1 monad ∙ M ⟹  M := pr12 monoid_module.
+
+    <span class="kn">Context</span> (<span class="nv">monoid_module'</span> : monoidModule).
+    <span class="kn">Let</span> <span class="nf">M'</span> : C ⟶  C := pr1 monoid_module'.
+    <span class="kn">Let</span> <span class="nf">bind'</span> : pr1 monad ∙ M' ⟹  M' := pr12 monoid_module'.
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : monoid_module --&gt; monoid_module').
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_monad_modules_map</span>
+      : monoid_to_monad_modules monoid_module --&gt; monoid_to_monad_modules monoid_module'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span>).
+      <span class="kp">abstract</span> (
+        <span class="nb">intro</span> x; <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">g</span>, pr1 g x) (pr2 f))
+      ).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FixAMonoidModuleMorphism</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_modules_functor_data</span>
+    : functor_data monoidModule monadModule
+    := monoid_to_monad_modules ,, monoid_to_monad_modules_map.
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_monad_modules_functor_laws</span>
+    : is_functor monoid_to_monad_modules_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="kp">repeat</span> <span class="nb">intro</span>;
+      <span class="nb">apply</span> LModule_Mor_equiv; <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_monad_modules_functor</span>
+    : monoidModule ⟶ monadModule
+    := make_functor monoid_to_monad_modules_functor_data monoid_to_monad_modules_functor_laws.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_monad_monoid_modules_unit</span>
+    : functor_identity _ ⟹ monad_to_monoid_modules_functor ∙ monoid_to_monad_modules_functor.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - use LModule_identity.
+    - <span class="kp">abstract</span> (
+          <span class="nb">intros</span> M M' f; <span class="nb">apply</span> LModule_Mor_equiv;
+          use nat_trans_eq; [<span class="nb">apply</span> homset_property|]; <span class="nb">intro</span>; <span class="nb">cbn</span>;
+          <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_monad_monoid_modules_counit</span>
+    : monoid_to_monad_modules_functor ∙ monad_to_monoid_modules_functor ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> M; <span class="nb">cbn</span>; <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+      <span class="kp">abstract</span> (
+          <span class="nb">apply</span> nat_trans_eq; [use homset_property|];
+          <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right
+      ).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intros</span> M M' f; <span class="nb">apply</span> MOD_mor_eq;
+          <span class="nb">apply</span> nat_trans_eq; [use homset_property|];
+          <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_monad_monoid_modules</span>
+    : adjunction_data monadModule monoidModule.
+  <span class="kn">Proof</span>.
+    use make_adjunction_data.
+    - <span class="bp">exact</span> monad_to_monoid_modules_functor.
+    - <span class="bp">exact</span> monoid_to_monad_modules_functor.
+    - <span class="bp">exact</span> adjunction_monad_monoid_modules_unit.
+    - <span class="bp">exact</span> adjunction_monad_monoid_modules_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">adjunction_monad_monoid_modules_equiv</span>
+    : forms_equivalence adjunction_monad_monoid_modules.
+  <span class="kn">Proof</span>.
+    use make_forms_equivalence.
+    - <span class="nb">intro</span> M; use make_is_z_isomorphism; <span class="nb">cbn</span>; <span class="kp">try</span> <span class="nb">split</span>.
+      + <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span>(<span class="nb">intro</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right).
+      + <span class="nb">apply</span> LModule_Mor_equiv.
+        <span class="nb">apply</span> nat_trans_eq; [use homset_property|].
+        <span class="nb">intro</span>; use id_left.
+      + <span class="nb">apply</span> LModule_Mor_equiv.
+        <span class="nb">apply</span> nat_trans_eq; [use homset_property|].
+        <span class="nb">intro</span>; use id_left.
+    - <span class="nb">intro</span> M; use make_is_z_isomorphism; <span class="kp">try</span> <span class="nb">split</span>.
+      + <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>).
+        <span class="kp">abstract</span> (
+            <span class="nb">unfold</span> is_module_mor; <span class="nb">cbn</span>;
+            <span class="nb">apply</span> nat_trans_eq; [use homset_property|];
+            <span class="nb">intro</span>; <span class="nb">cbn</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right
+        ).
+      + <span class="nb">apply</span> MOD_mor_eq.
+        <span class="nb">apply</span> nat_trans_eq; [use homset_property|].
+        <span class="nb">intro</span>; use id_left.
+      + <span class="nb">apply</span> MOD_mor_eq.
+        <span class="nb">apply</span> nat_trans_eq; [use homset_property|].
+        <span class="nb">intro</span>; use id_left.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">monad_modules_equiv_monoid_modules_endcat</span>
+    : equivalence_of_cats monadModule monoidModule.
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - <span class="bp">exact</span> adjunction_monad_monoid_modules.
+    - <span class="bp">exact</span> adjunction_monad_monoid_modules_equiv.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FixAMonoid</span>.
+<span class="kn">End</span> <span class="nf">FixACategory</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/MonadsAsMonoidsElementary.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    2. Monad modules and monoid modules are equivalent
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

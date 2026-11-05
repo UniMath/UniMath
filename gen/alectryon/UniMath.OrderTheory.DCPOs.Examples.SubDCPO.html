@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubDCPO.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Sub DCPO</span>
+
+<span class="sd"> If we have a DCPO and a predicate on it, then the subtype of the</span>
+<span class="sd"> elements satisfying that predicate, is a DCPO if the predicate is</span>
+<span class="sd"> closed under suprema.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The sub DCPO</span>
+<span class="sd"> 2. The first projection is continuous</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The sub DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SubPartialOrder</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          (<span class="nv">PX</span> : PartialOrder X)
+          (<span class="nv">P</span> : X → hProp).
+
+  <span class="kn">Let</span> <span class="nf">S</span> : hSet := (∑ (x : X), hProp_to_hSet (P x))%<span class="nb">set</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_isPartialOrder</span>
+    : isPartialOrder (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : S), PX (pr1 x) (pr1 y)).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x₁ x₂ x₃ p q.
+      <span class="bp">exact</span> (trans_PartialOrder PX p q).
+    - <span class="nb">intros</span> x.
+      <span class="nb">apply</span> refl_PartialOrder.
+    - <span class="nb">intros</span> x y p q.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="bp">exact</span> (antisymm_PartialOrder PX p q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_PartialOrder</span>
+    : PartialOrder S.
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, PX (pr1 x) (pr1 y)).
+    - <span class="bp">exact</span> sub_isPartialOrder.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_monotone_pr1_sub</span>
+    : is_monotone sub_PartialOrder PX pr1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_sub_monotone</span>
+    : monotone_function sub_PartialOrder PX
+    := _ ,, is_monotone_pr1_sub.
+<span class="kn">End</span> <span class="nf">SubPartialOrder</span>.
+
+<span class="kn">Section</span> <span class="nf">SubDCPO</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : dcpo)
+          (<span class="nv">P</span> : X → hProp)
+          (<span class="nv">HP</span> : ∏ (D : directed_set X),
+                (∏ (d : D), P (D d))
+                →
+                P (⨆ D)).
+
+  <span class="kn">Let</span> <span class="nf">S</span> : hSet := (∑ (x : X), hProp_to_hSet (P x))%<span class="nb">set</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_dcpo_lub</span>
+             (<span class="nv">D</span> : directed_set (sub_PartialOrder X P))
+    : lub (sub_PartialOrder X P) D.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (D' := directed_set_comp (pr1_sub_monotone X P) D).
+    use make_lub.
+    - <span class="nb">refine</span> (⨆ D' ,, HP D' _).
+      <span class="kp">abstract</span>
+        (<span class="nb">intro</span> d ;
+         <span class="bp">exact</span> (pr2 (D d))).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (less_than_dcpo_lub D' (pr1 (D i)) i (refl_dcpo _))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x Hx ;
+           use (dcpo_lub_is_least D') ;
+           <span class="nb">intro</span> i ;
+           <span class="nb">apply</span> (Hx i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_dcpo_struct</span>
+    : dcpo_struct S.
+  <span class="kn">Proof</span>.
+    use make_dcpo_struct.
+    - <span class="bp">exact</span> (sub_PartialOrder X P).
+    - <span class="nb">intros</span> I D HD.
+      <span class="bp">exact</span> (sub_dcpo_lub (make_directed_set _ I D HD)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sub_dcpo</span>
+    : dcpo
+    := _ ,, sub_dcpo_struct.
+
+  <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_pr1_sub</span>
+    : is_scott_continuous sub_dcpo X pr1.
+  <span class="kn">Proof</span>.
+    use make_is_scott_continuous.
+    - <span class="bp">exact</span> (is_monotone_pr1_sub X P).
+    - <span class="nb">cbn</span>.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The first projection is continuous</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">pr1_sub_scott_continuous</span>
+    : scott_continuous_map sub_dcpo X
+    := _ ,, is_scott_continuous_pr1_sub.
+<span class="kn">End</span> <span class="nf">SubDCPO</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/SubDCPO.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The first projection is continuous
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

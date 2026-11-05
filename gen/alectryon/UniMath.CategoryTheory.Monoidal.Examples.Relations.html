@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Relations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> The category of relations is symmetric monoidal closed</span>
+
+<span class="sd"> In this file, we show that the category of relations is a symmetric monoidal closed</span>
+<span class="sd"> category. The monoidal structure is defined by taking the product of sets. Note that this</span>
+<span class="sd"> is not a cartesian monoidal structure, because products in the category of relations are</span>
+<span class="sd"> disjoint unions.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The monoidal category of relations</span>
+<span class="sd"> 2. It is symmetric</span>
+<span class="sd"> 3. It is monoidal closed</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Rel.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The monoidal category of relations</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">tensor_data_REL</span>
+  : tensor_data REL.
+<span class="kn">Proof</span>.
+  use make_bifunctor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X₁</span> <span class="nv">X₂</span>, X₁ × X₂)%<span class="nb">set</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">R</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>, pr1 xy₁ = pr1 xy₂ ∧ R (pr2 xy₁) (pr2 xy₂))%logic.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">R</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>, pr2 xy₁ = pr2 xy₂ ∧ R (pr1 xy₁) (pr1 xy₂))%logic.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">leftunitor_REL</span>
+  : leftunitor_data tensor_data_REL unitset
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, (pr2 x₁ = x₂)%logic.
+
+<span class="kn">Definition</span> <span class="nf">leftunitorinv_REL</span>
+  : leftunitorinv_data tensor_data_REL unitset
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, (pr2 x₂ = x₁)%logic.
+
+<span class="kn">Definition</span> <span class="nf">rightunitor_REL</span>
+  : rightunitor_data tensor_data_REL unitset
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, (pr1 x₁ = x₂)%logic.
+
+<span class="kn">Definition</span> <span class="nf">rightunitorinv_REL</span>
+  : rightunitorinv_data tensor_data_REL unitset
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">x₁</span> <span class="nv">x₂</span>, (pr1 x₂ = x₁)%logic.
+
+<span class="kn">Definition</span> <span class="nf">associator_REL</span>
+  : associator_data tensor_data_REL
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">xyz₁</span> <span class="nv">xyz₂</span>,
+     ((pr11 xyz₁ = pr1 xyz₂)
+      ∧
+      (pr21 xyz₁ = pr12 xyz₂)
+      ∧
+      (pr2 xyz₁ = pr22 xyz₂))%logic.
+
+<span class="kn">Definition</span> <span class="nf">associatorinv_REL</span>
+  : associatorinv_data tensor_data_REL
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">xyz₁</span> <span class="nv">xyz₂</span>,
+     ((pr11 xyz₂ = pr1 xyz₁)
+      ∧
+      (pr21 xyz₂ = pr12 xyz₁)
+      ∧
+      (pr2 xyz₂ = pr22 xyz₁))%logic.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_data_REL</span>
+  : monoidal_data REL.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> tensor_data_REL.
+  - <span class="bp">exact</span> unitset.
+  - <span class="bp">exact</span> leftunitor_REL.
+  - <span class="bp">exact</span> leftunitorinv_REL.
+  - <span class="bp">exact</span> rightunitor_REL.
+  - <span class="bp">exact</span> rightunitorinv_REL.
+  - <span class="bp">exact</span> associator_REL.
+  - <span class="bp">exact</span> associatorinv_REL.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">monoidal_laws_REL</span>
+  : monoidal_laws monoidal_data_REL.
+<span class="kn">Proof</span>.
+  split6.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="nb">intros</span> X Y ; <span class="nb">cbn</span>.
+      use funextsec ; <span class="nb">intro</span> xy₁.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+      use funextsec ; <span class="nb">intro</span> xy₂.
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ; <span class="nb">cbn</span>.
+      use hPropUnivalence.
+      * <span class="nb">intros</span> p.
+        use pathsdirprod.
+        ** <span class="bp">exact</span> (pr1 p).
+        ** <span class="bp">exact</span> (pr2 p).
+      * <span class="nb">intros</span> p.
+        <span class="nb">split</span>.
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr1 p).
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr2 p).
+    + <span class="nb">intros</span> X Y ; <span class="nb">cbn</span>.
+      use funextsec ; <span class="nb">intro</span> xy₁.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+      use funextsec ; <span class="nb">intro</span> xy₂.
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ; <span class="nb">cbn</span>.
+      use hPropUnivalence.
+      * <span class="nb">intros</span> p.
+        use pathsdirprod.
+        ** <span class="bp">exact</span> (pr2 p).
+        ** <span class="bp">exact</span> (pr1 p).
+      * <span class="nb">intros</span> p.
+        <span class="nb">split</span>.
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr2 p).
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr1 p).
+    + <span class="nb">intros</span> X Y₁ Y₂ Y₃ g₁ g₂.
+      use funextsec ; <span class="nb">intro</span> xy₁.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+      use funextsec ; <span class="nb">intro</span> xy₂.
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ; <span class="nb">cbn</span>.
+      use hPropUnivalence.
+      * <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p <span class="k">as</span> [ p q ].
+        <span class="nb">induction</span> p.
+        use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> q.
+        <span class="nb">intros</span> [ y q ].
+        <span class="nb">apply</span> hinhpr.
+        <span class="bp">exact</span> ((x₁ ,, y) ,, (idpath _ ,, pr1 q) ,, (idpath _ ,, pr2 q)).
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ y [ [ p₁ p₂ ] [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₁, q₁.
+        <span class="bp">exact</span> (idpath _ ,, hinhpr (pr2 y ,, p₂ ,, q₂)).
+    + <span class="nb">intros</span> X Y₁ Y₂ Y₃ g₁ g₂.
+      use funextsec ; <span class="nb">intro</span> xy₁.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ y₁ x₁ ].
+      use funextsec ; <span class="nb">intro</span> xy₂.
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ x₂ ] ; <span class="nb">cbn</span>.
+      use hPropUnivalence.
+      * <span class="nb">intros</span> p.
+        <span class="nb">induction</span> p <span class="k">as</span> [ p q ].
+        <span class="nb">induction</span> p.
+        use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> q.
+        <span class="nb">intros</span> [ y q ].
+        <span class="bp">exact</span> (hinhpr ((y ,, x₁) ,, ((idpath _ ,, pr1 q) ,, (idpath _ ,, pr2 q)))).
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ y [ [ p₁ p₂ ] [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₁, q₁.
+        <span class="bp">exact</span> (idpath _ ,, hinhpr (_ ,, p₂ ,, q₂)).
+    + <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ R₁ R₂.
+      use funextsec ; <span class="nb">intro</span> xy₁.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ y₁ x₁ ].
+      use funextsec ; <span class="nb">intro</span> xy₂.
+      <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ x₂ ] ; <span class="nb">cbn</span>.
+      use hPropUnivalence.
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ y [ [ p₁ p₂ ] [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₁, q₁.
+        <span class="bp">exact</span> (hinhpr ((_ ,, _) ,, ((idpath _ ,, q₂) ,, (idpath _ ,, p₂)))).
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ y [ [ p₁ p₂ ] [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₁, q₁.
+        <span class="bp">exact</span> (hinhpr ((_ ,, _) ,, ((idpath _ ,, q₂) ,, (idpath _ ,, p₂)))).
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> X Y R.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ [] x ].
+      use funextsec ; <span class="nb">intro</span> y.
+      use hPropUnivalence.
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ [ [] y' ] [ [ p₁ p₂ ] p₃ ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₃.
+        <span class="bp">exact</span> (hinhpr (x ,, (idpath _ ,, p₂))).
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p.
+        <span class="bp">exact</span> (hinhpr ((tt ,, y) ,, ((idpath _ ,, q) ,, idpath _))).
+    + <span class="nb">intros</span> X.
+      <span class="nb">split</span>.
+      * use funextsec ; <span class="nb">intro</span> x.
+        <span class="nb">induction</span> x <span class="k">as</span> [ [] x ].
+        use funextsec ; <span class="nb">intro</span> x'.
+        <span class="nb">induction</span> x' <span class="k">as</span> [ [] x' ].
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p, q.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">refine</span> (hinhpr (x' ,, _ ,, idpath _)).
+           <span class="bp">exact</span> (maponpaths dirprod_pr2 p).
+      * use funextsec ; <span class="nb">intro</span> x.
+        use funextsec ; <span class="nb">intro</span> x'.
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p, q.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p.
+           <span class="bp">exact</span> (hinhpr ((tt ,, x) ,, idpath _ ,, idpath _)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> X Y R.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ x [] ].
+      use funextsec ; <span class="nb">intro</span> y.
+      use hPropUnivalence.
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ [ y' [] ] [ [ p₁ p₂ ] p₃ ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p₃.
+        <span class="bp">exact</span> (hinhpr (x ,, (idpath _ ,, p₂))).
+      * use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+        <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">induction</span> p.
+        <span class="bp">exact</span> (hinhpr ((y ,, tt) ,, ((idpath _ ,, q) ,, idpath _))).
+    + <span class="nb">intros</span> X.
+      <span class="nb">split</span>.
+      * use funextsec ; <span class="nb">intro</span> x.
+        <span class="nb">induction</span> x <span class="k">as</span> [ x [] ].
+        use funextsec ; <span class="nb">intro</span> x'.
+        <span class="nb">induction</span> x' <span class="k">as</span> [ x' [] ].
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p, q.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">refine</span> (hinhpr (x' ,, _ ,, idpath _)).
+           <span class="bp">exact</span> (maponpaths dirprod_pr1 p).
+      * use funextsec ; <span class="nb">intro</span> x.
+        use funextsec ; <span class="nb">intro</span> x'.
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p, q.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p.
+           <span class="bp">exact</span> (hinhpr ((x ,, tt) ,, idpath _ ,, idpath _)).
+  - split4.
+    + <span class="nb">intros</span> X Y Z₁ Z₂ R.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ [ x y ] z ].
+      use funextsec ; <span class="nb">intro</span> x'.
+      <span class="nb">induction</span> x' <span class="k">as</span> [ x' [ y' z' ]].
+      use hPropUnivalence.
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">intros</span> ((a &amp; b &amp; c) &amp; ( p₁ &amp; p₂ &amp; p₃ ) &amp; ( p₄ &amp; p₅ &amp; p₆ )).
+         <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₁, p₂, p₃, p₄, p₅.
+         <span class="nb">refine</span> (hinhpr (((x ,, y) ,, z') ,, _)).
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         <span class="bp">exact</span> p₆.
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">cbn</span>.
+         <span class="nb">intros</span> (((a &amp; b) &amp; c) &amp; (p₁ &amp; p₂) &amp; p₃ &amp; p₄ &amp; p₅) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₃, p₄, p₅.
+         <span class="nb">refine</span> (hinhpr ((x ,, y ,, z) ,, _)) ; <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         *** <span class="bp">exact</span> (maponpaths dirprod_pr1 p₁).
+         *** <span class="bp">exact</span> (maponpaths dirprod_pr2 p₁).
+         *** <span class="bp">exact</span> p₂.
+    + <span class="nb">intros</span> X Y₁ Y₂ Z R.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ [ x y ] z ].
+      use funextsec ; <span class="nb">intro</span> x'.
+      <span class="nb">induction</span> x' <span class="k">as</span> [ x' [ y' z' ]].
+      use hPropUnivalence.
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">intros</span> ((a &amp; b &amp; c) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₁, p₂, p₃.
+         <span class="nb">refine</span> (hinhpr (((x' ,, y') ,, z) ,, _)) ; <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         *** <span class="bp">exact</span> (maponpaths dirprod_pr1 p₄).
+         *** <span class="bp">exact</span> p₅.
+         *** <span class="bp">exact</span> (maponpaths dirprod_pr2 p₄).
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">intros</span> (((a &amp; b) &amp; c) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₁, p₂, p₄, p₅, p₆.
+         <span class="nb">refine</span> (hinhpr ((x ,, y ,, z) ,, _)).
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         <span class="bp">exact</span> p₃.
+    + <span class="nb">intros</span> X₁ X₂ Y Z R.
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ [ x y ] z ].
+      use funextsec ; <span class="nb">intro</span> x'.
+      <span class="nb">induction</span> x' <span class="k">as</span> [ x' [ y' z' ]].
+      use hPropUnivalence.
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">intros</span> ((a &amp; b &amp; c) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₁, p₂, p₃, p₄, p₅.
+         <span class="nb">refine</span> (hinhpr (((x ,, y') ,, z) ,, _)) ; <span class="nb">cbn</span>.
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         <span class="bp">exact</span> p₆.
+      ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+         <span class="nb">intros</span> (((a &amp; b) &amp; c) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+         <span class="nb">induction</span> p₁, p₂, p₄, p₅, p₆.
+         <span class="nb">refine</span> (hinhpr ((x ,, y ,, z) ,, _)).
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+         <span class="bp">exact</span> p₃.
+    + <span class="nb">intros</span> X Y Z.
+      <span class="nb">split</span>.
+      * use funextsec ; <span class="nb">intro</span> x.
+        <span class="nb">induction</span> x <span class="k">as</span> [[ x y ] z ].
+        use funextsec ; <span class="nb">intro</span> x'.
+        <span class="nb">induction</span> x' <span class="k">as</span> [[ x' y' ] z' ].
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> ((a &amp; b &amp; c) &amp; (p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆)) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p₁, p₂, p₃, p₄, p₅, p₆.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">cbn</span> ; <span class="nb">intro</span> p.
+           <span class="nb">refine</span> (hinhpr ((x' ,, (y' ,, z')) ,, _)) ; <span class="nb">cbn</span>.
+           <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr1 (maponpaths dirprod_pr1 p)).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr2 (maponpaths dirprod_pr1 p)).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr2 p).
+      * use funextsec ; <span class="nb">intro</span> x.
+        <span class="nb">induction</span> x <span class="k">as</span> [ x [ y z ]].
+        use funextsec ; <span class="nb">intro</span> x'.
+        <span class="nb">induction</span> x' <span class="k">as</span> [ x' [ y' z' ]].
+        use hPropUnivalence.
+        ** use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+           <span class="nb">intros</span> (((a &amp; b) &amp; c) &amp; (p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆)) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+           <span class="nb">induction</span> p₁, p₂, p₃, p₄, p₅, p₆.
+           <span class="nb">apply</span> idpath.
+        ** <span class="nb">cbn</span> ; <span class="nb">intro</span> p.
+           <span class="nb">refine</span> (hinhpr (((x ,, y) ,, z) ,, _)) ; <span class="nb">cbn</span>.
+           <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr1 p).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr1 (maponpaths dirprod_pr2 p)).
+           *** <span class="bp">exact</span> (maponpaths dirprod_pr2 (maponpaths dirprod_pr2 p)).
+  - <span class="nb">intros</span> X Y.
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x <span class="k">as</span> [ [ x [] ] y ].
+    use funextsec ; <span class="nb">intro</span> x'.
+    <span class="nb">induction</span> x' <span class="k">as</span> [ x' y' ].
+    use hPropUnivalence.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> ( (a &amp; [] &amp; b) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅)) ) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, p₃, p₄, p₅.
+      <span class="nb">split</span> ; <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> [ p q ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p, q.
+      <span class="nb">refine</span> (hinhpr ((x ,, (tt ,, y)) ,, _)) ; <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> W X Y Z.
+    use funextsec ; <span class="nb">intros</span> (((w &amp; x) &amp; y) &amp; z).
+    use funextsec ; <span class="nb">intros</span> (w' &amp; x' &amp; y' &amp; z').
+    use hPropUnivalence.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> ((a &amp; (b &amp; c) &amp; d) &amp; (p₁ &amp; p₂ &amp; p₃ &amp; p₄ &amp; p₅)).
+      <span class="nb">cbn</span> <span class="k">in</span> p₂, p₃, p₄, p₅.
+      <span class="nb">induction</span> p₂, p₃, p₄, p₅.
+      use (factor_through_squash _ _ p₁) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> p₁ ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> (((a' &amp; b' &amp; c') &amp; d') &amp; ((p₁ &amp; p₂ &amp; p₃ &amp; p₄) &amp; (p₅ &amp; p₆ &amp; p₇))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, p₂, p₃, p₄, p₅, p₇.
+      <span class="nb">refine</span> (hinhpr (((w ,, x) ,, (y ,, z)) ,, _)) ; <span class="nb">cbn</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr1 p₆).
+      * <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (maponpaths dirprod_pr2 p₆).
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> (((a &amp; b) &amp; c &amp; d) &amp; ((p₁ &amp; p₂ &amp; p₃) &amp; (p₄ &amp; p₅ &amp; p₆))) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₂, p₃, p₄, p₅.
+      <span class="nb">refine</span> (hinhpr ((w ,, ((x ,, y) ,, z)) ,, hinhpr (((w ,, (x ,, y)) ,, z) ,, _) ,, _)) ;
+        <span class="nb">cbn</span> ;
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (maponpaths dirprod_pr1 p₁).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr2 p₁).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr1 p₆).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr2 p₆).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_REL</span>
+  : monoidal REL
+  := monoidal_data_REL ,, monoidal_laws_REL.
+
+<span class="kn">Definition</span> <span class="nf">REL_monoidal_cat</span>
+  : monoidal_cat
+  := REL ,, monoidal_REL.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. It is symmetric</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">REL_braiding</span>
+           (<span class="nv">X</span> <span class="nv">Y</span> : hSet)
+  : bin_hrel (X × Y)%<span class="nb">set</span> (Y × X)%<span class="nb">set</span>
+  := (<span class="k">λ</span> <span class="nv">xy</span> <span class="nv">yx</span>, pr1 xy = pr2 yx ∧ pr2 xy = pr1 yx)%logic.
+
+<span class="kn">Proposition</span> <span class="nf">REL_braiding_laws</span>
+  : sym_mon_cat_laws_tensored REL_monoidal_cat REL_braiding.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y.
+    use funextsec ; <span class="nb">intro</span> xy₁.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ y₁ x₁ ].
+    use funextsec ; <span class="nb">intro</span> xy₂.
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ x₂ ] ; <span class="nb">cbn</span>.
+    use hPropUnivalence.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> [ y [ [ p₁ p₂ ] [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> y <span class="k">as</span> [ a b ] ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, p₂, q₁, q₂.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intros</span> p.
+      <span class="nb">refine</span> (hinhpr ((_ ,, _) ,, ((idpath _ ,, idpath _) ,, (_ ,, _)))) ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (maponpaths dirprod_pr2 p).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr1 p).
+  - <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ R₁ R₂.
+    use funextsec ; <span class="nb">intro</span> xy₁.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ y₁ x₁ ].
+    use funextsec ; <span class="nb">intro</span> xy₂.
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ x₂ ].
+    use hPropUnivalence.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> [ [ a b ] [ p [ q₁ q₂ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂.
+      <span class="nb">induction</span> q₁, q₂.
+      use (factor_through_squash _ _ p) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">cbn</span> ; <span class="nb">clear</span> p.
+      <span class="nb">intros</span> [ [ c d ] [ [ p₁ p₂ ] [ q₁ q₂ ] ]].
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, q₁.
+      <span class="nb">refine</span> ((x₁ ,, y₁) ,, ((idpath _ ,, idpath _) ,, hinhpr _)) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> ((b ,, y₁) ,, ((idpath _ ,, _) ,, (idpath _ ,, _))) ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> q₂.
+      * <span class="bp">exact</span> p₂.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> [ [ a b ] [ [ p₁ p₂ ] q]] ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+      <span class="nb">induction</span> p₁, p₂.
+      use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">cbn</span> ; <span class="nb">clear</span> q.
+      <span class="nb">intros</span> [ [ c d ] [ [ p₁ p₂ ] [ q₁ q₂ ] ]].
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, q₁.
+      <span class="nb">refine</span> ((x₂ ,, c) ,, (hinhpr _ ,, (idpath _ ,, idpath _))) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> ((x₂ ,, x₁) ,, ((idpath _ ,, _) ,, (idpath _ ,, _))) ; <span class="nb">cbn</span>.
+      * <span class="bp">exact</span> q₂.
+      * <span class="bp">exact</span> p₂.
+  - <span class="nb">intros</span> X Y Z.
+    use funextsec ; <span class="nb">intro</span> xy₁.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ [ x₁ y₁ ] z₁ ].
+    use funextsec ; <span class="nb">intro</span> xy₂.
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ y₂ [ z₂ x₂ ]].
+    use hPropUnivalence.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> ( ((y &amp; z) &amp; x) &amp; q &amp; p₁ &amp; p₂ &amp; p₃).
+      <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂, p₃.
+      <span class="nb">induction</span> p₁, p₂, p₃.
+      use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">cbn</span> ; <span class="nb">clear</span> q.
+      <span class="nb">intros</span> ( (a &amp; b &amp; c) &amp; ( p₁ &amp; ( p₂ &amp; p₃ ) ) &amp; ( p₄ &amp; p₅ ) ).
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> p₁, p₂, p₃, p₄.
+      <span class="nb">refine</span> (hinhpr ((y ,, x₁ ,, z) ,, hinhpr _ ,, hinhpr _)).
+      * <span class="nb">refine</span> (((y ,, x₁) ,, z) ,, hinhpr (((y ,, x₁) ,, z) ,, _) ,, _) ;
+          <span class="kp">repeat</span> <span class="nb">split</span> ;
+          <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="nb">cbn</span>.
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr2 p₅).
+        ** <span class="bp">exact</span> (maponpaths dirprod_pr1 p₅).
+      * <span class="nb">refine</span> ((y ,, (x₁ ,, z)) ,, ((_ ,, _) ,, (_ ,, (_ ,, _)))) ; <span class="nb">apply</span> idpath.
+    + use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> ((a &amp; b &amp; c) &amp; (p₁ &amp; p₂)).
+      use (factor_through_squash _ _ p₁) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> p₁.
+      <span class="nb">intros</span> (((a' &amp; b') &amp; c') &amp; (q₁ &amp; q₂ &amp; q₃ &amp; q₄)).
+      <span class="nb">cbn</span> <span class="k">in</span> q₂, q₃, q₄.
+      <span class="nb">induction</span> q₂, q₃, q₄.
+      use (factor_through_squash _ _ p₂) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> p₂.
+      <span class="nb">intros</span> ((a'' &amp; b'' &amp; c'') &amp; ((r₁ &amp; r₂) &amp; (r₃ &amp; r₄ &amp; r₅))).
+      <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂, r₃, r₄, r₅.
+      <span class="nb">induction</span> r₂, r₃, r₄, r₅.
+      use (factor_through_squash _ _ q₁) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> q₁.
+      <span class="nb">intros</span> (((a''' &amp; b''') &amp; c''') &amp; ((s₁ &amp; s₂ &amp; s₃) &amp; s₄ &amp; s₅)) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> s₁, s₂, s₃, s₅.
+      <span class="nb">refine</span> (hinhpr (((y₁ ,, z₁) ,, x₁) ,, hinhpr ((x₁ ,, (y₁ ,, z₁)) ,, _) ,, _)) ;
+        <span class="nb">cbn</span> ;
+        <span class="kp">repeat</span> <span class="nb">split</span> ;
+        <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr1 s₄).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr2 r₁).
+      * <span class="bp">exact</span> (maponpaths dirprod_pr2 s₄ @ maponpaths dirprod_pr1 r₁).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">symmetric_REL_monoidal_cat</span>
+  : symmetric REL_monoidal_cat.
+<span class="kn">Proof</span>.
+  use make_symmetric.
+  - <span class="bp">exact</span> REL_braiding.
+  - <span class="bp">exact</span> REL_braiding_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">REL_sym_monoidal_cat</span>
+  : sym_monoidal_cat
+  := REL_monoidal_cat ,, symmetric_REL_monoidal_cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. It is monoidal closed</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">REL_sym_mon_closed_cat</span>
+  : sym_mon_closed_cat.
+<span class="kn">Proof</span>.
+  use make_sym_mon_closed_cat.
+  - <span class="bp">exact</span> REL_sym_monoidal_cat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, X × Y)%<span class="nb">set</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">xyx</span> <span class="nv">y</span>, pr11 xyx = pr2 xyx ∧ pr21 xyx = y)%logic.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">R</span> <span class="nv">z</span> <span class="nv">xy</span>, R (z ,, pr1 xy) (pr2 xy)).
+  - <span class="nb">intros</span> X Y Z R.
+    use funextsec ; <span class="nb">intros</span> (z₁ &amp; x₁).
+    use funextsec ; <span class="nb">intro</span> y₁.
+    use hPropUnivalence.
+    + <span class="kp">abstract</span>
+        (use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ] ;
+         <span class="nb">intros</span> (((x₂ &amp; y₂) &amp; x₃) &amp; (q &amp; p₁ &amp; p₂)) ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂ ;
+         <span class="nb">induction</span> p₁, p₂ ;
+         use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> q ; <span class="nb">cbn</span> ;
+         <span class="nb">intros</span> (((x₄ &amp; y₃) &amp; x₅) &amp; ((p₁ &amp; p₂) &amp; p₃ &amp; p₄)) ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">induction</span> p₁, p₄ ;
+         <span class="nb">pose</span> (maponpaths dirprod_pr1 p₃) <span class="k">as</span> r₁ ;
+         <span class="nb">pose</span> (maponpaths dirprod_pr2 p₃) <span class="k">as</span> r₂ ;
+         <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂ ;
+         <span class="nb">rewrite</span> &lt;- r₁, &lt;- r₂ ;
+         <span class="bp">exact</span> p₂).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> r ;
+         <span class="nb">refine</span> (hinhpr (((x₁ ,, y₁) ,, x₁) ,, _)) ;
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ;
+         <span class="nb">refine</span> (hinhpr (((x₁ ,, y₁) ,, x₁) ,, _)) ; <span class="nb">cbn</span> ;
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ;
+         <span class="bp">exact</span> r).
+  - <span class="nb">intros</span> X Y Z R.
+    use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intros</span> (x &amp; y).
+    use hPropUnivalence.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> r ;
+         <span class="nb">refine</span> (hinhpr (((x ,, y) ,, x) ,, _)) ;
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ;
+         <span class="nb">refine</span> (hinhpr (((x ,, y) ,, x) ,, _)) ;
+         <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">apply</span> idpath) ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> r).
+    + <span class="kp">abstract</span>
+        (use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ] ;
+         <span class="nb">intros</span> (((x₂ &amp; y₂) &amp; x₃) &amp; (q &amp; p₁ &amp; p₂)) ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂ ;
+         <span class="nb">induction</span> p₁, p₂ ;
+         use (factor_through_squash _ _ q) ; [ <span class="nb">apply</span> propproperty | ] ; <span class="nb">clear</span> q ; <span class="nb">cbn</span> ;
+         <span class="nb">intros</span> (((x₄ &amp; y₃) &amp; x₅) &amp; ((p₁ &amp; p₂) &amp; p₃ &amp; p₄)) ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">induction</span> p₁, p₄ ;
+         <span class="nb">pose</span> (maponpaths dirprod_pr1 p₃) <span class="k">as</span> r₁ ;
+         <span class="nb">pose</span> (maponpaths dirprod_pr2 p₃) <span class="k">as</span> r₂ ;
+         <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂ ;
+         <span class="nb">rewrite</span> &lt;- r₁, &lt;- r₂ ;
+         <span class="bp">exact</span> p₂).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/Relations.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. It is monoidal closed
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Categories.Rel.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LNWFSHelpers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.EqDiag.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.ComonadCoalgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.MonoidalHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.MonoidalHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.FFMonoidalStructure.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Helpers</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="kn">Lemma</span> <span class="nf">lnwfs_Σ_top_map_id</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : lnwfs_over F) (<span class="nv">f</span> : arrow C) :
+    arrow_mor00 (pr1 L f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Comonad_law1 (T:=lnwfs_L_monad L) f).
+  <span class="nb">set</span> (top := arrow_mor00_eq law1).
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  <span class="bp">exact</span> (pathsinv0 top).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lnwfs_Σ_bottom_map_inv</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : lnwfs_over F) (<span class="nv">f</span> : arrow C) :
+    arrow_mor11 (pr1 L f) · arrow_mor (fact_R F (fact_L F f)) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Comonad_law1 (T:=lnwfs_L_monad L) f).
+  <span class="nb">set</span> (bottom := arrow_mor11_eq law1).
+  <span class="bp">exact</span> bottom.
+<span class="kn">Qed</span>.
+
+<span class="c">(* some useful proofs on the comonoidal structure that corresponds</span>
+<span class="c">   with LNWFS on Ff C *)</span>
+   <span class="kn">Lemma</span> <span class="nf">LNWFS_comon_structure_whiskerequals</span>
+   (<span class="nv">L</span> <span class="nv">L'</span> <span class="nv">L''</span> : total_category (LNWFS C))
+   (<span class="nv">α</span> : fact_mor (pr1 L) (pr1 L'))
+   (<span class="nv">α'</span> : fact_mor (pr1 L') (pr1 L''))
+   (<span class="nv">f</span> : arrow C) :
+ arrow_mor11 (#(lnwfs_L_monad (pr2 L')) (lnwfs_mor (pr2 L) (pr2 L') α f)) · arrow_mor11 (lnwfs_mor (pr2 L') (pr2 L'') α' ((lnwfs_L_monad (pr2 L')) f))
+ = arrow_mor11 (lnwfs_mor (pr2 L') (pr2 L'') α' (lnwfs_L_monad (pr2 L) f)) · arrow_mor11 (#(lnwfs_L_monad (pr2 L'')) (lnwfs_mor (pr2 L) (pr2 L') α f)).
+<span class="kn">Proof</span>.
+ <span class="nb">set</span> (α'nat := nat_trans_ax α' _ _ (lnwfs_mor (pr2 L) (pr2 L') α f)).
+ <span class="nb">set</span> (α'nat11 := base_paths _ _ (fiber_paths α'nat)).
+
+ <span class="nb">apply</span> pathsinv0.
+ etrans. <span class="bp">exact</span> (pathsinv0 α'nat11).
+ etrans. <span class="nb">apply</span> pr1_transportf_const.
+ <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* A more general lemma of the above is</span>
+<span class="c">  (above is just below with Λ = L' and Λ' = L'' ) *)</span>
+<span class="kn">Lemma</span> <span class="nf">LNWFS_comon_structure_whiskercommutes</span>
+   (<span class="nv">L</span> <span class="nv">L'</span> <span class="nv">Λ</span> <span class="nv">Λ'</span> : total_category (LNWFS C))
+   (<span class="nv">α</span> : fact_mor (pr1 L) (pr1 L'))
+   (<span class="nv">β</span> : fact_mor (pr1 Λ) (pr1 Λ'))
+   (<span class="nv">f</span> : arrow C) :
+  arrow_mor11 (lnwfs_mor (pr2 Λ) (pr2 Λ') β (lnwfs_L_monad (pr2 L) f)) · arrow_mor11 (#(lnwfs_L_monad (pr2 Λ')) (lnwfs_mor (pr2 L) (pr2 L') α f))
+  = arrow_mor11 (#(lnwfs_L_monad (pr2 Λ)) (lnwfs_mor (pr2 L) (pr2 L') α f)) · arrow_mor11 (lnwfs_mor (pr2 Λ) (pr2 Λ') β ((lnwfs_L_monad (pr2 L')) f)).
+<span class="kn">Proof</span>.
+ <span class="nb">set</span> (βnat := nat_trans_ax β _ _ (lnwfs_mor (pr2 L) (pr2 L') α f)).
+ <span class="nb">set</span> (βnat11 := base_paths _ _ (fiber_paths βnat)).
+
+ etrans. <span class="bp">exact</span> (pathsinv0 βnat11).
+ etrans. <span class="nb">apply</span> pr1_transportf_const.
+ <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_mor_eq_LNWFS_mor</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : total_category (LNWFS C)}
+    (<span class="nv">τ</span> : pr1 L --&gt; pr1 L')
+    (<span class="nv">τL</span> : L --&gt; L') :
+  pr1 τL = τ -&gt; pr2 L --&gt;[τ] pr2 L'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">rewrite</span> &lt;- H.
+  <span class="bp">exact</span> (pr2 τL).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_inv_in_precat_if_Ff_inv_in_precat</span>
+    {<span class="nv">L</span> <span class="nv">L'</span> : total_category (LNWFS C)}
+    (<span class="nv">τ</span> : L --&gt; L')
+    (<span class="nv">τ'</span> : L' --&gt; L)
+    (<span class="nv">HFf</span> : is_inverse_in_precat (pr1 τ) (pr1 τ')) :
+  is_inverse_in_precat τ τ'.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; (<span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|]).
+  - <span class="bp">exact</span> (pr1 HFf).
+  - <span class="bp">exact</span> (pr2 HFf).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Ff_iso_inv_LNWFS_mor</span>
+    (<span class="nv">L</span> <span class="nv">L'</span> : total_category (LNWFS C))
+    (<span class="nv">iso</span> : z_iso (pr1 L) (pr1 L'))
+    (<span class="nv">Hiso</span> : (pr2 L) --&gt;[iso] (pr2 L')) :
+  pr2 L' --&gt;[z_iso_inv iso] pr2 L.
+<span class="kn">Proof</span>.
+  <span class="c">(* base mor component at f is z_iso (obvious since base_mor is an iso) *)</span>
+  transparent <span class="nb">assert</span> (Hiso11 : (∏ f, is_z_isomorphism (three_mor11 (section_nat_trans (z_iso_mor iso) f)))).
+  {
+    <span class="nb">intro</span> f.
+    <span class="k">exists</span> (<span class="nv">three_mor11</span> (section_nat_trans (z_iso_mor (z_iso_inv iso)) f)).
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (eq_section_nat_trans_comp_component11 (pr122 iso) f).
+    - <span class="bp">exact</span> (eq_section_nat_trans_comp_component11 (pr222 iso) f).
+  }
+
+  <span class="nb">split</span>; <span class="nb">intro</span> f.
+  - use arrow_mor_eq.
+    * etrans. <span class="nb">apply</span> id_left.
+      etrans. <span class="bp">exact</span> (lnwfs_Σ_top_map_id (pr2 L) f).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (lnwfs_Σ_top_map_id (pr2 L') f).
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> id_left.
+    * <span class="nb">set</span> (inv := Hiso11 f).
+      <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj inv).
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (pr12 inv).
+      etrans. <span class="nb">apply</span> id_left.
+      etrans. <span class="bp">exact</span> (pathsinv0 (id_right _)).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              etrans. <span class="nb">apply</span> assoc.
+              <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (arrow_mor11_eq (pr1 Hiso f)).
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> assoc4.
+      etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+              <span class="nb">apply</span> (LNWFS_comon_structure_whiskercommutes).
+      etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+      {
+        etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp (pr1 L)).
+        etrans. use (section_disp_on_eq_morphisms (pr1 L) (γ' := identity _)).
+        - <span class="nb">apply</span> id_left.
+        - <span class="bp">exact</span> (pr12 inv).
+        - <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (section_disp_id (pr1 L)).
+      }
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="bp">exact</span> (eq_section_nat_trans_comp_component11 (pr122 iso) (fact_L (pr1 L) f)).
+  - use arrow_mor_eq; [<span class="nb">apply</span> id_left|].
+    <span class="nb">set</span> (inv := Hiso11 f).
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj inv).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pr12 inv).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (arrow_mor11_eq (pr2 Hiso f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Helpers</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/LNWFSHelpers.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

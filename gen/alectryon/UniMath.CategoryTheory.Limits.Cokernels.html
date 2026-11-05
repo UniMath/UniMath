@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Cokernels.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Direct definition of cokernels *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of cokernel</span>
+<span class="sd">- Correspondence of cokernels and coequalizers</span>
+<span class="sd">- Cokernel up to iso</span>
+<span class="sd">- Cokernel of [Epi] · morphism</span>
+<span class="sd">- CokernelOut of equal morphisms</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of cokernels *)</span>
+<span class="kn">Section</span> <span class="nf">def_cokernels</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Hypothesis</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="sd">(** Definition and construction of Cokernels *)</span>
+  <span class="kn">Definition</span> <span class="nf">isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> : f · g = (ZeroArrow Z x z)) : UU :=
+    ∏ (w : C) (h : y --&gt; w) (H : f · h = ZeroArrow Z x w), <span class="k">∃</span>! φ : z --&gt; w, g · φ = h.
+
+  <span class="kn">Lemma</span> <span class="nf">isCokernel_paths</span>  {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> <span class="nv">H'</span> : f · g = (ZeroArrow Z x z))
+        (<span class="nv">isC</span> : isCokernel f g H) : isCokernel f g H'.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (e : H = H') <span class="bp">by</span> <span class="nb">apply</span> hs.
+    <span class="nb">induction</span> e. <span class="bp">exact</span> isC.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">make_isCokernel_uniqueness</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+        (<span class="nv">H1</span> : f · g = ZeroArrow Z x z)
+        (<span class="nv">H2</span> : ∏ (w : C) (h : C ⟦ y, w ⟧),
+              f · h = ZeroArrow Z x w → <span class="k">∃</span>! ψ : C ⟦ z, w ⟧, g · ψ = h)
+        (<span class="nv">w</span> : C) (<span class="nv">h</span> : y --&gt; w) (<span class="nv">H'</span> : f · h = ZeroArrow Z x w) :
+    ∏ y0 : C ⟦ z, w ⟧, g · y0 = h → y0 = pr1 (iscontrpr1 (H2 w h H')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y0 H. <span class="nb">apply</span> (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 H))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H1</span> : f · g = ZeroArrow Z x z)
+             (<span class="nv">H2</span> : ∏ (w : C) (h : y --&gt; w) (H' : f · h = ZeroArrow Z x w),
+                   <span class="k">∃</span>! ψ : z --&gt; w, g · ψ = h) : isCokernel f g H1.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isCokernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> (pr1 (iscontrpr1 (H2 w h H'))).
+    - <span class="bp">exact</span> (pr2 (iscontrpr1 (H2 w h H'))).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="bp">exact</span> (base_paths _ _ ((pr2 (H2 w h H')) (tpair _ y0 X))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU :=
+    ∑ D : (∑ z : ob C, y --&gt; z),
+          ∑ (e : f · (pr2 D) = ZeroArrow Z x (pr1 D)), isCokernel f (pr2 D) e.
+
+  <span class="kn">Definition</span> <span class="nf">make_Cokernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">H</span> : f · g = (ZeroArrow Z x z))
+             (<span class="nv">isCK</span> : isCokernel f g H) : Cokernel f := ((z,,g),,(H,,isCK)).
+
+  <span class="kn">Definition</span> <span class="nf">Cokernels</span> : UU := ∏ (x y : C) (f : x --&gt; y), Cokernel f.
+
+  <span class="kn">Definition</span> <span class="nf">hasCokernels</span> : UU := ∏ (x y : C) (f : x --&gt; y), ishinh (Cokernel f).
+
+  <span class="kn">Definition</span> <span class="nf">CokernelOb</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel f) : ob C := pr1 (pr1 CK).
+  <span class="kn">Coercion</span> <span class="nf">CokernelOb</span> : Cokernel &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelArrow</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel f) : C⟦y, CK⟧ := pr2 (pr1 CK).
+
+  <span class="kn">Definition</span> <span class="nf">CokernelCompZero</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel f) :
+    f · (CokernelArrow CK) = (ZeroArrow Z x CK) := pr1 (pr2 CK).
+
+  <span class="kn">Definition</span> <span class="nf">CokernelisCokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> : Cokernel g) := pr2 (pr2 CK).
+
+  <span class="kn">Definition</span> <span class="nf">CokernelOut</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> : Cokernel g) (<span class="nv">w</span> : C) (<span class="nv">h</span> : z --&gt; w)
+             (<span class="nv">H</span> : g · h = ZeroArrow Z y w) : C⟦CK, w⟧ :=
+    pr1 (iscontrpr1 (CokernelisCokernel CK w h H)).
+
+  <span class="kn">Definition</span> <span class="nf">CokernelCommutes</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> : Cokernel g) (<span class="nv">w</span> : C) (<span class="nv">h</span> : z --&gt; w)
+        (<span class="nv">H</span> : g · h = ZeroArrow Z y w) : (CokernelArrow CK) · (CokernelOut CK w h H) = h
+    := pr2 (iscontrpr1 (CokernelisCokernel CK w h H)).
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelOutUnique</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">g</span> : y --&gt; z} {<span class="nv">H</span> : f · g = ZeroArrow Z x z}
+        (<span class="nv">isCK</span> : isCokernel f g H) {<span class="nv">w</span> : C} {<span class="nv">h</span> : y --&gt; w} (<span class="nv">H'</span> : f · h = ZeroArrow Z x w) {<span class="nv">φ</span> : z --&gt; w}
+        (<span class="nv">H''</span> : g · φ = h) :
+    φ = (pr1 (pr1 (isCK w h H'))).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (base_paths _ _ (pr2 (isCK w h H') (tpair _ φ H''))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelOutsEq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel f) {<span class="nv">w</span> : C} (<span class="nv">φ1</span> <span class="nv">φ2</span> : C⟦CK, w⟧)
+        (<span class="nv">H'</span> : (CokernelArrow CK) · φ1 = (CokernelArrow CK) · φ2) : φ1 = φ2.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H1 : f · ((CokernelArrow CK) · φ1) = ZeroArrow Z _ _).
+    {
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_left.
+    }
+    <span class="nb">rewrite</span> (CokernelOutUnique (CokernelisCokernel CK) H1 (idpath _)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (tmp := pr2 (CokernelisCokernel CK w (CokernelArrow CK · φ1) H1) (tpair _ φ2 (! H'))).
+    <span class="bp">exact</span> (base_paths _ _ tmp).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelOutComp</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : y --&gt; z} (<span class="nv">K</span> : Cokernel f) {<span class="nv">w</span> <span class="nv">w'</span> : C} (<span class="nv">h1</span> : z --&gt; w)
+        (<span class="nv">h2</span> : w --&gt; w') (<span class="nv">H1</span> : f · (h1 · h2) = ZeroArrow Z _ _) (<span class="nv">H2</span> : f · h1 = ZeroArrow Z _ _) :
+    CokernelOut K w' (h1 · h2) H1 = CokernelOut K w h1 H2 · h2.
+  <span class="kn">Proof</span>.
+    use CokernelOutsEq. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Results on morphisms between Cokernels. *)</span>
+  <span class="kn">Definition</span> <span class="nf">identity_is_CokernelOut</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel f) :
+    ∑ φ : C⟦CK, CK⟧, (CokernelArrow CK) · φ = (CokernelArrow CK).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">CK</span>).
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelEndo_is_identity</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} {<span class="nv">CK</span> : Cokernel f} (<span class="nv">φ</span> : C⟦CK, CK⟧)
+        (<span class="nv">H</span> : (CokernelArrow CK) · φ = CokernelArrow CK) : identity CK = φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H1 := tpair ((<span class="k">fun</span> <span class="nv">φ'</span> : C⟦CK, CK⟧ =&gt; _ · φ' = _)) φ H).
+    <span class="nb">assert</span> (H2 : identity_is_CokernelOut CK = H1).
+    - <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">apply</span> (CokernelisCokernel CK).
+      <span class="nb">apply</span> CokernelCompZero.
+    - <span class="nb">apply</span> (base_paths _ _ H2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_Cokernel_to_Cokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> <span class="nv">CK'</span>: Cokernel f) : C⟦CK, CK'⟧.
+  <span class="kn">Proof</span>.
+    use (CokernelOut CK CK' (CokernelArrow CK')).
+    use CokernelCompZero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">are_inverses_from_Cokernel_to_Cokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> <span class="nv">CK'</span>: Cokernel g) :
+    is_inverse_in_precat (from_Cokernel_to_Cokernel CK CK')
+                         (from_Cokernel_to_Cokernel CK' CK).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">unfold</span> from_Cokernel_to_Cokernel. <span class="nb">apply</span> pathsinv0. use CokernelEndo_is_identity.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> from_Cokernel_to_Cokernel. <span class="nb">apply</span> pathsinv0. use CokernelEndo_is_identity.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_from_Cokernel_to_Cokernel</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> <span class="nv">CK'</span> : Cokernel g) :
+    z_iso CK CK' := make_z_iso (from_Cokernel_to_Cokernel CK CK') (from_Cokernel_to_Cokernel CK' CK)
+                             (are_inverses_from_Cokernel_to_Cokernel CK CK').
+
+  <span class="sd">(** Cokernel of the ZeroArrow is given by the identity. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CokernelOfZeroArrow_isCokernel</span> (<span class="nv">x</span> <span class="nv">y</span> : C) :
+    isCokernel (ZeroArrow Z x y) (identity y) (id_right (ZeroArrow Z x y)).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> h.
+    - <span class="bp">exact</span> (id_left _).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 t. <span class="nb">cbn</span> <span class="k">in</span> t. <span class="nb">rewrite</span> id_left <span class="k">in</span> t. <span class="bp">exact</span> t.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelofZeroArrow</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : Cokernel (ZeroArrow Z x y) :=
+    make_Cokernel (ZeroArrow Z x y) (identity y) (id_right _) (CokernelOfZeroArrow_isCokernel x y).
+
+  <span class="sd">(** Cokernel of identity is given by arrow to zero *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelOfIdentity_isCokernel</span> (<span class="nv">x</span> : C) :
+    isCokernel (identity x) (ZeroArrowTo x)
+               (ArrowsToZero C Z x (identity x · ZeroArrowTo x) (ZeroArrow Z x Z)).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> (ZeroArrowFrom w).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> id_left <span class="k">in</span> H'. <span class="nb">rewrite</span> H'. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y X. <span class="nb">cbn</span> <span class="k">in</span> X. use ArrowsFromZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelOfIdentity</span> (<span class="nv">x</span> : C) : Cokernel (identity x).
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> Z.
+    - <span class="bp">exact</span> (ZeroArrowTo x).
+    - use ArrowsToZero.
+    - <span class="bp">exact</span> (CokernelOfIdentity_isCokernel x).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** More generally, the CokernelArrow of the cokernel of the ZeroArrow is an</span>
+<span class="sd">    isomorphism. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CokernelofZeroArrow_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">CK</span> : Cokernel (ZeroArrow Z x y)) :
+    is_inverse_in_precat (CokernelArrow CK)
+                         (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y)).
+  <span class="kn">Proof</span>.
+    use make_is_inverse_in_precat.
+    - <span class="nb">unfold</span> from_Cokernel_to_Cokernel. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> from_Cokernel_to_Cokernel. <span class="nb">cbn</span>.
+      use CokernelOutsEq. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes.
+      <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelofZeroArrow_iso</span> (<span class="nv">x</span> <span class="nv">y</span> : C) (<span class="nv">CK</span> : Cokernel (ZeroArrow Z x y)) : z_iso y CK :=
+    make_z_iso (CokernelArrow CK) (from_Cokernel_to_Cokernel CK (CokernelofZeroArrow x y))
+             (CokernelofZeroArrow_is_iso CK).
+
+  <span class="sd">(** It follows that CokernelArrow is an epi. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CokernelArrowisEpi</span> {<span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">g</span> : y --&gt; z} (<span class="nv">CK</span> : Cokernel g ) : isEpi (CokernelArrow CK).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> isEpi.
+    <span class="nb">intros</span> z0 g0 h X.
+    use CokernelOutsEq.
+    <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelsOut_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK1</span> <span class="nv">CK2</span> : Cokernel f) :
+    is_iso (CokernelOut CK1 CK2 (CokernelArrow CK2) (CokernelCompZero CK2)).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - use CokernelOut.
+      + use CokernelArrow.
+      + use CokernelCompZero.
+    - <span class="nb">split</span>.
+      + use CokernelOutsEq. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+      + use CokernelOutsEq. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_cokernels</span>.
+<span class="kn">Arguments</span> CokernelArrow [C] [Z] [x] [y] [f] _.
+<span class="kn">Arguments</span> Cokernel [_] _ {_ _}.
+<span class="kn">Arguments</span> isCokernel [_] _ {x y z}.
+<span class="kn">Arguments</span> CokernelOut [_] _ {y z g}.
+<span class="kn">Arguments</span> make_Cokernel [_] _ {x y z}.
+<span class="kn">Arguments</span> CokernelCompZero [_] _ {x y f}.
+
+<span class="sd">(** * Correspondence of cokernels and coequalizers *)</span>
+<span class="kn">Section</span> <span class="nf">cokernels_coequalizers</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Hypothesis</span> <span class="nv">Z</span> : Zero C.
+
+
+  <span class="sd">(** ** [Coequalizer] from [Cokernel] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">CokernelCoequalizer_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel Z f) :
+    f · CokernelArrow CK = ZeroArrow Z x y · CokernelArrow CK.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. use CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelCoequalizer_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel Z f) :
+    isCoequalizer f (ZeroArrow Z x y) (CokernelArrow CK) (CokernelCoequalizer_eq CK).
+  <span class="kn">Proof</span>.
+    use make_isCoequalizer.
+    <span class="nb">intros</span> w0 h H'.
+    use unique_exists.
+    - use CokernelOut.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">rewrite</span> H'. <span class="nb">apply</span> ZeroArrow_comp_left.
+    - use CokernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. use CokernelOutsEq. <span class="nb">rewrite</span> CokernelCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CK</span> : Cokernel Z f) :
+    Coequalizer f (ZeroArrow Z _ _).
+  <span class="kn">Proof</span>.
+    use make_Coequalizer.
+    - <span class="bp">exact</span> CK.
+    - <span class="bp">exact</span> (CokernelArrow CK).
+    - <span class="bp">exact</span> (CokernelCoequalizer_eq CK).
+    - <span class="bp">exact</span> (CokernelCoequalizer_isCokernel CK).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** [Cokernel] from [Coequalizer] *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">CoequalizerCokernel_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CE</span> : Coequalizer f (ZeroArrow Z _ _)) :
+    f · CoequalizerArrow CE = ZeroArrow Z x CE.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ (CoequalizerArrow CE)).
+    <span class="bp">exact</span> (CoequalizerEqAr CE).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CoequalizerCokernel_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y}
+        (<span class="nv">CE</span> : Coequalizer f (ZeroArrow Z _ _)) :
+    isCokernel Z f (CoequalizerArrow CE) (CoequalizerCokernel_eq CE).
+  <span class="kn">Proof</span>.
+    use (make_isCokernel).
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - use CoequalizerOut.
+      + <span class="bp">exact</span> h.
+      + <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="bp">exact</span> H'.
+    - use CoequalizerCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. use CoequalizerOutsEq. <span class="nb">rewrite</span> CoequalizerCommutes. <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CoequalizerCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : ob C} {<span class="nv">f</span> : x --&gt; y} (<span class="nv">CE</span> : Coequalizer f (ZeroArrow Z _ _)) :
+    Cokernel Z f.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> CE.
+    - <span class="bp">exact</span> (CoequalizerArrow CE).
+    - <span class="bp">exact</span> (CoequalizerCokernel_eq CE).
+    - <span class="bp">exact</span> (CoequalizerCokernel_isCokernel CE).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cokernels_coequalizers</span>.
+
+
+<span class="sd">(** * Cokernels up to iso*)</span>
+<span class="kn">Section</span> <span class="nf">cokernels_iso</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+
+  <span class="kn">Lemma</span> <span class="nf">Cokernel_up_to_iso_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">CK</span> : Cokernel Z f)
+        (<span class="nv">h</span> : z_iso CK z) (<span class="nv">H</span> : g = (CokernelArrow CK) · h) : f · g = ZeroArrow Z x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> CK <span class="k">as</span> [t p]. <span class="nb">induction</span> t <span class="k">as</span> [t' p']. <span class="nb">induction</span> p <span class="k">as</span> [t'' p''].
+    <span class="nb">unfold</span> isCoequalizer <span class="k">in</span> p''.
+    <span class="nb">rewrite</span> H.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ h).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Cokernel_up_to_iso_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">CK</span> : Cokernel Z f)
+        (<span class="nv">h</span> : z_iso CK z) (<span class="nv">H</span> : g = (CokernelArrow CK) · h) (<span class="nv">H''</span> : f · g = ZeroArrow Z x z) :
+    isCokernel Z f g H''.
+  <span class="kn">Proof</span>.
+    use (make_isCokernel).
+    <span class="nb">intros</span> w h0 H'.
+    use unique_exists.
+    - <span class="bp">exact</span> ((inv_from_z_iso h) · (CokernelOut Z CK w h0 H')).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> &lt;- (assoc _ h).
+      <span class="nb">rewrite</span> (is_inverse_in_precat1 h).
+      <span class="nb">rewrite</span> id_right. use CokernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> beta <span class="k">in</span> X.
+      use (pre_comp_with_z_iso_is_inj h). <span class="nb">rewrite</span> assoc.
+      <span class="nb">set</span> (tmp := maponpaths (<span class="k">λ</span> <span class="nv">gg</span> : _, gg · CokernelOut Z CK w h0 H')
+                             (is_inverse_in_precat1 h)). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+      use (pathscomp0 _ (! tmp)). <span class="nb">clear</span> tmp. <span class="nb">rewrite</span> id_left.
+      use CokernelOutsEq. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- X. <span class="nb">apply</span> cancel_postcomposition. <span class="nb">rewrite</span> H.
+      <span class="nb">apply</span> cancel_precomposition. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel_up_to_iso</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">CK</span> : Cokernel Z f)
+             (<span class="nv">h</span> : z_iso CK z) (<span class="nv">H</span> : g = (CokernelArrow CK) · h) : Cokernel Z f :=
+    make_Cokernel Z f g (Cokernel_up_to_iso_eq f g CK h H)
+                (Cokernel_up_to_iso_isCokernel f g CK h H (Cokernel_up_to_iso_eq f g CK h H)).
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel_up_to_iso2_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : x --&gt; z) (<span class="nv">f2</span> : y --&gt; z) (<span class="nv">h</span> : z_iso y x)
+             (<span class="nv">H</span> : h · f1 = f2) (<span class="nv">CK</span> : Cokernel Z f1) : f2 · CokernelArrow CK = ZeroArrow Z y CK.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- H. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCompZero.
+    <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel_up_to_iso2_isCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : x --&gt; z) (<span class="nv">f2</span> : y --&gt; z)
+             (<span class="nv">h</span> : z_iso y x) (<span class="nv">H</span> : h · f1 = f2) (<span class="nv">CK</span> : Cokernel Z f1) :
+    isCokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK).
+  <span class="kn">Proof</span>.
+    use (make_isCokernel).
+    <span class="nb">intros</span> w h0 H'.
+    use unique_exists.
+    - use CokernelOut.
+      + <span class="bp">exact</span> h0.
+      + <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> H'. <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ h) <span class="k">in</span> H'.
+        <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H'. <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj h) <span class="k">in</span> H'.
+        <span class="bp">exact</span> H'.
+    - <span class="nb">cbn</span>. use CokernelCommutes.
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> y0 X. <span class="nb">cbn</span> beta <span class="k">in</span> X. use CokernelOutsEq. <span class="nb">rewrite</span> CokernelCommutes.
+      <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Cokernel_up_to_iso2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : x --&gt; z) (<span class="nv">f2</span> : y --&gt; z) (<span class="nv">h</span> : z_iso y x)
+             (<span class="nv">H</span> : h · f1 = f2) (<span class="nv">CK</span> : Cokernel Z f1) : Cokernel Z f2 :=
+    make_Cokernel Z f2 (CokernelArrow CK) (Cokernel_up_to_iso2_eq f1 f2 h H CK)
+                (Cokernel_up_to_iso2_isCoequalizer f1 f2 h H CK).
+
+<span class="kn">End</span> <span class="nf">cokernels_iso</span>.
+
+
+<span class="sd">(** * Cokernel of epi · morphism *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   Suppose E : x --&gt; y is an [Epi] and f : y --&gt; z is a morphism. Then cokernel of E · f is</span>
+<span class="sd">   isomorphic to cokernel of f.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">cokernels_epis</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelEpiComp_eq1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) :
+    E · f · CokernelArrow CK2 = ZeroArrow Z x CK2.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelEpiComp_mor1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+             (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) : C⟦CK1, CK2⟧ :=
+    CokernelOut Z CK1 _ (CokernelArrow CK2) (CokernelEpiComp_eq1 E f CK1 CK2).
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelEpiComp_eq2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) :
+    f · CokernelArrow CK1 = ZeroArrow Z y CK1.
+  <span class="kn">Proof</span>.
+    use (EpiisEpi C E). <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="bp">exact</span> (CokernelCompZero Z CK1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelEpiComp_mor2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+             (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) : C⟦CK2, CK1⟧ :=
+    CokernelOut Z CK2 _ (CokernelArrow CK1) (CokernelEpiComp_eq2 E f CK1 CK2).
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelEpiComp1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) :
+    is_iso (CokernelEpiComp_mor1 E f CK1 CK2).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - <span class="bp">exact</span> (CokernelEpiComp_mor2 E f CK1 CK2).
+    - <span class="nb">split</span>.
+      + <span class="nb">unfold</span> CokernelEpiComp_mor1. <span class="nb">unfold</span> CokernelEpiComp_mor2.
+        use CokernelOutsEq.
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+      + <span class="nb">unfold</span> CokernelEpiComp_mor1. <span class="nb">unfold</span> CokernelEpiComp_mor2.
+        use CokernelOutsEq.
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelEpiComp2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK1</span> : Cokernel Z (E · f)) (<span class="nv">CK2</span> : Cokernel Z f) :
+    is_iso (CokernelEpiComp_mor2 E f CK1 CK2).
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - <span class="bp">exact</span> (CokernelEpiComp_mor1 E f CK1 CK2).
+    - <span class="nb">split</span>.
+      + <span class="nb">unfold</span> CokernelEpiComp_mor1. <span class="nb">unfold</span> CokernelEpiComp_mor2.
+        use CokernelOutsEq.
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+      + <span class="nb">unfold</span> CokernelEpiComp_mor1. <span class="nb">unfold</span> CokernelEpiComp_mor2.
+        use CokernelOutsEq.
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> CokernelCommutes.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelEpiComp_eq</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK</span> : Cokernel Z (E · f)) : f · CokernelArrow CK = ZeroArrow Z y CK.
+  <span class="kn">Proof</span>.
+    use (EpiisEpi C E). <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> assoc.
+    use CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelEpiComp_isCoequalizer</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z)
+        (<span class="nv">CK</span> : Cokernel Z (E · f)) : isCokernel Z f (CokernelArrow CK) (CokernelEpiComp_eq E f CK).
+  <span class="kn">Proof</span>.
+    use make_isCokernel.
+    - <span class="nb">intros</span> w h H'.
+      use unique_exists.
+      + use CokernelOut.
+        * <span class="bp">exact</span> h.
+        * <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_right _ _ _ _ _ E). <span class="nb">rewrite</span> &lt;- assoc.
+          <span class="nb">apply</span> cancel_precomposition. <span class="bp">exact</span> H'.
+      + <span class="nb">cbn</span>. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">apply</span> idpath.
+      + <span class="nb">intros</span> y0. <span class="nb">apply</span> hs.
+      + <span class="nb">intros</span> y0 X.
+        <span class="nb">apply</span> pathsinv0. <span class="nb">cbn</span> <span class="k">in</span> X.
+        use (EpiisEpi C (make_Epi _ _ (CokernelArrowisEpi Z CK))). <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelEpiComp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E</span> : Epi C x y) (<span class="nv">f</span> : y --&gt; z) (<span class="nv">CK</span> : Cokernel Z (E · f)) :
+    Cokernel Z f.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> CK.
+    - use CokernelArrow.
+    - <span class="bp">exact</span> (CokernelEpiComp_eq E f CK).
+    - <span class="bp">exact</span> (CokernelEpiComp_isCoequalizer E f CK).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cokernels_epis</span>.
+
+
+<span class="sd">(** * CokernelOut of equal, not necessarily definitionally equal, morphisms is iso *)</span>
+<span class="kn">Section</span> <span class="nf">cokernel_out_paths</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelOutPaths_is_iso_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+             (<span class="nv">CK1</span> : Cokernel Z f) (<span class="nv">CK2</span> : Cokernel Z f') : CK1 --&gt; CK2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e.
+    use CokernelOut.
+    - use CokernelArrow.
+    - use CokernelCompZero.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">CokernelOutPaths_is_iso</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+        (<span class="nv">CK1</span> : Cokernel Z f) (<span class="nv">CK2</span> : Cokernel Z f') : is_iso (CokernelOutPaths_is_iso_mor e CK1 CK2).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> CokernelsOut_is_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelPath_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">CK</span> : Cokernel Z f) :
+    f' · CokernelArrow CK = ZeroArrow Z x CK.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. use CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelPath_isCokernel</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">CK</span> : Cokernel Z f) :
+    isCokernel Z f' (CokernelArrow CK) (CokernelPath_eq e CK).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. use CokernelisCokernel.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Constructs a cokernel of f' from a cokernel of f in a natural way *)</span>
+  <span class="kn">Definition</span> <span class="nf">CokernelPath</span> {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f') (<span class="nv">CK</span> : Cokernel Z f) :
+    Cokernel Z f'.
+  <span class="kn">Proof</span>.
+    use make_Cokernel.
+    - <span class="bp">exact</span> CK.
+    - use CokernelArrow.
+    - <span class="bp">exact</span> (CokernelPath_eq e CK).
+    - <span class="bp">exact</span> (CokernelPath_isCokernel e CK).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cokernel_out_paths</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Cokernels.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - CokernelOut of equal morphisms
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

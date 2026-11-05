@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SquareDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The square double category of a category</span>
+
+<span class="sd"> In this file, we construct a double category from any category `C`. This double</span>
+<span class="sd"> category is called the square double category. The objects in this double category</span>
+<span class="sd"> are objects in `C`, horizontal and vertical morphisms in this double category are</span>
+<span class="sd"> morphisms in `C`, and the squares in this double category are commutative squares</span>
+<span class="sd"> in `C`. To define this double category, we use the 2-sided displayed category of</span>
+<span class="sd"> arrows. The operations on horizontal morphisms are inherited from `C`.</span>
+
+<span class="sd"> We also define the strict variation of this construction for strict categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Horizontal operations</span>
+<span class="sd"> 2. The square double category</span>
+<span class="sd"> 3. The strict square double category</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.SymmetricUnivalent.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Horizontal operations *)</span>
+<span class="kn">Section</span> <span class="nf">ArrowDoubleCategory</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_data_arrow_twosided_disp_cat</span>
+    : hor_id_data (arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hor_id_laws_arrow_twosided_disp_cat</span>
+    : hor_id_laws hor_id_data_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_id_arrow_twosided_disp_cat</span>
+    : hor_id (arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> hor_id_data_arrow_twosided_disp_cat.
+    - <span class="bp">exact</span> hor_id_laws_arrow_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_data_arrow_twosided_disp_cat</span>
+    : hor_comp_data (arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, f · g).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> s₁ ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> s₂ ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_laws_arrow_twosided_disp_cat</span>
+    : hor_comp_laws hor_comp_data_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hor_comp_arrow_twosided_disp_cat</span>
+    : hor_comp (arrow_twosided_disp_cat C).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> hor_comp_data_arrow_twosided_disp_cat.
+    - <span class="bp">exact</span> hor_comp_laws_arrow_twosided_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_lunitor_arrow_twosided_disp_cat</span>
+    : double_cat_lunitor
+        hor_id_arrow_twosided_disp_cat
+        hor_comp_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left, !id_right ;
+           <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> arrow_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_runitor_arrow_twosided_disp_cat</span>
+    : double_cat_runitor
+        hor_id_arrow_twosided_disp_cat
+        hor_comp_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left, !id_right ;
+           <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> arrow_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">double_cat_associator_arrow_twosided_disp_cat</span>
+    : double_cat_associator hor_comp_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="nb">intros</span> w x y z h₁ h₂ h₃ ; <span class="nb">cbn</span>.
+      use make_iso_twosided_disp.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left, !id_right, !assoc' ;
+           <span class="nb">apply</span> idpath).
+      + <span class="nb">apply</span> arrow_twosided_disp_cat_is_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">triangle_law_arrow_twosided_disp_cat</span>
+    : triangle_law
+        double_cat_lunitor_arrow_twosided_disp_cat
+        double_cat_runitor_arrow_twosided_disp_cat
+        double_cat_associator_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pentagon_law_arrow_twosided_disp_cat</span>
+    : pentagon_law double_cat_associator_arrow_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ArrowDoubleCategory</span>.
+
+<span class="sd">(** * 2. The square double category *)</span>
+<span class="kn">Definition</span> <span class="nf">square_double_cat</span>
+           (<span class="nv">C</span> : category)
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (hor_id_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (hor_comp_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_lunitor_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_runitor_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (double_cat_associator_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (triangle_law_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (pentagon_law_arrow_twosided_disp_cat C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_flat_square_double_cat</span>
+            (<span class="nv">C</span> : category)
+  : is_flat_double_cat (square_double_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_companions_square_double_cat</span>
+           (<span class="nv">C</span> : category)
+  : all_companions_double_cat (square_double_cat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="nb">refine</span> (f ,, _).
+  use make_double_cat_are_companions'.
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">square_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_category)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (square_double_cat C).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + <span class="nb">apply</span> is_univalent_arrow_twosided_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">symmetric_univalent_square_double_cat</span>
+            (<span class="nv">C</span> : univalent_category)
+  : symmetric_univalent (square_univalent_double_cat C).
+<span class="kn">Proof</span>.
+  use make_symmetric_univalent.
+  - <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (transpose_category
+              (square_univalent_double_cat C)
+              (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, homset_property C x y)
+            =
+            C) <span class="k">as</span> p.
+    {
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_has_homsets.
+      }
+      <span class="nb">induction</span> C <span class="k">as</span> [ [ C H₁ ] H₂ ].
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+      <span class="nb">apply</span> isaprop_is_precategory.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">pose</span> (univalent_category_is_univalent C) <span class="k">as</span> H.
+    <span class="nb">rewrite</span> &lt;- p <span class="k">in</span> H.
+    <span class="bp">exact</span> H.
+  - <span class="nb">intros</span> x₁ x₂ y₁ y₂ p₁ p₂ xy₁ xy₂.
+    <span class="nb">induction</span> p₁, p₂ ; <span class="nb">cbn</span>.
+    use isweqimplimpl.
+    + <span class="nb">intros</span> f.
+      <span class="nb">pose</span> (p := pr1 f) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> p.
+      <span class="bp">exact</span> (p).
+    + <span class="nb">apply</span> homset_property.
+    + use isaproptotal2.
+      * <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+      * <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The strict square double category *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_square_double_cat</span>
+           (<span class="nv">C</span> : setcategory)
+  : strict_double_cat.
+<span class="kn">Proof</span>.
+  use make_strict_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (arrow_twosided_disp_cat C).
+  - <span class="nb">apply</span> is_strict_arrow_twosided_disp_cat.
+  - <span class="bp">exact</span> (hor_id_arrow_twosided_disp_cat C).
+  - <span class="bp">exact</span> (hor_comp_arrow_twosided_disp_cat C).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> id_left).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> id_right).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> w x y z f g h ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> assoc).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> homset_property).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/SquareDoubleCat.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The strict square double category
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

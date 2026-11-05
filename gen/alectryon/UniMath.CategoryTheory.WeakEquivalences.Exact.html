@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Exact.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   Rezk Completion For Exact Categories</span>
+
+<span class="sd">   Let F : C → D be a weak equivalence.</span>
+<span class="sd">   In this file, we show that if C is exact and D univalent, then D is exact.</span>
+
+<span class="sd">   Contents.</span>
+<span class="sd">   1. Reflection Of Equivalence Relations [weak_equiv_reflect_eqrel]</span>
+<span class="sd">   2. Preservation Of Effectivity [weak_equiv_effective_internal_eqrel]</span>
+<span class="sd">   3. Preservation Of Exactness [weak_equiv_preserves_is_exact]</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.ExactCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Regular.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">internal_relation_op</span>
+  {<span class="nv">C</span> : category} {<span class="nv">x</span> : C} (<span class="nv">R</span> : internal_relation x)
+  : internal_relation x.
+<span class="kn">Proof</span>.
+  use make_internal_relation.
+  - <span class="bp">exact</span> R.
+  - <span class="bp">exact</span> (internal_relation_tar R).
+  - <span class="bp">exact</span> (internal_relation_src R).
+  - <span class="nb">intros</span> w f g p q.
+    <span class="bp">exact</span> (internal_relation_monic R q p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">internal_eqrel_op</span>
+  {<span class="nv">C</span> : category} {<span class="nv">x</span> : C} (<span class="nv">R</span> : internal_eqrel x)
+  : internal_eqrel x.
+<span class="kn">Proof</span>.
+  use (make_internal_eqrel _ (internal_relation_op R)).
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> w.
+  - <span class="nb">intro</span> f.
+    <span class="nb">set</span> (t := isrefl_internal_eqrel R w f).
+    <span class="bp">exact</span> (pr1 t ,, pr22 t ,, pr12 t).
+  - <span class="nb">intros</span> f g [r [p q]].
+    <span class="nb">set</span> (t := issymm_internal_eqrel R w g f (r ,, (q ,, p))).
+    <span class="bp">exact</span> (pr1 t ,, pr22 t ,, pr12 t).
+  - <span class="nb">intros</span> f g h [r [p q]] [r' [p' q']].
+    <span class="nb">set</span> (t := istrans_internal_eqrel R w h g f (r' ,, (q' ,, p')) (r ,, (q ,, p))).
+    <span class="bp">exact</span> (pr1 t ,, pr22 t ,, pr12 t).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 1. Reflection Of Equivalence Relations *)</span>
+<span class="kn">Section</span> <span class="nf">ReflectionOfRelations</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} {<span class="nv">F</span> : functor C₀ C₁}
+    (<span class="nv">F_weq</span> : fully_faithful F).
+
+  <span class="kn">Context</span> {<span class="nv">x₀</span> <span class="nv">R₀</span> : C₀} {<span class="nv">x₁</span> : C₁} (<span class="nv">i_x</span> : z_iso (F x₀) x₁).
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_reflect_rel_src</span>
+    (<span class="nv">R₁</span> : internal_relation x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : C₀⟦R₀, x₀⟧
+    := fully_faithful_inv_hom F_weq _ _ (i_R · internal_relation_src R₁ · inv_from_z_iso i_x).
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_reflect_rel_tgt</span>
+    (<span class="nv">R₁</span> : internal_relation x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : C₀⟦R₀, x₀⟧
+    := fully_faithful_inv_hom F_weq _ _ (i_R · internal_relation_tar R₁ · inv_from_z_iso i_x).
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_rel_mono_src</span>
+    (<span class="nv">R₁</span> : internal_relation x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    {<span class="nv">w</span> : C₀}
+    {<span class="nv">f</span> <span class="nv">g</span> : C₀⟦w, R₀⟧}
+    (<span class="nv">pf_s</span> : f · weak_equiv_reflect_rel_src R₁ i_R = g · weak_equiv_reflect_rel_src R₁ i_R)
+    : # F f · i_R · internal_relation_src R₁ = # F g · i_R · internal_relation_src R₁.
+  <span class="kn">Proof</span>.
+    use (cancel_z_iso _ _ (z_iso_inv i_x)).
+    <span class="nb">set</span> (s := maponpaths #F pf_s).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp <span class="k">in</span> s.
+    <span class="nb">unfold</span> weak_equiv_reflect_rel_src <span class="k">in</span> s.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom <span class="k">in</span> s.
+    <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> s.
+    <span class="bp">exact</span> s.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_reflect_rel</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : internal_relation x₀.
+  <span class="kn">Proof</span>.
+    use (make_internal_relation x₀ R₀ (weak_equiv_reflect_rel_src R₁ i_R) (weak_equiv_reflect_rel_tgt R₁ i_R)).
+    <span class="nb">intros</span> w f g pf_s pf_t.
+    use (faithful_reflects_morphism_equality _ F_weq).
+    use (cancel_z_iso _ _ i_R).
+    use (internal_relation_monic R₁).
+    - <span class="bp">exact</span> (weak_equiv_preserves_rel_mono_src _ _ pf_s).
+    - <span class="bp">exact</span> (weak_equiv_preserves_rel_mono_src (internal_relation_op R₁) _ pf_t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_reflect_src_comm</span>
+    {<span class="nv">w</span> : C₀}
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    (<span class="nv">h'</span> : C₀⟦w, x₀⟧)
+    {<span class="nv">s₀</span> : C₁ ⟦ F w, R₁ ⟧}
+    (<span class="nv">p₀</span> : s₀ · internal_relation_src R₁ = # F h' · i_x)
+    : fully_faithful_inv_hom F_weq w R₀ (s₀ · z_iso_inv i_R)
+        · internal_relation_src (weak_equiv_reflect_rel R₁ i_R) = h'.
+  <span class="kn">Proof</span>.
+    use (faithful_reflects_morphism_equality _ F_weq).
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> functor_on_fully_faithful_inv_hom.
+    etrans. { <span class="nb">apply</span> maponpaths, functor_on_fully_faithful_inv_hom. }
+    use (cancel_z_iso _ _ i_x).
+    <span class="nb">refine</span> (_ @ p₀).
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">simpl</span> ; <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_reflect_rel_refl_com</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    (<span class="nv">w</span> : C₀)
+    (<span class="nv">h</span> : C₀⟦w, x₀⟧)
+    : fully_faithful_inv_hom F_weq w (weak_equiv_reflect_rel R₁ i_R)
+        (pr1 (isrefl_internal_eqrel R₁ (F w) (#F h · i_x)) · inv_from_z_iso i_R)
+        · internal_relation_src (weak_equiv_reflect_rel R₁ i_R)
+      = h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weak_equiv_reflect_src_comm.
+    <span class="bp">exact</span> (pr12 (isrefl_internal_eqrel R₁ (F w) (#F h · i_x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_reflect_isrefl</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    (<span class="nv">w</span> : C₀)
+    : isrefl (internal_relation_to_arr_hrel (weak_equiv_reflect_rel R₁ i_R) w).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> h.
+    <span class="nb">set</span> (h_refl := isrefl_internal_eqrel R₁ (F w) (#F h · i_x)).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - use (fully_faithful_inv_hom F_weq).
+      <span class="bp">exact</span> (pr1 h_refl · inv_from_z_iso i_R).
+    - <span class="nb">apply</span> weak_equiv_reflect_rel_refl_com.
+    - <span class="bp">exact</span> (weak_equiv_reflect_rel_refl_com (internal_eqrel_op R₁) i_R w h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_arr_rel_src</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    {<span class="nv">w</span> : C₀}
+    (<span class="nv">h</span> <span class="nv">h'</span> : C₀⟦w, x₀⟧)
+    (<span class="nv">r</span> : internal_relation_to_arr_hrel (weak_equiv_reflect_rel R₁ i_R) w h h')
+    : (#F (pr1 r) · i_R) · internal_relation_src R₁ = # F h · i_x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (maponpaths #F (pr12 r)).
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2, pathsinv0, functor_on_fully_faithful_inv_hom. }
+    <span class="nb">rewrite</span> assoc', z_iso_after_z_iso_inv.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_arr_rel</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    {<span class="nv">w</span> : C₀}
+    (<span class="nv">h</span> <span class="nv">h'</span> : C₀⟦w, x₀⟧)
+    (<span class="nv">r</span> : internal_relation_to_arr_hrel (weak_equiv_reflect_rel R₁ i_R) w h h')
+    : internal_relation_to_arr_relation R₁ (# F h · i_x) (# F h' · i_x).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (#F (pr1 r) · i_R).
+    - <span class="nb">apply</span> weak_equiv_preserves_arr_rel_src.
+    - <span class="bp">exact</span> (weak_equiv_preserves_arr_rel_src (internal_eqrel_op R₁) i_R _ _ (pr1 r ,, (pr22 r ,, pr12 r))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_reflect_issym</span> (<span class="nv">w</span> : C₀)
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : issymm (internal_relation_to_arr_hrel (weak_equiv_reflect_rel R₁ i_R) w).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h h' r.
+    <span class="nb">set</span> (pf := weak_equiv_preserves_arr_rel R₁ i_R h h' r).
+    <span class="nb">set</span> (σ := issymm_internal_eqrel R₁ (F w) (#F h · i_x) (#F h' · i_x) pf).
+    <span class="nb">induction</span> σ <span class="k">as</span> [s₀ [p₀ q₀]].
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (fully_faithful_inv_hom F_weq _ _ (s₀ · z_iso_inv i_R)).
+    - <span class="bp">exact</span> (weak_equiv_reflect_src_comm R₁ i_R _ p₀).
+    - <span class="bp">exact</span> (weak_equiv_reflect_src_comm (internal_eqrel_op R₁) i_R _ q₀).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_reflect_istrans</span> (<span class="nv">w</span> : C₀)
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : istrans (internal_relation_to_arr_hrel (weak_equiv_reflect_rel R₁ i_R) w).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h h' h'' r r'.
+    <span class="nb">set</span> (pf := weak_equiv_preserves_arr_rel R₁ i_R h h' r).
+    <span class="nb">set</span> (pf' := weak_equiv_preserves_arr_rel R₁ i_R h' h'' r').
+    <span class="nb">set</span> (σ := istrans_internal_eqrel R₁ (F w) (#F h · i_x) (#F h' · i_x) (#F h'' · i_x) pf pf').
+    <span class="nb">induction</span> σ <span class="k">as</span> [s₀ [p₀ q₀]].
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (fully_faithful_inv_hom F_weq _ _ (s₀ · z_iso_inv i_R)).
+    - <span class="bp">exact</span> (weak_equiv_reflect_src_comm R₁ i_R _ p₀).
+    - <span class="bp">exact</span> (weak_equiv_reflect_src_comm (internal_eqrel_op R₁) i_R _ q₀).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weak_equiv_reflect_eqrel</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : internal_eqrel x₀.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_internal_eqrel _ (weak_equiv_reflect_rel R₁ i_R)).
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> w.
+    - <span class="nb">apply</span> weak_equiv_reflect_isrefl.
+    - <span class="nb">apply</span> weak_equiv_reflect_issym.
+    - <span class="nb">apply</span> weak_equiv_reflect_istrans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_eqrel_source</span>
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀) R₁)
+    : internal_relation_src R₁ · z_iso_inv i_x
+      = z_iso_inv i_R · # F (internal_relation_src (weak_equiv_reflect_rel R₁ i_R)).
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths, pathsinv0, functor_on_fully_faithful_inv_hom. }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">simpl</span> ; <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">ReflectionOfRelations</span>.
+
+<span class="sd">(** * 2. Preservation Of Effectivity *)</span>
+<span class="kn">Section</span> <span class="nf">PreservationOfEffectivity</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} {<span class="nv">F</span> : functor C₀ C₁}
+    (<span class="nv">F_weq</span> : is_weak_equiv F) (<span class="nv">C₁_univ</span> : is_univalent C₁)
+    (<span class="nv">P₀</span> : Pullbacks C₀) (<span class="nv">E₀</span> : all_internal_eqrel_effective C₀).
+
+  <span class="kn">Context</span> {<span class="nv">x₀</span> : C₀} {<span class="nv">x₁</span> : C₁}
+    (<span class="nv">i_x</span> : z_iso (F x₀) x₁)
+    {<span class="nv">R₀₀</span> : C₀}
+    (<span class="nv">R₁</span> : internal_eqrel x₁)
+    (<span class="nv">i_R</span> : z_iso (F R₀₀) R₁).
+
+  <span class="kn">Let</span> <span class="nf">R₀</span> := weak_equiv_reflect_eqrel (pr2 F_weq) i_x R₁ i_R.
+  <span class="kn">Let</span> <span class="nf">oR₀</span> := weak_equiv_reflect_eqrel (pr2 F_weq) i_x (internal_eqrel_op R₁) i_R.
+
+  <span class="kn">Let</span> <span class="nf">R₀_eff</span> := E₀ x₀ R₀.
+  <span class="kn">Let</span> <span class="nf">coE</span> := weak_equiv_preserves_coequalizer F_weq _ _ (pr1 R₀_eff).
+
+  <span class="kn">Local Lemma</span> <span class="nf">weak_equiv_preserves_coequalizer_cocone</span>
+    : # F (internal_relation_src R₀) · # F (CoequalizerArrow (pr1 R₀_eff))
+      = # F (internal_relation_tar R₀) · # F (CoequalizerArrow (pr1 R₀_eff)).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (CoequalizerEqAr (pr1 R₀_eff)).
+    <span class="kn">Qed</span>.
+  <span class="kn">Let</span> <span class="nf">pB</span> := weak_equiv_preserves_pullbacks F_weq _ _ _ _ _ _ _ _ _ weak_equiv_preserves_coequalizer_cocone (pr2 R₀_eff).
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_effectivity_coeq</span>
+    : Coequalizer (internal_relation_src R₁) (internal_relation_tar R₁).
+  <span class="kn">Proof</span>.
+    use (coequalizer_stable_under_iso _ _ _ _ _ _ coE).
+    - <span class="bp">exact</span> (z_iso_inv i_R).
+    - <span class="bp">exact</span> (z_iso_inv i_x).
+    - <span class="nb">apply</span> weak_equiv_preserves_eqrel_source.
+    - <span class="nb">apply</span> (weak_equiv_preserves_eqrel_source _ _ (internal_eqrel_op R₁)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_effectivity_pb</span>
+    : isPullback (CoequalizerEqAr weak_equiv_preserves_effectivity_coeq).
+  <span class="kn">Proof</span>.
+    use (Pullback_iso_squares _ pB).
+    - <span class="bp">exact</span> (z_iso_inv i_x).
+    - <span class="bp">exact</span> (z_iso_inv i_x).
+    - <span class="nb">apply</span> identity_z_iso.
+    - <span class="bp">exact</span> (z_iso_inv i_R).
+    - <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">apply</span> pathsinv0, weak_equiv_preserves_eqrel_source.
+    - <span class="nb">apply</span> (weak_equiv_preserves_eqrel_source _ _ (internal_eqrel_op R₁)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_effectivity</span>
+    : is_effective R₁.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">weak_equiv_preserves_effectivity_coeq</span>.
+    <span class="bp">exact</span> weak_equiv_preserves_effectivity_pb.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PreservationOfEffectivity</span>.
+
+<span class="kn">Definition</span> <span class="nf">weak_equiv_effective_internal_eqrel</span>
+  {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} {<span class="nv">F</span> : functor C₀ C₁}
+  (<span class="nv">F_weq</span> : is_weak_equiv F) (<span class="nv">C₁_univ</span> : is_univalent C₁)
+  (<span class="nv">P₀</span> : Pullbacks C₀) (<span class="nv">E₀</span> : all_internal_eqrel_effective C₀)
+  : all_internal_eqrel_effective C₁.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ R₁.
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ F_weq x₁)).
+  { <span class="nb">apply</span> (isaprop_is_effective (C := C₁ ,, C₁_univ)). }
+  <span class="nb">intros</span> [x₀ i_x].
+
+  use (factor_through_squash _ _ (eso_from_weak_equiv _ F_weq R₁)).
+  { <span class="nb">apply</span> (isaprop_is_effective (C := C₁ ,, C₁_univ)). }
+  <span class="nb">intros</span> [R₀ i_R].
+
+  <span class="bp">exact</span> (weak_equiv_preserves_effectivity F_weq E₀ i_x R₁ i_R).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Preservation Of Exactness *)</span>
+<span class="kn">Definition</span> <span class="nf">weak_equiv_preserves_is_exact</span>
+  {<span class="nv">C₀</span> <span class="nv">C₁</span> : category} {<span class="nv">F</span> : functor C₀ C₁}
+  (<span class="nv">F_weq</span> : is_weak_equiv F) (<span class="nv">C₁_univ</span> : is_univalent C₁)
+  (<span class="nv">E₀</span> : is_exact C₀)
+  : is_exact C₁.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (R₀ := is_exact_to_is_regular E₀).
+  <span class="nb">set</span> (P₀ := is_regular_category_pullbacks R₀).
+  <span class="nb">set</span> (T₀ := is_regular_category_terminal R₀).
+
+  use tpair.
+  - <span class="bp">exact</span> (Rezk_completion_is_regular F_weq C₁_univ (pr1 E₀)).
+  - <span class="bp">exact</span> (weak_equiv_effective_internal_eqrel F_weq C₁_univ P₀ (pr2 E₀)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Exact.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    3. Preservation Of Exactness [weak_equiv_preserves_is_exact]
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

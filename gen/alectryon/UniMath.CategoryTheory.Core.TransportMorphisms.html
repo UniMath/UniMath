@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TransportMorphisms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Lemmas on transport of morphisms *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** *** Transport source and target of a morphism *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">transport_target_postcompose</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+      (<span class="nv">e</span> : z = w) :
+  transportf (precategory_morphisms x) e (f · g) = f · transportf (precategory_morphisms y) e g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_source_precompose</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z)
+      (<span class="nv">e</span> : x = w) :
+  transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e (f · g) =
+  transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' y) e f · g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_compose</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : z --&gt; w) (<span class="nv">e</span> : y = z) :
+  transportf (precategory_morphisms x) e f · g =
+  f · transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' w) (! e) g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_compose'</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : y = w) :
+  (transportf (precategory_morphisms x) e f)
+    · (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e g) = f · g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_target_path</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">e</span> : y = z) :
+  transportf (precategory_morphisms x) e f = transportf (precategory_morphisms x) e g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">intros</span> H. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_source_path</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : y = x) :
+  transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e f =
+  transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">intros</span> H. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_source_target</span> {<span class="nv">X</span> : UU} {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> : X} (<span class="nv">P</span> : ∏ (x' : X), ob C)
+      (<span class="nv">P'</span> : ∏ (x' : X), ob C) (<span class="nv">f</span> : ∏ (x' : X), (P x') --&gt; (P' x')) (<span class="nv">e</span> : x = y) :
+  transportf (<span class="k">λ</span> (<span class="nv">x'</span> : X), (P x') --&gt; (P' x')) e (f x) =
+  transportf (<span class="k">λ</span> (<span class="nv">x'</span> : X), precategory_morphisms (P x') (P' y)) e
+             (transportf (precategory_morphisms (P x)) (maponpaths P' e) (f x)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- functtransportf. <span class="nb">unfold</span> pathsinv0. <span class="nb">unfold</span> paths_rect. <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_target_source</span> {<span class="nv">X</span> : UU} {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> : X} (<span class="nv">P</span> : ∏ (x' : X), ob C)
+      (<span class="nv">P'</span> : ∏ (x' : X), ob C) (<span class="nv">f</span> : ∏ (x' : X), (P x') --&gt; (P' x')) (<span class="nv">e</span> : x = y) :
+  transportf (<span class="k">λ</span> (<span class="nv">x'</span> : X), (P x') --&gt; (P' x')) e (f x) =
+  transportf (precategory_morphisms (P y)) (maponpaths P' e)
+             (transportf (<span class="k">λ</span> (<span class="nv">x'</span> : X), precategory_morphisms (P x') (P' x)) e (f x)).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> &lt;- functtransportf. <span class="nb">unfold</span> pathsinv0. <span class="nb">unfold</span> paths_rect. <span class="nb">induction</span> e.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_source_target_comm</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">x'</span> <span class="nv">y'</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">e1</span> : x = x')
+      (<span class="nv">e2</span> : y = y') :
+  transportf (<span class="k">λ</span> (<span class="nv">x''</span> : ob C), precategory_morphisms x'' y') e1
+             (transportf (precategory_morphisms x) e2 f) =
+  transportf (precategory_morphisms x') e2
+             (transportf (<span class="k">λ</span> (<span class="nv">x''</span> : ob C), precategory_morphisms x'' y) e1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e1. <span class="nb">induction</span> e2. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** *** Transport a morphism using funextfun *)</span>
+
+<span class="kn">Definition</span> <span class="nf">transport_source_funextfun</span> {<span class="nv">X</span> : UU} {<span class="nv">C</span> : precategory_ob_mor} (<span class="nv">F</span> <span class="nv">F'</span> : X -&gt; ob C)
+           (<span class="nv">H</span> : ∏ (x : X), F x = F' x) {<span class="nv">x</span> : X} (<span class="nv">c</span> : ob C) (<span class="nv">f</span> : F x --&gt; c) :
+  transportf (<span class="k">λ</span> <span class="nv">x0</span> : X → C, x0 x --&gt; c) (funextfun F F' H) f =
+  transportf (<span class="k">λ</span> <span class="nv">x0</span> : C, x0 --&gt; c) (H x) f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (@transportf_funextfun X (ob C) (<span class="k">λ</span> <span class="nv">x0</span> : C, x0 --&gt; c) F F' H x f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transport_target_funextfun</span> {<span class="nv">X</span> : UU} {<span class="nv">C</span> : precategory_ob_mor} (<span class="nv">F</span> <span class="nv">F'</span> : X -&gt; ob C)
+           (<span class="nv">H</span> : ∏ (x : X), F x = F' x) {<span class="nv">x</span> : X} {<span class="nv">c</span> : ob C} (<span class="nv">f</span> : c --&gt; F x)  :
+  transportf (<span class="k">λ</span> <span class="nv">x0</span> : X → C, c --&gt; x0 x) (funextfun F F' H) f =
+  transportf (<span class="k">λ</span> <span class="nv">x0</span> : C, c --&gt; x0) (H x) f.
+<span class="kn">Proof</span>.
+  use transportf_funextfun.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_mor_funextfun</span> {<span class="nv">X</span> : UU} {<span class="nv">C</span> : precategory_ob_mor} (<span class="nv">F</span> <span class="nv">F'</span> : X -&gt; ob C)
+           (<span class="nv">H</span> : ∏ (x : X), F x = F' x) {<span class="nv">x1</span> <span class="nv">x2</span> : X} (<span class="nv">f</span> : F x1 --&gt; F x2) :
+  transportf (<span class="k">λ</span> <span class="nv">x</span> : X → C, x x1 --&gt; x x2) (funextfun F F' H) f =
+  transportf (<span class="k">λ</span> <span class="nv">x</span> : X → C, F' x1 --&gt; x x2)
+             (funextfun F F' (<span class="k">λ</span> <span class="nv">x</span> : X, H x))
+             (transportf (<span class="k">λ</span> <span class="nv">x</span> : X → C, x x1 --&gt; F x2)
+                         ((funextfun F F' (<span class="k">λ</span> <span class="nv">x</span> : X, H x))) f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (funextfun F F' (<span class="k">λ</span> <span class="nv">x</span> : X, H x)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Transport of is_iso *)</span>
+<span class="kn">Lemma</span> <span class="nf">transport_target_is_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">H</span> : is_iso f)
+      (<span class="nv">e</span> : y = z) : is_iso (transportf (precategory_morphisms x) e f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_source_is_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">H</span> : is_iso f)
+      (<span class="nv">e</span> : x = z) : is_iso (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' y) e f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> e. <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Induced precategories *)</span>
+
+<span class="kn">Definition</span> <span class="nf">induced_precategory</span> (<span class="nv">M</span> : precategory) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) : precategory.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (X,, <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, precategory_morphisms (j a) (j b)).
+    + <span class="nb">split</span>;<span class="nb">cbn</span>.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span>, identity (j c)).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>, @compose M (j a) (j b) (j c)).
+  - <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, @id_left M (j a) (j b)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, @id_right M (j a) (j b)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>, @assoc M (j a) (j b) (j c) (j d)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>, @assoc' M (j a) (j b) (j c) (j d)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_induced_precategory</span> (<span class="nv">M</span> : category) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M)
+  : has_homsets (induced_precategory M j).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> M.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">induced_category</span> (<span class="nv">M</span> : category) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M) : category
+  := make_category _ (has_homsets_induced_precategory M j).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/TransportMorphisms.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Lemmas on transport of morphisms *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.UnivalenceAxiom.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

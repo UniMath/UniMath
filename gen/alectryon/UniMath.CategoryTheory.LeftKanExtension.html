@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LeftKanExtension.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************</span>
+<span class="sd"> Left Kan extensions</span>
+<span class="sd"> In this file, we define left Kan extensions of functors. In addition,</span>
+<span class="sd"> we construct a left adjoint to the precomposition functor. To define</span>
+<span class="sd"> the left Kan extension, we use the pointwise formula for it, which</span>
+<span class="sd"> defines it as a conical colimit.</span>
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Pointwise definition of the left Kan extension</span>
+<span class="sd"> 1.1. Action on objects</span>
+<span class="sd"> 1.2. Action on morphisms</span>
+<span class="sd"> 1.3. Functoriality</span>
+<span class="sd"> 1.4. Definition of the left Kan extension</span>
+<span class="sd"> 1.5. Natural transformation that witnesses commutation (the unit)</span>
+<span class="sd"> 2. Left Kan extension of natural transformations</span>
+<span class="sd"> 2.1. Extending transformations</span>
+<span class="sd"> 2.2. Naturality of unit</span>
+<span class="sd"> 3. Functoriality of assigning the left Kan extension</span>
+<span class="sd"> 4. Adjunction coming from left Kan extensions</span>
+<span class="sd"> 4.1. The left adjoint (left Kan extension)</span>
+<span class="sd"> 4.2. The unit</span>
+<span class="sd"> 4.3. The counit</span>
+<span class="sd"> 4.4. The triangles</span>
+<span class="sd"> 4.5. The adjunction</span>
+<span class="sd"> ***********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CommaCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Pointwise definition of the left Kan extension</span>
+<span class="sd"> Note: we assume `C₁` below to be small.</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftKanExtension</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D</span> : category}
+          (<span class="nv">ColimsD</span> : Colims D)
+          (<span class="nv">P</span> : C₁ ⟶ C₂)
+          (<span class="nv">F</span> : C₁ ⟶ D).
+
+  <span class="sd">(**</span>
+<span class="sd">   1.1. Action on objects</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_comma</span> (<span class="nv">x</span> : C₂) : category := comma P (constant_functor unit_category _ x).
+  <span class="kn">Definition</span> <span class="nf">lan_pr</span> (<span class="nv">x</span> : C₂) : lan_comma x ⟶ D := comma_pr1 _ _ ∙ F.
+  <span class="kn">Definition</span> <span class="nf">lan_colim</span>
+             (<span class="nv">x</span> : C₂)
+    : ColimCocone (diagram_from_functor (lan_comma x) D (lan_pr x))
+    := ColimsD _ (diagram_from_functor _ _ (lan_pr x)).
+
+  <span class="kn">Definition</span> <span class="nf">lan_point</span>
+             (<span class="nv">x</span> : C₂)
+    : D
+    := colim (lan_colim x).
+
+  <span class="sd">(**</span>
+<span class="sd">   1.2. Action on morphisms</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">LanMor</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : C₂}
+            (<span class="nv">f</span> : x --&gt; y).
+
+    <span class="kn">Definition</span> <span class="nf">lan_mor_cocone_ob</span>
+               (<span class="nv">z</span> : C₁)
+               (<span class="nv">h</span> : P z --&gt; x)
+      : F z --&gt; lan_point y
+      := colimIn (lan_colim y) ((z ,, tt) ,, h · f).
+
+    <span class="kn">Definition</span> <span class="nf">lan_mor_forms_cocone</span>
+               {<span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+               (<span class="nv">h₁</span> : P z₁ --&gt; x)
+               (<span class="nv">h₂</span> : P z₂ --&gt; x)
+               (<span class="nv">e</span> : z₁ --&gt; z₂)
+               (<span class="nv">p</span> : h₁ = # P e · h₂)
+      : # F e · lan_mor_cocone_ob z₂ h₂
+        =
+        lan_mor_cocone_ob z₁ h₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (colimInCommutes
+               (lan_colim y)
+               ((z₁ ,, tt) ,, h₁ · f)
+               ((z₂ ,, tt) ,, h₂ · f)
+               ((e ,, idpath _) ,, _)).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="bp">exact</span> p).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lan_mor</span>
+      : D ⟦ lan_point x , lan_point y ⟧.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (colim_mor
+                (lan_colim x)
+                (lan_point y)
+                (<span class="k">λ</span> <span class="nv">v</span>, lan_mor_cocone_ob (pr11 v) (pr2 v))
+                (<span class="k">λ</span> <span class="nv">v₁</span> <span class="nv">v₂</span> <span class="nv">e</span>, lan_mor_forms_cocone (pr2 v₁) (pr2 v₂) (pr11 e) _)).
+      <span class="kp">abstract</span>
+          (<span class="bp">exact</span>(!(id_right _) @ pr2 e)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lan_mor_colimIn</span>
+               (<span class="nv">w</span> : C₁)
+               (<span class="nv">h</span> : P w --&gt; x)
+               (<span class="nv">a</span> : unit)
+      : colimIn (lan_colim x) ((w ,, a) ,, h) · lan_mor
+        =
+        colimIn (lan_colim y) ((w ,, a) ,, h · f).
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> a.
+      <span class="nb">unfold</span> lan_mor.
+      <span class="nb">rewrite</span> colim_mor_commute.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">LanMor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_data</span>
+    : functor_data C₂ D.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> lan_point.
+    - <span class="bp">exact</span> @lan_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.3. Functoriality</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_is_functor</span>
+    : is_functor lan_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+      use colim_mor_eq.
+      <span class="nb">intros</span> v.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">refine</span> (lan_mor_colimIn (identity x) (pr11 v) (pr2 v) _ @ _).
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="nb">cbn</span>.
+      use colim_mor_eq.
+      <span class="nb">intros</span> v.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> lan_mor_colimIn.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> lan_mor_colimIn.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (lan_mor_colimIn g (pr11 v) (pr2 v · f)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.4. Definition of the left Kan extension</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan</span>
+    : C₂ ⟶ D.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> lan_data.
+    - <span class="bp">exact</span> lan_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   1.5. Natural transformation that witnesses commutation</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_commute_data</span>
+    : nat_trans_data F (P ∙ lan)
+    := <span class="k">λ</span> <span class="nv">x</span>,
+       colimIn
+         (lan_colim (P x))
+         ((x ,, tt) ,, identity _).
+
+  <span class="kn">Definition</span> <span class="nf">lan_commute_is_nat_trans</span>
+    : is_nat_trans F (P ∙ lan) lan_commute_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="bp">exact</span> (lan_mor_colimIn (#P f) x (identity _) _).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> (!(colimInCommutes
+               (lan_colim (P y))
+               ((x ,, tt) ,, #P f)
+               ((y ,, tt) ,, identity _)
+               ((f ,, idpath _) ,, idpath _))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_commute</span>
+    : F ⟹ P ∙ lan.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> lan_commute_data.
+    - <span class="bp">exact</span> lan_commute_is_nat_trans.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LeftKanExtension</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Left Kan extension of natural transformations</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftKanExtensionNatTrans</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D</span> : category}
+          (<span class="nv">ColimsD</span> : Colims D)
+          (<span class="nv">P</span> : C₁ ⟶ C₂)
+          {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ D}
+          (<span class="nv">τ</span> : F ⟹ G).
+
+  <span class="sd">(**</span>
+<span class="sd">   2.1. Extending transformations</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans_data_cocone_ob</span>
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+             (<span class="nv">h</span> : P w --&gt; x)
+    : F w --&gt; lan_point ColimsD P G x
+    := τ w · colimIn (lan_colim ColimsD P G x) ((w ,, tt) ,, h).
+
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans_data_cocone_forms_cocone</span>
+             {<span class="nv">x</span> : C₂}
+             {<span class="nv">w₁</span> <span class="nv">w₂</span> : C₁}
+             {<span class="nv">h₁</span> : P w₁ --&gt; x}
+             {<span class="nv">h₂</span> : P w₂ --&gt; x}
+             {<span class="nv">e</span> : w₁ --&gt; w₂}
+             (<span class="nv">p</span> : h₁ · identity _ = #P e · h₂)
+    : # F e · lan_nat_trans_data_cocone_ob x w₂ h₂
+      =
+      lan_nat_trans_data_cocone_ob x w₁ h₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lan_nat_trans_data_cocone_ob.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (nat_trans_ax τ _ _ e).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (colimInCommutes
+             (lan_colim ColimsD P G x)
+             ((w₁,, tt),, h₁)
+             ((w₂,, tt),, h₂)
+             ((e ,, idpath _) ,, p)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans_data</span>
+    : nat_trans_data
+        (lan ColimsD P F)
+        (lan ColimsD P G)
+    := <span class="k">λ</span> <span class="nv">x</span>, colim_mor (lan_colim ColimsD P F x)
+              _
+              (<span class="k">λ</span> <span class="nv">v</span>, lan_nat_trans_data_cocone_ob x (pr11 v) (pr2 v))
+              (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">e</span>, lan_nat_trans_data_cocone_forms_cocone (pr2 e)).
+
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans_colimIn</span>
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+             (<span class="nv">h</span> : P w --&gt; x)
+             (<span class="nv">a</span> : unit)
+    : colimIn (lan_colim ColimsD P F x) ((w ,, a) ,, h) · lan_nat_trans_data x
+      =
+      τ w · colimIn (lan_colim ColimsD P G x) ((w ,, a) ,, h).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> lan_nat_trans_data.
+    <span class="nb">induction</span> a.
+    <span class="nb">rewrite</span> colim_mor_commute.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans_is_nat_trans</span>
+    : is_nat_trans _ _ lan_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    use colim_mor_eq.
+    <span class="nb">intros</span> v.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lan_mor_colimIn.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (lan_nat_trans_colimIn y (pr11 v) (pr2 v · f)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lan_nat_trans_colimIn.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lan_mor_colimIn.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_nat_trans</span>
+    : lan ColimsD P F ⟹ lan ColimsD P G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> lan_nat_trans_data.
+    - <span class="bp">exact</span> lan_nat_trans_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.2. Naturality of unit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_commute_natural</span>
+    : nat_trans_comp
+        _ _ _
+        τ (lan_commute ColimsD P G)
+      =
+      nat_trans_comp
+        _ _ _
+        (lan_commute ColimsD P F) (pre_whisker P (lan_nat_trans )).
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> lan_commute_data.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> lan_nat_trans_colimIn.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">LeftKanExtensionNatTrans</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Functoriality of assigning the left Kan extension</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lan_nat_trans_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D</span> : category}
+           (<span class="nv">ColimsD</span> : Colims D)
+           (<span class="nv">P</span> : C₁ ⟶ C₂)
+           (<span class="nv">F</span> : C₁ ⟶ D)
+  : lan_nat_trans ColimsD P (nat_trans_id F)
+    =
+    nat_trans_id _.
+<span class="kn">Proof</span>.
+  use nat_trans_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">intro</span> x.
+  use colim_mor_eq.
+  <span class="nb">intro</span> v.
+  etrans.
+  {
+    <span class="nb">apply</span> lan_nat_trans_colimIn.
+  }
+  <span class="bp">exact</span> (id_left _ @ !(id_right _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lan_nat_trans_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D</span> : category}
+           (<span class="nv">ColimsD</span> : Colims D)
+           (<span class="nv">P</span> : C₁ ⟶ C₂)
+           {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : C₁ ⟶ D}
+           (<span class="nv">τ₁</span> : F ⟹ G)
+           (<span class="nv">τ₂</span> : G ⟹ H)
+  : lan_nat_trans ColimsD P (nat_trans_comp _ _ _ τ₁ τ₂)
+    =
+    nat_trans_comp _ _ _ (lan_nat_trans ColimsD P τ₁) (lan_nat_trans ColimsD P τ₂).
+<span class="kn">Proof</span>.
+  use nat_trans_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">intro</span> x.
+  use colim_mor_eq.
+  <span class="nb">intro</span> v.
+  etrans.
+  {
+    <span class="nb">apply</span> lan_nat_trans_colimIn.
+  }
+  <span class="nb">refine</span> (_ @ assoc' _ _ _).
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> lan_nat_trans_colimIn.
+  }
+  <span class="nb">refine</span> (assoc' _ _ _ @ _).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> lan_nat_trans_colimIn.
+  }
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Adjunction coming from left Kan extensions</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftKanExtensionAdjunction</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D</span> : category}
+          (<span class="nv">ColimsD</span> : Colims D)
+          (<span class="nv">P</span> : C₁ ⟶ C₂).
+
+  <span class="sd">(**</span>
+<span class="sd">   4.1. The left adjoint (left Kan extension)</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_functor_data</span>
+    : functor_data [ C₁ , D ] [ C₂ , D ].
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, lan ColimsD P F).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">τ</span>, lan_nat_trans ColimsD P τ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_functor_is_functor</span>
+    : is_functor lan_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> lan_nat_trans_id.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> lan_nat_trans_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_functor</span>
+    : [ C₁ , D ] ⟶ [ C₂ , D ].
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> lan_functor_data.
+    - <span class="bp">exact</span> lan_functor_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4.2. The unit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_unit</span>
+    : functor_identity _ ⟹ lan_functor ∙ pre_comp_functor P.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span>, lan_commute ColimsD P F).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">τ</span>, lan_commute_natural ColimsD P τ).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4.3. The counit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit_point</span>
+             (<span class="nv">F</span> : C₂ ⟶ D)
+             (<span class="nv">x</span> : C₂)
+    : lan_point ColimsD P (P ∙ F) x --&gt; F x.
+  <span class="kn">Proof</span>.
+    use colim_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span>, #F (pr2 v)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> v₁ v₂ e ;
+         <span class="nb">refine</span> (!(functor_comp F _ _) @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) _) ;
+         <span class="bp">exact</span> (!(pr2 e) @ id_right _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit_point_colimIn</span>
+             (<span class="nv">F</span> : C₂ ⟶ D)
+             (<span class="nv">x</span> : C₂)
+             (<span class="nv">w</span> : C₁)
+             (<span class="nv">f</span> : P w --&gt; x)
+             (<span class="nv">a</span> : unit)
+    : colimIn (lan_colim ColimsD P (P ∙ F) x) ((w ,, a) ,, f)
+      · lan_precomposition_counit_point F x
+      =
+      #F f.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> colim_mor_commute.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit_natural</span>
+             (<span class="nv">F</span> : C₂ ⟶ D)
+             {<span class="nv">x</span> <span class="nv">y</span> : C₂}
+             (<span class="nv">f</span> : x --&gt; y)
+    : lan_mor ColimsD P (P ∙ F) f · lan_precomposition_counit_point F y
+      =
+      lan_precomposition_counit_point F x · # F f.
+  <span class="kn">Proof</span>.
+    use colim_mor_eq.
+    <span class="nb">intros</span> v.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lan_mor_colimIn.
+    }
+    <span class="nb">rewrite</span> lan_precomposition_counit_point_colimIn.
+    etrans.
+    {
+      <span class="nb">apply</span> (lan_precomposition_counit_point_colimIn F y (pr11 v) (pr2 v · f)).
+    }
+    <span class="nb">apply</span> (functor_comp F).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit_data</span>
+             (<span class="nv">F</span> : C₂ ⟶ D)
+    : lan_data ColimsD P (P ∙ F) ⟹ F.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (lan_precomposition_counit_point F).
+    - <span class="bp">exact</span> (@lan_precomposition_counit_natural F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit_natural_trans</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ D}
+             (<span class="nv">τ</span> : F ⟹ G)
+    : nat_trans_comp
+        _ _ _
+        (lan_nat_trans ColimsD P (pre_whisker P τ : P ∙ F ⟹ P ∙ G))
+        (lan_precomposition_counit_data G)
+      =
+      nat_trans_comp
+        _ _ _
+        (lan_precomposition_counit_data F) τ.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    use colim_mor_eq.
+    <span class="nb">intro</span> v ; <span class="nb">cbn</span> -[comma].
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (lan_nat_trans_colimIn
+               ColimsD
+               P
+               (pre_whisker P τ : P ∙ F ⟹ P ∙ G)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lan_precomposition_counit_point_colimIn.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> lan_precomposition_counit_point_colimIn.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (nat_trans_ax τ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_counit</span>
+    : pre_comp_functor P ∙ lan_functor ⟹ functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> lan_precomposition_counit_data.
+    - <span class="bp">exact</span> @lan_precomposition_counit_natural_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4.4. The triangles</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_triangle_1</span>
+             (<span class="nv">F</span> : C₁ ⟶ D)
+    : nat_trans_comp
+        _ _ _
+        (lan_nat_trans ColimsD P (lan_commute ColimsD P F))
+        (lan_precomposition_counit_data (lan ColimsD P F))
+      =
+      nat_trans_id (lan_data ColimsD P F).
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    use colim_mor_eq.
+    <span class="nb">intro</span> v ; <span class="nb">cbn</span> -[comma].
+    <span class="nb">refine</span> (assoc _ _ _ @ _ @ !(id_right _)).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> lan_nat_trans_colimIn.
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (lan_precomposition_counit_point_colimIn (lan ColimsD P F)).
+    }
+    etrans.
+    {
+      <span class="bp">exact</span> (lan_mor_colimIn ColimsD P F (pr2 v) (pr11 v) (identity _) tt).
+    }
+    <span class="nb">induction</span> v <span class="k">as</span> [ v₁ v₃ ].
+    <span class="nb">induction</span> v₁ <span class="k">as</span> [ v₁ v₂ ].
+    <span class="nb">induction</span> v₂.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_triangle_2</span>
+             (<span class="nv">F</span> : C₂ ⟶ D)
+    : nat_trans_comp
+        _ _ _
+        (lan_commute ColimsD P (P ∙ F))
+        (pre_whisker P (lan_precomposition_counit_data F))
+      =
+      nat_trans_id (functor_composite_data P F).
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> lan_precomposition_counit_point_colimIn.
+    }
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4.5. The adjunction</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">lan_precomposition_are_adjoints</span>
+    : are_adjoints lan_functor (pre_comp_functor P).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, (_ ,, _)).
+    - <span class="bp">exact</span> lan_precomposition_unit.
+    - <span class="bp">exact</span> lan_precomposition_counit.
+    - <span class="bp">exact</span> lan_precomposition_triangle_1.
+    - <span class="bp">exact</span> lan_precomposition_triangle_2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_right_adjoint_precomposition</span>
+    : is_right_adjoint (pre_comp_functor P)
+    := lan_functor ,, lan_precomposition_are_adjoints.
+<span class="kn">End</span> <span class="nf">LeftKanExtensionAdjunction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/LeftKanExtension.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4.4. The triangles
+  &gt;  4.5. The adjunction
+  &gt;  ***********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

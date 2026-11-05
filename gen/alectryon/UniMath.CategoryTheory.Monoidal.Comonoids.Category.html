@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Category.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">In this file, the category of comonoids internal to a monoidal category is defined.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">CategoryOfComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_comonoids_data</span>
+    : disp_cat V
+    := dirprod_disp_cat
+         (dialgebra_disp_cat (functor_identity V) (diag_functor V))
+         (dialgebra_disp_cat (functor_identity V) (constant_functor _ _ I_{V})).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_struct_data</span> (<span class="nv">x</span> : V) : UU
+    := disp_cat_of_comonoids_data x.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_data</span> : UU
+    := total_category disp_cat_of_comonoids_data.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_ob</span> (<span class="nv">m</span> : comonoid_data)
+    : ob V := pr1 m.
+  <span class="kn">Coercion</span> <span class="nf">comonoid_ob</span> : comonoid_data &gt;-&gt; ob.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_comult</span> (<span class="nv">m</span> : comonoid_data)
+    : V⟦m , m ⊗ m⟧ := pr12 m.
+
+  <span class="kn">Notation</span> <span class="s2">"δ_{ m }"</span> := (comonoid_comult m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_counit</span> (<span class="nv">m</span> : comonoid_data)
+    : V⟦m , monoidal_unit V⟧ := pr22 m.
+
+  <span class="kn">Notation</span> <span class="s2">"ε_{ m }"</span> := (comonoid_counit m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_assoc</span> (<span class="nv">m</span> : comonoid_data) : UU
+    := δ_{m} · (δ_{m} ⊗^{V}_{r} m) · mon_lassociator m m m = δ_{m} · m ⊗^{V}_{l} δ_{m}.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_unit_left</span> (<span class="nv">m</span> : comonoid_data) : UU
+    := δ_{m} · (ε_{m} ⊗^{V}_{r} m) · mon_lunitor m = identity (comonoid_ob m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_unit_right</span> (<span class="nv">m</span> : comonoid_data) : UU
+    := δ_{m} · (m ⊗^{V}_{l} ε_{m}) · mon_runitor m = identity (comonoid_ob m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws</span> (<span class="nv">m</span> : comonoid_data)
+    : UU
+    := comonoid_laws_unit_left m × comonoid_laws_unit_right m × comonoid_laws_assoc m.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_comonoid_laws</span> (<span class="nv">m</span> : comonoid_data)
+    : isaprop (comonoid_laws m).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_disp_cat</span>
+    : disp_cat (total_category disp_cat_of_comonoids_data).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (disp_full_sub _ (<span class="k">λ</span> <span class="nv">m</span>, comonoid_laws m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">locally_propositional_comonoid_laws_disp_cat</span>
+    : locally_propositional comonoid_laws_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_comonoids</span> : disp_cat V
+    := sigma_disp_cat comonoid_laws_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_struct</span> (<span class="nv">x</span> : V) : UU
+    := disp_cat_of_comonoids x.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_category</span> : category
+    := total_category disp_cat_of_comonoids.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid</span> : UU
+    := total_category disp_cat_of_comonoids.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_to_struct</span> (<span class="nv">m</span> : comonoid)
+    : comonoid_struct (pr1 m)
+    := pr12 m ,, pr22 m.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_to_data</span> (<span class="nv">m</span> : comonoid)
+    : comonoid_data
+    := pr1 m ,, pr12 m.
+
+  <span class="kn">Coercion</span> <span class="nf">comonoid_to_data</span> : comonoid &gt;-&gt; comonoid_data.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_to_law_assoc</span> (<span class="nv">m</span> : comonoid)
+    : comonoid_laws_assoc m := pr2 (pr222 m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_to_law_unit_left</span> (<span class="nv">m</span> : comonoid)
+    : comonoid_laws_unit_left m := pr122 m.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_to_law_unit_right</span> (<span class="nv">m</span> : comonoid)
+    : comonoid_laws_unit_right m := pr1 (pr222 m).
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_mor_struct</span> (<span class="nv">m</span> <span class="nv">n</span> : comonoid) (<span class="nv">f</span> : V⟦m,n⟧): UU
+    := (comonoid_to_struct m) --&gt;[f] (comonoid_to_struct n).
+
+  <span class="kn">Definition</span> <span class="nf">make_is_comonoid_mor</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : comonoid} {<span class="nv">f</span> : V⟦m,n⟧}
+    (<span class="nv">f_δ</span> : δ_{m} · f #⊗ f = f · δ_{n})
+    (<span class="nv">f_ε</span> : ε_{m} · identity I_{ V} = f · ε_{n})
+    : comonoid_mor_struct m n f.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+    - <span class="bp">exact</span> f_δ.
+    - <span class="bp">exact</span> f_ε.
+    - <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_mor</span> (<span class="nv">m</span> <span class="nv">n</span> : comonoid)
+    : UU
+    := (total_category disp_cat_of_comonoids)⟦m,n⟧.
+
+  <span class="kn">Definition</span> <span class="nf">is_comonoid_mor_comult</span>
+    (<span class="nv">m</span> <span class="nv">n</span> : comonoid) (<span class="nv">f</span> : V⟦m,n⟧) : UU
+    := δ_{m} · (f #⊗ f) = f · δ_{n}.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_mor_comult_law</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : comonoid} (<span class="nv">f</span> : comonoid_mor m n)
+    : is_comonoid_mor_comult m n (pr1 f)
+    <span class="c">(* δ_{m} · (pr1 f ⊗⊗ pr1 f) = pr1 f · δ_{n} *)</span>
+    := pr112 f.
+
+  <span class="kn">Definition</span> <span class="nf">is_comonoid_mor_counit</span>
+    (<span class="nv">m</span> <span class="nv">n</span> : comonoid) (<span class="nv">f</span> : V⟦m,n⟧) : UU
+    := f · ε_{n} = ε_{m}.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_mor_counit_law</span>
+    {<span class="nv">m</span> <span class="nv">n</span> : comonoid} (<span class="nv">f</span> : comonoid_mor m n)
+    : is_comonoid_mor_counit m n (pr1 f)
+    <span class="c">(* pr1 f · ε_{n} = ε_{m} *)</span>
+    := ! pr212 f @ id_right _.
+
+  <span class="kn">Lemma</span> <span class="nf">is_locally_propositional_comonoid</span>
+    : locally_propositional disp_cat_of_comonoids.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span> , _ ,, isapropunit)).
+    <span class="nb">apply</span> (isaprop_total2
+             (_ ,, homset_property _ _ _ _ _)
+             (<span class="k">λ</span> <span class="nv">_</span> , _ ,, homset_property _ _ _ _ _)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CategoryOfComonoids</span>.
+
+<span class="kn">Module</span> <span class="nf">ComonoidNotations</span>.
+
+  <span class="kn">Notation</span> <span class="s2">"δ_{ m }"</span> := (comonoid_comult _ m).
+  <span class="kn">Notation</span> <span class="s2">"ε_{ m }"</span> := (comonoid_counit _ m).
+
+<span class="kn">End</span> <span class="nf">ComonoidNotations</span>.
+
+<span class="kn">Section</span> <span class="nf">CategoryOfCommutativeComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat).
+
+  <span class="kn">Import</span> ComonoidNotations.
+
+  <span class="kn">Definition</span> <span class="nf">is_commutative</span> (<span class="nv">m</span> : comonoid V) : UU
+    := δ_{m} · sym_mon_braiding V m m = δ_{m}.
+
+  <span class="kn">Definition</span> <span class="nf">commutative_comonoids_laws_disp_cat</span>
+    : disp_cat (comonoid_category V).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (disp_full_sub _ is_commutative).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_commutative_comonoids</span>
+    := sigma_disp_cat commutative_comonoids_laws_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">commutative_comonoid_category</span>
+    : category
+    := total_category disp_cat_of_commutative_comonoids.
+
+  <span class="kn">Definition</span> <span class="nf">commutative_comonoid</span>
+    : UU
+    := total_category disp_cat_of_commutative_comonoids.
+
+  <span class="kn">Definition</span> <span class="nf">commutative_comonoid_to_comonoid</span>
+    (<span class="nv">m</span> : commutative_comonoid) : comonoid V
+    := pr1 m ,, pr12 m.
+
+  <span class="kn">Coercion</span> <span class="nf">commutative_comonoid_to_comonoid</span>
+    : commutative_comonoid &gt;-&gt; comonoid.
+
+  <span class="kn">Definition</span> <span class="nf">commutative_comonoid_is_commutative</span> (<span class="nv">m</span> : commutative_comonoid)
+    : is_commutative m
+    := pr22 m.
+
+  <span class="kn">Lemma</span> <span class="nf">is_locally_propositional_commutative_comonoid</span>
+    : locally_propositional disp_cat_of_commutative_comonoids.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span> , _ ,, isapropunit)).
+    use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span> , _ ,, isapropunit)).
+    <span class="nb">apply</span> (isaprop_total2
+             (_ ,, homset_property _ _ _ _ _)
+             (<span class="k">λ</span> <span class="nv">_</span> , _ ,, homset_property _ _ _ _ _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">underlying_commutative_comonoid</span>
+    : commutative_comonoid_category ⟶ V
+    := pr1_category _.
+<span class="kn">End</span> <span class="nf">CategoryOfCommutativeComonoids</span>.
+
+<span class="kn">Section</span> <span class="nf">CommutativeComonoidsMorBuilder</span>.
+  <span class="kn">Import</span> ComonoidNotations.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          (<span class="nv">C₁</span> <span class="nv">C₂</span> : commutative_comonoid V)
+          (<span class="nv">f</span> : underlying_commutative_comonoid _ C₁ --&gt; underlying_commutative_comonoid _ C₂)
+          (<span class="nv">fδ</span> : δ_{C₁} · f #⊗ f = f · δ_{C₂})
+          (<span class="nv">fε</span> : ε_{C₁} = f · ε_{C₂}).
+
+  <span class="kn">Definition</span> <span class="nf">make_commutative_comonoid_mor</span>
+    : C₁ --&gt; C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (f ,, ((_ ,, _) ,, tt) ,, tt).
+    - <span class="bp">exact</span> fδ.
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="bp">exact</span> fε).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CommutativeComonoidsMorBuilder</span>.
+
+<span class="kn">Definition</span> <span class="nf">underlying_comonoid_mor</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : commutative_comonoid V}
+           (<span class="nv">f</span> : C₁ --&gt; C₂)
+  : underlying_commutative_comonoid _ C₁ --&gt; underlying_commutative_comonoid _ C₂
+  := pr1 f.
+
+<span class="kn">Section</span> <span class="nf">CommutativeComonoidsMorProjections</span>.
+  <span class="kn">Import</span> ComonoidNotations.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : commutative_comonoid V}
+          (<span class="nv">f</span> : C₁ --&gt; C₂).
+
+  <span class="kn">Proposition</span> <span class="nf">underlying_comonoid_mor_comult</span>
+    : δ_{C₁} · underlying_comonoid_mor f #⊗ underlying_comonoid_mor f
+      =
+      underlying_comonoid_mor f · δ_{C₂}.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr112 f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">underlying_comonoid_mor_counit</span>
+    : ε_{C₁} = underlying_comonoid_mor f · ε_{C₂}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ pr2 (pr112 f)).
+    <span class="bp">exact</span> (!(id_right _)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CommutativeComonoidsMorProjections</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> This gives a more convenient builder for commutative comonoids for</span>
+<span class="sd"> the bundled version. Note: only one identity law has to be proven</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MakeCommutativeComonoid</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_monoidal_cat}
+          (<span class="nv">x</span> : V)
+          (<span class="nv">δ</span> : x --&gt; x ⊗ x)
+          (<span class="nv">ε</span> : x --&gt; I_{V})
+          (<span class="nv">unit_left</span> : δ · (ε #⊗ identity x) · mon_lunitor x = identity x)
+          (<span class="nv">assocδ</span> : δ · (δ #⊗ identity x) · mon_lassociator x x x = δ · (identity x #⊗ δ))
+          (<span class="nv">comm</span> : δ · sym_mon_braiding V x x = δ).
+
+  <span class="kn">Definition</span> <span class="nf">make_commutative_comonoid_data</span>
+    : comonoid_data V
+    := x ,, δ ,, ε.
+
+  <span class="kn">Proposition</span> <span class="nf">make_commutative_comonoid_laws</span>
+    : comonoid_laws V make_commutative_comonoid_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">refine</span> (_ @ unit_left) ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_mor_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ unit_left) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(comm)).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_sym_mon_braiding.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> sym_mon_braiding_lunitor.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> tensor_mor_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">unfold</span> comonoid_laws_assoc ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ assocδ @ _).
+      + <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_mor_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> tensor_mor_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_commutative_comonoid</span>
+    : commutative_comonoid V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (x ,, ((δ ,, ε) ,, _) ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> make_commutative_comonoid_laws.
+    - <span class="bp">exact</span> comm.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MakeCommutativeComonoid</span>.
+
+<span class="kn">Section</span> <span class="nf">ComonoidAux</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoidal_cat).
+
+  <span class="kn">Import</span> ComonoidNotations.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_assoc'</span>
+    (<span class="nv">m</span> : comonoid M)
+    : δ_{m} · (δ_{m} ⊗^{M}_{r} m) = δ_{m} · m ⊗^{M}_{l} δ_{m} · mon_rassociator m m m.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- comonoid_to_law_assoc.
+    <span class="nb">rewrite</span> ! assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> monoidal_associatorisolaw.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_unit_left'</span>
+    (<span class="nv">m</span> : comonoid M)
+    : δ_{m} · (ε_{m} ⊗^{M}_{r} m) = mon_linvunitor m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> &lt;- comonoid_to_law_unit_left.
+    <span class="nb">rewrite</span> ! assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comonoid_laws_unit_right'</span>
+    (<span class="nv">m</span> : comonoid M)
+    : δ_{m} · (m ⊗^{M}_{l} ε_{m})  = mon_rinvunitor m.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> &lt;- (comonoid_to_law_unit_right M _).
+    <span class="nb">rewrite</span> ! assoc'.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> monoidal_rightunitorisolaw.
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_right.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">ComonoidAux</span>.
+
+<span class="kn">Section</span> <span class="nf">CommutativeComonoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : sym_monoidal_cat).
+  <span class="kn">Import</span> ComonoidNotations.
+
+  <span class="kn">Lemma</span> <span class="nf">comultiplication_comonoid_4times'</span>
+    (<span class="nv">m</span> : comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m}
+      = δ_{m} · δ_{m} ⊗^{M}_{r} m · mon_lassociator _ _ _ · δ_{m}  ⊗^{M}_{r} _.
+  <span class="kn">Proof</span>.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (bifunctor_equalwhiskers M).
+    }
+
+    <span class="nb">unfold</span> functoronmorphisms2.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> comonoid_to_law_assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comultiplication_comonoid_4times_symmetry</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m} · (sym_mon_braiding M m m #⊗ sym_mon_braiding M m m)
+      = δ_{m} · δ_{m} #⊗ δ_{m}.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+    <span class="bp">now</span> <span class="nb">rewrite</span> commutative_comonoid_is_commutative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comultiplication_comonoid_4times_symmetry_left</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m} · (sym_mon_braiding M m m ⊗^{M}_{r} (m ⊗_{M} m))
+      = δ_{m} · δ_{m} #⊗ δ_{m}.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering M).
+    <span class="nb">refine</span> (! tensor_comp_mor _ _ _ _ @ _).
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> commutative_comonoid_is_commutative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_using_lwhisker</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m} · α^{M}_{_,_,_}
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (m ⊗^{M}_{l} δ_{m})).
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> comonoid_to_law_assoc.
+    }
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (monoidal_associatornatleft M).
+    }
+    <span class="bp">now</span> <span class="nb">rewrite</span> ! assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_using_lrwhisker</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (m ⊗^{M}_{l} δ_{m})) · m ⊗^{M}_{l} mon_rassociator _ _ _
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp M).
+    etrans. {
+      <span class="nb">apply</span> pathsinv0, (bifunctor_leftcomp M).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> (bifunctor_leftcomp M).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ ! comonoid_laws_assoc' M m).
+    <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_using_lrwhisker'</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)) · m ⊗^{M}_{l} ((sym_mon_braiding M m m) ⊗^{M}_{r} m)
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp M).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_rightcomp M).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> commutative_comonoid_is_commutative.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_using_lrwhisker''</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m} · α^{M}_{_,_,_} · m ⊗^{M}_{l} mon_rassociator _ _ _ · m ⊗^{M}_{l} ((sym_mon_braiding M m m) ⊗^{M}_{r} m)
+      = δ_{m} · (m ⊗^{M}_{l} δ_{m}) · (m ⊗^{M}_{l} (δ_{m} ⊗^{M}_{r} m)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ commutative_symmetric_braiding_using_lrwhisker' _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ commutative_symmetric_braiding_using_lrwhisker _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (commutative_symmetric_braiding_using_lwhisker _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comultiplication_comonoid_4times</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · m ⊗^{M}_{l} δ_{ m} · m ⊗^{M}_{l} (δ_{ m} ⊗^{M}_{r} m)
+      = δ_{m} · δ_{m} ⊗^{M} δ_{ m} · mon_lassociator _ _ (_ ⊗ m) · m ⊗^{M}_{l} mon_rassociator _ _ _.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (! commutative_symmetric_braiding_using_lwhisker _).
+    }
+
+    <span class="nb">rewrite</span> ! assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp M).
+    etrans. {
+      <span class="nb">apply</span> pathsinv0, (bifunctor_leftcomp M).
+    }
+    etrans.
+    <span class="mi">2</span>: {
+      <span class="nb">apply</span> (bifunctor_leftcomp M).
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (comonoid_laws_assoc' M m @ _).
+    <span class="nb">apply</span> assoc'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_after_4_copies'</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · δ_{m} #⊗ δ_{m} · α^{M}_{_,_,_} · (m ⊗^{M}_{l} αinv^{M}_{_,_,_}) · (m ⊗^{M}_{l} (sym_mon_braiding M m m ⊗^{M}_{r} m))
+      = δ_{m} · δ_{m} #⊗ δ_{m} · α^{M}_{_,_,_} · m ⊗^{M}_{l} αinv^{M}_{_,_,_}.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (commutative_symmetric_braiding_using_lrwhisker'' _ @ _).
+    <span class="bp">exact</span> (comultiplication_comonoid_4times _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">commutative_symmetric_braiding_after_4_copies</span>
+    (<span class="nv">m</span> : commutative_comonoid M)
+    : δ_{m} · (δ_{m} #⊗ δ_{m}
+                 · (α^{M}_{ m, m, m ⊗_{ M} m}
+                         · (m ⊗^{M}_{l} (αinv^{M}_{ m, m, m} · (sym_mon_braiding M m m ⊗^{M}_{r} m · α^{M}_{ m, m, m}))
+                              · αinv^{M}_{m, m, m ⊗_{ M} m})))
+      = δ_{m} · δ_{m} #⊗ δ_{m}.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ! assoc.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> ! (bifunctor_leftcomp M).
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (commutative_symmetric_braiding_after_4_copies' _).
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- (bifunctor_leftcomp M).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (monoidal_associatorisolaw M m m m).
+    }
+    <span class="nb">rewrite</span> (bifunctor_leftid M).
+    <span class="nb">rewrite</span> id_right.
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (monoidal_associatorisolaw M m m _).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">comult_before_inner_swap_and_swap</span>
+    (<span class="nv">mx</span> <span class="nv">my</span> : comonoid M)
+    : δ_{mx} #⊗ δ_{my} · (inner_swap M _ _ _ _ · sym_mon_braiding M _ _ #⊗ sym_mon_braiding M _ _)
+      = δ_{mx} #⊗ δ_{my} · (sym_mon_braiding M (_ ⊗ _) (_ ⊗ _) · inner_swap M _ _ _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> inner_swap_commute_with_swap.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CommutativeComonoids</span>.
+
+<span class="kn">Section</span> <span class="nf">Univalence</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_cat_of_comonoids_is_univalent</span>
+    (<span class="nv">V</span> : monoidal_cat)
+    : is_univalent_disp (disp_cat_of_comonoids V).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_sigma_disp.
+    - <span class="nb">apply</span> dirprod_disp_cat_is_univalent
+      ; <span class="nb">apply</span> is_univalent_dialgebra_disp_cat.
+    - <span class="nb">apply</span> disp_full_sub_univalent.
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_comonoid_laws.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_cat_of_commutative_comonoids_is_univalent</span>
+    (<span class="nv">V</span> : sym_monoidal_cat)
+    : is_univalent_disp (disp_cat_of_commutative_comonoids V).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_sigma_disp.
+    - <span class="nb">apply</span> disp_cat_of_comonoids_is_univalent.
+    - <span class="nb">apply</span> disp_full_sub_univalent.
+      <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Univalence</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Comonoids/Category.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In this file, the category of comonoids internal to a monoidal category is defined.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

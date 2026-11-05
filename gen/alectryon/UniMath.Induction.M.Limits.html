@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Limits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Limits in the precategory of types</span>
+
+<span class="sd">  This is a partial reconstruction of the results of "Homotopy limits in type</span>
+<span class="sd">  theory" by Jeremy Avigad, Chris Kapulkin, and Peter LeFanu Lumsdaine</span>
+<span class="sd">  (arXiv:1304.0680v3).</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">StandardLimits</span>.
+
+  <span class="kn">Context</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g type_precat).
+
+  <span class="kn">Definition</span> <span class="nf">standard_limit</span> : UU :=
+    ∑ (x : ∏ (v : vertex g), dob d v),
+    ∏ (u v : vertex g) (e : edge u v), dmor d e (x u) = x v.
+
+  <span class="sd">(** The condition that [standard_limit] is a cone is basically a rephrasing of</span>
+<span class="sd">      its definition. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">type_cone</span> : cone d standard_limit.
+  <span class="kn">Proof</span>.
+    use make_cone; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">l</span>, pr1 l n).
+    - <span class="nb">intros</span> u v f.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> l; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (pr2 l).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">StandardLimits</span>.
+
+<span class="kn">Section</span> <span class="nf">StandardLimitHomot</span>.
+
+  <span class="kn">Context</span> {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g type_precat} (<span class="nv">x</span> <span class="nv">y</span> : standard_limit d).
+
+  <span class="sd">(** A homotopy of cones *)</span>
+  <span class="kn">Definition</span> <span class="nf">standard_limit_homot</span> : UU :=
+    ∑ h : pr1 x ~ pr1 y,
+      ∏ (u v : vertex g) (ed : edge u v),
+        (maponpaths (dmor d ed) (h u) @ (pr2 y _ _) ed = pr2 x _ _ ed @ (h v)).
+
+  <span class="sd">(** Such homotopies can be made into paths *)</span>
+  <span class="kn">Lemma</span> <span class="nf">type_cone_homot_to_path</span> (<span class="nv">h</span> : standard_limit_homot) : x = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (total2_paths_f (funextsec _ _ _ (pr1 h))).
+
+    <span class="sd">(** transport_lemma in peterlefanulumsdaine/hott-limits/Limits1.v. *)</span>
+    <span class="nb">assert</span> (transport_lemma :
+              ∏ p : pr1 x = pr1 y,
+                transportf _ p (pr2 x) = <span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> (<span class="nv">ed</span> : edge u v),
+                maponpaths (dmor d ed) (!(toforallpaths _ _ _ p u))
+                @ pr2 x _ _ ed
+                @ toforallpaths _ _ _ p v).
+    {
+      <span class="nb">intros</span> p; <span class="nb">induction</span> p; <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+      <span class="bp">exact</span> (!(pathscomp0rid _)).
+    }
+    <span class="nb">refine</span> (transport_lemma _ @ _).
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> u; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> v; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ed.
+    <span class="nb">rewrite</span> toforallpaths_funextsec.
+    <span class="nb">change</span> (pr2 y u v ed) <span class="k">with</span> (idpath _ @ (pr2 y u v ed)).
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">p</span>, p @ _) (pathsinv0l (maponpaths _ (pr1 h u)))).
+    <span class="nb">refine</span> (_ @ (path_assoc (! maponpaths _ _) (maponpaths _ _) _)).
+    <span class="nb">rewrite</span> maponpathsinv0.
+    <span class="nb">apply</span> maponpaths, pathsinv0.
+    <span class="bp">exact</span> (pr2 h u v ed).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StandardLimitHomot</span>.
+
+<span class="sd">(** The canonical cone given by an arrow X → Y where Y has a cone *)</span>
+
+<span class="kn">Definition</span> <span class="nf">into_cone_to_cone</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g _}
+  (<span class="nv">coneY</span> : cone d (Y : ob type_precat)) (<span class="nv">f</span> : X → Y) : cone d X.
+<span class="kn">Proof</span>.
+  use make_cone.
+  - <span class="nb">intro</span> ver.
+    <span class="bp">exact</span> (pr1 coneY ver ∘ (f : type_precat ⟦ X, Y ⟧)).
+  - <span class="nb">intros</span> ver1 ver2 ed; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 coneY ver1 ver2 ed)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">StandardLimitUP</span>.
+
+  <span class="kn">Context</span> {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g type_precat}.
+
+  <span class="sd">(** A rephrasing of the universal property: the canonical map that makes a</span>
+<span class="sd">      cone out of a map X → L is an equivalence. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_limit_cone</span> {<span class="nv">L</span>} (<span class="nv">C</span> : cone d L) :=
+    ∏ (X : UU), isweq (@into_cone_to_cone X L g d C).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_isLimCone</span> {<span class="nv">L</span>} (<span class="nv">C</span> : cone d L) : isaprop (is_limit_cone C).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** A weak equivalence expressing the above universal property. *)</span>
+  <span class="kn">Definition</span> <span class="nf">limit_up_weq</span> {<span class="nv">X</span> <span class="nv">L</span>} {<span class="nv">C</span> : cone d L} {<span class="nv">isc</span> : is_limit_cone C} :
+    (X → L) ≃ cone d X := make_weq (into_cone_to_cone C) (isc X).
+
+  <span class="sd">(** The universal property of a limit.</span>
+
+<span class="sd">      - Proposition 4.2.8 (limit_universal) in Avigad, Kapulkin, and Lumsdaine</span>
+<span class="sd">      - Generalizes Lemma 10 in Ahrens, Capriotti, and Spadotti</span>
+<span class="sd">      - Generalizes univ-iso in HoTT/M-types</span>
+<span class="sd">  *)</span>
+  <span class="kn">Lemma</span> <span class="nf">limit_universal</span> : is_limit_cone (type_cone d).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> X.
+    use isweq_iso.
+    - <span class="nb">intros</span> xcone x.
+      <span class="nb">unfold</span> standard_limit.
+      use tpair.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ver</span>, pr1 xcone ver x).
+      + <span class="nb">intros</span> ver1 ver2 ed.
+        <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 xcone _ _ _)).
+    - <span class="nb">intros</span> f.
+      <span class="nb">apply</span> funextfun; <span class="nb">intro</span> xcone.
+      use total2_paths_f; <span class="nb">cbn</span>; [<span class="bp">reflexivity</span>|].
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ver1.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ver2.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ed.
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> toforallpaths_funextsec).
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intro</span> conex.
+      <span class="nb">unfold</span> into_cone_to_cone; <span class="nb">cbn</span>.
+      use total2_paths_f; <span class="nb">cbn</span>.
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ver1.
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ver2.
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ed.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> toforallpaths_funextsec; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> funextsec_toforallpaths.
+        <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The above weak equivalence specialized to the case of [standard_limit]s *)</span>
+  <span class="kn">Definition</span> <span class="nf">standard_limit_up_weq</span> {<span class="nv">X</span>} : (X → standard_limit d) ≃ cone d X :=
+    make_weq (into_cone_to_cone (type_cone d)) (limit_universal X).
+
+<span class="kn">End</span> <span class="nf">StandardLimitUP</span>.
+
+<span class="sd">(** In the case of cochains, we can provide a somewhat simpler limit. *)</span>
+<span class="kn">Section</span> <span class="nf">CochainLimit</span>.
+  <span class="kn">Context</span> (<span class="nv">coch</span> : cochain type_precat).
+  <span class="kn">Let</span> <span class="nf">X</span> := (pr1 coch).
+  <span class="kn">Let</span> <span class="nf">π</span> := (pr2 coch).
+  <span class="kn">Let</span> <span class="nf">π'</span> <span class="nv">n</span> := π (S n) n (idpath _).
+
+  <span class="kn">Definition</span> <span class="nf">cochain_limit</span> :=
+    ∑ (x : <span class="k">forall</span> <span class="nv">n</span> : nat, X n), <span class="k">forall</span> <span class="nv">n</span>, π' n (x (S n)) = x n.
+
+  <span class="kn">Lemma</span> <span class="nf">simplify_cochain_step</span>
+        {<span class="nv">u</span> <span class="nv">v</span> : nat}
+        (<span class="nv">x</span> : <span class="k">forall</span> <span class="nv">n</span>, X n)
+        (<span class="nv">e</span> : S v = u) :
+    dmor coch e (x u) = π' v (x (S v)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> π', π <span class="k">in</span> *; <span class="nb">unfold</span> dmor.
+    (<span class="nb">induction</span> e; <span class="nb">auto</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">simplify_cochain_step_idpath</span> {<span class="nv">u</span> : nat} (<span class="nv">x</span> : <span class="k">forall</span> <span class="nv">n</span>, X n) :
+    @simplify_cochain_step (S u) u x (idpath _) =
+    idpath _.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cochain_limit_cone</span> :
+    cone coch cochain_limit.
+  <span class="kn">Proof</span>.
+    use make_cone; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> v cochain_limit_element.
+      <span class="nb">apply</span> (pr1 cochain_limit_element).
+    - <span class="nb">intros</span> u v e.
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> l; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ pr2 l _).
+      <span class="nb">unfold</span> dmor, π', π.
+      <span class="nb">apply</span> simplify_cochain_step.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lim_equiv</span> : cochain_limit ≃ (standard_limit coch).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cochain_limit, standard_limit; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>.
+    use weq_iso.
+    - <span class="nb">intros</span> eq.
+      <span class="nb">intros</span> u v e.
+      <span class="nb">specialize</span> (eq v).
+      <span class="nb">unfold</span> π', π <span class="k">in</span> *; <span class="nb">unfold</span> dmor.
+      <span class="nb">refine</span> (_ @ eq).
+      <span class="nb">apply</span> simplify_cochain_step.
+    - <span class="nb">intros</span> eq; <span class="nb">intro</span>; <span class="nb">apply</span> eq.
+    - <span class="kp">abstract</span> ( <span class="nb">intro</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span>; <span class="bp">reflexivity</span> ).
+    - <span class="kp">abstract</span> ( <span class="nb">intro</span>; <span class="nb">cbn</span>;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>);
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> p;
+      <span class="nb">induction</span> p;
+      <span class="bp">reflexivity</span> ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cochain_limit_is_limit</span> :
+    ∑ c : cone coch cochain_limit, is_limit_cone c.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H :
+      (∑ c : cone coch cochain_limit, is_limit_cone c)
+      ≃ ∑ c : cone coch (standard_limit coch), is_limit_cone c
+      ).
+    {
+      <span class="nb">induction</span> (weqtopaths lim_equiv).
+      <span class="nb">apply</span> idweq.
+    }
+    <span class="nb">apply</span> H.
+    <span class="nb">eapply</span> tpair.
+    <span class="nb">apply</span> limit_universal.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CochainLimit</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/M/Limits.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   (arXiv:1304.0680v3).
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.MoreFoundations.Univalence.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

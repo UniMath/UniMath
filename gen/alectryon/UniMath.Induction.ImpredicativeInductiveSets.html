@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ImpredicativeInductiveSets.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Impredicative Construction of Inductive Types that are Sets and Eliminate into Sets *)</span>
+
+<span class="sd">(** This is based on Sam Speight's master's thesis</span>
+
+
+<span class="sd">    A Lean formalization of this had been available at</span>
+<span class="sd">    https://github.com/jonas-frey/Impredicative/blob/master/</span>
+<span class="sd">    The aim of this project at the UniMath School 2019 was to have</span>
+<span class="sd">    the same results within UniMath - for the time being only binary</span>
+<span class="sd">    products, binary coproducts and natural numbers. This has been</span>
+<span class="sd">    achieved (with a minor addition afterwards). The Lean code we</span>
+<span class="sd">    used is always put into a comment at the end of the sections.</span>
+
+<span class="sd">    Authors: Ralph Matthes (@rmatthes), Sam Speight (@sspeight93)</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Init.
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> functions.
+
+<span class="kn">Section</span> <span class="nf">BinaryProduct</span>.
+
+<span class="kn">Variable</span> <span class="nv">A</span> <span class="nv">B</span>: HSET.
+
+<span class="kn">Definition</span> <span class="nf">pre_prod</span>: UU := ∏ (X: HSET), (pr1hSet A -&gt; pr1hSet B -&gt; pr1hSet X) -&gt; pr1hSet X.
+
+<span class="kn">Lemma</span> <span class="nf">pre_prod_isaset</span>: isaset pre_prod.
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> pre_prod).
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_prod_as_set</span>: HSET := make_hSet pre_prod pre_prod_isaset.
+
+<span class="kn">Definition</span> <span class="nf">nProduct</span> (<span class="nv">α</span>: pre_prod): UU :=
+  ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -&gt; pr1hSet B -&gt; pr1hSet X), f (α X h) = α Y (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, f (h a b)).
+
+<span class="kn">Definition</span> <span class="nf">nProduct_isaset</span> (<span class="nv">α</span>: pre_prod): isaset (nProduct α).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> (nProduct α)).
+  <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> hlevelntosn.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nProduct_as_set</span> (<span class="nv">α</span>: pre_prod): HSET := make_hSet _ (nProduct_isaset α).
+
+<span class="kn">Definition</span> <span class="nf">Product</span>: UU := ∑ α: pre_prod, pr1hSet (nProduct_as_set α).
+
+<span class="kn">Definition</span> <span class="nf">Product_isaset</span>: isaset Product.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isaset_total2_hSet pre_prod_as_set).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Product_as_set</span>: HSET := make_hSet _ Product_isaset.
+
+<span class="kn">Definition</span> <span class="nf">Pair</span> (<span class="nv">a</span> : pr1hSet A) (<span class="nv">b</span> : pr1hSet B) : Product.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">f</span>, f a b).
+  - <span class="nb">cbn</span>. <span class="nb">red</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Proj1</span>: HSET ⟦Product_as_set, A⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">induction</span> p <span class="k">as</span> [α H].
+  <span class="nb">apply</span> α.
+  <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">x</span> <span class="nv">y</span> =&gt; x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Proj2</span>: HSET ⟦Product_as_set, B⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">induction</span> p <span class="k">as</span> [α H].
+  <span class="nb">apply</span> α.
+  <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">x</span> <span class="nv">y</span> =&gt; y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Product_rec</span> {<span class="nv">C</span>: HSET} (<span class="nv">f</span>: pr1hSet A -&gt; pr1hSet B -&gt; pr1hSet C) (<span class="nv">p</span>: Product) : pr1hSet C.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> (pr1 C f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_beta</span> (<span class="nv">C</span>: HSET) (<span class="nv">f</span>: pr1hSet A -&gt; pr1hSet B -&gt; pr1hSet C) (<span class="nv">a</span>: pr1hSet A) (<span class="nv">b</span>: pr1hSet B) : Product_rec f (Pair a b) = f a b.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_weak_η</span> (<span class="nv">x</span>: Product) : Product_rec (C := Product_as_set) Pair x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [P H].
+  use total2_paths_f.
+  - <span class="nb">cbn</span>.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">unfold</span> pre_prod <span class="k">in</span> P.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> X.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f.
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="bp">exact</span> (H Product_as_set X (<span class="k">fun</span> <span class="nv">x</span> =&gt; pr1 x X f) Pair).
+  - <span class="nb">cbn</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> H.
+    <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_com_con</span> {<span class="nv">C</span> <span class="nv">D</span> : HSET} (<span class="nv">f</span> : pr1hSet A → pr1hSet B → pr1hSet C) (<span class="nv">g</span> : pr1hSet C → pr1hSet D): Product_rec (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, g (f a b)) = g ∘ Product_rec f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [p H].
+  <span class="nb">cbn</span> <span class="k">in</span> H. <span class="nb">red</span> <span class="k">in</span> H.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> (H C D g f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_η</span> {<span class="nv">C</span> : HSET} (<span class="nv">g</span> : Product → pr1hSet C): Product_rec (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, g (Pair a b)) = g.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> (Product_com_con (C := Product_as_set) Pair).
+  - <span class="nb">apply</span> funextfun; <span class="nb">intro</span> p.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> Product_weak_η.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_classical_η</span> (<span class="nv">p</span>: Product) : Pair (Proj1 p) (Proj2 p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> Product_weak_η.
+  - <span class="nb">set</span> (Product_η_inst := Product_η (C := Product_as_set) (<span class="k">fun</span> <span class="nv">x</span> =&gt; Pair (Proj1 x) (Proj2 x))).
+    <span class="nb">cbn</span> <span class="k">in</span> Product_η_inst.
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> Product_η_inst.
+    <span class="nb">apply</span> Product_η_inst.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Product_univ_prop</span> {<span class="nv">C</span> : HSET} : isweq (@Product_rec C).
+<span class="kn">Proof</span>.
+  use isweq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">a</span> <span class="nv">b</span>, f (Pair a b)).
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> Product_η.
+<span class="kn">Defined</span>.
+
+<span class="c">(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L173 onwards:</span>
+<span class="c">/- Product A × B of sets -/</span>
+
+<span class="c">-- System F encoding</span>
+<span class="c">definition  preProduct (A B : USet) : USet :=</span>
+<span class="c">  tΠ (X : USet), (A ⇒ B ⇒ X) ⇒ X</span>
+
+<span class="c">-- naturality condition</span>
+<span class="c">definition nProduct {A B : USet} (α : preProduct A B) : UPrp</span>
+<span class="c">  := tΠ(X Y : USet) (f : X → Y) (h : A ⇒ B ⇒ X), f (α X h) == α Y (λ a, f ∘ h a)</span>
+
+<span class="c">-- refined encoding</span>
+<span class="c">definition  Product (A B : USet) : USet := σ(α : preProduct A B), nProduct α</span>
+
+<span class="c">-- constructor</span>
+<span class="c">definition Pair {A B : USet} (a : A) (b : B) : Product A B</span>
+<span class="c">  := ⟨λ X f, f a b, λ X Y f g, rfl⟩</span>
+
+<span class="c">-- eliminators</span>
+<span class="c">definition Proj1 {A B : USet} : Product A B → A</span>
+<span class="c">  := sigma.rec (λ alpha p, alpha A (λ x y, x))</span>
+
+<span class="c">definition Proj2 {A B : USet} : Product A B → B</span>
+<span class="c">  := sigma.rec (λ alpha p, alpha B (λ x y, y))</span>
+
+<span class="c">-- recursor</span>
+<span class="c">definition Product_rec {A B C : Set} (f : A ⇒ B ⇒ C) (p : Product A B) : C</span>
+<span class="c">  := p.1 C f</span>
+
+<span class="c">-- β rule</span>
+<span class="c">definition Product_β {A B C : USet} (f : A → B → C) (a : A) (b : B)</span>
+<span class="c">  :  Product_rec f (Pair a b) = f a b := rfl</span>
+
+<span class="c">-- weak η rule</span>
+<span class="c">definition Product_weak_η {A B : USet} (x : Product A B)</span>
+<span class="c">  :  Product_rec Pair x = x</span>
+<span class="c">  := begin induction x with p n, fapply sigma_eq, apply eq_of_homotopy2,</span>
+<span class="c">     intros X f, exact (n _ _ (Product_rec f) Pair), apply is_prop.elimo end</span>
+
+<span class="c">-- commuting conversion</span>
+<span class="c">definition Product_com_con {A B C D : USet} (f : A → B → C) (g : C → D)</span>
+<span class="c">  :  Product_rec (λ a b, g (f a b)) = g ∘ Product_rec f</span>
+<span class="c">  := (eq_of_homotopy (λ x, x.2 C D g f))⁻¹</span>
+
+<span class="c">-- strong η rule</span>
+<span class="c">definition Product_η {A B C : USet} (g : Product A B → C)</span>
+<span class="c">  :  Product_rec (λ a b, g (Pair a b)) = g</span>
+<span class="c">  := (Product_com_con Pair g) ⬝ eq_of_homotopy (λ x, ap g (Product_weak_η x))</span>
+
+<span class="c">-- classical η rule</span>
+<span class="c">definition Product_classical_η {A B : USet} (p : Product A B)</span>
+<span class="c">  :   Pair (Proj1 p) (Proj2 p) = p</span>
+<span class="c">  :=  ap (λ f, f p) (Product_η _)⁻¹ ⬝ (Product_weak_η p)</span>
+
+<span class="c">-- universal property</span>
+<span class="c">definition Product_univ_prop {A B C : USet} : is_equiv (@Product_rec A B C)</span>
+<span class="c">  := adjointify Product_rec</span>
+<span class="c">                (λ f a b, f (Pair a b))</span>
+<span class="c">                Product_η</span>
+<span class="c">                (λ g, eq_of_homotopy2 (Product_β g))</span>
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">BinaryProduct</span>.
+
+<span class="kn">Section</span> <span class="nf">BinaryCoproduct</span>.
+
+<span class="kn">Variable</span> <span class="nv">A</span> <span class="nv">B</span>: HSET.
+
+<span class="kn">Definition</span> <span class="nf">pre_sum</span>: UU := ∏ (X: HSET), (pr1hSet A -&gt; pr1hSet X) -&gt; (pr1hSet B -&gt; pr1hSet X) -&gt; pr1hSet X.
+
+<span class="kn">Lemma</span> <span class="nf">pre_sum_isaset</span>: isaset pre_sum.
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> pre_sum).
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_sum_as_set</span>: HSET := make_hSet pre_sum pre_sum_isaset.
+
+<span class="kn">Definition</span> <span class="nf">nSum</span> (<span class="nv">α</span>: pre_sum): UU :=
+  ∏(X Y : HSET) (f : pr1hSet X → pr1hSet Y) (h : pr1hSet A -&gt; pr1hSet X) (k: pr1hSet B -&gt; pr1hSet X), f (α X h k) = α Y (f ∘ h) (f ∘ k).
+
+<span class="kn">Definition</span> <span class="nf">nSum_isaset</span> (<span class="nv">α</span>: pre_sum): isaset (nSum α).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> (nSum α)).
+  <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> hlevelntosn.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nSum_as_set</span> (<span class="nv">α</span>: pre_sum): HSET := make_hSet _ (nSum_isaset α).
+
+<span class="kn">Definition</span> <span class="nf">Sum</span>: UU := ∑ α: pre_sum, pr1hSet (nSum_as_set α).
+
+<span class="kn">Definition</span> <span class="nf">Sum_isaset</span>: isaset Sum.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isaset_total2_hSet pre_sum_as_set).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Sum_as_set</span>: HSET := make_hSet _ Sum_isaset.
+
+<span class="kn">Definition</span> <span class="nf">Sum_inl</span>: HSET ⟦A, Sum_as_set⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> a.
+  use tpair.
+  - <span class="nb">intros</span> X f g.
+    <span class="bp">exact</span> (f a).
+  - <span class="nb">cbn</span>. <span class="nb">red</span>.
+    <span class="nb">intros</span> ? ? ? ? k.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Sum_inr</span>: HSET ⟦B, Sum_as_set⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> a.
+  use tpair.
+  - <span class="nb">intros</span> X f g.
+    <span class="bp">exact</span> (g a).
+  - <span class="nb">cbn</span>. <span class="nb">red</span>.
+    <span class="nb">intros</span> ? ? ? ? k.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Sum_rec</span> {<span class="nv">C</span>: HSET} (<span class="nv">f</span>: pr1hSet A -&gt; pr1hSet C)
+  (<span class="nv">g</span>: pr1hSet B -&gt; pr1hSet C)(<span class="nv">c</span>: Sum) : pr1hSet C
+  := pr1 c C f g.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_β_l</span> {<span class="nv">C</span>: HSET} (<span class="nv">f</span>: pr1hSet A -&gt; pr1hSet C)
+      (<span class="nv">g</span>: pr1hSet B -&gt; pr1hSet C): (Sum_rec f g) ∘ Sum_inl = f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_β_r</span> {<span class="nv">C</span>: HSET} (<span class="nv">f</span>: pr1hSet A -&gt; pr1hSet C)
+      (<span class="nv">g</span>: pr1hSet B -&gt; pr1hSet C): (Sum_rec f g) ∘ Sum_inr = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_weak_eta</span> (<span class="nv">x</span>: Sum) : Sum_rec (C := Sum_as_set) Sum_inl Sum_inr x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [c H].
+  use total2_paths_f.
+  - <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pre_sum <span class="k">in</span> c.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> X.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> g.
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="nb">apply</span> (H Sum_as_set X (<span class="k">fun</span> <span class="nv">x</span> =&gt; pr1 x X f g)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_com_con</span> {<span class="nv">X</span> <span class="nv">Y</span>: HSET} (<span class="nv">f</span> : pr1hSet A → pr1hSet X) (<span class="nv">g</span> : pr1hSet B → pr1hSet X) (<span class="nv">h</span> : pr1hSet X → pr1hSet Y): Sum_rec (h ∘ f) (h ∘ g) = h ∘ (Sum_rec f g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [c H].
+  <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_η</span> {<span class="nv">X</span> : HSET} (<span class="nv">h</span> : Sum → pr1hSet X)
+  : Sum_rec (h ∘ Sum_inl) (h ∘ Sum_inr) = h.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> Sum_com_con.
+  <span class="nb">apply</span> funextfun; <span class="nb">intro</span> s.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> Sum_weak_eta.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Sum_univ_prop</span> {<span class="nv">X</span>: HSET} : (HSET ⟦Sum_as_set, X⟧) ≃ (Product (exponential_functor A X) (exponential_functor B X)).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> h.
+    <span class="nb">apply</span> Pair.
+    + <span class="nb">cbn</span>. <span class="bp">exact</span> (h ∘ Sum_inl).
+    + <span class="nb">cbn</span>. <span class="bp">exact</span> (h ∘ Sum_inr).
+  - <span class="nb">intro</span> a. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> Sum_rec.
+    + <span class="bp">exact</span> (Proj1 _ _ a).
+    + <span class="bp">exact</span> (Proj2 _ _ a).
+  - <span class="nb">cbn</span>. <span class="nb">intro</span> x.
+    <span class="nb">apply</span> Sum_η.
+  - <span class="nb">cbn</span>. <span class="nb">intro</span> y.
+    intermediate_path (Pair _ _ (Proj1 _ _ y) (Proj2 _ _ y)).
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> Product_classical_η.
+<span class="kn">Defined</span>.
+
+<span class="c">(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L233 onwards:</span>
+<span class="c">/- Sum A + B of sets -/</span>
+
+<span class="c">-- System F encoding</span>
+<span class="c">definition  preSum (A B : USet) : USet :=</span>
+<span class="c">  tΠ(X : USet), (A ⇒ X) ⇒ (B ⇒ X) ⇒ X</span>
+
+<span class="c">-- naturality condition</span>
+<span class="c">definition nSum {A B : USet} (a : preSum A B) : UPrp</span>
+<span class="c">  := tΠ(X Y : USet) (f : X→Y) (h : A→X) (k : B→X), f(a X h k) == a Y (f∘h) (f∘k)</span>
+
+<span class="c">-- refined encoding</span>
+<span class="c">definition Sum (A B : USet) : USet := σ(α : preSum A B), nSum α</span>
+
+<span class="c">-- constructors</span>
+<span class="c">definition Sum_inl {A B : USet} (a : A) : Sum A B</span>
+<span class="c">  := ⟨λ X f g, f a, λ X Y f h k, rfl⟩</span>
+
+<span class="c">definition Sum_inr {A B : USet} (b : B) : Sum A B</span>
+<span class="c">  := ⟨λ X f g, g b, λ X Y f h k, rfl⟩</span>
+
+<span class="c">-- recursor</span>
+<span class="c">definition Sum_rec {A B X : USet} (f : A → X) (g : B → X) (c : Sum A B) : X</span>
+<span class="c">  := c.1 X f g</span>
+
+<span class="c">-- β rules</span>
+<span class="c">definition Sum_β_l {A B X : USet} (f : A → X) (g : B → X)</span>
+<span class="c">  : Sum_rec f g ∘ Sum_inl = f := rfl</span>
+
+<span class="c">definition Sum_β_r {A B X : USet} (f : A → X) (g : B → X)</span>
+<span class="c">  : Sum_rec f g ∘ Sum_inr = g := rfl</span>
+
+<span class="c">-- weak η</span>
+<span class="c">definition Sum_weak_η {A B : USet} (x : Sum A B)</span>
+<span class="c">  : Sum_rec Sum_inl Sum_inr x = x</span>
+<span class="c">  := begin induction x with α p, fapply sigma_eq,</span>
+<span class="c">     apply eq_of_homotopy3, intro X f g,  unfold Sum_rec, apply p,</span>
+<span class="c">     apply is_prop.elimo end</span>
+
+<span class="c">--commuting conversion</span>
+<span class="c">definition Sum_com_con {A B X Y : USet} (f : A → X) (g : B → X) (h : X → Y)</span>
+<span class="c">  :  Sum_rec (h ∘ f) (h ∘ g) = h ∘ Sum_rec f g</span>
+<span class="c">  := begin apply eq_of_homotopy, intro α, induction α with α p, symmetry, apply p end</span>
+
+<span class="c">-- strong η</span>
+<span class="c">definition Sum_η {A B X : USet} (h : Sum A B → X)</span>
+<span class="c">  :  Sum_rec (h∘Sum_inl) (h∘Sum_inr) = h</span>
+<span class="c">  := !Sum_com_con ⬝ eq_of_homotopy (λ x, ap h (Sum_weak_η x))</span>
+
+<span class="c">--universal property</span>
+<span class="c">definition Sum_univ_prop {A B X : USet}</span>
+<span class="c">  :  (Sum A B ⇒ X) ≃ (Product (A ⇒ X) (B ⇒ X))</span>
+<span class="c">  := equiv.MK (λ h, Pair (h ∘ Sum_inl) (h ∘ Sum_inr))</span>
+<span class="c">              (λ a, Sum_rec (Proj1 a) (Proj2 a))</span>
+<span class="c">              Product_classical_η</span>
+<span class="c">              Sum_η</span>
+
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">BinaryCoproduct</span>.
+
+<span class="kn">Section</span> <span class="nf">NaturalNumbers</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_nat</span>: UU := ∏ (X: HSET), (pr1hSet X -&gt; pr1hSet X) -&gt; pr1hSet X -&gt; pr1hSet X.
+
+<span class="kn">Lemma</span> <span class="nf">pre_nat_isaset</span>: isaset pre_nat.
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> pre_nat).
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pre_nat_as_set</span>: HSET := make_hSet _ pre_nat_isaset.
+
+<span class="kn">Definition</span> <span class="nf">nNat</span> (<span class="nv">α</span>: pre_nat): UU :=
+  ∏(X Y : HSET) (x: pr1hSet X) (y: pr1hSet Y)(h: pr1hSet X → pr1hSet X)(k: pr1hSet Y → pr1hSet Y) (f : pr1hSet X -&gt; pr1hSet Y), f x = y -&gt; f ∘ h = k ∘ f -&gt; f (α X h x) = α Y k y.
+
+<span class="kn">Definition</span> <span class="nf">nNat_isaset</span> (<span class="nv">α</span>: pre_nat): isaset (nNat α).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (isofhlevel <span class="mi">2</span> (nNat α)).
+  <span class="kp">do</span> <span class="mi">9</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> hlevelntosn.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nNat_as_set</span> (<span class="nv">α</span>: pre_nat): HSET := make_hSet _ (nNat_isaset α).
+
+<span class="kn">Definition</span> <span class="nf">Nat</span>: UU := ∑ α: pre_nat, pr1hSet (nNat_as_set α).
+
+<span class="kn">Definition</span> <span class="nf">Nat_isaset</span>: isaset Nat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isaset_total2_hSet pre_nat_as_set).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Nat_as_set</span>: HSET := make_hSet _ Nat_isaset.
+
+<span class="kn">Definition</span> <span class="nf">Z</span>: Nat.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">f</span> <span class="nv">x</span>, x).
+  - <span class="nb">cbn</span>; <span class="nb">red</span>.
+    <span class="nb">intros</span>; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">S</span>: HSET ⟦Nat_as_set,Nat_as_set⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">intro</span> n.
+  use tpair.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">h</span> <span class="nv">x</span>, h (pr1 n X h x)).
+  - <span class="nb">cbn</span>; <span class="nb">red</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? H1 H2.
+    <span class="nb">induction</span> n <span class="k">as</span> [n1 n2].
+    <span class="nb">cbn</span> <span class="k">in</span> n2; <span class="nb">red</span> <span class="k">in</span> n2.
+    <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> pathscomp0.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> (n2 X Y x y h k f); <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> (toforallpaths _ _ _ H2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Nat_rec</span> {<span class="nv">C</span>: HSET} (<span class="nv">h</span>: pr1hSet C -&gt; pr1hSet C)
+  (<span class="nv">x</span>: pr1hSet C)(<span class="nv">n</span>: Nat) : pr1hSet C := pr1 n C h x.
+
+<span class="kn">Lemma</span> <span class="nf">Nat_β</span> {<span class="nv">C</span>: HSET} (<span class="nv">h</span>: pr1hSet C -&gt; pr1hSet C)
+  (<span class="nv">x</span>: pr1hSet C): Nat_rec h x Z = x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Nat_β'</span> {<span class="nv">C</span>: HSET} (<span class="nv">h</span>: pr1hSet C -&gt; pr1hSet C)
+  (<span class="nv">x</span>: pr1hSet C) (<span class="nv">n</span>: Nat): Nat_rec h x (S n) = h (Nat_rec h x n).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Nat_weak_eta</span> (<span class="nv">n</span>: Nat) : Nat_rec (C := Nat_as_set) S Z n = n.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [n0 H].
+  use total2_paths_f.
+  - <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pre_nat <span class="k">in</span> n0.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> X.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> h.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x.
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="nb">apply</span> (H Nat_as_set X Z x S h (<span class="k">fun</span> <span class="nv">n</span> =&gt; pr1 n X h x)); <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="kp">do</span> <span class="mi">7</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextfun; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Nat_η</span> {<span class="nv">C</span>: HSET} (<span class="nv">h</span>: pr1hSet C -&gt; pr1hSet C)
+      (<span class="nv">x</span>: pr1hSet C) (<span class="nv">f</span>: Nat → pr1hSet C)
+      (<span class="nv">p</span> : f Z = x) (<span class="nv">q</span>: funcomp S f = funcomp f h):
+  f = Nat_rec h x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> n.
+  <span class="nb">eapply</span> pathscomp0.
+  - <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> Nat_weak_eta.
+  - <span class="nb">unfold</span> Nat_rec.
+    <span class="nb">induction</span> n <span class="k">as</span> [n0 H].
+    <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">red</span> <span class="k">in</span> H.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> H; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* copied from https://github.com/jonas-frey/Impredicative/blob/a75cb998/encode.hlean#L289 onwards:</span>
+<span class="c">/- Natural numbers -/</span>
+
+<span class="c">-- System F encoding</span>
+<span class="c">definition preNat : USet := tΠ X : USet, (X ⇒ X) ⇒ X ⇒ X</span>
+
+<span class="c">-- naturality condition</span>
+<span class="c">definition nNat (α : preNat) : UPrp</span>
+<span class="c">  := tΠ (X Y : USet) (x : X) (y : Y) (h : X → X) (k : Y → Y) (f : X → Y),</span>
+<span class="c">         f x = y ⇒ f ∘ h = k ∘ f ⇒ f (α X h x) == α Y k y</span>
+
+<span class="c">-- refined encoding</span>
+<span class="c">definition Nat : USet := σ(α : preNat), nNat α</span>
+
+<span class="c">-- constructors</span>
+<span class="c">definition Z : Nat := ⟨λ X f x, x, λ X Y x y h k f u v, u⟩</span>
+
+<span class="c">definition S (n : Nat) : Nat</span>
+<span class="c">  := begin fconstructor, λ X h x, h (n.1 X h x), intros X Y x y h k f u v,</span>
+<span class="c">     refine (ap (λ f, f (n.1 X h x)) v) ⬝ _, apply ap k, apply n.2, exact u,</span>
+<span class="c">     assumption end</span>
+
+<span class="c">-- recursor</span>
+<span class="c">definition Nat_rec {X : USet} (h : X → X) (x : X) (n : Nat) : X := n.1 X h x</span>
+
+<span class="c">-- β rules</span>
+<span class="c">definition Nat_β {X : USet} (h : X → X) (x : X) : Nat_rec h x Z = x := rfl</span>
+<span class="c">definition Nat_β' {X : USet} (h : X → X) (x : X) (n : Nat)</span>
+<span class="c">  :  Nat_rec h x (S n) = h (Nat_rec h x n) := rfl</span>
+
+<span class="c">-- η rules</span>
+<span class="c">definition Nat_weak_η (n : Nat) : Nat_rec S Z n = n</span>
+<span class="c">  := begin</span>
+<span class="c">     induction n with n p,</span>
+<span class="c">     fapply sigma_eq, apply eq_of_homotopy3, intro X h x,</span>
+<span class="c">     apply p Nat X Z x S h (Nat_rec h x), reflexivity, apply eq_of_homotopy,</span>
+<span class="c">     intro, reflexivity, apply is_prop.elimo end</span>
+
+<span class="c">definition Nat_η {X:USet} (h:X→X) (x:X) (f:Nat→X) (p : f Z = x) (q:f∘S=h∘ f)</span>
+<span class="c">  :  f = Nat_rec h x</span>
+<span class="c">  := begin fapply eq_of_homotopy, intro n, refine (ap f (Nat_weak_η n))⁻¹ ⬝ _,</span>
+<span class="c">unfold Nat_rec, induction n with m k, apply k, assumption, assumption end</span>
+
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">NaturalNumbers</span>.
+
+<span class="c">(* preparation for the general case:</span>
+<span class="c">Variable F: HSET ⟦A, A⟧.</span>
+<span class="c">*)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/ImpredicativeInductiveSets.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Init.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Init.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Preamble.
+  &gt; Require Import UniMath.Foundations.PartA.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>
