@@ -661,7 +661,7 @@ Section abgr_monics_and_epis.
     unfold nat_nat_to_monoid_fun. cbn -[nat_to_monoid_fun].
     refine (binopfunisbinopfun f _ _ @ _).
     refine (_ @ (! (binopfunisbinopfun f _ _))). cbn.
-    change (pr1binopfun _ _ (pr1 f)) with (f : _ → _).
+    change (pr1binopfun _ _ (pr1 f)) with (f :> _ → _).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f a1 x1).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f a2 x1).
     rewrite (abelian_group_morphism_nat_to_monoid_fun f (-a1) x2).

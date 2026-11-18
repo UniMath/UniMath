@@ -404,8 +404,8 @@ Section envelope_defs.
   (** *** Envelope preduploid *)
 
   Ltac envelope_induction a
-    := let a' := uconstr:(a : envelope_ob) in
-       generalize (a' : envelope_polarization a');
+    := let a' := uconstr:(a :> envelope_ob) in
+       generalize (a' :> envelope_polarization a');
        apply (envelope_polarization_rec' (a:=a')).
 
   Lemma is_positive_of_envelope_chosen_positive (a : envelope_unital_magmoid)
