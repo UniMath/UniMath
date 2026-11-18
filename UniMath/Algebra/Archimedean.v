@@ -537,7 +537,7 @@ Proof.
     abstract (
         pattern x at 1;
         rewrite <- (riglunax1 X x) ;
-        pattern (0%rig : X) at 1;
+        pattern (0%rig :> X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))) ;
         rewrite nattorig_natmult ;
         exact (pr2 n)).
@@ -547,7 +547,7 @@ Proof.
     intros n.
     exists (pr1 n).
     abstract (
-        pattern (0%rig : X) at 1;
+        pattern (0%rig :> X) at 1;
         rewrite <- (rigmultx0 X (nattorig (pr1 n))), nattorig_natmult ;
         exact (pr2 n)).
 Defined.
@@ -884,7 +884,7 @@ Proof.
       apply hinhfun.
       intros n.
       exists (pr1 n).
-      abstract (pattern (1%ring : X) at 1 ;
+      abstract (pattern (1%ring :> X) at 1 ;
                  rewrite <- (pr1 (pr2 x')) ;
                 apply (isringmultgttoisrringmultgt _ Hadd Hmult _ _ _ Hx (pr2 n))).
     + apply hinhpr.
