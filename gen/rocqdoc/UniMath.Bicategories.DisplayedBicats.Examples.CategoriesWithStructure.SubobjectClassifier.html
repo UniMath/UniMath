@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sigma</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso" class="idref" href="#LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso"><span class="id" title="section">LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_subobject_classifier'" class="idref" href="#disp_bicat_subobject_classifier'"><span class="id" title="definition">disp_bicat_subobject_classifier'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#total_bicat"><span class="id" title="definition">total_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_limits"><span class="id" title="definition">disp_bicat_limits</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat"><span class="id" title="definition">disp_subbicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:1" class="idref" href="#C:1"><span class="id" title="binder"><span id="C:2" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.html#subobject_classifier"><span class="id" title="definition">subobject_classifier</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr112'_x"><span class="id" title="notation">pr112</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#C:1"><span class="id" title="variable">C</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="b2d8592180c922f2169090977ff2d515" class="idref" href="#b2d8592180c922f2169090977ff2d515"><span class="id" title="binder"><span id="76e1f9925a9ad9d84996e267e763a1eb" class="id">C₁</span></span></a> <a id="c49d9ab8623990e6dc8065c23347922b" class="idref" href="#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="binder"><span id="fde53945968c556ab03330fe8455fe6b" class="id">C₂</span></span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="F:5" class="idref" href="#F:5"><span class="id" title="binder"><span id="F:8" class="id">F</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#preserves_subobject_classifier"><span class="id" title="definition">preserves_subobject_classifier</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#F:5"><span class="id" title="variable">F</span></a>) (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr112'_x"><span class="id" title="notation">pr112</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#b2d8592180c922f2169090977ff2d515"><span class="id" title="variable">C₁</span></a>) (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr112'_x"><span class="id" title="notation">pr112</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="variable">C₂</span></a>) (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr212'_x"><span class="id" title="notation">pr212</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#F:5"><span class="id" title="variable">F</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:9" class="idref" href="#C:9"><span class="id" title="binder"><span id="C:10" class="id">C</span></span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#identity_preserves_subobject_classifier"><span class="id" title="definition">identity_preserves_subobject_classifier</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="HF:11" class="idref" href="#HF:11"><span class="id" title="binder"><span id="HF:13" class="id">HF</span></span></a> <a id="HG:12" class="idref" href="#HG:12"><span class="id" title="binder"><span id="HG:14" class="id">HG</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.html#comp_preserves_subobject_classifier"><span class="id" title="definition">comp_preserves_subobject_classifier</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#HF:11"><span class="id" title="variable">HF</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#HG:12"><span class="id" title="variable">HG</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_subobject_classifier'" class="idref" href="#disp_2cells_iscontr_subobject_classifier'"><span class="id" title="lemma">disp_2cells_iscontr_subobject_classifier'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_bicat_subobject_classifier'"><span class="id" title="definition">disp_bicat_subobject_classifier'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_subobject_classifier" class="idref" href="#disp_bicat_subobject_classifier"><span class="id" title="definition">disp_bicat_subobject_classifier</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#sigma_bicat"><span class="id" title="definition">sigma_bicat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_bicat_subobject_classifier'"><span class="id" title="definition">disp_bicat_subobject_classifier'</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_subobject_classifier" class="idref" href="#disp_2cells_iscontr_subobject_classifier"><span class="id" title="lemma">disp_2cells_iscontr_subobject_classifier</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_bicat_subobject_classifier"><span class="id" title="definition">disp_bicat_subobject_classifier</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#disp_2cells_of_sigma_iscontr"><span class="id" title="lemma">disp_2cells_of_sigma_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_2cells_iscontr_limits"><span class="id" title="lemma">disp_2cells_iscontr_limits</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#disp_2cells_iscontr_subobject_classifier'"><span class="id" title="lemma">disp_2cells_iscontr_subobject_classifier'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.SubobjectClassifier.html#LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso"><span class="id" title="section">LexCategoriesWithChosenSubobjectClassifierAndPreservationUpToIso</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
