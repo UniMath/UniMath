@@ -139,6 +139,8 @@ Notation "1000" := (10 * 100) : nat_scope.
 
 Inductive paths {A:UU} (a:A) : A -> UU := paths_refl : paths a a.
 
+Scheme Rewriting for paths.
+
 Create HintDb core.
 #[global]
 Hint Resolve paths_refl : core .
