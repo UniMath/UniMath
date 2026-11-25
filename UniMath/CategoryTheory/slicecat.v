@@ -479,13 +479,13 @@ rewrite transportf_total2; simpl.
 unfold slicecat_functor_comp_ob.
 rewrite toforallpaths_funextsec; simpl.
 assert (H1 : transportf (fun x : C / z => pr1 x --> b)
-               (Foundations.PartA.internal_paths_rew_r _ _ _
+               (paths_rew_r _ _ _
                  (λ p, tpair _ a p = tpair _ a _) (idpath (tpair _ a _))
                  (assoc fax f g)) h = h).
   induction (assoc fax f g); apply idpath.
 assert (H2 : ∏ h', h' = h ->
              transportf (fun x : C / z => a --> pr1 x)
-                        (Foundations.PartA.internal_paths_rew_r _ _ _
+                        (paths_rew_r _ _ _
                            (λ p, tpair _ b p = tpair _ b _) (idpath _)
                            (assoc fbx f g)) h' = h).
   intros h' eq.

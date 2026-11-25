@@ -655,7 +655,7 @@ Proof.
   (* We go by cases depending on the value of x *)
   unfold sumfn. simpl.
 
-  set (QQ := internal_paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
+  set (QQ := paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
   assert (xval < n + (m + k)) as xbd'. { rewrite (pathsinv0 (natplusassoc n m k)). exact xbd. }
   assert ((QQ (xval,, xbd)) = (xval,, xbd')) as j.
   { apply subtypeInjectivity_prop. induction (natplusassoc n m k). reflexivity. }
@@ -704,7 +704,7 @@ Proof.
   apply fincard_hom_extensionality. intro x. simpl.
   induction (natplusassoc n' m' k'). simpl.
   unfold sumfn. simpl.
-  set (QQ := internal_paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
+  set (QQ := paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
   simpl in QQ.
   assert (x < n + (m + k)) as xbd'.
   { rewrite (pathsinv0 (natplusassoc n m k)). exact (stnlt x). }
@@ -795,7 +795,7 @@ Proof.
   intro x. induction x as [xval xbd].
   unfold sumfn. simpl.
 
-  set (QJ := internal_paths_rew_r nat (a + 0 + b)  _ _ _ _ ). simpl in QJ.
+  set (QJ := paths_rew_r nat (a + 0 + b)  _ _ _ _ ). simpl in QJ.
   assert (xval < a + b) as XLAB'. { rewrite (pathsinv0 (natplusr0 a)). exact xbd. }
   set (x' := ordconstr xval XLAB'). unfold "·". simpl.
   assert ((QJ (xval,, xbd)) =  x') as RW.
@@ -816,7 +816,7 @@ Proof.
   unfold tensor_associator_ord_nat_trans_data. simpl.
   intro x. induction x as [xval xbd].
   unfold sumfn. simpl.
-  set (QJ := internal_paths_rew_r nat (a + 0 + b)  _ _ _ _ ). simpl in QJ.
+  set (QJ := paths_rew_r nat (a + 0 + b)  _ _ _ _ ). simpl in QJ.
   assert (xval < a + b) as XLAB'. { rewrite (pathsinv0 (natplusr0 a)). exact xbd. }
   set (x' := ordconstr xval XLAB'). unfold "·". simpl.
   assert ((QJ (xval,, xbd)) =  x') as RW.
@@ -992,8 +992,8 @@ Defined.
 
 Local Lemma functor_eq_to_object_eq_on_homs
   (C D : precategory) (F G  : functor C D) ( p : F = G) (c : C) (d : D) ( f : d --> G c) :
-    internal_paths_rew_r (C ⟶ D) F G (λ H : C ⟶ D, D ⟦ d , H c⟧) f p =
-      internal_paths_rew_r D (F c) (G c) (λ d' : D, D ⟦ d , d' ⟧) f
+    paths_rew_r (C ⟶ D) F G (λ H : C ⟶ D, D ⟦ d , H c⟧) f p =
+      paths_rew_r D (F c) (G c) (λ d' : D, D ⟦ d , d' ⟧) f
                            (maponpaths (λ H : C ⟶ D, H c) p).
 Proof.
   induction p. reflexivity.
