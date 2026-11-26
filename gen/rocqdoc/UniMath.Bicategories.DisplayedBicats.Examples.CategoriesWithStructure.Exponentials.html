@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+   Bicategory Of Cartesian Closed Categories
+
+<div class="paragraph"> </div>
+
+  In this file, we construct the (displayed) bicategory <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a></span> whose objects are categories equipped with chosen binary products and exponentials, and whose morphisms are functors that preserve binary products and exponentials.
+  We furthermore define the bicategory of finitely complete cartesian closed categories.
+
+<div class="paragraph"> </div>
+
+  Contents.
+  1. Definition of the bicategory of cartesian closed categories <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a></span>
+  2. Definition of the bicategory of finitely complete cartesian closed categories <span class="inlinecode"><a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials_over_lim"><span class="id" title="definition">disp_bicat_exponentials_over_lim</span></a></span>
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#"><span class="id" title="library">UniMath.CategoryTheory.Exponentials</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.FullSub.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.FullSub</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.Sigma</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CategoriesWithExponentials" class="idref" href="#CategoriesWithExponentials"><span class="id" title="section">CategoriesWithExponentials</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_exponentials'" class="idref" href="#disp_bicat_exponentials'"><span class="id" title="definition">disp_bicat_exponentials'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#total_bicat"><span class="id" title="definition">total_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#disp_bicat_binproducts"><span class="id" title="definition">disp_bicat_binproducts</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat"><span class="id" title="definition">disp_subbicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:1" class="idref" href="#C:1"><span class="id" title="binder"><span id="C:2" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#Exponentials"><span class="id" title="definition">Exponentials</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#C:1"><span class="id" title="variable">C</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="b2d8592180c922f2169090977ff2d515" class="idref" href="#b2d8592180c922f2169090977ff2d515"><span class="id" title="binder"><span id="b69a70cca6d041d490243057ada1ee99" class="id">C₁</span></span></a> <a id="c49d9ab8623990e6dc8065c23347922b" class="idref" href="#c49d9ab8623990e6dc8065c23347922b"><span class="id" title="binder"><span id="654cd8b2ff6092a671957e7e198f778d" class="id">C₂</span></span></a> <a id="4de39c07e1af42fc19e794da3a982f9e" class="idref" href="#4de39c07e1af42fc19e794da3a982f9e"><span class="id" title="binder"><span id="56ad4e8e905bade22c9d2f99f99b18ee" class="id">E₁</span></span></a> <a id="133602604bf1c1bb527041093ba990e2" class="idref" href="#133602604bf1c1bb527041093ba990e2"><span class="id" title="binder"><span id="1bb1fe1abcbec1257953e4f30fec7c7e" class="id">E₂</span></span></a> <a id="F:7" class="idref" href="#F:7"><span class="id" title="binder"><span id="F:12" class="id">F</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#preserves_exponentials"><span class="id" title="definition">preserves_exponentials</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#4de39c07e1af42fc19e794da3a982f9e"><span class="id" title="variable">E₁</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#133602604bf1c1bb527041093ba990e2"><span class="id" title="variable">E₂</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#F:7"><span class="id" title="variable">F</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:13" class="idref" href="#C:13"><span class="id" title="binder"><span id="C:14" class="id">C</span></span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#id_preserves_exponentials"><span class="id" title="definition">id_preserves_exponentials</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="HF:15" class="idref" href="#HF:15"><span class="id" title="binder"><span id="HF:17" class="id">HF</span></span></a> <a id="HG:16" class="idref" href="#HG:16"><span class="id" title="binder"><span id="HG:18" class="id">HG</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#comp_preserves_exponentials"><span class="id" title="definition">comp_preserves_exponentials</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#HF:15"><span class="id" title="variable">HF</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#HG:16"><span class="id" title="variable">HG</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_exponentials'" class="idref" href="#disp_2cells_iscontr_exponentials'"><span class="id" title="lemma">disp_2cells_iscontr_exponentials'</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials'"><span class="id" title="definition">disp_bicat_exponentials'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_exponentials" class="idref" href="#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfCats.html#bicat_of_cats"><span class="id" title="definition">bicat_of_cats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#sigma_bicat"><span class="id" title="definition">sigma_bicat</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials'"><span class="id" title="definition">disp_bicat_exponentials'</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_exponentials" class="idref" href="#disp_2cells_iscontr_exponentials"><span class="id" title="lemma">disp_2cells_iscontr_exponentials</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials"><span class="id" title="definition">disp_bicat_exponentials</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sigma.html#disp_2cells_of_sigma_iscontr"><span class="id" title="lemma">disp_2cells_of_sigma_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.BinProducts.html#disp_2cells_iscontr_binproducts"><span class="id" title="lemma">disp_2cells_iscontr_binproducts</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_2cells_iscontr_exponentials'"><span class="id" title="lemma">disp_2cells_iscontr_exponentials'</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#CategoriesWithExponentials"><span class="id" title="section">CategoriesWithExponentials</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="FinitelyCompleteCategoriesWithExponentials" class="idref" href="#FinitelyCompleteCategoriesWithExponentials"><span class="id" title="section">FinitelyCompleteCategoriesWithExponentials</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="disp_bicat_exponentials_over_lim" class="idref" href="#disp_bicat_exponentials_over_lim"><span class="id" title="definition">disp_bicat_exponentials_over_lim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_bicat"><span class="id" title="definition">disp_bicat</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#total_bicat"><span class="id" title="definition">total_bicat</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.FiniteLimits.html#disp_bicat_limits"><span class="id" title="definition">disp_bicat_limits</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_subbicat"><span class="id" title="definition">disp_subbicat</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:19" class="idref" href="#C:19"><span class="id" title="binder"><span id="C:20" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#Exponentials"><span class="id" title="definition">Exponentials</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">pr122</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#C:19"><span class="id" title="variable">C</span></a>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="913618f6554d38344b9181df12c7aebc" class="idref" href="#913618f6554d38344b9181df12c7aebc"><span class="id" title="binder"><span id="a2f5dc9a0039809547ed2db28e95d3b6" class="id">E₁</span></span></a> <a id="c7dc25140652649e155bea4730adffe7" class="idref" href="#c7dc25140652649e155bea4730adffe7"><span class="id" title="binder"><span id="ee28d9c77ebf6d42873088eb20ca99d4" class="id">E₂</span></span></a> <a id="F:23" class="idref" href="#F:23"><span class="id" title="binder"><span id="F:26" class="id">F</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#preserves_exponentials"><span class="id" title="definition">preserves_exponentials</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#913618f6554d38344b9181df12c7aebc"><span class="id" title="variable">E₁</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#c7dc25140652649e155bea4730adffe7"><span class="id" title="variable">E₂</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr21'_x"><span class="id" title="notation">pr21</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr21'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#F:23"><span class="id" title="variable">F</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr21'_x"><span class="id" title="notation">)</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:27" class="idref" href="#C:27"><span class="id" title="binder"><span id="C:28" class="id">C</span></span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#id_preserves_exponentials"><span class="id" title="definition">id_preserves_exponentials</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a id="HF:29" class="idref" href="#HF:29"><span class="id" title="binder"><span id="HF:31" class="id">HF</span></span></a> <a id="HG:30" class="idref" href="#HG:30"><span class="id" title="binder"><span id="HG:32" class="id">HG</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Exponentials.html#comp_preserves_exponentials"><span class="id" title="definition">comp_preserves_exponentials</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#HF:29"><span class="id" title="variable">HF</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#HG:30"><span class="id" title="variable">HG</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="disp_2cells_iscontr_exponentials_over_lim" class="idref" href="#disp_2cells_iscontr_exponentials_over_lim"><span class="id" title="lemma">disp_2cells_iscontr_exponentials_over_lim</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#disp_2cells_iscontr"><span class="id" title="definition">disp_2cells_iscontr</span></a> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#disp_bicat_exponentials_over_lim"><span class="id" title="definition">disp_bicat_exponentials_over_lim</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.html#disp_2cells_iscontr_subbicat"><span class="id" title="definition">disp_2cells_iscontr_subbicat</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Exponentials.html#FinitelyCompleteCategoriesWithExponentials"><span class="id" title="section">FinitelyCompleteCategoriesWithExponentials</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

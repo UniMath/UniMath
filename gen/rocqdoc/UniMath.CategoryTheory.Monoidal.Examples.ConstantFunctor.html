@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+Let V be a monoidal category,
+Given a monoid object y in V,
+we show how the "constant functor" V → V : x ↦ y is part of a strong monoidal functor.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Functors</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#BifunctorNotations"><span class="id" title="module">BifunctorNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Structure.Symmetric</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#MonoidalNotations"><span class="id" title="module">MonoidalNotations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="ConstantFunctor" class="idref" href="#ConstantFunctor"><span class="id" title="section">ConstantFunctor</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="ConstantFunctor.V" class="idref" href="#ConstantFunctor.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ConstantFunctor.x" class="idref" href="#ConstantFunctor.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a>} (<a id="ConstantFunctor.m" class="idref" href="#ConstantFunctor.m"><span class="id" title="variable">m</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid"><span class="id" title="definition">monoid</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#x:2"><span class="id" title="variable">x</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constant_functor_fmonoidal_data" class="idref" href="#constant_functor_fmonoidal_data"><span class="id" title="definition">constant_functor_fmonoidal_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_data"><span class="id" title="definition">fmonoidal_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#constant_functor"><span class="id" title="definition">constant_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.x"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> ? ?.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="constant_functor_fmonoidal_laxlaws" class="idref" href="#constant_functor_fmonoidal_laxlaws"><span class="id" title="lemma">constant_functor_fmonoidal_laxlaws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_laxlaws"><span class="id" title="definition">fmonoidal_laxlaws</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_data"><span class="id" title="definition">constant_functor_fmonoidal_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; (<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span> ; <span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_leftid"><span class="id" title="definition">bifunctor_leftid</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">rewrite</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#bifunctor_rightid"><span class="id" title="definition">bifunctor_rightid</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#pathsinv0"><span class="id" title="definition">pathsinv0</span></a>, (<a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_to_assoc_law"><span class="id" title="definition">monoid_to_assoc_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_to_unit_left_law"><span class="id" title="definition">monoid_to_unit_left_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_to_unit_right_law"><span class="id" title="definition">monoid_to_unit_right_law</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constant_functor_fmonoidal_lax" class="idref" href="#constant_functor_fmonoidal_lax"><span class="id" title="definition">constant_functor_fmonoidal_lax</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_lax"><span class="id" title="definition">fmonoidal_lax</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#constant_functor"><span class="id" title="definition">constant_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.x"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_data"><span class="id" title="definition">constant_functor_fmonoidal_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_laxlaws"><span class="id" title="lemma">constant_functor_fmonoidal_laxlaws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="ConstantFunctor.comul_iso" class="idref" href="#ConstantFunctor.comul_iso"><span class="id" title="variable">comul_iso</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_data_multiplication"><span class="id" title="definition">monoid_data_multiplication</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ConstantFunctor.counit_iso" class="idref" href="#ConstantFunctor.counit_iso"><span class="id" title="variable">counit_iso</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#is_z_isomorphism"><span class="id" title="definition">is_z_isomorphism</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_data_unit"><span class="id" title="definition">monoid_data_unit</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constant_functor_fmonoidal_strong" class="idref" href="#constant_functor_fmonoidal_strong"><span class="id" title="definition">constant_functor_fmonoidal_strong</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_stronglaws"><span class="id" title="definition">fmonoidal_stronglaws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservestensordata"><span class="id" title="definition">fmonoidal_preservestensordata</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_lax"><span class="id" title="definition">constant_functor_fmonoidal_lax</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal_preservesunit"><span class="id" title="definition">fmonoidal_preservesunit</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_lax"><span class="id" title="definition">constant_functor_fmonoidal_lax</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.comul_iso"><span class="id" title="variable">comul_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.counit_iso"><span class="id" title="variable">counit_iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constant_functor_fmonoidal" class="idref" href="#constant_functor_fmonoidal"><span class="id" title="definition">constant_functor_fmonoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#constant_functor"><span class="id" title="definition">constant_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.x"><span class="id" title="variable">x</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_lax"><span class="id" title="definition">constant_functor_fmonoidal_lax</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal_strong"><span class="id" title="definition">constant_functor_fmonoidal_strong</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constant_functor_is_symmetric" class="idref" href="#constant_functor_is_symmetric"><span class="id" title="definition">constant_functor_is_symmetric</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="S:6" class="idref" href="#S:6"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#symmetric"><span class="id" title="definition">symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.V"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="m_is_comm:7" class="idref" href="#m_is_comm:7"><span class="id" title="binder">m_is_comm</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#S:6"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_data_multiplication"><span class="id" title="definition">monoid_data_multiplication</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#monoid_data_multiplication"><span class="id" title="definition">monoid_data_multiplication</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor.m"><span class="id" title="variable">m</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#S:6"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#S:6"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal"><span class="id" title="definition">constant_functor_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">m_is_comm</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#ConstantFunctor"><span class="id" title="section">ConstantFunctor</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="UnitExample" class="idref" href="#UnitExample"><span class="id" title="section">UnitExample</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="UnitExample.V" class="idref" href="#UnitExample.V"><span class="id" title="variable">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constantly_unit_functor_fmonoidal" class="idref" href="#constantly_unit_functor_fmonoidal"><span class="id" title="definition">constantly_unit_functor_fmonoidal</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#fmonoidal"><span class="id" title="definition">fmonoidal</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#constant_functor"><span class="id" title="definition">constant_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_fmonoidal"><span class="id" title="definition">constant_functor_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.html#unit_monoid"><span class="id" title="definition">unit_monoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#leftunitor_nat_z_iso"><span class="id" title="lemma">leftunitor_nat_z_iso</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">I_</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">{</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a><a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#7ba398be7ad067ad19a7132d5ad761c8"><span class="id" title="notation">}</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#identity_is_z_iso"><span class="id" title="lemma">identity_is_z_iso</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="constantly_unit_functor_is_symmetric" class="idref" href="#constantly_unit_functor_is_symmetric"><span class="id" title="definition">constantly_unit_functor_is_symmetric</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="S:9" class="idref" href="#S:9"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#symmetric"><span class="id" title="definition">symmetric</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monoidal.Functors.html#is_symmetric_monoidal_functor"><span class="id" title="definition">is_symmetric_monoidal_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#S:9"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#S:9"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constantly_unit_functor_fmonoidal"><span class="id" title="definition">constantly_unit_functor_fmonoidal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#constant_functor_is_symmetric"><span class="id" title="definition">constant_functor_is_symmetric</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.PartA.html#maponpaths_2"><span class="id" title="definition">maponpaths_2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Structure.Symmetric.html#sym_mon_braiding_id"><span class="id" title="lemma">sym_mon_braiding_id</span></a> (<a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample.V"><span class="id" title="variable">V</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">S</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.html#UnitExample"><span class="id" title="section">UnitExample</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

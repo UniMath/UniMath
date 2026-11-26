@@ -1,0 +1,418 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.MultiSortedBindingSig</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.MultiSortedBindingSig</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+the syntax of multi-sorted binding signatures, with examples
+
+<div class="paragraph"> </div>
+
+moved here in 2024 from other places in the package
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Tactics.html#"><span class="id" title="library">UniMath.MoreFoundations.Tactics</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Lists.html#"><span class="id" title="library">UniMath.Combinatorics.Lists</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.NaturalTransformations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BindingSigToMonad</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SortIndexing</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="MBindingSig" class="idref" href="#MBindingSig"><span class="id" title="section">MBindingSig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Context</span> (<a id="MBindingSig.sort" class="idref" href="#MBindingSig.sort"><span class="id" title="variable">sort</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>) .<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Definition of multisorted binding signatures 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="MultiSortedSig" class="idref" href="#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">(</span></a><a id="I:2" class="idref" href="#I:2"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#I:2"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="ops" class="idref" href="#ops"><span class="id" title="definition">ops</span></a> (<a id="M:3" class="idref" href="#M:3"><span class="id" title="binder">M</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a>) : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#M:3"><span class="id" title="variable">M</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="arity" class="idref" href="#arity"><span class="id" title="definition">arity</span></a> (<a id="M:4" class="idref" href="#M:4"><span class="id" title="binder">M</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a>) : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#ops"><span class="id" title="definition">ops</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#M:4"><span class="id" title="variable">M</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#M:4"><span class="id" title="variable">M</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#x:5"><span class="id" title="variable">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="make_MultiSortedSig" class="idref" href="#make_MultiSortedSig"><span class="id" title="definition">make_MultiSortedSig</span></a> {<a id="I:6" class="idref" href="#I:6"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;(<a id="ar:7" class="idref" href="#ar:7"><span class="id" title="binder">ar</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#I:6"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> := (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#I:6"><span class="id" title="variable">I</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#ar:7"><span class="id" title="variable">ar</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Sum of multisorted binding signatures 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="SumMultiSortedSig" class="idref" href="#SumMultiSortedSig"><span class="id" title="definition">SumMultiSortedSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">intros</span> <span class="id" title="var">s1</span> <span class="id" title="var">s2</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#ops"><span class="id" title="definition">ops</span></a> <span class="id" title="var">s1</span>) (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#ops"><span class="id" title="definition">ops</span></a> <span class="id" title="var">s2</span>)).<br/>
+- <span class="id" title="tactic">induction</span> 1 <span class="id" title="keyword">as</span> [<span class="id" title="var">i</span>|<span class="id" title="var">i</span>].<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#arity"><span class="id" title="definition">arity</span></a> <span class="id" title="var">s1</span> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#arity"><span class="id" title="definition">arity</span></a> <span class="id" title="var">s2</span> <span class="id" title="var">i</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="MBindingSig.MultiSortedSigFromBindingSig" class="idref" href="#MBindingSig.MultiSortedSigFromBindingSig"><span class="id" title="section">MultiSortedSigFromBindingSig</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="MBindingSig.MultiSortedSigFromBindingSig.s" class="idref" href="#MBindingSig.MultiSortedSigFromBindingSig.s"><span class="id" title="variable">s</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="MBindingSig.MultiSortedSigFromBindingSig.I" class="idref" href="#MBindingSig.MultiSortedSigFromBindingSig.I"><span class="id" title="variable">I</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSigIndex"><span class="id" title="definition">BindingSigIndex</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.s"><span class="id" title="variable">s</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSigIsaset"><span class="id" title="definition">BindingSigIsaset</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.s"><span class="id" title="variable">s</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="MBindingSig.MultiSortedSigFromBindingSig.uni" class="idref" href="#MBindingSig.MultiSortedSigFromBindingSig.uni"><span class="id" title="variable">uni</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>). </div>
+
+<div class="doc">
+the unique sort being used 
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="translateArity" class="idref" href="#translateArity"><span class="id" title="definition">translateArity</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">n</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.uni"><span class="id" title="variable">uni</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.Lists.html#functionToList"><span class="id" title="definition">functionToList</span></a> <span class="id" title="var">n</span> (<span class="id" title="keyword">fun</span> <span class="id" title="var">_</span> =&gt; <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.uni"><span class="id" title="variable">uni</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="arFromBindingSig" class="idref" href="#arFromBindingSig"><span class="id" title="definition">arFromBindingSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> (<a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>) <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.sort"><span class="id" title="variable">sort</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.uni"><span class="id" title="variable">uni</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">nbbindersallargs</span> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSigMap"><span class="id" title="definition">BindingSigMap</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.s"><span class="id" title="variable">s</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.Lists.html#map"><span class="id" title="definition">map</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#translateArity"><span class="id" title="definition">translateArity</span></a>  <span class="id" title="var">nbbindersallargs</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="MultiSortedSigFromBindingSig" class="idref" href="#MultiSortedSigFromBindingSig"><span class="id" title="definition">MultiSortedSigFromBindingSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig.I"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#arFromBindingSig"><span class="id" title="definition">arFromBindingSig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig.MultiSortedSigFromBindingSig"><span class="id" title="section">MultiSortedSigFromBindingSig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MBindingSig"><span class="id" title="section">MBindingSig</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Some notations 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Local Infix</span> <a id=":::x_'::'_x" class="idref" href="#:::x_'::'_x"><span class="id" title="notation">&quot;</span></a>::" := (@<a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="c8619a1e4f7ee366531acb9abd41b255" class="idref" href="#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">&quot;</span></a>[]" := (@<a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a> <span class="id" title="var">_</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 0, <span class="id" title="var">format</span> "[]").<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="1b8234494561936eef6240f42164e3e9" class="idref" href="#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">&quot;</span></a>a + b" := (<a class="idref" href="UniMath.Foundations.Sets.html#setcoprod"><span class="id" title="definition">setcoprod</span></a> <span class="id" title="var">a</span> <span class="id" title="var">b</span>) : <span class="id" title="tactic">set</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="STLC" class="idref" href="#STLC"><span class="id" title="section">STLC</span></a>.<br/>
+</div>
+
+<div class="doc">
+the example of simply-typed lambda calculus 
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> (<a id="STLC.sort" class="idref" href="#STLC.sort"><span class="id" title="variable">sort</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="STLC.arr" class="idref" href="#STLC.arr"><span class="id" title="variable">arr</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#sort:10"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#sort:10"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#sort:10"><span class="id" title="variable">sort</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Notation</span> <a id="e0cc9f266facbecbe7428f18b443f094" class="idref" href="#e0cc9f266facbecbe7428f18b443f094"><span class="id" title="notation">&quot;</span></a>s ⇒ t" := (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.arr"><span class="id" title="variable">arr</span></a> <span class="id" title="var">s</span> <span class="id" title="var">t</span>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Local Definition</span> <a id="STLC_Hsort" class="idref" href="#STLC_Hsort"><span class="id" title="definition">STLC_Hsort</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 3 <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#Hsort_from_hSet"><span class="id" title="abbreviation">SortIndexing.Hsort_from_hSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="STLC_Sig" class="idref" href="#STLC_Sig"><span class="id" title="definition">STLC_Sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#make_MultiSortedSig"><span class="id" title="definition">make_MultiSortedSig</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#f3d562a013d5709b2c4472c76619908f"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#f3d562a013d5709b2c4472c76619908f"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC.sort"><span class="id" title="variable">sort</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">)</span></a>)%<span class="id" title="tactic">set</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">H</span>; <span class="id" title="tactic">induction</span> <span class="id" title="var">H</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">st</span>|<span class="id" title="var">st</span>]; <span class="id" title="tactic">induction</span> <span class="id" title="var">st</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">s</span> <span class="id" title="var">t</span>].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,(</span></a><span class="id" title="var">s</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#e0cc9f266facbecbe7428f18b443f094"><span class="id" title="notation">⇒</span></a> <span class="id" title="var">t</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">s</span><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><span class="id" title="var">t</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <span class="id" title="var">s</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">t</span><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,(</span></a><span class="id" title="var">s</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#e0cc9f266facbecbe7428f18b443f094"><span class="id" title="notation">⇒</span></a> <span class="id" title="var">t</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC"><span class="id" title="section">STLC</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PCF" class="idref" href="#PCF"><span class="id" title="section">PCF</span></a>.<br/>
+</div>
+
+<div class="doc">
+Written by: Anders Mörtberg, 2021 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="six_rec" class="idref" href="#six_rec"><span class="id" title="definition">six_rec</span></a> {<a id="A:12" class="idref" href="#A:12"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="i:13" class="idref" href="#i:13"><span class="id" title="binder">i</span></a> : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 6) (<a id="a:14" class="idref" href="#a:14"><span class="id" title="binder">a</span></a> <a id="b:15" class="idref" href="#b:15"><span class="id" title="binder">b</span></a> <a id="c:16" class="idref" href="#c:16"><span class="id" title="binder">c</span></a> <a id="d:17" class="idref" href="#d:17"><span class="id" title="binder">d</span></a> <a id="e:18" class="idref" href="#e:18"><span class="id" title="binder">e</span></a> <a id="f:19" class="idref" href="#f:19"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#A:12"><span class="id" title="variable">A</span></a>) : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#A:12"><span class="id" title="variable">A</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">i</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">n</span> <span class="id" title="var">p</span>].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">a</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">b</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">c</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">d</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">e</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">f</span>|].<br/>
+<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.PartA.html#nopathsfalsetotrue"><span class="id" title="lemma">nopathsfalsetotrue</span></a> <span class="id" title="var">p</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+We assume a set of types with bool, nat and function types 
+</div>
+<div class="code">
+<span class="id" title="keyword">Context</span> (<a id="PCF.type" class="idref" href="#PCF.type"><span class="id" title="variable">type</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>) (<a id="PCF.Bool" class="idref" href="#PCF.Bool"><span class="id" title="variable">Bool</span></a> <a id="PCF.Nat" class="idref" href="#PCF.Nat"><span class="id" title="variable">Nat</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#type:20"><span class="id" title="variable">type</span></a>) (<a id="PCF.arr" class="idref" href="#PCF.arr"><span class="id" title="variable">arr</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#type:20"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#type:20"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#type:20"><span class="id" title="variable">type</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Local Definition</span> <a id="PCF_Hsort" class="idref" href="#PCF_Hsort"><span class="id" title="definition">PCF_Hsort</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 3 <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SortIndexing.html#Hsort_from_hSet"><span class="id" title="abbreviation">SortIndexing.Hsort_from_hSet</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Infix</span> <a id="3ed3389b4347c677ce057e672d2c2be3" class="idref" href="#3ed3389b4347c677ce057e672d2c2be3"><span class="id" title="notation">&quot;</span></a>++" := (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#SumMultiSortedSig"><span class="id" title="definition">SumMultiSortedSig</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+The Inductive version of PCF that we are going to model (copied from
+https://github.com/benediktahrens/monads/blob/trunk/PCF/pcf.v):
+
+<div class="paragraph"> </div>
+
+<pre>
+Inductive TY :=
+ | Bool : TY
+ | Nat : TY
+ | arrow: TY -&gt; TY -&gt; TY.
+
+Inductive PCF_consts : TY -&gt; Type :=
+ | Nats : nat -&gt; PCF_consts Nat
+ | tt : PCF_consts Bool
+ | ff : PCF_consts Bool
+ | succ : PCF_consts (arrow Nat Nat)
+ | is_zero : PCF_consts (arr Nat Bool)
+ | condN: PCF_consts (arrow Bool (arrow Nat (arrow Nat Nat)))
+ | condB: PCF_consts (arrow Bool (arrow Bool (arrow Bool Bool))).
+
+Inductive PCF (V:TY -&gt; Type) : TY -&gt; Type:=
+ | PCFVar : forall t, V t -&gt; PCF V t
+ | Const  : forall t, PCF_consts t -&gt; PCF V t
+ | Bottom : forall t, PCF V t
+ | PApp   : forall t s, PCF V (arrow s t) -&gt; PCF V s -&gt; PCF V t
+ | PLam   : forall t s, PCF (opt_T t V) s -&gt; PCF V (arrow t s)
+ | PRec   : forall t, PCF V (arrow t t) -&gt; PCF V t.
+</pre>
+
+<div class="paragraph"> </div>
+
+We do this by defining the constants and non-constants separately and
+then taking the sum of the signatures.
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Consts" class="idref" href="#PCF_Consts"><span class="id" title="definition">PCF_Consts</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#make_MultiSortedSig"><span class="id" title="definition">make_MultiSortedSig</span></a>.<br/>
+- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isasetnat"><span class="id" title="lemma">isasetnat</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 6<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 6<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">)</span></a>)%<span class="id" title="tactic">set</span>.<br/>
+- <span class="id" title="tactic">induction</span> 1 <span class="id" title="keyword">as</span> [<span class="id" title="var">n</span>|<span class="id" title="var">i</span>].<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a>). &nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#six_rec"><span class="id" title="definition">six_rec</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a>). &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a>). &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a>). &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a>). &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Nat"><span class="id" title="variable">Nat</span></a>))). &nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.Bool"><span class="id" title="variable">Bool</span></a>))). <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Bot_Y" class="idref" href="#PCF_Bot_Y"><span class="id" title="definition">PCF_Bot_Y</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#make_MultiSortedSig"><span class="id" title="definition">make_MultiSortedSig</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#1b8234494561936eef6240f42164e3e9"><span class="id" title="notation">+</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a>)%<span class="id" title="tactic">set</span>.<br/>
+- <span class="id" title="tactic">intros</span> [<span class="id" title="var">t</span>|<span class="id" title="var">t</span>].<br/>
+&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><span class="id" title="var">t</span>). &nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a> <span class="id" title="var">t</span> <span class="id" title="var">t</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><span class="id" title="var">t</span>). <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_App_Lam" class="idref" href="#PCF_App_Lam"><span class="id" title="definition">PCF_App_Lam</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#STLC_Sig"><span class="id" title="definition">STLC_Sig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.arr"><span class="id" title="variable">arr</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PCF_Sig" class="idref" href="#PCF_Sig"><span class="id" title="definition">PCF_Sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF.type"><span class="id" title="variable">type</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF_Consts"><span class="id" title="definition">PCF_Consts</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#3ed3389b4347c677ce057e672d2c2be3"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF_Bot_Y"><span class="id" title="definition">PCF_Bot_Y</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#3ed3389b4347c677ce057e672d2c2be3"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF_App_Lam"><span class="id" title="definition">PCF_App_Lam</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#PCF"><span class="id" title="section">PCF</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="CCS" class="idref" href="#CCS"><span class="id" title="section">CCS</span></a>.<br/>
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+Syntax of the calculus of constructions as in Streicher
+"Semantics of Type Theory" formalized as a multisorted
+binding signature.
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg, 2017
+
+<div class="paragraph"> </div>
+
+ 
+<div class="paragraph"> </div>
+
+ We assume a two element set of sorts 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="CCSsort" class="idref" href="#CCSsort"><span class="id" title="definition">CCSsort</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a> := @<a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:24" class="idref" href="#X:24"><span class="id" title="binder">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#X:24"><span class="id" title="variable">X</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#isasetbool"><span class="id" title="lemma">isasetbool</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="CCS_Hsort" class="idref" href="#CCS_Hsort"><span class="id" title="lemma">CCS_Hsort</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isofhlevel"><span class="id" title="definition">isofhlevel</span></a> 3 <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartB.html#isofhlevelssnset"><span class="id" title="lemma">isofhlevelssnset</span></a> 1 <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a> (<a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="CCSty" class="idref" href="#CCSty"><span class="id" title="definition">CCSty</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#true"><span class="id" title="constructor">true</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="CCSel" class="idref" href="#CCSel"><span class="id" title="definition">CCSel</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The grammar of expressions and objects from page 157:
+<pre>
+E ::= (Πx:E) E                product of types
+    | Prop                    type of propositions
+    | Proof(t)                type of proofs of proposition t
+
+t ::= x                       variable
+    | (λx:E) t                function abstraction
+    | App([x:E] E, t, t)      function application
+    | (∀x:E) t                universal quantification
+</pre>
+
+<div class="paragraph"> </div>
+
+We refer to the first syntactic class as ty and the second as el. We first reformulate the rules as
+follows:
+<pre>
+A,B ::= Π(A,x.B)              product of types
+      | Prop                  type of propositions
+      | Proof(t)              type of proofs of proposition t
+
+t,u ::= x                     variable
+      | λ(A,x.t)              function abstraction
+      | App(A,x.B,t,u)        function application
+      | ∀(A,x.t)              universal quantification
+</pre>
+
+<div class="paragraph"> </div>
+
+This grammar then gives 6 operations, to the left as Vladimir's restricted 2-sorted signature (where
+el is 0 and ty is 1) and to the right as a multisorted signature:
+
+<div class="paragraph"> </div>
+
+((0, 1), (1, 1), 1)                 = ((<font size=-2>&#9744;</font>,ty), (<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.CCS_alt.html#ccs.el"><span class="id" title="variable">el</span></a></span>, ty), ty)
+(1)                                 = (<font size=-2>&#9744;</font>,ty)
+((0, 0), 1)                         = ((<font size=-2>&#9744;</font>, el), ty)
+((0, 1), (1, 0), 0)                 = ((<font size=-2>&#9744;</font>, ty), (<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.CCS_alt.html#ccs.el"><span class="id" title="variable">el</span></a></span>, el), el)
+((0, 1), (1, 1), (0, 0), (0, 0), 0) = ((<font size=-2>&#9744;</font>, ty), (<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.CCS_alt.html#ccs.el"><span class="id" title="variable">el</span></a></span>, ty), (<font size=-2>&#9744;</font>, el), (<font size=-2>&#9744;</font>, el), el)
+((0, 1), (1, 0), 0)                 = ((<font size=-2>&#9744;</font>, ty), (<span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.CCS_alt.html#ccs.el"><span class="id" title="variable">el</span></a></span>, el), el)
+
+<div class="paragraph"> </div>
+
+
+<div class="paragraph"> </div>
+
+ The multisorted signature of CC-S 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="CCS_Sig" class="idref" href="#CCS_Sig"><span class="id" title="definition">CCS_Sig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#MultiSortedSig"><span class="id" title="definition">MultiSortedSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSsort"><span class="id" title="definition">CCSsort</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="var">use</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#make_MultiSortedSig"><span class="id" title="definition">make_MultiSortedSig</span></a>.<br/>
+- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 6<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 6).<br/>
+- <span class="id" title="tactic">intro</span> <span class="id" title="var">i</span>. <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#six_rec"><span class="id" title="definition">six_rec</span></a> <span class="id" title="var">i</span>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSty"><span class="id" title="definition">CCSty</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">),,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCSel"><span class="id" title="definition">CCSel</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MultiSortedBindingSig.html#CCS"><span class="id" title="section">CCS</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

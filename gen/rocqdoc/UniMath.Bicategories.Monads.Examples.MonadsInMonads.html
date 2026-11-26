@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.Monads.Examples.MonadsInMonads</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.Monads.Examples.MonadsInMonads</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.BicategoryLaws.html#"><span class="id" title="library">UniMath.Bicategories.Core.BicategoryLaws</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Unitors.html#"><span class="id" title="library">UniMath.Bicategories.Core.Unitors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.DispBicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.DispBicat.html#Notations"><span class="id" title="module">DispBicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.EndoMap.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.EndoMap</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#"><span class="id" title="library">UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#"><span class="id" title="library">UniMath.Bicategories.Monads.DistributiveLaws</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. From monads to distributive laws
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="ToMonadsInMonads" class="idref" href="#ToMonadsInMonads"><span class="id" title="section">ToMonadsInMonads</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="ToMonadsInMonads.B" class="idref" href="#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="ToMonadsInMonads.m" class="idref" href="#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#B:1"><span class="id" title="variable">B</span></a>)).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="3942ce65bf94ac2a0bd8c2f63d2e6baa" class="idref" href="#3942ce65bf94ac2a0bd8c2f63d2e6baa"><span class="id" title="variable">m₁</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> := <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#ob_of_mnd"><span class="id" title="definition">ob_of_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="ToMonadsInMonads.x" class="idref" href="#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> := <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#ob_of_mnd"><span class="id" title="definition">ob_of_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#3942ce65bf94ac2a0bd8c2f63d2e6baa"><span class="id" title="variable">m₁</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="7f67eeb32519a9eff7d3236a279f2b35" class="idref" href="#7f67eeb32519a9eff7d3236a279f2b35"><span class="id" title="variable">dm₁</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#disp_mnd"><span class="id" title="definition">disp_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#3942ce65bf94ac2a0bd8c2f63d2e6baa"><span class="id" title="variable">m₁</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="ToMonadsInMonads.fm" class="idref" href="#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> : <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#3942ce65bf94ac2a0bd8c2f63d2e6baa"><span class="id" title="variable">m₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#3942ce65bf94ac2a0bd8c2f63d2e6baa"><span class="id" title="variable">m₁</span></a> := <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#endo_of_mnd"><span class="id" title="definition">endo_of_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="682b01ad25f896893de3206701c1107a" class="idref" href="#682b01ad25f896893de3206701c1107a"><span class="id" title="variable">ηm</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">id₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">_</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> := <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#unit_of_mnd"><span class="id" title="definition">unit_of_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="fba947be1d1c757bc448e0c75af68b65" class="idref" href="#fba947be1d1c757bc448e0c75af68b65"><span class="id" title="variable">μm</span></a> : <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> := <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mult_of_mnd"><span class="id" title="definition">mult_of_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="other_mnd_data" class="idref" href="#other_mnd_data"><span class="id" title="definition">other_mnd_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#disp_mnd_data"><span class="id" title="definition">disp_mnd_data</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mor_of_mnd_mor"><span class="id" title="definition">mor_of_mnd_mor</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#cell_of_mnd_cell"><span class="id" title="definition">cell_of_mnd_cell</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#682b01ad25f896893de3206701c1107a"><span class="id" title="variable">ηm</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#cell_of_mnd_cell"><span class="id" title="definition">cell_of_mnd_cell</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#fba947be1d1c757bc448e0c75af68b65"><span class="id" title="variable">μm</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="other_mnd_is_mnd" class="idref" href="#other_mnd_is_mnd"><span class="id" title="definition">other_mnd_is_mnd</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#is_mnd"><span class="id" title="definition">is_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> (<a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#other_mnd_data"><span class="id" title="definition">other_mnd_data</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_unit_left"><span class="id" title="definition">mnd_unit_left</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_unit_right"><span class="id" title="definition">mnd_unit_right</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mult_assoc"><span class="id" title="definition">mnd_mult_assoc</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.m"><span class="id" title="variable">m</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="other_mnd" class="idref" href="#other_mnd"><span class="id" title="definition">other_mnd</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#disp_mnd"><span class="id" title="definition">disp_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#other_mnd_data"><span class="id" title="definition">other_mnd_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#other_mnd_is_mnd"><span class="id" title="definition">other_mnd_is_mnd</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="126864591cdc44f3a7c4424874012b1e" class="idref" href="#126864591cdc44f3a7c4424874012b1e"><span class="id" title="variable">dm₂</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#disp_mnd"><span class="id" title="definition">disp_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.B"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.x"><span class="id" title="variable">x</span></a> := <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#other_mnd"><span class="id" title="definition">other_mnd</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="mnd_mnd_to_is_distr_law" class="idref" href="#mnd_mnd_to_is_distr_law"><span class="id" title="definition">mnd_mnd_to_is_distr_law</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: @<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#is_distr_law"><span class="id" title="definition">is_distr_law</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#7f67eeb32519a9eff7d3236a279f2b35"><span class="id" title="variable">dm₁</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#126864591cdc44f3a7c4424874012b1e"><span class="id" title="variable">dm₂</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_endo"><span class="id" title="definition">mnd_mor_endo</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; <span class="id" title="tactic">red</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_unit"><span class="id" title="definition">mnd_mor_unit</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_mu"><span class="id" title="definition">mnd_mor_mu</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_cell_endo"><span class="id" title="definition">mnd_cell_endo</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#682b01ad25f896893de3206701c1107a"><span class="id" title="variable">ηm</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_cell_endo"><span class="id" title="definition">mnd_cell_endo</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#fba947be1d1c757bc448e0c75af68b65"><span class="id" title="variable">μm</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="mnd_mnd_to_distr_law" class="idref" href="#mnd_mnd_to_distr_law"><span class="id" title="definition">mnd_mnd_to_distr_law</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#distr_law"><span class="id" title="definition">distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#7f67eeb32519a9eff7d3236a279f2b35"><span class="id" title="variable">dm₁</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#126864591cdc44f3a7c4424874012b1e"><span class="id" title="variable">dm₂</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_endo"><span class="id" title="definition">mnd_mor_endo</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads.fm"><span class="id" title="variable">fm</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#mnd_mnd_to_is_distr_law"><span class="id" title="definition">mnd_mnd_to_is_distr_law</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#ToMonadsInMonads"><span class="id" title="section">ToMonadsInMonads</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. From distributive laws to monads
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Section</span> <a id="FromMonadsInMonads" class="idref" href="#FromMonadsInMonads"><span class="id" title="section">FromMonadsInMonads</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="FromMonadsInMonads.B" class="idref" href="#FromMonadsInMonads.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="FromMonadsInMonads.x" class="idref" href="#FromMonadsInMonads.x"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#B:3"><span class="id" title="variable">B</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="160ed31464f44926d305938e9a8db8b1" class="idref" href="#160ed31464f44926d305938e9a8db8b1"><span class="id" title="variable">dm₁</span></a> <a id="2194de92ddf77b11e3b9fdc3e77c0363" class="idref" href="#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a> : <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#disp_mnd"><span class="id" title="definition">disp_mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#B:3"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#x:4"><span class="id" title="variable">x</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="FromMonadsInMonads.l" class="idref" href="#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a> : <a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#distr_law"><span class="id" title="definition">distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#9e953b7787e4e1dec9ffefe9cfaa1ac3"><span class="id" title="variable">dm₁</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#a75cc736a3f87c94f740df133cb6a516"><span class="id" title="variable">dm₂</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_ob" class="idref" href="#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.B"><span class="id" title="variable">B</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.x"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#160ed31464f44926d305938e9a8db8b1"><span class="id" title="variable">dm₁</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_endo_data" class="idref" href="#distr_law_to_mnd_mnd_endo_data"><span class="id" title="definition">distr_law_to_mnd_mnd_endo_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_data"><span class="id" title="definition">mnd_mor_data</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd_mor_data"><span class="id" title="definition">make_mnd_mor_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr11'_x"><span class="id" title="notation">pr11</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#cell_from_distr_law"><span class="id" title="definition">cell_from_distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_endo_laws" class="idref" href="#distr_law_to_mnd_mnd_endo_laws"><span class="id" title="definition">distr_law_to_mnd_mnd_endo_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_mor_laws"><span class="id" title="definition">mnd_mor_laws</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo_data"><span class="id" title="definition">distr_law_to_mnd_mnd_endo_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#unit_law_1_from_distr_law"><span class="id" title="definition">unit_law_1_from_distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#mu_law_1_from_distr_law"><span class="id" title="definition">mu_law_1_from_distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_endo" class="idref" href="#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#::cat:x_'--&gt;'_x"><span class="id" title="notation">--&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd_mor"><span class="id" title="definition">make_mnd_mor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo_data"><span class="id" title="definition">distr_law_to_mnd_mnd_endo_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo_laws"><span class="id" title="definition">distr_law_to_mnd_mnd_endo_laws</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_unit" class="idref" href="#distr_law_to_mnd_mnd_unit"><span class="id" title="definition">distr_law_to_mnd_mnd_unit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">id₁</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#46b41c79418eb42c47823c4a4ce2ccbd"><span class="id" title="notation">distr_law_to_mnd_mnd_ob</span></a> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd_cell"><span class="id" title="definition">make_mnd_cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr121'_x"><span class="id" title="notation">pr121</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#unit_law_2_from_distr_law"><span class="id" title="definition">unit_law_2_from_distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_mult" class="idref" href="#distr_law_to_mnd_mnd_mult"><span class="id" title="definition">distr_law_to_mnd_mnd_mult</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Core.Bicat.html#28d17e2d9863b97d3e4250ecaac017ab"><span class="id" title="notation">==&gt;</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd_cell"><span class="id" title="definition">make_mnd_cell</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr221'_x"><span class="id" title="notation">pr221</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.Monads.DistributiveLaws.html#mu_law_2_from_distr_law"><span class="id" title="definition">mu_law_2_from_distr_law</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.l"><span class="id" title="variable">l</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_data" class="idref" href="#distr_law_to_mnd_mnd_data"><span class="id" title="definition">distr_law_to_mnd_mnd_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd_data"><span class="id" title="definition">mnd_data</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.B"><span class="id" title="variable">B</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd_data"><span class="id" title="definition">make_mnd_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_ob"><span class="id" title="definition">distr_law_to_mnd_mnd_ob</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_endo"><span class="id" title="definition">distr_law_to_mnd_mnd_endo</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_unit"><span class="id" title="definition">distr_law_to_mnd_mnd_unit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_mult"><span class="id" title="definition">distr_law_to_mnd_mnd_mult</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd_is_mnd" class="idref" href="#distr_law_to_mnd_mnd_is_mnd"><span class="id" title="definition">distr_law_to_mnd_mnd_is_mnd</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#is_mnd"><span class="id" title="definition">is_mnd</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.B"><span class="id" title="variable">B</span></a>) <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_data"><span class="id" title="definition">distr_law_to_mnd_mnd_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>) ; <span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#eq_mnd_cell"><span class="id" title="definition">eq_mnd_cell</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#2194de92ddf77b11e3b9fdc3e77c0363"><span class="id" title="variable">dm₂</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="distr_law_to_mnd_mnd" class="idref" href="#distr_law_to_mnd_mnd"><span class="id" title="definition">distr_law_to_mnd_mnd</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> (<a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#mnd"><span class="id" title="definition">mnd</span></a> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads.B"><span class="id" title="variable">B</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.html#make_mnd"><span class="id" title="definition">make_mnd</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_data"><span class="id" title="definition">distr_law_to_mnd_mnd_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#distr_law_to_mnd_mnd_is_mnd"><span class="id" title="definition">distr_law_to_mnd_mnd_is_mnd</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.Monads.Examples.MonadsInMonads.html#FromMonadsInMonads"><span class="id" title="section">FromMonadsInMonads</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Structures of pointed sets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="struct_pointed_hset_data" class="idref" href="#struct_pointed_hset_data"><span class="id" title="definition">struct_pointed_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_data"><span class="id" title="definition">hset_struct_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:1" class="idref" href="#X:1"><span class="id" title="binder"><span id="X:2" class="id">X</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:3" class="idref" href="#X:3"><span class="id" title="binder"><span id="X:8" class="id">X</span></span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder"><span id="Y:9" class="id">Y</span></span></a> <a id="x:5" class="idref" href="#x:5"><span class="id" title="binder"><span id="x:10" class="id">x</span></span></a> <a id="y:6" class="idref" href="#y:6"><span class="id" title="binder"><span id="y:11" class="id">y</span></span></a> <a id="f:7" class="idref" href="#f:7"><span class="id" title="binder"><span id="f:12" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#f:7"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#y:6"><span class="id" title="variable">y</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_pointed_hset_laws" class="idref" href="#struct_pointed_hset_laws"><span class="id" title="definition">struct_pointed_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_laws"><span class="id" title="definition">hset_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset_data"><span class="id" title="definition">struct_pointed_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">pz</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">p</span>, <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">px</span> <span class="id" title="var">px'</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_pointed_hset" class="idref" href="#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct"><span class="id" title="definition">hset_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset_data"><span class="id" title="definition">struct_pointed_hset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset_laws"><span class="id" title="definition">struct_pointed_hset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Limits and colimits of pointed sets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_pointed_hset_data" class="idref" href="#cartesian_struct_pointed_hset_data"><span class="id" title="definition">cartesian_struct_pointed_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_data"><span class="id" title="definition">hset_cartesian_struct_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:13" class="idref" href="#X:13"><span class="id" title="binder">X</span></a> <a id="Y:14" class="idref" href="#Y:14"><span class="id" title="binder">Y</span></a> <a id="x:15" class="idref" href="#x:15"><span class="id" title="binder">x</span></a> <a id="y:16" class="idref" href="#y:16"><span class="id" title="binder">y</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#x:15"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#y:16"><span class="id" title="variable">y</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_pointed_hset_laws" class="idref" href="#cartesian_struct_pointed_hset_laws"><span class="id" title="definition">cartesian_struct_pointed_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_laws"><span class="id" title="definition">hset_cartesian_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset_data"><span class="id" title="definition">cartesian_struct_pointed_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">W</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">pw</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartD.html#prodtofuntoprod"><span class="id" title="definition">prodtofuntoprod</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">p</span>, <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_pointed_hset" class="idref" href="#cartesian_struct_pointed_hset"><span class="id" title="definition">cartesian_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset_data"><span class="id" title="definition">cartesian_struct_pointed_hset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset_laws"><span class="id" title="definition">cartesian_struct_pointed_hset_laws</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="equalizers_struct_pointed_hset" class="idref" href="#equalizers_struct_pointed_hset"><span class="id" title="definition">equalizers_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_equalizer_struct"><span class="id" title="definition">hset_equalizer_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:17" class="idref" href="#X:17"><span class="id" title="binder"><span id="X:25" class="id">X</span></span></a> <a id="Y:18" class="idref" href="#Y:18"><span class="id" title="binder"><span id="Y:26" class="id">Y</span></span></a> <a id="f:19" class="idref" href="#f:19"><span class="id" title="binder"><span id="f:27" class="id">f</span></span></a> <a id="g:20" class="idref" href="#g:20"><span class="id" title="binder"><span id="g:28" class="id">g</span></span></a> <a id="px:21" class="idref" href="#px:21"><span class="id" title="binder"><span id="px:29" class="id">px</span></span></a> <a id="py:22" class="idref" href="#py:22"><span class="id" title="binder"><span id="py:30" class="id">py</span></span></a> <a id="p:23" class="idref" href="#p:23"><span class="id" title="binder"><span id="p:31" class="id">p</span></span></a> <a id="q:24" class="idref" href="#q:24"><span class="id" title="binder"><span id="q:32" class="id">q</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#px:21"><span class="id" title="variable">px</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">exact</span> (<span class="id" title="var">p</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">q</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">W</span> <span class="id" title="var">pw</span> <span class="id" title="var">h</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">r</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="coequalizers_struct_pointed_hset" class="idref" href="#coequalizers_struct_pointed_hset"><span class="id" title="definition">coequalizers_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_coequalizer_struct"><span class="id" title="definition">hset_coequalizer_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:33" class="idref" href="#X:33"><span class="id" title="binder"><span id="X:41" class="id">X</span></span></a> <a id="Y:34" class="idref" href="#Y:34"><span class="id" title="binder"><span id="Y:42" class="id">Y</span></span></a> <a id="f:35" class="idref" href="#f:35"><span class="id" title="binder"><span id="f:43" class="id">f</span></span></a> <a id="g:36" class="idref" href="#g:36"><span class="id" title="binder"><span id="g:44" class="id">g</span></span></a> <a id="px:37" class="idref" href="#px:37"><span class="id" title="binder"><span id="px:45" class="id">px</span></span></a> <a id="py:38" class="idref" href="#py:38"><span class="id" title="binder"><span id="py:46" class="id">py</span></span></a> <a id="p:39" class="idref" href="#p:39"><span class="id" title="binder"><span id="p:47" class="id">p</span></span></a> <a id="q:40" class="idref" href="#q:40"><span class="id" title="binder"><span id="q:48" class="id">q</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#setquotpr"><span class="id" title="lemma">setquotpr</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#py:38"><span class="id" title="variable">py</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">W</span> <span class="id" title="var">pw</span> <span class="id" title="var">h</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">r</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="type_products_struct_pointed_hset" class="idref" href="#type_products_struct_pointed_hset"><span class="id" title="definition">type_products_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:49" class="idref" href="#I:49"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_struct_type_prod"><span class="id" title="definition">hset_struct_type_prod</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#I:49"><span class="id" title="variable">I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="D:50" class="idref" href="#D:50"><span class="id" title="binder"><span id="D:52" class="id">D</span></span></a> <a id="fs:51" class="idref" href="#fs:51"><span class="id" title="binder"><span id="fs:53" class="id">fs</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#fs:51"><span class="id" title="variable">fs</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">D</span> <span class="id" title="var">PD</span> <span class="id" title="var">W</span> <span class="id" title="var">pw</span> <span class="id" title="var">fs</span> <span class="id" title="var">pq</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">pq</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Pointed sets form a pointed structure
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_data" class="idref" href="#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#pointed_hset_struct_data"><span class="id" title="definition">pointed_hset_struct_data</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:54" class="idref" href="#X:54"><span class="id" title="binder">X</span></a> <a id="x:55" class="idref" href="#x:55"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#x:55"><span class="id" title="variable">x</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="pointed_struct_pointed_hset_laws" class="idref" href="#pointed_struct_pointed_hset_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#pointed_hset_struct_laws"><span class="id" title="definition">pointed_hset_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">Pf</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Pf</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset" class="idref" href="#pointed_struct_pointed_hset"><span class="id" title="definition">pointed_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#pointed_hset_struct"><span class="id" title="definition">pointed_hset_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#struct_pointed_hset"><span class="id" title="definition">struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. The smash product
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_with_smash_data" class="idref" href="#pointed_struct_pointed_hset_with_smash_data"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_data"><span class="id" title="definition">hset_struct_with_smash_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset"><span class="id" title="definition">cartesian_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset"><span class="id" title="definition">pointed_struct_pointed_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:56" class="idref" href="#X:56"><span class="id" title="binder"><span id="X:60" class="id">X</span></span></a> <a id="Y:57" class="idref" href="#Y:57"><span class="id" title="binder"><span id="Y:61" class="id">Y</span></span></a> <a id="x:58" class="idref" href="#x:58"><span class="id" title="binder"><span id="x:62" class="id">x</span></span></a> <a id="y:59" class="idref" href="#y:59"><span class="id" title="binder"><span id="y:63" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#setquotpr"><span class="id" title="lemma">setquotpr</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#x:58"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#y:59"><span class="id" title="variable">y</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="pointed_struct_pointed_hset_with_smash_laws" class="idref" href="#pointed_struct_pointed_hset_with_smash_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_laws"><span class="id" title="definition">hset_struct_with_smash_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_data"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">pf</span> <span class="id" title="var">g</span> <span class="id" title="var">pg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#pointed_hset_struct_unit_map"><span class="id" title="definition">pointed_hset_struct_unit_map</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">pf</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">y</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#iscompsetquotpr"><span class="id" title="lemma">iscompsetquotpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#product_point_coordinate"><span class="id" title="definition">product_point_coordinate</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#iscompsetquotpr"><span class="id" title="lemma">iscompsetquotpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#product_point_coordinate"><span class="id" title="definition">product_point_coordinate</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">Z</span> <span class="id" title="var">z</span> <span class="id" title="var">h</span> <span class="id" title="var">Ph</span> <span class="id" title="var">hp₁</span> <span class="id" title="var">hp₂</span> <span class="id" title="var">hp₃</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Ph</span>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_with_smash" class="idref" href="#pointed_struct_pointed_hset_with_smash"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash"><span class="id" title="definition">hset_struct_with_smash</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset"><span class="id" title="definition">cartesian_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset"><span class="id" title="definition">pointed_struct_pointed_hset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#make_hset_struct_with_smash"><span class="id" title="definition">make_hset_struct_with_smash</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_data"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_data</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_laws</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_with_smash_closed_pointed" class="idref" href="#pointed_struct_pointed_hset_with_smash_closed_pointed"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_closed_pointed</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_closed_pointed"><span class="id" title="definition">hset_struct_with_smash_closed_pointed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:64" class="idref" href="#X:64"><span class="id" title="binder"><span id="X:68" class="id">X</span></span></a> <a id="Y:65" class="idref" href="#Y:65"><span class="id" title="binder"><span id="Y:69" class="id">Y</span></span></a> <a id="x:66" class="idref" href="#x:66"><span class="id" title="binder"><span id="x:70" class="id">x</span></span></a> <a id="y:67" class="idref" href="#y:67"><span class="id" title="binder"><span id="y:71" class="id">y</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#y:67"><span class="id" title="variable">y</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="pointed_struct_pointed_hset_with_smash_adj_laws" class="idref" href="#pointed_struct_pointed_hset_with_smash_adj_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_adj_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_closed_adj_laws"><span class="id" title="definition">hset_struct_with_smash_closed_adj_laws</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_closed_pointed"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_closed_pointed</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">X</span> <span class="id" title="var">x</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Y</span> <span class="id" title="var">y</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Z</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Z</span> <span class="id" title="var">z</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">f</span> <span class="id" title="var">p</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">p</span>) <span class="id" title="var">y</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">X</span> <span class="id" title="var">x</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Y</span> <span class="id" title="var">y</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Z</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Z</span> <span class="id" title="var">z</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">f</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">f</span> <span class="id" title="var">p</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">f</span> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#iscompsetquotpr"><span class="id" title="lemma">iscompsetquotpr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#hinhpr"><span class="id" title="definition">hinhpr</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#inr"><span class="id" title="abbreviation">inr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#product_point_coordinate"><span class="id" title="definition">product_point_coordinate</span></a> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_data"><span class="id" title="definition">pointed_struct_pointed_hset_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span> ; <span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Preamble.html#inl"><span class="id" title="abbreviation">inl</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_with_smash_adj" class="idref" href="#pointed_struct_pointed_hset_with_smash_adj"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_adj</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_closed_adj"><span class="id" title="definition">hset_struct_with_smash_closed_adj</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_closed_pointed"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_closed_pointed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_adj_laws"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_adj_laws</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="pointed_struct_pointed_hset_with_smash_laws_enrich" class="idref" href="#pointed_struct_pointed_hset_with_smash_laws_enrich"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_laws_enrich</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_closed_laws_enrich"><span class="id" title="definition">hset_struct_with_smash_closed_laws_enrich</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_adj"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_adj</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">X</span> <span class="id" title="var">x</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Y</span> <span class="id" title="var">y</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Z</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Z</span> <span class="id" title="var">z</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.MoreFoundations.Sets.html#setquotunivprop'"><span class="id" title="lemma">setquotunivprop'</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">xz</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">X</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">X</span> <span class="id" title="var">x</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Y</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Y</span> <span class="id" title="var">y</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">Z</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">Z</span> <span class="id" title="var">z</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#setproperty"><span class="id" title="definition">setproperty</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="pointed_struct_pointed_hset_with_smash_closed" class="idref" href="#pointed_struct_pointed_hset_with_smash_closed"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_closed</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.html#hset_struct_with_smash_closed"><span class="id" title="definition">hset_struct_with_smash_closed</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#cartesian_struct_pointed_hset"><span class="id" title="definition">cartesian_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset"><span class="id" title="definition">pointed_struct_pointed_hset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_adj"><span class="id" title="definition">pointed_struct_pointed_hset_with_smash_adj</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PointedSetStructures.html#pointed_struct_pointed_hset_with_smash_laws_enrich"><span class="id" title="lemma">pointed_struct_pointed_hset_with_smash_laws_enrich</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
